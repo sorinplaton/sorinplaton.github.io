@@ -18,6 +18,7 @@ minify:
 
 params:
   env: production
+  images: ["/images/share-default.jpg"]
   title: "Sorin Platon"
   description: "Field notes on cloud networking — VCF, NSX, EVPN, BGP and Kubernetes."
   author: "Sorin Platon"

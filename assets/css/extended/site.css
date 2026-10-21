@@ -199,3 +199,12 @@ details.toc summary { font-family: "IBM Plex Mono", monospace; font-size: .85rem
 #searchbox input:focus { border-color: var(--blue); }
 #searchResults li { background: var(--entry); border: 1px solid var(--line); border-radius: 10px; }
 #searchResults .focus { border-color: var(--blue); background: var(--blue-soft); }
+
+/* figures from imported posts (shot = screenshot, diagram = drawn on white) */
+.post-content figure { margin: 1.4em 0 .5em; }
+.post-content figure img { display: block; max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); margin: 0; }
+.post-content figure.diagram img { background: #fff; padding: 8px; }
+.post-content figure figcaption, .post-content figure figcaption p { color: var(--secondary); font-size: .86rem; font-weight: 400; margin-top: 6px; text-align: left; }
+.post-content figure + p > em:only-child { color: var(--secondary); font-size: .92rem; }
+.post-content .tbl { overflow-x: auto; margin: 0 0 1.4em; }
+.post-content .closing { margin-top: 3em; padding-top: 1em; border-top: 1px solid var(--line); color: var(--secondary); font-size: .88rem; }

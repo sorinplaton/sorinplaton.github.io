@@ -15,7 +15,6 @@ showToc: false
   <div class="stats">
     <div class="stat"><b>0</b><span>tunnel endpoint (TEP) interfaces on the ESX hosts</span></div>
     <div class="stat"><b>1 VLAN + /24</b><span>what the physical network provides per region, at MTU 1500</span></div>
-    <div class="stat"><b>16 m 40 s</b><span>from <code>kubectl apply</code> of a Git file to two running VKS nodes</span></div>
   </div>
 
   <h2 id="why-it-matters">Why it matters</h2>
@@ -327,7 +326,7 @@ showToc: false
             apiVersion: crd.nsx.vmware.com/v1alpha1
             kind: SubnetSet
             name: public</pre>
-  <p>Applied with <code>kubectl apply -f</code> straight from the repository, <code>demo-git</code> went from request to two running nodes in <strong>16 minutes 40 seconds</strong>, including the one-time download of the v1.36.2 Ubuntu image. Argo CD, running on the overlay region's Supervisor, then deploys the same test app to both networks from one Git path.</p>
+  <p>Applied with <code>kubectl apply -f</code> straight from the repository, <code>demo-git</code> came up with two running nodes, including the one-time download of the v1.36.2 Ubuntu image. Argo CD, running on the overlay region's Supervisor, then deploys the same test app to both networks from one Git path.</p>
 <pre>$ kubectl -n argocd-demo-xxms8 get applications
 NAME               SERVER                       SYNC     HEALTH
 netprobe-tepless   https://10.203.203.5:6443    Synced   Healthy   <span style="color:var(--vlan)"># TEP-less cluster demo-git</span>
@@ -398,10 +397,10 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
   </figure>
   <figure>
     <div class="np" role="group" aria-label="netprobe dashboard snapshot">
-      <div class="np-head"><b>netprobe <span>· same app, three networks</span></b><small>snapshot · 2026-10-20 17:44 EDT · client = lab router</small></div>
+      <div class="np-head"><b>netprobe <span>· same app, three networks</span></b><small>snapshot · client = lab router</small></div>
       <div class="np-grid"><section class="np-col t"><div><h4>TEP-less · VLAN-backed VPC</h4><div class="cid">cluster demo-git</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">reachable · 9 ms</span></div><div class="url">http://10.203.203.8:8080</div><dl><dt>Answered by</dt><dd>demo-git-np-1-…-x6wpr</dd><dt>Node IP</dt><dd>10.203.203.37</dd><dt>Pod</dt><dd>100.96.1.19</dd><dt>Sees you as</dt><dd>10.203.203.3<i>VPC load balancer address</i></dd></dl></div><div class="np-path"><div class="top">Direct to node<span class="pill ok">reachable · 3 ms</span></div><div class="url">http://10.203.203.37:30090</div><dl><dt>Answered by</dt><dd>demo-git-np-1-…-x6wpr</dd><dt>Node IP</dt><dd>10.203.203.37</dd><dt>Pod</dt><dd>100.96.1.19</dd><dt>Sees you as</dt><dd>10.203.203.1<i>your real address</i></dd></dl></div><div class="np-eg"><span>Leaves the cluster as</span><b>10.203.203.37</b><span>the node's own VLAN address, no NAT</span></div></section><section class="np-col o"><div><h4>Overlay · private subnet</h4><div class="cid">cluster demo-vks-cluster</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">reachable · 8 ms</span></div><div class="url">http://10.200.200.9:8080</div><dl><dt>Answered by</dt><dd>demo-vks-cluster-…-xsrsz</dd><dt>Node IP</dt><dd>10.17.17.4</dd><dt>Pod</dt><dd>100.96.1.6</dd><dt>Sees you as</dt><dd>100.64.32.3<i>VPC load balancer address</i></dd></dl></div><div class="np-path"><div class="top">Direct to node<span class="pill bad">unreachable</span></div><div class="url">http://10.17.17.6:30090</div><dl><dt>Result</dt><dd>no answer within 4 s: 10.17.17.0/24 is private to the VPC</dd></dl></div><div class="np-eg"><span>Leaves the cluster as</span><b>10.200.200.4</b><span>one shared SNAT address for the whole VPC</span></div></section><section class="np-col p"><div><h4>Overlay · public subnet</h4><div class="cid">cluster overlay-public</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">reachable · 8 ms</span></div><div class="url">http://10.200.200.13:8080</div><dl><dt>Answered by</dt><dd>overlay-public-np-1-…-rj5vc</dd><dt>Node IP</dt><dd>10.200.200.19</dd><dt>Pod</dt><dd>100.96.1.8</dd><dt>Sees you as</dt><dd>100.64.32.3<i>VPC load balancer address</i></dd></dl></div><div class="np-path"><div class="top">Direct to node<span class="pill ok">reachable · 4 ms</span></div><div class="url">http://10.200.200.19:30090</div><dl><dt>Answered by</dt><dd>overlay-public-np-1-…-rj5vc</dd><dt>Node IP</dt><dd>10.200.200.19</dd><dt>Pod</dt><dd>100.96.1.9</dd><dt>Sees you as</dt><dd>10.200.200.1<i>your real address</i></dd></dl></div><div class="np-eg"><span>Leaves the cluster as</span><b>10.200.200.19</b><span>the node's own public-subnet address</span></div></section></div>
     </div>
-    <figcaption><b>The netprobe dashboard, frozen.</b> Every value is real, captured from the lab router at 17:44; latencies are the median of nine requests. The live page (served by each cluster on port 8080) refreshes every 5 seconds and shows the same three columns.</figcaption>
+    <figcaption><b>The netprobe dashboard, frozen.</b> Every value is real, captured from the lab router; latencies are the median of nine requests. The live page (served by each cluster on port 8080) refreshes every 5 seconds and shows the same three columns.</figcaption>
   </figure>
 
   <div class="tablewrap"><table>

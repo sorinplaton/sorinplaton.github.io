@@ -1,0 +1,85 @@
+/* Scoped styles for the EVPN Type-5 write-up (content/posts/evpn-nsx-vyos) */
+.evpn{
+  --paper:#f4f5f8; --card:#ffffff; --ink:#161b22; --muted:#5b6672;
+  --line:#dce1e8; --line2:#eceff3; --codebg:#f3f5f8;
+  --coral:#1f8f5a; --purple:#7a5cc0; --teal:#1a9c84;
+  --accent:#0f5fb5; --ok:#1d7f4e; --warn:#9a5b0c;
+  --okbg:#e8f4ed; --warnbg:#fbf1e2; --accbg:#e9f1fb;
+}
+html[data-theme="dark"] .evpn, body.dark .evpn{
+  --paper:#0e1217; --card:#161b22; --ink:#e4e8ee; --muted:#9aa5b2;
+  --line:#29313b; --line2:#1e242d; --codebg:#12171e;
+  --coral:#4ccc8a; --purple:#ab8ee8; --teal:#45c1a7;
+  --accent:#6ba9f0; --ok:#57c98b; --warn:#e0a355;
+  --okbg:#12261c; --warnbg:#2a2113; --accbg:#12203a;
+}
+.evpn{color:var(--ink)}
+.evpn code{color:var(--ink)}
+.evpn pre code{background:none;border:none;padding:0;font-size:inherit}
+.evpn .lede{color:var(--muted);font-size:1.06rem;max-width:66ch;margin:0 0 4px}
+.evpn .closing{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
+.evpn h2{font-size:1.28rem;font-weight:600;letter-spacing:-.01em;margin:52px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.evpn h3{font-size:1rem;font-weight:600;margin:30px 0 8px}
+.evpn h4{font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:22px 0 8px}
+.evpn p{margin:0 0 13px;max-width:70ch}
+.evpn a{color:var(--accent);text-underline-offset:2px}
+.evpn code, .evpn kbd, .evpn pre, .evpn .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace}
+.evpn code{background:var(--codebg);border:1px solid var(--line2);padding:.08em .36em;border-radius:4px;font-size:.86em}
+.evpn strong{font-weight:600}
+.evpn ul{margin:0 0 13px;padding-left:1.15rem;max-width:70ch}
+.evpn li{margin:.28rem 0}
+.evpn .strip{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:26px 0 6px}
+.evpn .strip .cell{background:var(--card);padding:12px 15px;flex:1 1 150px;min-width:130px}
+.evpn .strip .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.evpn .strip .v{font-family:"IBM Plex Mono",monospace;font-size:.98rem;font-weight:500;margin-top:3px;color:var(--ink)}
+.evpn figure{margin:26px 0 8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 18px 14px}
+.evpn .scroll{overflow-x:auto}
+.evpn figure svg{display:block;margin:0 auto;max-width:100%;height:auto;color:var(--ink)}
+.evpn figcaption{color:var(--muted);font-size:.83rem;margin-top:12px;text-align:center;line-height:1.5}
+.evpn .svg-lbl{font-family:"IBM Plex Sans",sans-serif;font-size:12px;fill:var(--ink)}
+.evpn .svg-sub{font-family:"IBM Plex Mono",monospace;font-size:10.5px;fill:var(--muted)}
+.evpn .svg-zone{font-family:"IBM Plex Sans",sans-serif;font-size:11px;font-weight:600;letter-spacing:.02em}
+.evpn .conn{stroke:var(--muted);stroke-width:1.5;fill:none}
+.evpn .sess{stroke:var(--coral);stroke-width:2.2;fill:none}
+.evpn .tbl{width:100%;border-collapse:collapse;margin:14px 0 8px;font-size:.9rem}
+.evpn .tbl th, .evpn .tbl td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.evpn .tbl thead th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--line)}
+.evpn .tbl td.mono, .evpn .tbl th.mono{font-family:"IBM Plex Mono",monospace;font-size:.84rem}
+.evpn .tbl tbody tr:last-child td{border-bottom:none}
+.evpn .tbl .p1{color:var(--purple);font-weight:600}
+.evpn .wraptbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+.evpn .wraptbl .tbl{margin:0}
+.evpn .wraptbl .tbl th, .evpn .wraptbl .tbl td{padding:10px 14px}
+.evpn .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0 8px}
+.evpn .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.evpn .card .tag{font-family:"IBM Plex Mono",monospace;font-size:.8rem;font-weight:600;color:var(--accent)}
+.evpn .card h5{margin:.15rem 0 .35rem;font-size:.95rem;font-weight:600}
+.evpn .card p{font-size:.86rem;color:var(--muted);margin:0}
+.evpn pre{background:var(--codebg);border:1px solid var(--line);border-radius:10px;padding:15px 16px;overflow-x:auto;font-size:.82rem;line-height:1.62;margin:12px 0 8px}
+.evpn pre .c{color:var(--muted)}
+.evpn pre .k{color:var(--accent)}
+.evpn pre .s{color:var(--teal)}
+.evpn pre .v{color:var(--coral)}
+.evpn .note{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--accbg);border-radius:8px;padding:13px 16px;margin:16px 0;font-size:.9rem}
+.evpn .note.warn{border-left-color:var(--warn);background:var(--warnbg)}
+.evpn .note.ok{border-left-color:var(--ok);background:var(--okbg)}
+.evpn .note strong{color:var(--ink)}
+.evpn .note p{margin:0 0 6px}
+.evpn .note p:last-child{margin:0}
+.evpn .snap{border:2px dashed var(--purple);border-radius:10px;background:transparent;padding:18px 18px;margin:14px 0;text-align:center}
+.evpn .snap .cam{font-size:1.4rem;line-height:1}
+.evpn .snap .t{font-weight:600;margin:5px 0 3px;color:var(--purple)}
+.evpn .snap .d{font-size:.85rem;color:var(--muted);max-width:60ch;margin:0 auto}
+.evpn .snap code{background:var(--card)}
+.evpn .pill{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:.12em .5em;border-radius:5px;border:1px solid var(--line);background:var(--card)}
+.evpn .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin-top:4px;justify-content:center}
+.evpn .legend span{display:inline-flex;align-items:center;gap:6px}
+.evpn .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+.evpn hr.sep{border:none;border-top:1px solid var(--line);margin:40px 0}
+
+/* keep site-wide table/heading decorations off the article's own components */
+.evpn table.tbl{border:none;border-radius:0;border-collapse:collapse;overflow:visible}
+.evpn table.tbl thead th{background:transparent;font-family:inherit}
+.md-content .evpn table.tbl td,.md-content .evpn table.tbl th,.evpn table.tbl td,.evpn table.tbl th{border:none;border-bottom:1px solid var(--line);min-width:0}
+.md-content .evpn table.tbl tbody tr:last-child td{border-bottom:none}
+.evpn h2::before{display:none}

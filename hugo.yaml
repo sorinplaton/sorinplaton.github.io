@@ -1,0 +1,128 @@
+baseURL: "https://sorinplaton.github.io/"
+languageCode: en-us
+title: "Sorin Platon"
+theme: PaperMod
+
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+enableEmoji: true
+
+pagination:
+  pagerSize: 10
+
+minify:
+  disableXML: true
+  minifyOutput: true
+
+params:
+  env: production
+  title: "Sorin Platon"
+  description: "Field notes on cloud networking — VCF, NSX, EVPN, BGP and Kubernetes."
+  author: "Sorin Platon"
+  keywords: [VCF, NSX, EVPN, VXLAN, BGP, VMware, Kubernetes, networking]
+  DateFormat: "2 January 2006"
+  defaultTheme: auto
+  disableThemeToggle: false
+
+  ShowReadingTime: true
+  ShowShareButtons: false
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: false
+  ShowRssButtonInSectionTermList: true
+  ShowToc: true
+  TocOpen: false
+  UseHugoToc: true
+  disableSpecial1stPost: false
+  disableScrollToTop: false
+  comments: false
+  hidemeta: false
+  hideSummary: false
+  showtoc: true
+
+  assets:
+    disableHLJS: true
+    favicon: "/favicon.svg"
+    apple_touch_icon: "/favicon.svg"
+
+  label:
+    text: "sorin platon"
+    iconSVG: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="50" height="50" rx="10"/><line x1="18" y1="32" x2="46" y2="32"/><line x1="32" y1="18" x2="32" y2="46"/><path d="M18 32l7-4v8z" fill="currentColor"/><path d="M46 32l-7-4v8z" fill="currentColor"/><path d="M32 18l-4 7h8z" fill="currentColor"/><path d="M32 46l-4-7h8z" fill="currentColor"/></svg>'
+    iconHeight: 22
+
+  homeInfoParams:
+    Title: "Cloud networking, written down."
+    Content: >
+      Field notes from the lab and the field: VMware Cloud Foundation, NSX,
+      EVPN/VXLAN, BGP traffic engineering and Kubernetes networking. Working
+      configs, the traps they contain, and why they look the way they do.
+      Most of it is built, broken and fixed on a nested VCF 9.1 Holodeck
+      before it gets anywhere near a real fabric.
+
+  socialIcons:
+    - name: github
+      url: "https://github.com/sorinplaton"
+    - name: linkedin
+      url: "https://www.linkedin.com/in/sorin-platon-0bb6973/"
+    - name: rss
+      url: "/index.xml"
+
+  editPost:
+    URL: "https://github.com/sorinplaton/sorinplaton.github.io/tree/main/content"
+    Text: "Suggest changes"
+    appendFilePath: true
+
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content"]
+
+menu:
+  main:
+    - identifier: posts
+      name: Posts
+      url: /posts/
+      weight: 10
+    - identifier: tags
+      name: Tags
+      url: /tags/
+      weight: 20
+    - identifier: projects
+      name: Projects
+      url: /projects/
+      weight: 30
+    - identifier: search
+      name: Search
+      url: /search/
+      weight: 40
+    - identifier: about
+      name: About
+      url: /about/
+      weight: 50
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    noClasses: false
+    codeFences: true
+    guessSyntax: true
+    lineNos: false
+    style: github
+  tableOfContents:
+    startLevel: 2
+    endLevel: 3

@@ -1,0 +1,194 @@
+/* Scoped styles for the TEP-less VKS write-up (content/posts/vks-without-teps) */
+.tepless {
+  --bg: #f4f5f8; --paper: #ffffff; --ink: #161b22; --muted: #5b6672; --rule: #dce1e8; --soft: #eef1f5;
+  --vlan: #1f8f5a; --vlan-soft: #e3f3ea; --overlay: #4652b8; --overlay-soft: #e7e9f8;
+  --warn: #b23b3b; --warn-soft: #fbeaea; --code: #e9edf2;
+  --public: #0f5fb5; --public-soft: #e6eefb; --grid: #e3e7ec; --shadow: rgba(24, 36, 30, .09);
+  --display: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --codefont: "IBM Plex Mono", ui-monospace, monospace;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;}
+html[data-theme="dark"] .tepless {
+  --bg: #0e1217; --paper: #161b22; --ink: #e4e8ee; --muted: #9aa5b2; --rule: #29313b; --soft: #1c232c;
+  --vlan: #4ccc8a; --vlan-soft: #14302a; --overlay: #8e98f0; --overlay-soft: #22264a;
+  --warn: #ef8a80; --warn-soft: #3a2020; --code: #1c232c;
+  --public: #6ba9f0; --public-soft: #12203a; --grid: #222a33; --shadow: rgba(0, 0, 0, .35); }
+.tepless { display: flex; flex-direction: column; gap: 22px; color: var(--ink); font-size: 1.02rem; line-height: 1.62 }
+.tepless h2 { font-size: clamp(24px, 3.2vw, 30px); margin-top: 28px; letter-spacing: -0.01em }
+.tepless h3 { font-size: 20px; margin-top: 8px }
+.tepless h2::before { display: none }
+.tepless > * { max-width: 100% }
+.tepless .lead { font-size: 1.18rem; line-height: 1.5; color: var(--ink) }
+.tepless pre code { background: none; padding: 0; font: inherit }
+.tepless .closing { margin-top: 30px; color: var(--muted); font-size: 15px; border-top: 1px solid var(--rule); padding-top: 14px }
+.md-content .tepless table { border: none; border-radius: 0; border-collapse: collapse; overflow: visible; font-size: 16px }
+.md-content .tepless th, .md-content .tepless td { border: none; border-bottom: 1px solid var(--rule); min-width: 0 }
+.md-content .tepless th { background: var(--soft); font-family: var(--mono) }
+.md-content .tepless tr:last-child td { border-bottom: 0 }
+.md-content .tepless figure img { border-radius: 10px }
+.tepless h2, .tepless h3 { line-height: 1.12; text-wrap: balance; margin: 0 }
+.tepless h2{ font-size: clamp(26px, 3.6vw, 34px); margin-top: 28px; letter-spacing: -0.01em }
+.tepless h3{ font-size: 21px; margin-top: 8px }
+.tepless p, .tepless ul, .tepless ol { margin: 0 }
+.tepless ul, .tepless ol { padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px }
+.tepless a { color: var(--vlan) }
+.tepless code { font: 0.86em var(--codefont); background: var(--code); padding: 1px 5px; border-radius: 4px; color: var(--ink) }
+.tepless .kicker{ font: 600 13px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--vlan); max-width: 68ch; width: 100%; margin-inline: auto }
+.tepless .lead{ font-size: 21px; line-height: 1.5; color: var(--ink) }
+.tepless .byline { color: var(--muted); font-size: 15px }
+.tepless .stats{ display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; max-width: 68ch; width: 100%; margin-inline: auto }
+.tepless .stat{ background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px }
+.tepless .stat b{ display: block; font: 700 30px var(--display); color: var(--vlan); letter-spacing: -0.01em }
+.tepless .stat span{ color: var(--muted); font-size: 15px }
+.tepless figure{ margin: 0; display: flex; flex-direction: column; gap: 8px }
+.tepless figure img{ width: 100%; max-width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper); display: block }
+.tepless figure.narrow img{ max-width: min(100%, 720px); margin-inline: auto }
+.tepless figcaption{ color: var(--muted); font-size: 15px; max-width: 68ch; width: 100%; margin-inline: auto }
+.tepless figcaption b{ color: var(--ink) }
+.tepless .pair{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
+@media (max-width: 760px){.tepless .pair{ grid-template-columns: 1fr }}
+.tepless .tag{ display: inline-block; font: 600 12px var(--mono); padding: 2px 8px; border-radius: 999px; margin-bottom: 2px }
+.tepless .tag.vlan{ background: var(--vlan-soft); color: var(--vlan) }
+.tepless .tag.ovl{ background: var(--overlay-soft); color: var(--overlay) }
+.tepless .diagram{ background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 14px; overflow-x: auto }
+.tepless .diagram svg{ display: block; width: 100%; min-width: 760px; height: auto }
+.tepless .diagram .card{ fill: var(--paper); stroke: var(--rule) }
+.tepless .diagram .sub{ fill: var(--soft); stroke: var(--rule) }
+.tepless .diagram .row{ fill: var(--soft) }
+.tepless .diagram .v{ fill: var(--vlan-soft); stroke: var(--vlan); stroke-width: 1.5 }
+.tepless .diagram .vp{ fill: var(--paper); stroke: var(--vlan); stroke-width: 1.5 }
+.tepless .diagram .o{ fill: var(--overlay-soft); stroke: var(--overlay); stroke-width: 1.5 }
+.tepless .diagram .op{ fill: var(--paper); stroke: var(--overlay); stroke-width: 1.5 }
+.tepless .diagram .pb{ fill: var(--public-soft); stroke: var(--public); stroke-width: 1.5 }
+.tepless .diagram .dash{ fill: none; stroke: var(--muted); stroke-dasharray: 5 4 }
+.tepless .diagram .dashw{ fill: none; stroke: var(--warn); stroke-dasharray: 5 4 }
+.tepless .diagram .ln{ fill: none; stroke: var(--muted); stroke-width: 1.6 }
+.tepless .diagram .lv{ fill: none; stroke: var(--vlan); stroke-width: 2.4 }
+.tepless .diagram .lo{ fill: none; stroke: var(--overlay); stroke-width: 2.2 }
+.tepless .diagram .la{ fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-dasharray: 6 4 }
+.tepless .diagram .ah{ fill: var(--ink) }
+.tepless .diagram text{ fill: var(--ink); font-family: var(--body); font-size: 14px; text-anchor: middle }
+.tepless .diagram .l{ text-anchor: start }
+.tepless .diagram .r{ text-anchor: end }
+.tepless .diagram .h{ font-weight: 600; font-size: 15px }
+.tepless .diagram .m{ font-family: var(--mono); font-size: 12px; fill: var(--muted) }
+.tepless .diagram .s{ font-size: 13px; fill: var(--muted) }
+.tepless .diagram .cap{ font-family: var(--mono); font-weight: 600; font-size: 11px; letter-spacing: .12em; fill: var(--muted); text-anchor: start }
+.tepless .diagram .vt{ fill: var(--vlan) }
+.tepless .diagram .pt{ fill: var(--public) }
+.tepless .diagram .ot{ fill: var(--overlay) }
+.tepless .diagram .wt{ fill: var(--warn) }
+.tepless .diagram .halo{ paint-order: stroke; stroke: var(--paper); stroke-width: 6px; stroke-linejoin: round }
+.tepless .diagram.v2{ background: var(--paper) radial-gradient(circle, var(--grid) 1.1px, transparent 1.3px) 0 0 / 20px 20px; padding: 18px }
+.tepless .diagram.v2 .card, .tepless .diagram.v2 .zcard{ filter: drop-shadow(0 1px 1.5px var(--shadow)) drop-shadow(0 6px 14px var(--shadow)) }
+.tepless .diagram .zone-o{ fill: var(--overlay-soft); stroke: var(--overlay); stroke-opacity: .35 }
+.tepless .diagram .zone-v{ fill: var(--vlan-soft); stroke: var(--vlan); stroke-opacity: .35 }
+.tepless .diagram .zcard{ fill: var(--paper); stroke: var(--rule) }
+.tepless .diagram .chip-o{ fill: var(--overlay-soft); stroke: none }
+.tepless .diagram .chip-v{ fill: var(--vlan-soft); stroke: none }
+.tepless .diagram .chip-p{ fill: var(--public-soft); stroke: none }
+.tepless .diagram .bar-o{ fill: var(--overlay) }
+.tepless .diagram .bar-v{ fill: var(--vlan) }
+.tepless .diagram .bar-p{ fill: var(--public) }
+.tepless .diagram .ic{ fill: none; stroke: var(--muted); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round }
+.tepless .diagram .ic-o{ stroke: var(--overlay) }
+.tepless .diagram .ic-v{ stroke: var(--vlan) }
+.tepless .diagram .ic-p{ stroke: var(--public) }
+.tepless .diagram .icbg{ fill: var(--soft) }
+.tepless .diagram .icbg-o{ fill: var(--overlay-soft) }
+.tepless .diagram .icbg-v{ fill: var(--vlan-soft) }
+.tepless .diagram .c{ fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-opacity: .7 }
+.tepless .diagram .c-v{ fill: none; stroke: var(--vlan); stroke-width: 3; stroke-linecap: round }
+.tepless .diagram .c-o{ fill: none; stroke: var(--overlay); stroke-width: 3; stroke-linecap: round }
+.tepless .diagram .c-a{ fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; stroke-dasharray: 2 6 }
+.tepless .diagram .flow{ fill: none; stroke: var(--paper); stroke-width: 2; stroke-linecap: round; stroke-dasharray: .5 13; animation: pkt 1.6s linear infinite }
+@keyframes pkt{ to { stroke-dashoffset: -27 } }
+@media (prefers-reduced-motion: reduce){.tepless .diagram .flow, .tepless .diagram .c-a{ animation: none }}
+.tepless .diagram .lp-bg{ fill: var(--paper); stroke: var(--rule) }
+.tepless .diagram .b{ font-weight: 700 }
+.tepless .diagram .t12{ font-size: 12px }
+.tepless .diagram .t11{ font-size: 11px; fill: var(--muted) }
+.tepless .diagram .up{ font-size: 11px; font-weight: 700; letter-spacing: .1em; fill: var(--muted) }
+.tepless .diagram .ok{ fill: var(--vlan); font-weight: 700 }
+.tepless .diagram .no{ fill: var(--warn); font-weight: 700 }
+.tepless .diagram .xrow{ fill: var(--warn-soft); stroke: var(--warn); stroke-dasharray: 4 3 }
+.tepless .diagram .zcard-v{ fill: var(--paper); stroke: var(--vlan); stroke-width: 1.5 }
+.tepless .diagram.v2 .dash{ fill: var(--paper) }
+.tepless .diagram .c-a{ animation: ant 1s linear infinite }
+@keyframes ant{ to { stroke-dashoffset: -16 } }
+.tepless .legend{ display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); max-width: 68ch; width: 100%; margin-inline: auto }
+.tepless .legend span{ display: inline-flex; align-items: center; gap: 6px }
+.tepless .legend i{ width: 14px; height: 14px; border-radius: 4px; display: inline-block; border: 1.5px solid }
+.tepless .legend .lv{ background: var(--vlan-soft); border-color: var(--vlan) }
+.tepless .legend .lo{ background: var(--overlay-soft); border-color: var(--overlay) }
+.tepless .legend .lp{ background: var(--public-soft); border-color: var(--public) }
+.tepless .step{ display: grid; grid-template-columns: 54px 1fr; gap: 6px 16px; max-width: 68ch; width: 100%; margin-inline: auto; margin-top: 18px }
+.tepless .step .n{ font: 700 36px/1 var(--display); color: var(--vlan) }
+.tepless .step h3{ margin: 4px 0 0 }
+.tepless .step > div{ display: flex; flex-direction: column; gap: 10px; min-width: 0 }
+.tepless .gui{ background: var(--soft); border-left: 3px solid var(--vlan); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 16px }
+.tepless .gui b{ font-family: var(--mono); font-size: 13px; letter-spacing: .06em; color: var(--vlan); display: block; margin-bottom: 2px }
+.tepless .tablewrap{ overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--paper) }
+.tepless table{ border-collapse: collapse; width: 100%; font-size: 16px; font-variant-numeric: tabular-nums }
+.tepless th, .tepless td{ text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top }
+.tepless th{ font: 600 13px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--soft) }
+.tepless tr:last-child td{ border-bottom: 0 }
+.tepless td.vlan{ background: var(--vlan-soft) }
+.tepless td.ovl{ background: var(--overlay-soft) }
+.tepless td .yes{ color: var(--vlan); font-weight: 600 }
+.tepless td .no{ color: var(--warn); font-weight: 600 }
+.tepless pre{ margin: 0; background: var(--code); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font: 14px/1.55 var(--codefont); max-width: 68ch; width: 100%; margin-inline: auto }
+.tepless .watch{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px }
+.tepless .w{ background: var(--paper); border: 1px solid var(--rule); border-top: 3px solid var(--warn); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.tepless .w h4{ margin: 0; font: 600 17px var(--display) }
+.tepless .w .err{ font: 13px var(--codefont); color: var(--warn); background: var(--warn-soft); padding: 6px 8px; border-radius: 6px; overflow-wrap: anywhere }
+.tepless .w p{ font-size: 16px }
+.tepless .start{ max-width: 68ch; width: 100%; margin-inline: auto; background: var(--vlan-soft); border-left: 4px solid var(--vlan); border-radius: 0 10px 10px 0; padding: 14px 18px; display: flex; flex-direction: column; gap: 6px }
+.tepless .start b{ font: 600 18px var(--display); color: var(--vlan) }
+.tepless .start p{ font-size: 17px }
+.tepless .note{ background: var(--soft); border-left: 4px solid var(--overlay); border-radius: 10px; padding: 12px 16px; font-size: 16px }
+.tepless .placeholder{ border: 2px dashed var(--rule); border-radius: 10px; padding: 26px; text-align: center; color: var(--muted); font-size: 16px }
+.tepless .np{ background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px }
+.tepless .np-head{ display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px }
+.tepless .np-head b{ font: 600 18px var(--display) }
+.tepless .np-head b span{ color: var(--muted); font-weight: 500 }
+.tepless .np-head small{ color: var(--muted); font: 12px var(--mono) }
+.tepless .np-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 12px }
+.tepless .np-col{ border: 1px solid var(--rule); border-top: 4px solid var(--acc); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; background: var(--bg) }
+.tepless .np-col.t{ --acc: var(--vlan) }
+.tepless .np-col.o{ --acc: var(--overlay) }
+.tepless .np-col.p{ --acc: var(--public) }
+.tepless .np-col h4{ margin: 0; font: 600 16px var(--display); color: var(--acc) }
+.tepless .np-col .cid{ font: 12px var(--mono); color: var(--muted) }
+.tepless .np-path{ background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px }
+.tepless .np-path .top{ display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; font-size: 15px }
+.tepless .np-path .url{ font: 11.5px var(--mono); color: var(--muted); overflow-wrap: anywhere }
+.tepless .pill{ font: 600 12px var(--body); padding: 2px 9px; border-radius: 999px; white-space: nowrap }
+.tepless .pill.ok{ background: var(--vlan-soft); color: var(--vlan) }
+.tepless .pill.bad{ background: var(--warn-soft); color: var(--warn) }
+.tepless .np dl{ margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font-size: 14px }
+.tepless .np dt{ color: var(--muted) }
+.tepless .np dd{ margin: 0; font: 12.5px var(--mono); min-width: 0; overflow-wrap: anywhere }
+.tepless .np dd i{ font: italic 12.5px var(--body); color: var(--muted); margin-left: 4px }
+.tepless .np-eg{ border-radius: 8px; padding: 10px 12px; background: var(--soft); display: flex; flex-direction: column; gap: 2px }
+.tepless .np-eg span{ font-size: 13px; color: var(--muted) }
+.tepless .np-eg b{ font: 600 17px var(--mono); color: var(--acc) }
+.tepless .diffs{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px }
+.tepless .diff{ background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.tepless .diff h4{ margin: 0; font: 600 17px var(--display) }
+.tepless .diff p{ font-size: 16px }
+.tepless .k-t{ color: var(--vlan); font-weight: 600 }
+.tepless .k-o{ color: var(--overlay); font-weight: 600 }
+.tepless .k-p{ color: var(--public); font-weight: 600 }
+.post-content .tepless > *, .post-content .tepless .start, .post-content .tepless .stats, .post-content .tepless .step, .post-content .tepless pre, .post-content .tepless figcaption, .post-content .tepless .legend, .post-content .tepless .note { max-width: 100% }
+@media (min-width: 1100px) { .post-content .tepless figure:has(.np) { width: 1040px; max-width: none; margin-left: calc(50% - 520px) } .post-content .tepless .np-grid { grid-template-columns: repeat(3, 1fr) } }
+@media (min-width: 1100px) { .post-content .tepless figure:has(.np) > figcaption { max-width: 760px; margin-inline: auto } }
+.post-content .tepless figure > figcaption { color: var(--muted); font-size: 15px; font-weight: 400; margin: 0; line-height: 1.5 }
+.post-content .tepless figure > figcaption b { color: var(--ink) }
+.post-content .tepless figure { margin: 0 }
+.post-content .tepless img { border-radius: 10px; margin: 0 }
+.post-content .tepless .np dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; flex-wrap: nowrap; align-items: baseline }
+.post-content .tepless .np dt { width: auto; font-weight: 400; color: var(--muted); white-space: nowrap; line-height: 1.4 }
+.post-content .tepless .np dd { width: auto; margin: 0; padding: 0; line-height: 1.4 }
+.post-content .tepless ul, .post-content .tepless ol { padding-inline-start: 1.2em }
+.post-content .tepless li { margin: 0 }

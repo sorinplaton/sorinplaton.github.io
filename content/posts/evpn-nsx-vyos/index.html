@@ -1,0 +1,721 @@
+---
+title: "Meshing an NSX overlay to a VyOS IP fabric with EVPN Type-5"
+date: 2026-09-18
+description: "A two-tenant EVPN Type-5 build on a nested VCF 9.1 Holodeck: NSX distributed transit gateways on one side, a VyOS border on the other, trading IP-prefix routes over MP-BGP. Route types, RD/RT, the exact configs and the traps."
+summary: "NSX distributed transit gateways meshed to a VyOS top-of-rack border with EVPN Type-5 routes over MP-BGP — what the route types are for, why EVPN is the right stitch between fabrics, and the configs and gotchas that made a two-tenant build work."
+tags: ["VCF 9.1", "NSX", "EVPN", "VXLAN", "BGP", "VyOS", "Holodeck"]
+categories: ["Field notes"]
+showToc: false
+---
+<div class="evpn">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-router" viewBox="0 0 64 64">
+      <rect x="7" y="7" width="50" height="50" rx="10" fill="var(--card)" stroke="currentColor" stroke-width="2.6"/>
+      <g stroke="currentColor" stroke-width="2.6" fill="currentColor" stroke-linejoin="round" stroke-linecap="round">
+        <line x1="18" y1="32" x2="46" y2="32"/><line x1="32" y1="18" x2="32" y2="46"/>
+        <path d="M18 32 l7 -4 v8 z"/><path d="M46 32 l-7 -4 v8 z"/>
+        <path d="M32 18 l-4 7 h8 z"/><path d="M32 46 l-4 -7 h8 z"/>
+      </g>
+    </symbol>
+    <symbol id="g-drouter" viewBox="0 0 64 64">
+      <rect x="7" y="7" width="50" height="50" rx="10" fill="var(--card)" stroke="currentColor" stroke-width="2.6" stroke-dasharray="5 4"/>
+      <g stroke="currentColor" stroke-width="2.6" fill="currentColor" stroke-linejoin="round" stroke-linecap="round">
+        <line x1="18" y1="32" x2="46" y2="32"/><line x1="32" y1="18" x2="32" y2="46"/>
+        <path d="M18 32 l7 -4 v8 z"/><path d="M46 32 l-7 -4 v8 z"/>
+        <path d="M32 18 l-4 7 h8 z"/><path d="M32 46 l-4 -7 h8 z"/>
+      </g>
+    </symbol>
+    <symbol id="g-tgw" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="24" fill="var(--card)" stroke="currentColor" stroke-width="2.6"/>
+      <circle cx="32" cy="32" r="14" fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <circle cx="32" cy="32" r="4.6" fill="currentColor"/>
+    </symbol>
+    <symbol id="g-switch" viewBox="0 0 64 46">
+      <rect x="5" y="8" width="54" height="30" rx="6" fill="var(--card)" stroke="currentColor" stroke-width="2.6"/>
+      <g stroke="currentColor" stroke-width="2.3" fill="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="16" y1="18" x2="44" y2="18"/><path d="M44 18 l-6 -3.2 v6.4 z"/>
+        <line x1="48" y1="29" x2="20" y2="29"/><path d="M20 29 l6 -3.2 v6.4 z"/>
+      </g>
+    </symbol>
+    <symbol id="g-conn" viewBox="0 0 56 56">
+      <path d="M28 6 L48 17 V39 L28 50 L8 39 V17 Z" fill="var(--card)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+      <circle cx="28" cy="29" r="6.5" fill="none" stroke="currentColor" stroke-width="2.3"/>
+      <line x1="28" y1="22.5" x2="28" y2="14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="g-vm" viewBox="0 0 56 56">
+      <rect x="11" y="7" width="34" height="42" rx="4.5" fill="var(--card)" stroke="currentColor" stroke-width="2.6"/>
+      <line x1="11" y1="19" x2="45" y2="19" stroke="currentColor" stroke-width="2.1"/>
+      <circle cx="18" cy="13" r="1.9" fill="currentColor"/>
+      <line x1="17" y1="27" x2="39" y2="27" stroke="currentColor" stroke-width="2.1"/>
+      <line x1="17" y1="34" x2="39" y2="34" stroke="currentColor" stroke-width="2.1"/>
+      <line x1="17" y1="41" x2="31" y2="41" stroke="currentColor" stroke-width="2.1"/>
+    </symbol>
+    <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/></marker>
+    <marker id="ahc" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--coral)"/></marker>
+    <marker id="ahp" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--purple)"/></marker>
+    <marker id="aht" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--teal)"/></marker>
+  </defs>
+</svg>
+<details class="toc"><summary accesskey="c" title="(Alt + C)"><span class="title">Table of Contents</span></summary><div class="inner"><nav><ul><li><a href="#1-evpn-route-types-in-one-screen" aria-label="1 · EVPN route types in one screen">1 · EVPN route types in one screen</a></li><li><a href="#2-why-evpn-to-mesh-the-ip-fabrics" aria-label="2 · Why EVPN to mesh the IP fabrics">2 · Why EVPN to mesh the IP fabrics</a></li><li><a href="#3-rd-and-rt-drawn" aria-label="3 · RD and RT, drawn">3 · RD and RT, drawn</a></li><li><a href="#4-global-logical-view" aria-label="4 · Global logical view">4 · Global logical view</a></li><li><a href="#5-the-vyos-config" aria-label="5 · The VyOS config">5 · The VyOS config</a><ul><li><a href="#5-1-underlay-the-evpn-overlay-sessions" aria-label="5.1 · Underlay + the EVPN overlay sessions">5.1 · Underlay + the EVPN overlay sessions</a></li><li><a href="#5-2-tenant-vrf-evpn-prj-1" aria-label="5.2 · Tenant VRF — evpn-prj-1">5.2 · Tenant VRF — evpn-prj-1</a></li><li><a href="#5-3-second-tenant-is-the-same-pattern-evpn-prj-2" aria-label="5.3 · Second tenant is the same pattern — evpn-prj-2">5.3 · Second tenant is the same pattern — evpn-prj-2</a></li><li><a href="#5-4-verify-on-vyos" aria-label="5.4 · Verify on VyOS">5.4 · Verify on VyOS</a></li></ul></li><li><a href="#6-the-nsx-side-and-the-traps" aria-label="6 · The NSX side — and the traps">6 · The NSX side — and the traps</a><ul><li><a href="#6-1-route-controller-the-bgp-speaker" aria-label="6.1 · Route controller (the BGP speaker)">6.1 · Route controller (the BGP speaker)</a></li><li><a href="#6-2-distributed-vxlan-connection-l3vni-rd-rt" aria-label="6.2 · Distributed VXLAN connection (L3VNI + RD + RT)">6.2 · Distributed VXLAN connection (L3VNI + RD + RT)</a></li><li><a href="#6-3-assign-the-external-connection-to-the-project" aria-label="6.3 · Assign the external connection to the project">6.3 · Assign the external connection to the project</a></li><li><a href="#6-4-transit-gateway-attachment" aria-label="6.4 · Transit gateway + attachment">6.4 · Transit gateway + attachment</a></li><li><a href="#6-5-vpc-connectivity-profile-and-the-public-subnet" aria-label="6.5 · VPC, connectivity profile, and the Public subnet">6.5 · VPC, connectivity profile, and the Public subnet</a></li><li><a href="#6-6-workload-attached-and-the-route-on-the-wire" aria-label="6.6 · Workload attached, and the route on the wire">6.6 · Workload attached, and the route on the wire</a></li><li><a href="#6-7-why-only-the-matching-route-lands-in-each-vrf" aria-label="6.7 · Why only the matching route lands in each VRF">6.7 · Why only the matching route lands in each VRF</a></li><li><a href="#6-8-the-traps-collected" aria-label="6.8 · The traps, collected">6.8 · The traps, collected</a></li></ul></li><li><a href="#7-the-holodeck-underlay-the-holorouter" aria-label="7 · The Holodeck underlay — the holorouter">7 · The Holodeck underlay — the holorouter</a><ul><li><a href="#7-1-routes-reach-the-vtep-subnets-via-vyos-s-mgmt-leg" aria-label="7.1 · Routes — reach the VTEP subnets via VyOS's mgmt leg">7.1 · Routes — reach the VTEP subnets via VyOS's mgmt leg</a></li><li><a href="#7-2-nat-exemptions-don-t-masquerade-tepvtep" aria-label="7.2 · NAT exemptions — don't masquerade TEP↔VTEP">7.2 · NAT exemptions — don't masquerade TEP↔VTEP</a></li><li><a href="#7-3-verify-roll-back" aria-label="7.3 · Verify &amp; roll back">7.3 · Verify &amp; roll back</a></li><li><a href="#7-4-make-it-survive-a-reboot-photon" aria-label="7.4 · Make it survive a reboot (Photon)">7.4 · Make it survive a reboot (Photon)</a></li><li><a href="#7-5-reference-holorouter-interfaces-the-rules-rely-on" aria-label="7.5 · Reference — holorouter interfaces the rules rely on">7.5 · Reference — holorouter interfaces the rules rely on</a></li></ul></li><li><a href="#8-the-full-l3-path-following-the-32" aria-label="8 · The full L3 path — following the /32">8 · The full L3 path — following the /32</a><ul><li><a href="#inter-tenant-note" aria-label="Inter-tenant note">Inter-tenant note</a></li></ul></li></ul></nav></div></details>
+<div class="strip">
+    <div class="cell"><div class="k">Platform</div><div class="v">NSX 9.1.0</div></div>
+    <div class="cell"><div class="k">Model</div><div class="v">DGTW EVPN</div></div>
+    <div class="cell"><div class="k">Route type</div><div class="v">Type-5 (IP-VRF)</div></div>
+    <div class="cell"><div class="k">Border</div><div class="v">VyOS / FRR</div></div>
+    <div class="cell"><div class="k">Tenants</div><div class="v">2 (VRF-isolated)</div></div>
+  </div>
+
+<!-- ============================================================= -->
+<h2 id="1-evpn-route-types-in-one-screen">1 · EVPN route types in one screen</h2>
+<p>EVPN is a single MP-BGP address family (L2VPN / EVPN) that carries several distinct route (NLRI) types. You rarely touch them by hand — the control plane emits whichever it needs — but knowing which is which is what lets you read <code>show bgp l2vpn evpn</code> output and reason about a broken path.</p>
+
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Type</th><th>Name</th><th>What it carries</th><th>Role in this design</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">1</td><td>Ethernet Auto-Discovery</td><td>Per-ES / per-EVI reachability for a multihomed segment</td><td>Fast convergence &amp; aliasing across multihomed PEs. Not used — single-homed lab.</td></tr>
+    <tr><td class="mono">2</td><td>MAC / IP Advertisement</td><td>Host MAC, optionally MAC + IP, per L2VNI</td><td>The L2 workhorse — bridging &amp; ARP/ND suppression. Present, but not our focus.</td></tr>
+    <tr><td class="mono">3</td><td>Inclusive Multicast (IMET)</td><td>Per-VNI flood list for BUM (ingress replication)</td><td>Builds the flood tree for any L2VNI you extend.</td></tr>
+    <tr><td class="mono">4</td><td>Ethernet Segment</td><td>ES discovery + Designated-Forwarder election</td><td>Multihoming only. Not used here.</td></tr>
+    <tr><td class="mono" style="color:var(--coral);font-weight:600">5</td><td><strong>IP Prefix</strong></td><td><strong>IP prefixes decoupled from MAC — the IP-VRF / L3VNI route</strong></td><td><strong>The whole point of this build.</strong> NSX and VyOS trade tenant subnets as Type-5.</td></tr>
+  </tbody>
+</table>
+</div>
+<p style="font-size:.88rem;color:var(--muted)">Types 6–10 (SMET, IGMP/MLD join-sync, S-PMSI) exist for optimized multicast and aren't in play. In a pure Type-5 design like this, the border advertises prefixes and the receiver installs them into an IP-VRF — no MAC state crosses the boundary.</p>
+
+<h4>Why your workload VM shows as a /32</h4>
+<p>Here's the practical consequence that trips people up. NSX's distributed VXLAN connection doesn't advertise the workload <em>subnet</em> — it advertises a host route per live VM. So a VM on the NSX public subnet <code>10.55.55.0/28</code> lands in the FRR VRF RIB as a <strong>/32</strong>, with the ESX host TEP as the next-hop (reachable over the L3VNI), <em>not</em> a subnet route via a gateway:</p>
+<pre>evpn-prj-2# show ip route vrf evpn-prj-2 10.55.55.3
+B&gt;* 10.55.55.3/32 [20/0] via 10.1.3.135, br65020 onlink, 21:57:20</pre>
+<p style="font-size:.9rem;color:var(--muted)">The <code>B&gt;*</code> is the EVPN Type-5 route, selected and installed; <code>10.1.3.135</code> is the ESX host TEP; <code>[20/0]</code> is the eBGP admin distance (<code>200</code> if you kept §5 as iBGP). The <code>/28</code> itself never crosses — only the <code>/32</code>s of VMs that are actually up. §8 traces the full L3 path this route drives.</p>
+
+<!-- ============================================================= -->
+<h2 id="2-why-evpn-to-mesh-the-ip-fabrics">2 · Why EVPN to mesh the IP fabrics</h2>
+<p>The lab has an NSX overlay on one side and a VyOS-fronted physical fabric on the other. Both are separate routing domains; the job is to make tenant subnets on one reachable from the other, cleanly and per-tenant. EVPN is the tool because:</p>
+<ul>
+  <li><strong>One BGP control plane for L2 and L3.</strong> The same MP-BGP session carries MAC reachability (Type-2), the BUM flood list (Type-3) and IP-prefix reachability (Type-5). No flood-and-learn, no second protocol to stitch the fabrics.</li>
+  <li><strong>Multi-tenancy is native.</strong> Each tenant is a VRF with its own Route Distinguisher and Route Targets. Overlapping tenant IP space never collides on the wire, and isolation is the default — you leak between tenants only when you deliberately choose to.</li>
+  <li><strong>Overlay is decoupled from the underlay.</strong> Any routed IP underlay works; VXLAN encapsulates VTEP-to-VTEP in the data plane. Add a tenant by adding a VNI, not by re-architecting the transport.</li>
+  <li><strong>Type-5 keeps MAC state off the border.</strong> The PE/TOR routes on IP — prefixes, or here per-host /32s — and never needs the MAC tables of everything behind the overlay, which is ideal for hanging an NSX domain off a physical EVPN fabric.</li>
+  <li><strong>Distributed, direct forwarding.</strong> In NSX's DGTW model, routing is distributed across the ESXi hosts. The route controller advertises workload <code>/32</code>s with the <em>host</em> TEP as next-hop, so tenant traffic egresses host-to-fabric without hairpinning through a central SR.</li>
+  <li><strong>Vendor-neutral.</strong> NSX, FRR/VyOS, Cisco, Arista and Nokia all speak the same EVPN AFI/SAFI. This build literally proves NSX ↔ VyOS interop end to end.</li>
+</ul>
+
+<!-- ============================================================= -->
+<h2 id="3-rd-and-rt-drawn">3 · RD and RT, drawn</h2>
+<p>These two values do all the multi-tenant work, and they are the thing most people get backwards. They are not the same knob:</p>
+
+<figure>
+<div class="scroll">
+<svg viewBox="0 0 820 300" role="img" aria-label="How a Type-5 route from VyOS VRF evpn-prj-1 is tagged with an RD and RT, crosses the EVPN session, and is imported into the matching NSX IP-VRF">
+  <!-- left VRF zone (VyOS / fabric) -->
+  <rect x="30" y="42" width="252" height="196" rx="12" fill="none" stroke="var(--coral)" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text class="svg-zone" x="42" y="34" fill="var(--coral)">VyOS · IP-VRF evpn-prj-1 (table 10001)</text>
+  <rect x="58" y="112" width="196" height="58" rx="8" fill="var(--card)" stroke="var(--teal)" stroke-width="1.6"/>
+  <text class="svg-lbl" x="156" y="136" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-weight="600" font-size="13" fill="var(--ink)">10.70.1.0/24</text>
+  <text class="svg-sub" x="156" y="154" text-anchor="middle">connected · dum70001</text>
+  <text class="svg-sub" x="156" y="196" text-anchor="middle" fill="var(--muted)">redistribute connected</text>
+  <text class="svg-sub" x="156" y="210" text-anchor="middle" fill="var(--muted)">→ advertise ipv4 unicast</text>
+
+  <!-- NLRI token -->
+  <rect x="330" y="66" width="160" height="168" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="1.8"/>
+  <rect x="330" y="66" width="160" height="26" rx="10" fill="var(--accbg)" stroke="var(--accent)" stroke-width="1.8"/>
+  <path d="M330 84 h160" stroke="var(--accent)" stroke-width="1"/>
+  <text class="svg-lbl" x="410" y="84" text-anchor="middle" font-weight="600" fill="var(--ink)">EVPN Type-5 NLRI</text>
+  <g font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-size="11">
+    <text x="345" y="115" fill="var(--muted)">RD</text><text x="382" y="115" fill="var(--ink)">65000:70001</text>
+    <text x="345" y="142" fill="var(--muted)">pfx</text><text x="382" y="142" fill="var(--ink)">10.70.1.0/24</text>
+    <text x="345" y="169" fill="var(--muted)">RT</text><text x="382" y="169" fill="var(--ink)">65000:70001</text>
+    <text x="345" y="196" fill="var(--muted)">VNI</text><text x="382" y="196" fill="var(--ink)">70001</text>
+    <text x="345" y="220" fill="var(--muted)">nh</text><text x="382" y="220" fill="var(--ink)">10.66.66.1</text>
+  </g>
+
+  <!-- right VRF zone (NSX) -->
+  <rect x="538" y="42" width="252" height="196" rx="12" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text class="svg-zone" x="550" y="34" fill="var(--purple)">NSX · IP-VRF evpn-prj-1 (VNI 70001)</text>
+  <rect x="566" y="112" width="196" height="58" rx="8" fill="var(--card)" stroke="var(--purple)" stroke-width="1.6"/>
+  <text class="svg-lbl" x="664" y="136" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-weight="600" font-size="13" fill="var(--ink)">10.70.1.0/24</text>
+  <text class="svg-sub" x="664" y="154" text-anchor="middle">learned via EVPN</text>
+  <text class="svg-sub" x="664" y="196" text-anchor="middle" fill="var(--muted)">installed only if import RT</text>
+  <text class="svg-sub" x="664" y="210" text-anchor="middle" fill="var(--muted)">= 65000:70001 matches</text>
+
+  <!-- arrows in/out of token -->
+  <path class="conn" d="M254 140 H330" marker-end="url(#ah)"/>
+  <text class="svg-sub" x="292" y="127" text-anchor="middle" fill="var(--muted)">origin</text>
+  <path class="conn" d="M490 140 H566" marker-end="url(#ahp)"/>
+  <text class="svg-sub" x="528" y="127" text-anchor="middle" fill="var(--muted)">import</text>
+
+  <!-- transport session (U path underneath) -->
+  <path class="sess" d="M72 170 V268 H748 V170" marker-end="url(#ahc)"/>
+  <text class="svg-sub" x="410" y="286" text-anchor="middle" fill="var(--coral)">MP-BGP EVPN session · Type-5 carried between the VTEPs</text>
+</svg>
+</div>
+<figcaption>The RD and RT ride inside the same Type-5 NLRI but do opposite jobs — one guarantees uniqueness, the other decides membership.</figcaption>
+</figure>
+
+<div class="cards">
+  <div class="card"><div class="tag">RD · 65000:70001</div><h5>Route Distinguisher — uniqueness</h5><p>Prepended so the prefix is globally unique in BGP. The same <code>10.70.1.0/24</code> from a different VRF or router carries a different RD, so overlapping tenant IPs never clash. It does <em>not</em> decide where a route lands.</p></div>
+  <div class="card"><div class="tag">RT · 65000:70001</div><h5>Route Target — membership</h5><p>The import/export filter. A receiver installs the route <em>only</em> into a VRF whose import RT matches the route's export RT. Identical both ends here → prj-1 ↔ prj-1; different from prj-2 → no leak. This is your tenant boundary.</p></div>
+  <div class="card"><div class="tag">L3VNI · 70001</div><h5>The data-plane segment</h5><p>Once the control plane picks a path, the L3VNI is the VXLAN segment the packet is encapsulated into. Control plane chooses; VNI carries.</p></div>
+</div>
+
+<div class="note"><p><strong>The one asymmetry that bites everyone:</strong> RTs must be <em>identical</em> on both ends, but RDs must be <em>different</em> between NSX and the fabric (NSX documents this requirement explicitly). You type NSX's RD explicitly on the connection (it is a field — e.g. prj-2's <code>65020:20</code>), so it is <em>not</em> auto-derived; keeping it different from the VyOS VRF's RD is on you. Setting the same value on both sides is exactly what broke prj-2 until VyOS was moved to <code>65000:65020</code>. Keep RT symmetric (<code>route-target both</code>) and let the two sides carry distinct RDs.</p></div>
+
+<h4>Worked values — evpn-prj-1 (tenant A)</h4>
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Parameter</th><th class="mono">Value</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Route Target (both)</td><td class="mono">65000:70001</td><td>Identical on NSX and VyOS — this is what makes import work</td></tr>
+    <tr><td>RD — VyOS side</td><td class="mono">65000:70001</td><td>Configured on the VRF's EVPN address-family</td></tr>
+    <tr><td>RD — NSX side</td><td class="mono">65001:70001</td><td>Typed on the connection; differs from the VyOS RD (65000:70001) as required</td></tr>
+    <tr><td>L3VNI</td><td class="mono">70001</td><td>Must match the NSX distributed VXLAN connection's VNI</td></tr>
+    <tr><td>Advertised prefix</td><td class="mono">10.70.1.0/24</td><td>VyOS side, from <code>dum70001</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============================================================= -->
+<h2 id="4-global-logical-view">4 · Global logical view</h2>
+<p>End to end, both tenants ride BGP EVPN sessions to the same NSX route controller; VRF/RD/RT keep them apart. Each NSX project has its own VPC, distributed transit gateway, and distributed VXLAN connection carrying its L3VNI up to the shared route controller.</p>
+
+<figure>
+<div class="scroll">
+<svg viewBox="0 0 940 470" role="img" aria-label="Two NSX projects, each with a workload VM on a public subnet, a VPC distributed gateway, a transit gateway and a distributed VXLAN connection, both converging on a shared route controller that peers over MP-BGP EVPN with a VyOS top-of-rack border holding two VRFs">
+  <!-- zones -->
+  <rect x="26" y="70" width="656" height="322" rx="14" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text class="svg-zone" x="40" y="62" fill="var(--purple)">NSX workload domain · VCF 9.1 — distributed transit gateway (DGTW) EVPN</text>
+  <rect x="752" y="70" width="162" height="322" rx="14" fill="none" stroke="var(--coral)" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text class="svg-zone" x="764" y="62" fill="var(--coral)">Physical fabric · TOR / PE</text>
+
+  <!-- ROW 1 : evpn-prj-1  (y=150) -->
+  <g style="color:var(--teal)"><use href="#g-vm" x="52" y="127" width="46" height="46"/></g>
+  <text class="svg-lbl" x="75" y="188" text-anchor="middle">VM</text><text class="svg-sub" x="75" y="201" text-anchor="middle">10.21.21.67</text>
+  <g style="color:var(--teal)"><use href="#g-switch" x="145" y="130" width="46" height="40"/></g>
+  <text class="svg-lbl" x="168" y="188" text-anchor="middle">Public subnet</text><text class="svg-sub" x="168" y="201" text-anchor="middle">10.21.21.64/26</text>
+  <g style="color:var(--purple)"><use href="#g-drouter" x="247" y="127" width="46" height="46"/></g>
+  <text class="svg-lbl" x="270" y="188" text-anchor="middle">VPC dist-GW</text><text class="svg-sub" x="270" y="201" text-anchor="middle">evpn-prj-1-vpc-1</text>
+  <g style="color:var(--purple)"><use href="#g-tgw" x="352" y="127" width="46" height="46"/></g>
+  <text class="svg-lbl" x="375" y="188" text-anchor="middle" font-size="10">evpn-prj-1-dgtw</text><text class="svg-sub" x="375" y="201" text-anchor="middle">transit gw</text>
+  <g style="color:var(--purple)"><use href="#g-conn" x="479" y="127" width="46" height="46"/></g>
+  <text class="svg-lbl" x="502" y="188" text-anchor="middle" font-size="10">Distributed-vxlan-wld01</text><text class="svg-sub" x="502" y="201" text-anchor="middle">VNI 70001</text>
+
+  <!-- ROW 2 : evpn-prj-2  (y=300) -->
+  <g style="color:var(--teal)"><use href="#g-vm" x="52" y="277" width="46" height="46"/></g>
+  <text class="svg-lbl" x="75" y="338" text-anchor="middle">tiny-vm-t2</text><text class="svg-sub" x="75" y="351" text-anchor="middle">10.55.55.3</text>
+  <g style="color:var(--teal)"><use href="#g-switch" x="145" y="280" width="46" height="40"/></g>
+  <text class="svg-lbl" x="168" y="338" text-anchor="middle">Public subnet</text><text class="svg-sub" x="168" y="351" text-anchor="middle">10.55.55.0/28</text>
+  <g style="color:var(--purple)"><use href="#g-drouter" x="247" y="277" width="46" height="46"/></g>
+  <text class="svg-lbl" x="270" y="338" text-anchor="middle">VPC dist-GW</text><text class="svg-sub" x="270" y="351" text-anchor="middle">prj-2-vpc-1</text>
+  <g style="color:var(--purple)"><use href="#g-tgw" x="352" y="277" width="46" height="46"/></g>
+  <text class="svg-lbl" x="375" y="338" text-anchor="middle" font-size="10">evpn-prj-2-dgtw</text><text class="svg-sub" x="375" y="351" text-anchor="middle">transit gw</text>
+  <g style="color:var(--purple)"><use href="#g-conn" x="479" y="277" width="46" height="46"/></g>
+  <text class="svg-lbl" x="502" y="338" text-anchor="middle" font-size="10">ext-con-prj-2</text><text class="svg-sub" x="502" y="351" text-anchor="middle">VNI 65020</text>
+
+  <!-- Route controller (shared) y=225 -->
+  <g style="color:var(--purple)"><use href="#g-router" x="582" y="202" width="46" height="46"/></g>
+  <text class="svg-lbl" x="605" y="263" text-anchor="middle">Route Controller</text><text class="svg-sub" x="605" y="276" text-anchor="middle">on VNA cluster · AS 65010</text>
+
+  <!-- VyOS TOR y=225 -->
+  <g style="color:var(--coral)"><use href="#g-router" x="809" y="202" width="46" height="46"/></g>
+  <text class="svg-lbl" x="832" y="263" text-anchor="middle">VyOS TOR / border</text><text class="svg-sub" x="832" y="276" text-anchor="middle">AS 65000 · 2 VTEPs</text>
+  <text class="svg-sub" x="832" y="291" text-anchor="middle" fill="var(--muted)">evpn-prj-1 · br70001</text>
+  <text class="svg-sub" x="832" y="304" text-anchor="middle" fill="var(--muted)">evpn-prj-2 · br65020</text>
+
+  <!-- intra-row connectors -->
+  <g class="conn">
+    <path d="M99 150 H144" marker-end="url(#aht)"/><path d="M192 150 H246" marker-end="url(#ahp)"/>
+    <path d="M294 150 H351" marker-end="url(#ahp)"/><path d="M399 150 H478" marker-end="url(#ahp)"/>
+    <path d="M99 300 H144" marker-end="url(#aht)"/><path d="M192 300 H246" marker-end="url(#ahp)"/>
+    <path d="M294 300 H351" marker-end="url(#ahp)"/><path d="M399 300 H478" marker-end="url(#ahp)"/>
+  </g>
+  <!-- DVC -> RC (orthogonal, both converge) -->
+  <path class="conn" d="M526 150 H560 V225 H581" marker-end="url(#ahp)"/>
+  <path class="conn" d="M526 300 H560 V225" />
+
+  <!-- RC <-> VyOS session (double line) -->
+  <path class="sess" d="M629 220 H808"/>
+  <path class="sess" d="M629 232 H808"/>
+  <text class="svg-lbl" x="719" y="198" text-anchor="middle" fill="var(--coral)">eBGP EVPN · Type-5</text>
+  <text class="svg-sub" x="719" y="211" text-anchor="middle" fill="var(--muted)">prj-1</text>
+  <text class="svg-sub" x="719" y="246" text-anchor="middle" fill="var(--muted)">prj-2</text>
+
+  <!-- VyOS -> fabric uplink -->
+  <path class="conn" d="M856 225 H902" marker-end="url(#ahc)"/>
+
+  <!-- legend -->
+  <g transform="translate(0,438)">
+    <text class="svg-sub" x="470" y="0" text-anchor="middle">
+      <tspan fill="var(--coral)">■</tspan> physical fabric &#160;&#160;
+      <tspan fill="var(--purple)">■</tspan> NSX gateways &amp; appliances &#160;&#160;
+      <tspan fill="var(--teal)">■</tspan> workloads
+    </text>
+  </g>
+</svg>
+</div>
+<figcaption>Both projects share one route controller — reached over two VTEP sessions to VyOS (prj-1 on 10.66.66, prj-2 on 10.77.77); VRF + RD/RT keep the tenants isolated. Those sessions are the only place the path leaves the NSX domain.</figcaption>
+</figure>
+
+<h4>Per-tenant addressing</h4>
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Parameter</th><th class="p1">evpn-prj-1</th><th class="p1">evpn-prj-2</th></tr></thead>
+  <tbody>
+    <tr><td>NSX project / VPC</td><td class="mono">evpn-prj-1 / evpn-prj-1-vpc-1</td><td class="mono">evpn-prj-2 / prj-2-vpc-1</td></tr>
+    <tr><td>Distributed VXLAN conn.</td><td class="mono">Distributed-vxlan-wld01</td><td class="mono">ext-con-prj-2</td></tr>
+    <tr><td>L3VNI</td><td class="mono">70001</td><td class="mono">65020</td></tr>
+    <tr><td>Route Target (both)</td><td class="mono">65000:70001</td><td class="mono">65020:20</td></tr>
+    <tr><td>RD — VyOS side</td><td class="mono">65000:70001</td><td class="mono">65000:65020</td></tr>
+    <tr><td>RD — NSX side</td><td class="mono">65001:70001</td><td class="mono">65020:20</td></tr>
+    <tr><td>VyOS VRF (table)</td><td class="mono">evpn-prj-1 (10001)</td><td class="mono">evpn-prj-2 (10002)</td></tr>
+    <tr><td>EVPN session (VyOS ↔ RC)</td><td class="mono">10.66.66.1 ↔ 10.66.66.2</td><td class="mono">10.77.77.1 ↔ 10.77.77.2</td></tr>
+    <tr><td>Advertised into fabric</td><td class="mono">10.70.1.0/24</td><td class="mono">10.65.20.0/24</td></tr>
+    <tr><td>NSX Public workload subnet</td><td class="mono">10.21.21.64/26</td><td class="mono">10.55.55.0/28</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============================================================= -->
+<h2 id="5-the-vyos-config">5 · The VyOS config</h2>
+<p>VyOS (FRR under the hood) is the border. Two moving parts: the <strong>overlay BGP sessions</strong> to the route controller in the default VRF (one per VTEP) carrying EVPN for every VNI, and, per tenant, a <strong>tenant VRF</strong> with an L3VNI bridge plus a per-VRF BGP block that re-originates the VRF's routes as Type-5. Everything below is set-mode, apply with <code>configure; …; commit; save</code>.</p>
+
+<h3 id="5-1-underlay-the-evpn-overlay-sessions">5.1 · Underlay + the EVPN overlay sessions</h3>
+<pre><span class="c"># ── routed underlay to the two route-controller VTEPs (one per tenant) ──</span>
+<span class="k">set</span> interfaces ethernet eth1 address <span class="v">'10.66.66.1/24'</span>   <span class="c"># prj-1 VTEP</span>
+<span class="k">set</span> interfaces ethernet eth2 address <span class="v">'10.77.77.1/24'</span>   <span class="c"># prj-2 VTEP</span>
+
+<span class="c"># ── global BGP: eBGP to the route controller (AS 65010), one neighbor per VTEP ──</span>
+<span class="k">set</span> protocols bgp system-as <span class="v">'65000'</span>
+
+<span class="k">set</span> protocols bgp neighbor 10.66.66.2 remote-as <span class="v">'65010'</span>
+<span class="k">set</span> protocols bgp neighbor 10.66.66.2 update-source <span class="v">'10.66.66.1'</span>
+<span class="k">set</span> protocols bgp neighbor 10.66.66.2 address-family <span class="s">l2vpn-evpn</span>
+
+<span class="k">set</span> protocols bgp neighbor 10.77.77.2 remote-as <span class="v">'65010'</span>
+<span class="k">set</span> protocols bgp neighbor 10.77.77.2 update-source <span class="v">'10.77.77.1'</span>
+<span class="k">set</span> protocols bgp neighbor 10.77.77.2 address-family <span class="s">l2vpn-evpn</span>
+
+<span class="k">set</span> protocols bgp address-family <span class="s">l2vpn-evpn</span> advertise-all-vni</pre>
+<div class="note ok"><p><strong>AS &amp; peering (confirmed from EVPN-RC):</strong> the route controller runs local AS <code>65010</code>, so this is <strong>eBGP</strong> — the VyOS neighbor's <code>remote-as</code> is <code>65010</code> (the RC's AS), and the RC in turn sees VyOS as <code>remote-as 65000</code>. The deployed lab peers <em>per tenant VTEP</em>: VyOS <code>10.66.66.1</code> ↔ RC <code>10.66.66.2</code> (prj-1) and VyOS <code>10.77.77.1</code> ↔ RC <code>10.77.77.2</code> (prj-2), both max-hop 1 — see the controller snapshots in §6.1. Both VTEP neighbors are configured above, and each tenant's VXLAN sources from its own VTEP (see §5.2–§5.3).</p></div>
+
+<h3 id="5-2-tenant-vrf-evpn-prj-1">5.2 · Tenant VRF — evpn-prj-1</h3>
+<pre><span class="c"># ── the VRF and its symbolic L3VNI ──</span>
+<span class="k">set</span> vrf name evpn-prj-1 table <span class="v">'10001'</span>
+<span class="k">set</span> vrf name evpn-prj-1 vni <span class="v">'70001'</span>
+
+<span class="c"># ── L3VNI transport: VXLAN iface bound into a bridge, bridge into the VRF ──</span>
+<span class="k">set</span> interfaces vxlan vxlan70001 vni <span class="v">'70001'</span>
+<span class="k">set</span> interfaces vxlan vxlan70001 source-address <span class="v">'10.66.66.1'</span>
+<span class="k">set</span> interfaces vxlan vxlan70001 parameters nolearning
+<span class="k">set</span> interfaces bridge br70001 member interface vxlan70001
+<span class="k">set</span> interfaces bridge br70001 vrf <span class="v">'evpn-prj-1'</span>
+
+<span class="c"># ── a local prefix so the VRF has something to originate as Type-5 ──</span>
+<span class="k">set</span> interfaces dummy dum70001 address <span class="v">'10.70.1.1/24'</span>
+<span class="k">set</span> interfaces dummy dum70001 vrf <span class="v">'evpn-prj-1'</span>
+
+<span class="c"># ── per-VRF BGP: re-originate the VRF's IPv4 routes as EVPN Type-5 ──</span>
+<span class="k">set</span> vrf name evpn-prj-1 protocols bgp system-as <span class="v">'65000'</span>
+<span class="k">set</span> vrf name evpn-prj-1 protocols bgp address-family ipv4-unicast redistribute connected
+<span class="k">set</span> vrf name evpn-prj-1 protocols bgp address-family <span class="s">l2vpn-evpn</span> advertise ipv4 unicast
+<span class="k">set</span> vrf name evpn-prj-1 protocols bgp address-family <span class="s">l2vpn-evpn</span> rd <span class="v">'65000:70001'</span>
+<span class="k">set</span> vrf name evpn-prj-1 protocols bgp address-family <span class="s">l2vpn-evpn</span> route-target both <span class="v">'65000:70001'</span></pre>
+
+<h3 id="5-3-second-tenant-is-the-same-pattern-evpn-prj-2">5.3 · Second tenant is the same pattern — evpn-prj-2</h3>
+<p>Adding tenant B is just the VRF block again with its own VNI, RD and RT. It rides the overlay sessions from 5.1 — <code>advertise-all-vni</code> already covers every VNI, so there is no per-VNI BGP config to add; prj-2 simply sources its VXLAN from its own VTEP (<code>10.77.77.1</code>), which is why 5.1 carries the second neighbor.</p>
+<pre><span class="k">set</span> vrf name evpn-prj-2 table <span class="v">'10002'</span>
+<span class="k">set</span> vrf name evpn-prj-2 vni <span class="v">'65020'</span>
+<span class="k">set</span> interfaces vxlan vxlan65020 vni <span class="v">'65020'</span>
+<span class="k">set</span> interfaces vxlan vxlan65020 source-address <span class="v">'10.77.77.1'</span>
+<span class="k">set</span> interfaces vxlan vxlan65020 parameters nolearning
+<span class="k">set</span> interfaces bridge br65020 member interface vxlan65020
+<span class="k">set</span> interfaces bridge br65020 vrf <span class="v">'evpn-prj-2'</span>
+<span class="k">set</span> interfaces dummy dum65020 address <span class="v">'10.65.20.1/24'</span>
+<span class="k">set</span> interfaces dummy dum65020 vrf <span class="v">'evpn-prj-2'</span>
+<span class="k">set</span> vrf name evpn-prj-2 protocols bgp system-as <span class="v">'65000'</span>
+<span class="k">set</span> vrf name evpn-prj-2 protocols bgp address-family ipv4-unicast redistribute connected
+<span class="k">set</span> vrf name evpn-prj-2 protocols bgp address-family <span class="s">l2vpn-evpn</span> advertise ipv4 unicast
+<span class="k">set</span> vrf name evpn-prj-2 protocols bgp address-family <span class="s">l2vpn-evpn</span> rd <span class="v">'65000:65020'</span>
+<span class="k">set</span> vrf name evpn-prj-2 protocols bgp address-family <span class="s">l2vpn-evpn</span> route-target both <span class="v">'65020:20'</span></pre>
+
+<h3 id="5-4-verify-on-vyos">5.4 · Verify on VyOS</h3>
+<pre><span class="c"># the overlay session and what each side sends/receives</span>
+vtysh -c <span class="v">'show bgp l2vpn evpn summary'</span>
+<span class="c"># the VNIs FRR has learned, and their L2/L3 type + tenant VRF</span>
+vtysh -c <span class="v">'show evpn vni'</span>
+<span class="c"># the Type-5 routes this box originates and imports (look for [5]:… RD …)</span>
+vtysh -c <span class="v">'show bgp l2vpn evpn'</span>
+<span class="c"># the resulting RIB inside a tenant VRF</span>
+vtysh -c <span class="v">'show ip route vrf evpn-prj-1'</span></pre>
+<div class="note ok"><p><strong>What "working" looks like:</strong> the summary shows the neighbor <code>Established</code> with a non-zero <code>PfxSnt</code>/<code>PfxRcd</code>; <code>show evpn vni</code> lists <code>70001</code> as L3 against tenant <code>evpn-prj-1</code>; and the tenant VRF RIB shows a <code>B&gt;*</code> route learned from the NSX side (a workload <code>/32</code> with the ESXi host TEP as next-hop).</p></div>
+
+<!-- ============================================================= -->
+<h2 id="6-the-nsx-side-and-the-traps">6 · The NSX side — and the traps</h2>
+<p>NSX 9.1 can run EVPN on the <strong>distributed transit gateway</strong>, not only a Tier-0. The object chain, from the workload up to the peer, is: a workload VM on a <strong>VPC subnet</strong> → the <strong>VPC</strong> and its connectivity profile → a <strong>transit gateway</strong> → an <strong>attachment</strong> to a <strong>distributed VXLAN connection</strong> (which holds the L3VNI/RD/RT) → the <strong>route controller</strong> on a VNA cluster, which is the box that actually peers BGP with VyOS. Below is what each object is for, with the live configuration from the lab.</p>
+
+<h3 id="6-1-route-controller-the-bgp-speaker">6.1 · Route controller (the BGP speaker)</h3>
+<p>The route controller (<code>EVPN-RC</code>) runs on the VNA cluster in <strong>Active-Standby</strong> HA and owns the EVPN sessions to VyOS. It carries <strong>two interfaces</strong> and <strong>two BGP neighbors</strong> — one per tenant VTEP — with local AS <code>65010</code>, so the sessions to VyOS (<code>AS 65000</code>) are <strong>eBGP</strong>. <code>Multipath Relax</code> is on — it lets paths with different AS-paths qualify as equal for multipath — though ECMP itself is off here. Both neighbors report <code>Success</code> — the control plane is up.</p>
+
+<figure>
+  <img src="/images/evpn/fig-01.webp" loading="lazy" alt="NSX EVPN Route Controller EVPN-RC — Active-Standby HA, 1 virtual network appliance, 2 interfaces, BGP Local AS 65010, Multipath Relax on, ECMP off, 2 BGP neighbors" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px">
+  <img src="/images/evpn/fig-02.webp" loading="lazy" alt="NSX BGP Neighbors on EVPN-RC — neighbor 10.77.77.1 source 10.77.77.2 and neighbor 10.66.66.1 source 10.66.66.2, both Remote AS 65000, Max Hop Limit 1, Status Success" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px;margin-top:10px">
+  <figcaption>EVPN-RC on the VNA cluster — Local AS 65010 (eBGP to VyOS 65000); neighbors 10.66.66.1 and 10.77.77.1 (RC sources 10.66.66.2 / 10.77.77.2), max-hop 1, both Success.</figcaption>
+</figure>
+
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Setting</th><th>Value — read from the controller</th></tr></thead>
+  <tbody>
+    <tr><td>Route controller</td><td class="mono">EVPN-RC · Active-Standby · 1 VNA · 2 interfaces</td></tr>
+    <tr><td>Local AS</td><td class="mono">65010  (eBGP → VyOS 65000)</td></tr>
+    <tr><td>Neighbor · prj-1</td><td class="mono">10.66.66.1 · src 10.66.66.2 · remote-as 65000 · max-hop 1 → Success</td></tr>
+    <tr><td>Neighbor · prj-2</td><td class="mono">10.77.77.1 · src 10.77.77.2 · remote-as 65000 · max-hop 1 → Success</td></tr>
+    <tr><td>Options</td><td class="mono">Multipath Relax on · ECMP off · BFD off</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="6-2-distributed-vxlan-connection-l3vni-rd-rt">6.2 · Distributed VXLAN connection (L3VNI + RD + RT)</h3>
+<p>This is the EVPN identity of the tenant on the NSX side. The connection type is <strong>Distributed VXLAN</strong> with <code>Services: EVPN</code> — NSX describes it as integrating with a fabric via BGP EVPN for route advertisement and direct host-to-fabric VXLAN. Each tenant's connection carries its <strong>EVPN L3 VNI</strong>, an explicitly-typed <strong>Route Distinguisher</strong>, and <strong>import/export Route Targets</strong>, all bound to the <code>EVPN-RC</code> route controller. Connectivity Type is <strong>L3 Only (Route Type 5)</strong> — prefixes, no L2. These must line up with the VyOS VRF: <strong>VNI equal, RT equal, RD distinct.</strong></p>
+<figure>
+  <img src="/images/evpn/fig-03.webp" loading="lazy" alt="NSX External Connections list — Distributed-vxlan-wld01 (Distributed VXLAN, EVPN-RC, L3 VNI 70001) and ext-con-prj-2 (Distributed VXLAN, EVPN-RC, L3 VNI 65020) expanded: Connectivity Type L3 Only Route Type 5, Import/Export Route Target 65020:20, Route Distinguisher 65020:20" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px">
+  <img src="/images/evpn/fig-04.webp" loading="lazy" alt="NSX Edit External Connection ext-con-prj-2 — Distributed VXLAN Connection, Connectivity Type L3 Only Route Type 5, Route Controller EVPN-RC, EVPN L3 VNI 65020, Route Distinguisher 65020:20, Import Route Target 65020:20, Export Route Target 65020:20" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px;margin-top:10px">
+  <figcaption>The two tenant connections on EVPN-RC — prj-1 = Distributed-vxlan-wld01 (VNI 70001), prj-2 = ext-con-prj-2 (VNI 65020) — and prj-2's editor showing RD 65020:20, Import/Export RT 65020:20, L3 Only (Route Type 5).</figcaption>
+</figure>
+
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Setting</th><th class="p1">prj-1 connection</th><th class="p1">prj-2 connection</th></tr></thead>
+  <tbody>
+    <tr><td>Name</td><td class="mono">Distributed-vxlan-wld01</td><td class="mono">ext-con-prj-2</td></tr>
+    <tr><td>Type / service</td><td class="mono">Distributed VXLAN · EVPN</td><td class="mono">Distributed VXLAN · EVPN</td></tr>
+    <tr><td>Route controller</td><td class="mono">EVPN-RC</td><td class="mono">EVPN-RC</td></tr>
+    <tr><td>Connectivity type</td><td class="mono">L3 Only (Route Type 5)</td><td class="mono">L3 Only (Route Type 5)</td></tr>
+    <tr><td>EVPN L3 VNI</td><td class="mono">70001</td><td class="mono">65020</td></tr>
+    <tr><td>Route Distinguisher (NSX)</td><td class="mono">65001:70001</td><td class="mono">65020:20</td></tr>
+    <tr><td>Import / Export RT</td><td class="mono">65000:70001</td><td class="mono">65020:20 / 65020:20</td></tr>
+    <tr><td>Transit gateways</td><td class="mono">1</td><td class="mono">1</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="6-3-assign-the-external-connection-to-the-project">6.3 · Assign the external connection to the project</h3>
+<p>A distributed VXLAN connection isn't consumable by a tenant until it's assigned to that tenant's <strong>project</strong>. In <em>Manage Projects</em>, editing <code>evpn-prj-1</code> and setting its <strong>External Connectivity</strong> associates the connection from §6.2 (for prj-1, <code>Distributed-vxlan-wld01</code>) — shown here as <strong>External Connections: 1</strong>. The <em>Set External Connections</em> dialog picks it in two places — <strong>External Connections</strong> (available to the project's VPCs) and <strong>External Connections for Default Transit Gateway</strong> (the connection the project's built-in transit gateway uses) — both set to <code>Distributed-vxlan-wld01</code>. Only once it's assigned can the project's VPCs and transit gateways attach to it. The project also anchors the tenant's <strong>External IP Blocks</strong> (the ranges its VPC subnets draw from — 2 here) and its <strong>Edge / Virtual Network Appliance cluster</strong> (the one VNA cluster where the route controller runs).</p>
+
+<figure>
+  <img src="/images/evpn/fig-05.webp" loading="lazy" alt="NSX Manage Projects panel editing project evpn-prj-1 — External Connectivity Set, External Connections 1, External IP Blocks 2, Edge/Virtual Network Appliance Clusters 1, Short Log Identifier 8UW4nPHX, Status Success" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px">
+  <img src="/images/evpn/fig-06.webp" loading="lazy" alt="NSX Set External Connections dialog for project evpn-prj-1 — External Connections set to Distributed-vxlan-wld01, and External Connections for Default Transit Gateway also set to Distributed-vxlan-wld01" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px;margin-top:10px">
+  <figcaption>Assigning the connection to evpn-prj-1 — the Manage Projects panel (top), and the Set External Connections dialog (bottom) choosing Distributed-vxlan-wld01 both for the project's VPCs and for its default transit gateway.</figcaption>
+</figure>
+
+<div class="note"><p><strong>Why this is its own step:</strong> the project is the isolation boundary — a connection is available only to the projects it's assigned to, here <code>evpn-prj-1</code> alone. This is where the tenant separation you enforced with RD/RT in the fabric becomes an <em>administrative</em> boundary in NSX too: prj-2's VPCs can't attach prj-1's connection, and vice-versa.</p></div>
+
+<h3 id="6-4-transit-gateway-attachment">6.4 · Transit gateway + attachment</h3>
+<p>The transit gateway is per project; attaching it to the external connection is what binds the connection into the datapath. Editing <code>evpn-prj-1-dgtw</code>, the <strong>Connection</strong> type is <strong>Distributed VXLAN</strong> and the <strong>External Connection</strong> is <code>Distributed-vxlan-wld01</code> — the one assigned to the project in §6.3. NSX states the dependency inline: the TGW connectivity type is selectable <em>only</em> once external connections are assigned. The <strong>VPC Transit Subnets</strong> (<code>100.64.0.0/21</code> by default) are the internal transit range the VPC uses to reach the transit gateway — plumbing, not something you advertise.</p>
+
+<figure>
+  <img src="/images/evpn/fig-07.webp" loading="lazy" alt="NSX Edit evpn-prj-1-dgtw transit gateway — Network Span Default Span, Connection Distributed VXLAN, External Connection Distributed-vxlan-wld01, VPC Transit Subnets 100.64.0.0/21" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px">
+  <figcaption>Transit gateway evpn-prj-1-dgtw attached to Distributed-vxlan-wld01 over Distributed VXLAN, with the default 100.64.0.0/21 VPC transit range.</figcaption>
+</figure>
+
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Setting</th><th>Value — evpn-prj-1-dgtw</th></tr></thead>
+  <tbody>
+    <tr><td>Network span</td><td class="mono">Default Span</td></tr>
+    <tr><td>Connection type</td><td class="mono">Distributed VXLAN</td></tr>
+    <tr><td>External connection</td><td class="mono">Distributed-vxlan-wld01</td></tr>
+    <tr><td>VPC transit subnets</td><td class="mono">100.64.0.0/21  (default · max 5)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note"><p><strong>Dependency:</strong> the <em>Distributed VXLAN</em> connection type only becomes selectable here after the external connection is assigned to the project (§6.3) — specifically the "External Connections for Default Transit Gateway" choice. Assign first, then this dropdown lights up. (The advertisement behaviour — only Public subnets originate — is set on the subnet; see §6.5 and §6.8.)</p></div>
+
+<h3 id="6-5-vpc-connectivity-profile-and-the-public-subnet">6.5 · VPC, connectivity profile, and the Public subnet</h3>
+<p>The workload lives on a VPC subnet, and <strong>the subnet's Access Mode is the single most important setting in the whole build</strong> — it decides whether the subnet is advertised at all, and it's immutable after creation, so get it right up front. Both tenants' workload subnets are <strong>Access Mode: Public</strong> with VPC Gateway Connectivity on, each drawing from its own IP block: prj-1's <code>public</code> is <code>10.21.21.64/26</code> from <code>dgtw-block</code> in <code>evpn-prj-1-vpc-1</code>; prj-2's <code>pub</code> is <code>10.55.55.0/28</code> from <code>ext-prj-2</code> in <code>prj-2-vpc-1</code> — two projects, two public subnets, the same route controller keeping them apart by RD/RT.</p>
+
+<figure>
+  <img src="/images/evpn/fig-08.webp" loading="lazy" alt="NSX VPC evpn-prj-1-vpc-1 subnet named public — Access Mode Public, IP Block dgtw-block 10.21.21.64/26 Auto-allocate, Default Span, VPC Gateway Connectivity Yes, DHCP Server lease 86400" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px">
+  <img src="/images/evpn/fig-09.webp" loading="lazy" alt="NSX VPC prj-2-vpc-1 subnets — pgtw Access Mode Private Transit Gateway 10.155.155.0/29, and pub Access Mode Public 10.55.55.0/28 Auto-allocate, VPC Gateway Connectivity Yes" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px;margin-top:10px">
+  <figcaption>The two projects' public subnets — evpn-prj-1-vpc-1 / public (10.21.21.64/26) and prj-2-vpc-1 / pub (10.55.55.0/28), both Access Mode Public. prj-2 also carries a Private–Transit-Gateway subnet (pgtw, 10.155.155.0/29) that will not be advertised — see §6.8.</figcaption>
+</figure>
+
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Subnet</th><th class="p1">prj-1 · public</th><th class="p1">prj-2 · pub</th></tr></thead>
+  <tbody>
+    <tr><td>VPC</td><td class="mono">evpn-prj-1-vpc-1</td><td class="mono">prj-2-vpc-1</td></tr>
+    <tr><td>Access mode</td><td class="mono">Public</td><td class="mono">Public</td></tr>
+    <tr><td>IP block</td><td class="mono">dgtw-block</td><td class="mono">ext-prj-2</td></tr>
+    <tr><td>CIDR (auto-allocate)</td><td class="mono">10.21.21.64/26</td><td class="mono">10.55.55.0/28</td></tr>
+    <tr><td>Network span</td><td class="mono">Default Span</td><td class="mono">Default Span</td></tr>
+    <tr><td>VPC gateway conn.</td><td class="mono">Yes</td><td class="mono">Yes</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note warn"><p><strong>Public vs Private, live:</strong> prj-2's VPC also carries <code>pgtw</code>, a <strong>Private – Transit Gateway</strong> subnet (<code>10.155.155.0/29</code>). A VM there has nothing eligible to advertise — only the <code>Public</code> subnet's addresses become EVPN Type-5 host routes. This is exactly the trap in §6.8: the session peers fine but announces nothing, because the workload sat on the wrong access mode.</p></div>
+
+<h3 id="6-6-workload-attached-and-the-route-on-the-wire">6.6 · Workload attached, and the route on the wire</h3>
+<p>With VMs live on the Public subnets, the route controller originates each workload's <code>/32</code> as EVPN Type-5, and both ends line up. On the RC (its <code>tier0_sr</code>), <code>get bgp neighbor 10.66.66.1 advertised-routes</code> shows the two host routes it sends: prj-1 <code>10.21.21.67/32</code> (RD <code>65001:70001</code>, next-hop host TEP <code>10.1.3.133</code>) and prj-2 <code>10.55.55.3/32</code> (RD <code>65020:20</code>, next-hop <code>10.1.3.135</code>) — and the identical pair goes to the other VTEP neighbor <code>10.77.77.1</code>.</p>
+
+<figure>
+  <img src="/images/evpn/fig-10.webp" loading="lazy" alt="Route controller advertised-routes to neighbors 10.66.66.1 and 10.77.77.1 — EVPN Type-5 [5]:[0]:[10.21.21.67/32] next-hop 10.1.3.133 RD 65001:70001 and [5]:[0]:[10.55.55.3/32] next-hop 10.1.3.135 RD 65020:20, both sent to both neighbors" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px">
+  <figcaption>The route controller advertising both tenants' /32s (10.21.21.67 and 10.55.55.3) to each VyOS VTEP neighbor, next-hop the ESX host TEP.</figcaption>
+</figure>
+
+<h4>Why both tenants show up on one session</h4>
+<p>The route controller is a <em>single</em> BGP speaker holding every EVPN route, so when it advertises to a neighbor it sends its <strong>entire EVPN table</strong> — both RDs, both tenants — down each session. That is expected, not a leak: the RD makes each prefix globally unique, and <strong>tenant separation is enforced at import, not at advertisement</strong>. The receiver installs a route only into the VRF whose import RT matches the route's RT, so seeing prj-1's and prj-2's prefixes on the same wire is normal — they diverge the instant they're imported.</p>
+
+<p>VyOS confirms the other half. <code>show bgp l2vpn evpn neighbors 10.66.66.2 routes</code> lists both prefixes under their distinct RDs: <code>65001:70001</code> carrying <code>RT:65000:70001</code> (→ imported into <code>evpn-prj-1</code>) and <code>65020:20</code> carrying <code>RT:65020:20</code> (→ <code>evpn-prj-2</code>). The AS-path is <code>65010</code> (eBGP from the RC), the encapsulation <code>ET:8</code> is VXLAN, and each route carries the advertising host's router-MAC (<code>Rmac</code>). Because the RC sends the same routes out <em>both</em> its VTEPs, VyOS learns each <code>/32</code> twice — best (<code>*&gt;</code>) on one session, multipath-eligible (<code>*=</code>) on the other — giving it two equal-cost paths to the host.</p>
+
+<figure>
+  <img src="/images/evpn/fig-11.webp" loading="lazy" alt="VyOS show bgp l2vpn evpn neighbors routes from 10.77.77.2 and 10.66.66.2 — Route Distinguisher 65001:70001 [5]:[0]:[32]:[10.21.21.67] next-hop 10.1.3.133 RT:65000:70001 ET:8, and Route Distinguisher 65020:20 [5]:[0]:[32]:[10.55.55.3] next-hop 10.1.3.135 RT:65020:20 ET:8, AS-path 65010" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px">
+  <figcaption>VyOS receiving the same two /32s from both RC VTEPs (10.66.66.2 and 10.77.77.2) — each under its own RD, tagged with the RT that decides which VRF it lands in; marked *&gt; best on one session, *= on the other.</figcaption>
+</figure>
+
+<div class="note ok"><p><strong>Proof of life:</strong> the <code>/32</code> the RC advertises (§1, §8) is exactly what VyOS receives here, tagged with the RT that files it into the right tenant VRF. That's the control plane closed end to end — the matching data-plane path is §8.</p></div>
+
+<h3 id="6-7-why-only-the-matching-route-lands-in-each-vrf">6.7 · Why only the matching route lands in each VRF</h3>
+<p>§6.6 showed both tenants' /32s crossing every session — so why doesn't prj-2's route appear in prj-1's routing table? Because <strong>import RT is a filter</strong>. A received EVPN route sits in the global L2VPN-EVPN table, but FRR installs it into a tenant VRF's RIB <em>only</em> if the route's RT matches that VRF's <code>route-target both</code>. The result is clean per-tenant tables:</p>
+
+<figure>
+  <img src="/images/evpn/fig-12.webp" loading="lazy" alt="VyOS show ip route vrf evpn-prj-1 and evpn-prj-2 — VRF evpn-prj-1 has B greater-than star 10.21.21.67/32 [20/0] via 10.1.3.133 br70001 onlink plus connected 10.70.1.0/24 on dum70001; VRF evpn-prj-2 has B greater-than star 10.55.55.3/32 via 10.1.3.135 br65020 onlink plus connected 10.65.20.0/24 on dum65020" style="display:block;width:100%;border:1px solid var(--line);border-radius:8px">
+  <figcaption>Each tenant VRF holds only its own imported /32 — evpn-prj-1 gets 10.21.21.67 (via br70001), evpn-prj-2 gets 10.55.55.3 (via br65020) — even though both were advertised on both sessions.</figcaption>
+</figure>
+
+<p>Reading the evpn-prj-1 table: <code>B&gt;* 10.21.21.67/32 [20/0] via 10.1.3.133, br70001 onlink</code> is the imported Type-5 route — its RT <code>65000:70001</code> matched the VRF, so it's in. prj-2's <code>10.55.55.3/32</code> (RT <code>65020:20</code>) is <em>absent</em>: it was received on the session, but its RT didn't match, so it never entered this VRF. The recursive next-hop resolves out <strong>br70001</strong> — the L3VNI bridge for VNI 70001 — which is what encapsulates the packet toward the host TEP (the data-plane path in §8).</p>
+
+<p>Two more things the table shows:</p>
+<ul>
+  <li><strong>The <code>(dup)</code> second path</strong> is the same prefix learned from the RC's other VTEP (§6.6) — both resolve to the same next-hop, so FRR keeps one and flags the duplicate. That's the two-VTEP redundancy landing in the RIB.</li>
+  <li><strong>The connected routes</strong> — <code>C&gt;* 10.70.1.0/24</code> and <code>L&gt;* 10.70.1.1/32</code> on <code>dum70001</code> — are the local prefixes VyOS <em>originates</em> back to NSX as Type-5 (the reverse direction). Each VRF advertises its own connected subnet and imports the far side's host routes; that symmetry is the whole point of meshing the two fabrics.</li>
+</ul>
+
+<div class="note ok"><p><strong>Tenant isolation, mechanically:</strong> the fabric floods everything, the RD keeps it unique, and the import RT decides membership. Same RT both ends → the route lands; different RT → it's filtered out. No ACL, no VRF leak — just RT matching. To deliberately share between tenants, you add a cross-VRF <code>import</code> (see the note after §8).</p></div>
+
+<h3 id="6-8-the-traps-collected">6.8 · The traps, collected</h3>
+<div class="note warn"><p><strong>1 · A distributed VXLAN connection advertises <em>host /32s</em>, not the subnet.</strong> The route controller sends per-workload <code>/32</code> routes with the host TEP as next-hop — it does not advertise the subnet prefix. If you're waiting to see <code>10.55.55.0/28</code> cross to VyOS, you'll wait forever; you'll see <code>10.55.55.3/32</code> once a VM is up.</p></div>
+<div class="note warn"><p><strong>2 · Only <em>Public</em> subnets originate.</strong> The attachment's default rule is <code>PUBLIC</code>, and NSX <em>refuses</em> to change it to <code>TGW_PRIVATE</code> on an EVPN attachment (it returns a 612520 "not supported" error). A VM on a <em>Private – Transit Gateway</em> subnet (<code>Private_TGW</code> in the API) has nothing eligible to advertise — this is the classic "NSX peers fine but announces nothing" symptom.</p></div>
+<div class="note warn"><p><strong>3 · RD distinct, RT identical.</strong> Covered above — and it's an NSX-side trap because you type <em>both</em> RDs by hand (NSX's on the connection, VyOS's on the VRF), so nothing stops you setting them equal. Keep them different — NSX prj-2 <code>65020:20</code> vs VyOS <code>65000:65020</code>.</p></div>
+<div class="note warn"><p><strong>4 · No N-S service gateway on an EVPN-attached TGW.</strong> Enabling the VPC service gateway (centralized SNAT) is rejected by design when the transit gateway has a distributed VXLAN connection attachment. EVPN routing and the stateful N-S gateway are mutually exclusive here.</p></div>
+
+<!-- ============================================================= -->
+<h2 id="7-the-holodeck-underlay-the-holorouter">7 · The Holodeck underlay — the holorouter</h2>
+<p>Here's the failure mode that eats an afternoon: the EVPN <em>control plane</em> comes straight up — session <code>Established</code>, prefixes exchanged — but pings fail, because the <em>data plane</em> can't form. In a nested Holodeck, everything routes through the <strong>holorouter</strong> (a Photon L3 hub at <code>10.0.6.33</code>) that <strong>masquerades every interface</strong>. Left alone, it SNATs the VXLAN outer IPs, so the ESX host TEPs (<code>10.1.3.0/24</code>) and VyOS's VTEP subnets never actually reach each other. Two things fix it: a <strong>route</strong> so the holorouter can reach the VTEP subnets via VyOS's management leg, and <strong>NAT exemptions</strong> so the TEP↔VTEP flows keep their real addresses.</p>
+
+<figure>
+<div class="scroll">
+<svg viewBox="0 0 940 380" role="img" aria-label="The holorouter as L3 hub between ESX host TEPs and VyOS VTEP subnets, showing the underlay path, the route via VyOS management leg, the VXLAN overlay it carries, and the masquerade exemption for TEP-to-VTEP flows">
+  <!-- underlay zone -->
+  <rect x="26" y="96" width="888" height="232" rx="14" fill="none" stroke="var(--coral)" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text class="svg-zone" x="40" y="88" fill="var(--coral)">Nested Holodeck underlay — routed / masqueraded through the holorouter</text>
+
+  <!-- VXLAN overlay path (teal dashed, over the top) -->
+  <path d="M95 178 V120 H820 V132" fill="none" stroke="var(--teal)" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#aht)"/>
+  <text class="svg-lbl" x="457" y="113" text-anchor="middle" fill="var(--teal)">VXLAN data plane · VNI 70001 / 65020 — the flows these mods unblock</text>
+
+  <!-- nodes -->
+  <g style="color:var(--purple)"><use href="#g-vm" x="72" y="177" width="46" height="46"/></g>
+  <text class="svg-lbl" x="95" y="236" text-anchor="middle">ESX host TEP</text>
+  <text class="svg-sub" x="95" y="249" text-anchor="middle">10.1.3.133 / .135</text>
+
+  <g style="color:var(--coral)"><use href="#g-router" x="327" y="177" width="46" height="46"/></g>
+  <text class="svg-lbl" x="350" y="236" text-anchor="middle">holorouter · Photon</text>
+  <text class="svg-sub" x="350" y="249" text-anchor="middle">10.0.6.33 — L3 hub / NAT</text>
+
+  <g style="color:var(--coral)"><use href="#g-router" x="617" y="177" width="46" height="46"/></g>
+  <text class="svg-lbl" x="640" y="236" text-anchor="middle">VyOS border</text>
+  <text class="svg-sub" x="640" y="249" text-anchor="middle">mgmt 10.1.1.250 (eth0)</text>
+
+  <g style="color:var(--coral)"><use href="#g-conn" x="802" y="132" width="36" height="36"/></g>
+  <text class="svg-sub" x="845" y="147" fill="var(--ink)">VTEP prj-1</text>
+  <text class="svg-sub" x="845" y="160">10.66.66.1</text>
+  <g style="color:var(--coral)"><use href="#g-conn" x="802" y="232" width="36" height="36"/></g>
+  <text class="svg-sub" x="845" y="247" fill="var(--ink)">VTEP prj-2</text>
+  <text class="svg-sub" x="845" y="260">10.77.77.1</text>
+
+  <!-- underlay connectors (coral solid) -->
+  <path class="sess" d="M118 200 H326"/>
+  <text class="svg-sub" x="222" y="192" text-anchor="middle" fill="var(--ink)">10.1.3.0/24 host TEP</text>
+  <text class="svg-sub" x="222" y="215" text-anchor="middle">eth1.13 / eth1.14</text>
+
+  <path class="sess" d="M374 200 H616"/>
+  <text class="svg-sub" x="495" y="192" text-anchor="middle" fill="var(--ink)">10.1.1.0/24 · VLAN 10</text>
+  <text class="svg-sub" x="495" y="215" text-anchor="middle" fill="var(--coral)">→ 10.66/10.77 route via .250</text>
+
+  <!-- VyOS -> VTEPs -->
+  <path class="conn" d="M663 200 H740 V150 H800" marker-end="url(#ahc)"/>
+  <path class="conn" d="M663 200 H740 V250 H800" marker-end="url(#ahc)"/>
+
+  <!-- masquerade badge under holorouter -->
+  <path class="conn" d="M350 177 V166" marker-end="url(#ah)"/>
+  <rect x="292" y="139" width="116" height="24" rx="6" fill="var(--warnbg)" stroke="var(--warn)" stroke-width="1.2"/>
+  <text x="350" y="155" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-size="10.5" font-weight="600" fill="var(--warn)">MASQUERADE → eth0</text>
+  <text class="svg-sub" x="418" y="155" fill="var(--muted)">TEP↔VTEP exempted — ACCEPT, no SNAT</text>
+
+  <!-- legend -->
+  <text class="svg-sub" x="470" y="360" text-anchor="middle">
+    <tspan fill="var(--coral)">━</tspan> underlay (routed, masqueraded) &#160;&#160;
+    <tspan fill="var(--teal)">┄</tspan> VXLAN overlay tunnel &#160;&#160;
+    <tspan fill="var(--purple)">■</tspan> ESX / NSX &#160;&#160;
+    <tspan fill="var(--coral)">■</tspan> holorouter &amp; VyOS
+  </text>
+</svg>
+</div>
+<figcaption>The control plane peers fine over management; the data plane only forms once the holorouter can route to the VTEP subnets <em>and</em> stops masquerading the TEP↔VTEP flows.</figcaption>
+</figure>
+
+<div class="note"><p><strong>Per-tenant VTEPs:</strong> each project has its own VTEP subnet — prj-1 <code>10.66.66.0/24</code>, prj-2 <code>10.77.77.0/24</code> — which is why there are two routes and two pairs of exemptions above, and why §5 configures a VTEP source per tenant. Collapse both onto a single VTEP source and you would need only one route and one pair of exemptions; the pattern is identical, only the address count changes.</p></div>
+
+<h3 id="7-1-routes-reach-the-vtep-subnets-via-vyos-s-mgmt-leg">7.1 · Routes — reach the VTEP subnets via VyOS's mgmt leg</h3>
+<pre><span class="c"># on the holorouter (root@10.0.6.33) — path to each VTEP subnet via VyOS eth0</span>
+ip route add 10.66.66.0/24 via 10.1.1.250     <span class="c"># prj-1 VTEP subnet</span>
+ip route add 10.77.77.0/24 via 10.1.1.250     <span class="c"># prj-2 VTEP subnet</span></pre>
+<p style="font-size:.9rem;color:var(--muted)">These resolve out <code>eth1.10</code> (VLAN 10, where <code>10.1.1.250</code> lives). Before them, both VTEPs were <code>UNREACH</code> from the holorouter; after, both ping <code>REACH</code>. This route is the decisive change.</p>
+
+<h3 id="7-2-nat-exemptions-don-t-masquerade-tepvtep">7.2 · NAT exemptions — don't masquerade TEP↔VTEP</h3>
+<pre><span class="c"># inserted at the TOP of nat POSTROUTING, above KUBE-POSTROUTING and the MASQUERADE catch-alls</span>
+iptables -t nat -I POSTROUTING -s 10.66.66.0/24 -d 10.1.3.0/24 -j ACCEPT
+iptables -t nat -I POSTROUTING -s 10.1.3.0/24 -d 10.66.66.0/24 -j ACCEPT
+iptables -t nat -I POSTROUTING -s 10.77.77.0/24 -d 10.1.3.0/24 -j ACCEPT
+iptables -t nat -I POSTROUTING -s 10.1.3.0/24 -d 10.77.77.0/24 -j ACCEPT</pre>
+<div class="note warn"><p><strong>Two things to know:</strong> these are <strong>runtime-only</strong> — a reboot wipes every rule and route in this section (see 7.4 to persist). And unlike the earlier classic-edge rules, these carry <strong>no <code>--comment</code> tag</strong>, so at cleanup you identify them by subnet — or re-add each with <code>-m comment --comment evpn-dgtw</code> to make them greppable.</p></div>
+
+<h3 id="7-3-verify-roll-back">7.3 · Verify &amp; roll back</h3>
+<pre><span class="c"># verify — 4 ACCEPTs at the top, route resolves, both VTEPs reachable</span>
+iptables -t nat -L POSTROUTING -n --line-numbers | head
+ip route get 10.66.66.1                          <span class="c"># → via 10.1.1.250 dev eth1.10</span>
+ping -c1 10.66.66.1 &amp;&amp; ping -c1 10.77.77.1        <span class="c"># both REACH</span>
+
+<span class="c"># roll back everything in this section</span>
+iptables -t nat -D POSTROUTING -s 10.66.66.0/24 -d 10.1.3.0/24 -j ACCEPT
+iptables -t nat -D POSTROUTING -s 10.1.3.0/24 -d 10.66.66.0/24 -j ACCEPT
+iptables -t nat -D POSTROUTING -s 10.77.77.0/24 -d 10.1.3.0/24 -j ACCEPT
+iptables -t nat -D POSTROUTING -s 10.1.3.0/24 -d 10.77.77.0/24 -j ACCEPT
+ip route del 10.66.66.0/24 via 10.1.1.250
+ip route del 10.77.77.0/24 via 10.1.1.250</pre>
+
+<h3 id="7-4-make-it-survive-a-reboot-photon">7.4 · Make it survive a reboot (Photon)</h3>
+<p>Drop the two <code>ip route add</code> and four <code>iptables -I</code> lines into a script and wrap it in a oneshot unit. Make the iptables inserts idempotent (check-then-add) so re-runs don't stack duplicates.</p>
+<pre><span class="c"># /etc/systemd/system/evpn-holo.service   →   systemctl enable --now evpn-holo</span>
+[Unit]
+After=network-online.target
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/evpn-holo.sh
+[Install]
+WantedBy=multi-user.target</pre>
+
+<h3 id="7-5-reference-holorouter-interfaces-the-rules-rely-on">7.5 · Reference — holorouter interfaces the rules rely on</h3>
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Interface</th><th class="mono">Address</th><th>Serves</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">eth1.10</td><td class="mono">10.1.1.1/24</td><td>VLAN 10 — nested mgmt; VyOS <code>eth0</code> (10.1.1.250) lives here</td></tr>
+    <tr><td class="mono">eth1.13</td><td class="mono">10.1.3.1/25</td><td>host TEP underlay (lower half)</td></tr>
+    <tr><td class="mono">eth1.14</td><td class="mono">10.1.3.129/25</td><td>host TEP underlay — gateway for vmk10/vmk11 (10.1.3.133/.135)</td></tr>
+    <tr><td class="mono">eth0</td><td class="mono">10.0.6.33</td><td>outer / uplink (masqueraded)</td></tr>
+  </tbody>
+</table>
+</div>
+<p style="font-size:.9rem;color:var(--muted)">There is no interface on <code>10.66.66.0/24</code> or <code>10.77.77.0/24</code> — those VTEP subnets are reachable only via the route in 7.1. (Prior to the DGTW build, an earlier classic-edge attempt used the same exemption pattern at different addresses — edge TEP <code>10.1.5.128/25</code> ↔ VyOS <code>10.0.6.1</code> — since removed.)</p>
+
+<!-- ============================================================= -->
+<h2 id="8-the-full-l3-path-following-the-32">8 · The full L3 path — following the /32</h2>
+<p>Putting §1's <code>/32</code> together with the underlay from §7: here is what actually happens, hop by hop, when something in the fabric sends a packet to the workload <code>10.55.55.3</code> on the NSX public subnet <code>10.55.55.0/28</code>. The routing decision is made on the <code>/32</code>; VXLAN is only the transport between the two L3 contexts.</p>
+
+<figure>
+<div class="scroll">
+<svg viewBox="0 0 940 400" role="img" aria-label="L3 forwarding path for destination 10.55.55.3: VyOS VRF RIB /32 lookup, VXLAN encapsulation at the VyOS VTEP, underlay to the ESX host TEP, decapsulation into the tenant IP-VRF, distributed router, and delivery to the VM on the public subnet">
+  <!-- RIB callout -->
+  <rect x="30" y="82" width="322" height="66" rx="9" fill="var(--codebg)" stroke="var(--accent)" stroke-width="1.5"/>
+  <text x="46" y="103" font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-size="11" font-weight="600" fill="var(--accent)">FRR RIB · vrf evpn-prj-2</text>
+  <text x="46" y="121" font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-size="11" fill="var(--ink)">B&gt;* 10.55.55.3/32 [20/0]</text>
+  <text x="46" y="137" font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-size="11" fill="var(--muted)">via 10.1.3.135, br65020 onlink</text>
+  <path class="conn" d="M95 148 V228" marker-end="url(#ah)"/>
+  <text class="svg-sub" x="368" y="113" fill="var(--coral)">the VM is a /32,</text>
+  <text class="svg-sub" x="368" y="127" fill="var(--coral)">never the /28</text>
+
+  <!-- zones -->
+  <rect x="26" y="176" width="252" height="180" rx="14" fill="none" stroke="var(--coral)" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text class="svg-zone" x="270" y="168" text-anchor="end" fill="var(--coral)">Physical fabric / border</text>
+  <rect x="602" y="176" width="312" height="180" rx="14" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text class="svg-zone" x="616" y="168" fill="var(--purple)">NSX workload domain</text>
+
+  <!-- spine nodes -->
+  <g style="color:var(--coral)"><use href="#g-router" x="72" y="232" width="46" height="46"/></g>
+  <text class="svg-lbl" x="95" y="294" text-anchor="middle">VyOS</text><text class="svg-sub" x="95" y="307" text-anchor="middle">VRF evpn-prj-2</text>
+
+  <g style="color:var(--coral)"><use href="#g-conn" x="207" y="237" width="36" height="36"/></g>
+  <text class="svg-lbl" x="225" y="294" text-anchor="middle">VyOS VTEP</text><text class="svg-sub" x="225" y="307" text-anchor="middle">10.77.77.1</text>
+
+  <!-- tunnel pill -->
+  <rect x="262" y="237" width="338" height="36" rx="18" fill="none" stroke="var(--teal)" stroke-width="1.8" stroke-dasharray="6 5"/>
+  <text x="431" y="251" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-size="10.5" font-weight="600" fill="var(--teal)">VXLAN · L3VNI 65020</text>
+  <text x="431" y="266" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-size="10" fill="var(--muted)">outer 10.77.77.1 → 10.1.3.135</text>
+  <text class="svg-sub" x="431" y="228" text-anchor="middle" fill="var(--ink)">inner dst 10.55.55.3</text>
+  <text class="svg-sub" x="431" y="288" text-anchor="middle">underlay via holorouter (§7)</text>
+
+  <g style="color:var(--purple)"><use href="#g-vm" x="617" y="232" width="46" height="46"/></g>
+  <text class="svg-lbl" x="640" y="294" text-anchor="middle">ESX host TEP</text><text class="svg-sub" x="640" y="307" text-anchor="middle">10.1.3.135</text>
+
+  <g style="color:var(--purple)"><use href="#g-drouter" x="737" y="232" width="46" height="46"/></g>
+  <text class="svg-lbl" x="760" y="294" text-anchor="middle">dist-router</text><text class="svg-sub" x="760" y="307" text-anchor="middle">gw 10.55.55.0/28</text>
+
+  <g style="color:var(--teal)"><use href="#g-vm" x="847" y="232" width="46" height="46"/></g>
+  <text class="svg-lbl" x="870" y="294" text-anchor="middle">tiny-vm-t2</text><text class="svg-sub" x="870" y="307" text-anchor="middle">10.55.55.3</text>
+
+  <!-- connectors -->
+  <path class="sess" d="M118 255 H206"/>
+  <path d="M600 255 H616" fill="none" stroke="var(--teal)" stroke-width="1.8" marker-end="url(#aht)"/>
+  <path class="conn" d="M659 255 H736" marker-end="url(#ahp)"/>
+  <path d="M783 255 H846" fill="none" stroke="var(--teal)" stroke-width="1.8" marker-end="url(#aht)"/>
+
+  <!-- numbered badges -->
+  <g font-family="IBM Plex Mono, ui-monospace, Menlo, Consolas, monospace" font-size="11" font-weight="700" text-anchor="middle">
+    <circle cx="74" cy="236" r="9" fill="var(--accent)"/><text x="74" y="240" fill="#fff">1</text>
+    <circle cx="209" cy="241" r="9" fill="var(--accent)"/><text x="209" y="245" fill="#fff">2</text>
+    <circle cx="619" cy="236" r="9" fill="var(--accent)"/><text x="619" y="240" fill="#fff">3</text>
+    <circle cx="739" cy="236" r="9" fill="var(--accent)"/><text x="739" y="240" fill="#fff">4</text>
+    <circle cx="849" cy="236" r="9" fill="var(--accent)"/><text x="849" y="240" fill="#fff">5</text>
+  </g>
+
+  <!-- legend -->
+  <text class="svg-sub" x="470" y="384" text-anchor="middle">
+    <tspan fill="var(--coral)">━</tspan> fabric / underlay &#160;&#160;
+    <tspan fill="var(--teal)">┄</tspan> VXLAN overlay &#160;&#160;
+    <tspan fill="var(--purple)">■</tspan> ESX / NSX &#160;&#160;
+    <tspan fill="var(--teal)">■</tspan> workload
+  </text>
+</svg>
+</div>
+<figcaption>Destination 10.55.55.3 from an L3 view: a /32 in the VyOS VRF, resolved over the L3VNI to the host TEP, decapsulated into the tenant IP-VRF, then routed to the VM on 10.55.55.0/28. The /28 is never advertised.</figcaption>
+</figure>
+
+<div class="wraptbl">
+<table class="tbl">
+  <thead><tr><th>Hop</th><th>L3 device</th><th>Action — destination 10.55.55.3</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">1</td><td>VyOS · VRF evpn-prj-2</td><td>RIB lookup hits <code>10.55.55.3/32</code> (the /32, not the /28); next-hop is host TEP <code>10.1.3.135</code>, egress over L3VNI <code>65020</code>.</td></tr>
+    <tr><td class="mono">2</td><td>VyOS VTEP <span class="mono">10.77.77.1</span></td><td>VXLAN encapsulation — inner dst <code>10.55.55.3</code>; outer <code>10.77.77.1 → 10.1.3.135</code>.</td></tr>
+    <tr><td class="mono">3</td><td>ESX host TEP <span class="mono">10.1.3.135</span></td><td>Underlay delivers the frame (routed via the holorouter, §7); the host decapsulates VXLAN and maps VNI <code>65020</code> → tenant IP-VRF.</td></tr>
+    <tr><td class="mono">4</td><td>NSX distributed router</td><td>Anycast gateway for the VPC routes to the connected public subnet <code>10.55.55.0/28</code>.</td></tr>
+    <tr><td class="mono">5</td><td>VM tiny-vm-t2</td><td>Frame delivered to <code>10.55.55.3</code> on the public subnet.</td></tr>
+  </tbody>
+</table>
+</div>
+<p style="font-size:.9rem;color:var(--muted)">The return path is symmetric: the NSX distributed router holds VyOS's Type-5 prefixes (e.g. <code>10.65.20.0/24</code>) in the tenant IP-VRF and encapsulates back toward the VyOS VTEP. Because forwarding is distributed, each host TEP talks to the VyOS VTEP directly — there is no central service router hairpinning the traffic.</p>
+
+<hr class="sep">
+<h3 id="inter-tenant-note">Inter-tenant note</h3>
+<p>By design, prj-1 and prj-2 can't reach each other — separate VRFs and RTs is the point. If you want controlled cross-tenant reachability, leak on VyOS with a per-direction <code>import vrf</code> (optionally scoped by a route-map), and be aware the NSX-side attachment's strict uRPF may need relaxing for the hairpinned path. That's a deliberate hole in isolation, so do it selectively.</p>
+<pre><span class="c"># leak prj-2's routes into prj-1 and vice-versa (VyOS-local; use a route-map to scope)</span>
+<span class="k">set</span> vrf name evpn-prj-1 protocols bgp address-family ipv4-unicast import vrf evpn-prj-2
+<span class="k">set</span> vrf name evpn-prj-2 protocols bgp address-family ipv4-unicast import vrf evpn-prj-1</pre>
+
+<p class="closing">Two-tenant EVPN Type-5 build · NSX 9.1 DGTW ↔ VyOS · nested VCF 9.1 Holodeck. Values are from the working lab; RD/RT/VNI and subnet access mode are the settings worth double-checking against your own environment before you reuse this.</p>
+</div>

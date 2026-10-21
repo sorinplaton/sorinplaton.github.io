@@ -1,0 +1,201 @@
+/* =====================================================================
+   Site identity on top of PaperMod.
+   Palette is the one used in the EVPN article, so posts and chrome match:
+   paper / ink / coral (accent) / teal / purple / blue.
+   ===================================================================== */
+
+:root {
+    --paper: #f4f5f8;
+    --ink: #161b22;
+    --muted: #5b6672;
+    --line: #dce1e8;
+    --blue: #0f5fb5;
+    --blue-soft: rgba(15, 95, 181, .10);
+    --green: #1f8f5a;
+    --teal: #1a9c84;
+    --purple: #7a5cc0;
+    --grid: rgba(22, 27, 34, .07);
+
+    /* remap PaperMod's own variables */
+    --theme: var(--paper);
+    --entry: #ffffff;
+    --primary: var(--ink);
+    --secondary: var(--muted);
+    --tertiary: #d7dce3;
+    --content: #1f2630;
+    --code-block-bg: #12171e;
+    --code-bg: #e9edf2;
+    --border: var(--line);
+    --radius: 12px;
+    --main-width: 760px;
+}
+
+:root[data-theme="dark"] {
+    --paper: #0e1217;
+    --ink: #e4e8ee;
+    --muted: #9aa5b2;
+    --line: #29313b;
+    --blue: #6ba9f0;
+    --blue-soft: rgba(107, 169, 240, .13);
+    --green: #4ccc8a;
+    --teal: #45c1a7;
+    --purple: #ab8ee8;
+    --grid: rgba(228, 232, 238, .06);
+
+    --theme: var(--paper);
+    --entry: #161b22;
+    --primary: var(--ink);
+    --secondary: var(--muted);
+    --tertiary: #343c47;
+    --content: #d3d8df;
+    --code-block-bg: #0b0f14;
+    --code-bg: #1c232c;
+    --border: var(--line);
+}
+
+/* ---------- type ---------- */
+body {
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+code, kbd, pre, .post-meta, .entry-footer, .post-tags a, .terms-tags a, .logo a, .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+h1, h2, h3, .entry-header h2, .post-title { letter-spacing: -.015em; }
+.post-content { font-size: 1.02rem; line-height: 1.7; }
+.post-content table { font-size: .92rem; }
+.post-content pre { border-radius: 10px; }
+.post-content a { color: var(--blue); box-shadow: none; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--blue) 40%, transparent); }
+.post-content a:hover { text-decoration-color: var(--blue); }
+.post-content code { color: var(--ink); }
+
+/* ---------- background: paper + fabric dot grid + accent wash ---------- */
+body {
+    background-color: var(--theme);
+    background-image:
+        radial-gradient(60% 420px at 50% -40px, var(--blue-soft), transparent 70%),
+        radial-gradient(var(--grid) 1px, transparent 1px);
+    background-size: auto, 22px 22px;
+    background-position: 0 0, 10px 10px;
+    background-attachment: fixed, fixed;
+}
+
+/* ---------- header ---------- */
+.header { background: transparent; }
+.nav { border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--theme) 72%, transparent); backdrop-filter: blur(6px); }
+.logo a { font-weight: 600; letter-spacing: -.01em; }
+.logo a svg { color: var(--blue); }
+#menu a { font-weight: 500; }
+#menu .active { color: var(--blue); box-shadow: 0 2px 0 var(--blue); }
+
+/* ---------- home hero ---------- */
+.home-info {
+    position: relative;
+    overflow: hidden;
+    background: var(--entry);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 44px 40px 36px;
+    margin-top: 12px;
+    box-shadow: 0 1px 2px rgba(22, 27, 34, .04), 0 10px 30px -14px rgba(22, 27, 34, .18);
+}
+:root[data-theme="dark"] .home-info { box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 18px 40px -20px rgba(0,0,0,.7); }
+.home-info::before {
+    /* blue → green ridge on the top edge */
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
+    background: linear-gradient(90deg, var(--blue), var(--teal) 55%, var(--green));
+}
+.home-info::after {
+    /* faint fabric sketch: spine / leaf / hosts, orthogonal links only */
+    content: ""; position: absolute; right: -10px; top: 8px; width: 300px; height: 100%;
+    pointer-events: none; opacity: .55;
+    background-repeat: no-repeat; background-size: 300px auto; background-position: right top;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='230' viewBox='0 0 300 230' fill='none' stroke='%230f5fb5' stroke-width='1.3' stroke-linecap='round' opacity='.45'><g stroke='%230f5fb5'><rect x='96' y='18' width='40' height='26' rx='6'/><rect x='172' y='18' width='40' height='26' rx='6'/></g><g stroke='%231f8f5a'><rect x='40' y='96' width='40' height='26' rx='6'/><rect x='134' y='96' width='40' height='26' rx='6'/><rect x='228' y='96' width='40' height='26' rx='6'/></g><path d='M116 44v26H60v26M116 70h38v26M116 70h132v26M192 44v26h-38M192 70h56M192 70H60'/><g stroke='%231a9c84'><circle cx='60' cy='186' r='9'/><circle cx='154' cy='186' r='9'/><circle cx='248' cy='186' r='9'/><path d='M60 122v55M154 122v55M248 122v55'/></g></svg>");
+}
+@media (max-width: 700px) { .home-info::after { display: none; } .home-info { padding: 32px 24px 28px; } }
+.home-info .entry-header h1 { font-size: 2.1rem; line-height: 1.15; max-width: 14ch; }
+.home-info .entry-header::before {
+    content: "VCF · NSX · EVPN · BGP · KUBERNETES · HOLODECK";
+    display: block; font-family: "IBM Plex Mono", monospace; font-size: .7rem; letter-spacing: .14em;
+    color: var(--blue); margin-bottom: 10px;
+}
+.home-info .entry-content { font-size: 1.05rem; line-height: 1.65; color: var(--secondary); max-width: 54ch; }
+.home-info .entry-footer { margin-top: 18px; }
+.social-icons a { color: var(--secondary); }
+.social-icons a:hover { color: var(--green); }
+
+/* ---------- post cards ---------- */
+.post-entry {
+    background: var(--entry);
+    border: 1px solid var(--line);
+    border-left: 3px solid transparent;
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(22, 27, 34, .03);
+    transition: border-color .18s, transform .18s, box-shadow .18s;
+}
+.post-entry:hover, .post-entry:focus-within {
+    border-left-color: var(--blue);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px -16px rgba(22, 27, 34, .35);
+}
+:root[data-theme="dark"] .post-entry:hover { box-shadow: 0 10px 28px -14px rgba(0,0,0,.8); }
+.post-entry .entry-header h2 { font-size: 1.35rem; }
+.post-entry .entry-footer { font-size: .8rem; color: var(--secondary); margin-top: 10px; }
+.first-entry:not(.home-info) { border: 1px solid var(--line); background: var(--entry); border-radius: var(--radius); }
+
+/* ---------- single post ---------- */
+.post-header { margin-bottom: 20px; }
+.post-title { font-size: 2.2rem; line-height: 1.15; }
+.post-description { color: var(--secondary); font-size: 1.08rem; }
+.post-meta { font-size: .8rem; }
+.post-meta a { color: var(--blue); }
+.breadcrumbs { font-family: "IBM Plex Mono", monospace; font-size: .78rem; }
+details.toc { background: var(--entry); border: 1px solid var(--line); border-radius: 10px; }
+details.toc summary { font-family: "IBM Plex Mono", monospace; font-size: .85rem; letter-spacing: .04em; text-transform: uppercase; }
+.toc .inner { font-size: .92rem; }
+.post-content h2 { border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-top: 48px; }
+.post-content h2::before {
+    content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 10px;
+    background: var(--blue); vertical-align: middle; position: relative; top: -2px;
+}
+.post-content blockquote { border-left: 3px solid var(--blue); background: var(--blue-soft); border-radius: 0 8px 8px 0; padding: 10px 16px; }
+.post-content table thead th { background: var(--code-bg); font-family: "IBM Plex Mono", monospace; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--secondary); }
+.post-content table { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; border-collapse: separate; border-spacing: 0; }
+.post-content table td, .post-content table th { border-color: var(--line); }
+
+/* tags / categories as mono pills */
+.post-tags a, .terms-tags a {
+    font-size: .76rem; letter-spacing: .02em;
+    background: var(--entry); border: 1px solid var(--line); color: var(--secondary);
+    border-radius: 999px; padding: 2px 10px;
+}
+.post-tags a:hover, .terms-tags a:hover { background: rgba(31,143,90,.10); border-color: var(--green); color: var(--green); }
+.terms-tags a { padding: 6px 14px; }
+.terms-tags .terms-tags-count { display: none; }
+.terms-tags li { margin: 4px; }
+.terms-tags a sup { color: var(--green); font-family: "IBM Plex Mono", monospace; margin-left: 4px; }
+
+/* post nav / pagination */
+.paginav, .post-nav { background: var(--entry); border: 1px solid var(--line); border-radius: var(--radius); }
+.paginav a:hover, .post-nav a:hover { color: var(--blue); }
+
+/* code copy button, top link */
+.copy-code { background: var(--green); color: #fff; border-radius: 6px; font-family: "IBM Plex Mono", monospace; }
+.top-link { background: var(--entry); border: 1px solid var(--line); color: var(--blue); }
+
+/* footer */
+.footer { font-family: "IBM Plex Mono", monospace; font-size: .76rem; border-top: 1px solid var(--line); margin-top: 40px; }
+.footer a:hover { color: var(--blue); box-shadow: none; }
+
+/* page headers (Posts, Tags, …) */
+.page-header h1 { font-size: 1.9rem; }
+.page-header h1::after {
+    content: ""; display: block; width: 42px; height: 3px; margin-top: 10px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--green));
+}
+
+/* search */
+#searchbox input { background: var(--entry); border: 1px solid var(--line); border-radius: 10px; font-family: "IBM Plex Mono", monospace; }
+#searchbox input:focus { border-color: var(--blue); }
+#searchResults li { background: var(--entry); border: 1px solid var(--line); border-radius: 10px; }
+#searchResults .focus { border-color: var(--blue); background: var(--blue-soft); }

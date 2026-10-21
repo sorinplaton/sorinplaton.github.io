@@ -19,6 +19,7 @@ minify:
 params:
   env: production
   images: ["/images/share-default.jpg"]
+  goatcounter: "sorinplaton"   # stats at https://sorinplaton.goatcounter.com
   title: "Sorin Platon"
   description: "Field notes on cloud networking — VCF, NSX, EVPN, BGP and Kubernetes."
   author: "Sorin Platon"

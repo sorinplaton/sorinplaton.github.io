@@ -1,0 +1,286 @@
+---
+title: "Read-only kubectl for the Supervisor: the SRE role"
+date: 2026-10-23
+description: "The SRE Supervisor Role service gives SSO administrators a read-only kubectl view of a vSphere Supervisor: pods, logs, VKS clusters, VMs and services, but no secrets and no changes. Install steps in vCenter and real troubleshooting examples from a VCF 9.1.1 lab."
+summary: "Instead of root over SSH with a decrypted password: one Supervisor Service, one SSO group, and a read-only kubectl view of the whole Supervisor. How it works, how to install it in vCenter, and how to use it, with screenshots and real output."
+tags: ["VCF 9.1.1", "Supervisor", "Supervisor Services", "Kubernetes", "RBAC", "Troubleshooting", "Holodeck"]
+categories: ["Field notes"]
+images: ["/images/sre/share.jpg"]
+showToc: false
+---
+<details class="toc"><summary accesskey="c" title="(Alt + C)"><span class="title">Table of Contents</span></summary><div class="inner"><nav><ul><li><a href="#how-it-works" aria-label="How it works">How it works</a></li><li><a href="#install-it" aria-label="Install it">Install it</a><ul><li><a href="#download-the-service-definition" aria-label="Download the service definition">Download the service definition</a></li><li><a href="#register-it-with-vcenter" aria-label="Register it with vCenter">Register it with vCenter</a></li><li><a href="#install-it-on-the-supervisor" aria-label="Install it on the Supervisor">Install it on the Supervisor</a></li></ul></li><li><a href="#use-it" aria-label="Use it">Use it</a><ul><li><a href="#where-to-look-first" aria-label="Where to look first">Where to look first</a></li></ul></li><li><a href="#takeaways" aria-label="Takeaways">Takeaways</a></li></ul></nav></div></details>
+<div class="tepless sre">
+  <p class="lead">When a Supervisor misbehaves, the old way in is root over SSH with a decrypted password. The <strong>SRE Supervisor Role</strong> service gives your SSO administrators a read-only <code>kubectl</code> view of the whole Supervisor instead: pods, logs, VKS clusters, VMs and services, but no secrets and no changes. Installed on two Supervisors in my lab in a few minutes.</p>
+  <div class="stats">
+    <div class="stat"><b>1 YAML</b><span>registered once per vCenter</span></div>
+    <div class="stat"><b>~1 min</b><span>from Finish to Configured</span></div>
+    <div class="stat"><b>0</b><span>secrets readable, objects changeable</span></div>
+  </div>
+
+  <h2 id="how-it-works">How it works</h2>
+  <p>The service is a small Carvel package. It creates one ClusterRole that can only <em>get, list and watch</em>, and binds it to the SSO group you name at install time. Kubernetes sees SSO groups with an <code>sso:</code> prefix, so <code>Administrators@vcf.lab</code> becomes <code>sso:Administrators@vcf.lab</code>.</p>
+  <figure>
+    <div class="diagram v2" role="img" aria-label="How it works: an SSO group is bound by a ClusterRoleBinding to the read-only ClusterRole vmware-system-debug, which can read pods, logs, VKS clusters, machines, VMs, service packages and CRDs, but not secrets, and cannot create, update or delete anything.">
+      <svg viewBox="0 0 1000 248" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <symbol id="hw-router" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5v11M6.5 12h11M9.5 9 12 6.5 14.5 9M9.5 15l2.5 2.5 2.5-2.5"/></symbol>
+          <symbol id="hw-host" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7.5 7.5h.01M7.5 16.5h.01M11 7.5h6M11 16.5h6"/></symbol>
+          <symbol id="hw-cloud" viewBox="0 0 24 24"><path d="M7 18.5h10.2a4.3 4.3 0 0 0 .6-8.55A6.2 6.2 0 0 0 5.9 9.3 4.6 4.6 0 0 0 7 18.5z"/></symbol>
+          <symbol id="hw-hex" viewBox="0 0 24 24"><path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4z"/><circle cx="12" cy="12" r="2.6"/><path d="M12 2.8v6.6M12 14.6v6.6M4 7.4l5.7 3.3M14.3 13.3 20 16.6"/></symbol>
+          <symbol id="hw-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3.5v6.3M12 14.2v6.3M3.5 12h6.3M14.2 12h6.3M6 6l4.4 4.4M13.6 13.6 18 18M18 6l-4.4 4.4M10.4 13.6 6 18"/></symbol>
+          <symbol id="hw-sync" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 13-5.1M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M17.8 3.2v3.9h-3.9M6.2 20.8v-3.9h3.9"/></symbol>
+          <symbol id="hw-switch" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="10" rx="2.5"/><path d="M6.5 12h.01M10 12h.01M13.5 12h.01M17 12h.01"/></symbol>
+          <symbol id="hw-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.5"/><path d="M2.5 19h19"/></symbol>
+          <symbol id="hw-box" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></symbol>
+          <marker id="hw-ah" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path class="ah" d="M0,0.5 L9,5 L0,9.5 z"/></marker>
+          <symbol id="hw-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.2c2.3.2 4 1.7 4.5 4.3"/></symbol>
+          <symbol id="hw-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+          <symbol id="hw-shield" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+          <symbol id="hw-term" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M7 9.5l3 2.5-3 2.5M12.5 15h4.5"/></symbol>
+          <symbol id="hw-key" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M15.5 12v2"/></symbol>
+          <symbol id="hw-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+        </defs>
+        <text class="up l" x="30" y="26">WHO</text>
+        <text class="up l" x="276" y="26">BINDING</text>
+        <text class="up l" x="530" y="26">ROLE</text>
+        <text class="up l" x="772" y="26">WHAT THEY SEE</text>
+        <rect class="card" x="30" y="44" width="200" height="112" rx="14"/>
+        <rect class="icbg-v" x="46" y="60" width="36" height="36" rx="10.799999999999999"/><use href="#hw-users" x="53.2" y="67.2" width="21.6" height="21.6" class="ic ic-v"/>
+        <text class="b l" x="92" y="74">SSO group</text>
+        <text class="t11 l" x="92" y="92">one per Supervisor</text>
+        <text class="t12 l" x="46" y="124">Administrators@vcf.lab</text>
+        <text class="t12 s l" x="46" y="142">or @vsphere.local</text>
+        <rect class="zcard" x="276" y="44" width="214" height="112" rx="14"/>
+        <rect class="icbg-v" x="292" y="60" width="36" height="36" rx="10.799999999999999"/><use href="#hw-link" x="299.2" y="67.2" width="21.6" height="21.6" class="ic ic-v"/>
+        <text class="b l" x="338" y="74">ClusterRoleBinding</text>
+        <text class="t11 l" x="338" y="92">created by the service</text>
+        <text class="t12 l" x="292" y="124">subject: Group</text>
+        <text class="t12 s l" x="292" y="142">sso:Administrators@vcf.lab</text>
+        <rect class="zcard-v" x="530" y="44" width="210" height="112" rx="14"/>
+        <rect class="icbg-v" x="546" y="60" width="36" height="36" rx="10.799999999999999"/><use href="#hw-shield" x="553.2" y="67.2" width="21.6" height="21.6" class="ic ic-v"/>
+        <text class="b vt l" x="592" y="74">ClusterRole</text>
+        <text class="t11 l" x="592" y="92">vmware-system-debug</text>
+        <text class="t12 b l" x="546" y="124">get · list · watch</text>
+        <text class="t12 s l" x="546" y="142">~70 API groups + logs</text>
+        <path class="c-v" d="M230 100 C 248 100, 256 100, 274 100" marker-end="url(#hw-ah)"/><path class="flow" d="M230 100 C 248 100, 256 100, 274 100"/>
+        <path class="c-v" d="M490 100 C 508 100, 512 100, 528 100" marker-end="url(#hw-ah)"/><path class="flow" d="M490 100 C 508 100, 512 100, 528 100"/>
+        <path class="c-v" d="M740 100 C 752 100, 756 80, 770 80" marker-end="url(#hw-ah)"/><path class="flow" d="M740 100 C 752 100, 756 80, 770 80"/>
+        <path class="c" d="M740 112 C 756 112, 754 196, 770 196" marker-end="url(#hw-ah)"/>
+        <rect class="chip-v" x="772" y="44" width="214" height="118" rx="12"/>
+        <text class="t12 l" x="786" y="66">✓ pods, nodes, events</text>
+        <text class="t12 l" x="786" y="85">✓ pod logs</text>
+        <text class="t12 l" x="786" y="104">✓ VKS clusters, machines, VMs</text>
+        <text class="t12 l" x="786" y="123">✓ Supervisor Service packages</text>
+        <text class="t12 l" x="786" y="142">✓ storage, network CRDs</text>
+        <rect class="xrow" x="772" y="172" width="214" height="62" rx="12"/>
+        <text class="t12 no l" x="786" y="196">✗ secrets</text>
+        <text class="t12 no l" x="786" y="216">✗ create · update · delete</text>
+        <rect class="zcard" x="30" y="186" width="710" height="48" rx="12"/>
+        <rect class="icbg" x="44" y="193" width="34" height="34" rx="10.2"/><use href="#hw-box" x="50.8" y="199.8" width="20.4" height="20.4" class="ic"/>
+        <text class="t12 l" x="92" y="208">Delivered as a Supervisor Service (Carvel package from projects.packages.broadcom.com)</text>
+        <text class="t11 l" x="92" y="225">runs in its own namespace svc-sre-supervisor-role-…, nothing is installed on the ESX hosts</text>
+      </svg>
+    </div>
+    <figcaption>One group, one binding, one read-only role. Everything else on the Supervisor is untouched.</figcaption>
+  </figure>
+  <figure>
+    <div class="diagram v2" role="img" aria-label="Before and after: before, an engineer opens a vCenter root shell, decrypts the control-plane root password and SSHes into a control-plane VM with full control. After, the engineer logs in with their own SSO identity through kubectl vsphere login and gets a read-only view through the debug ClusterRole.">
+      <svg viewBox="0 0 1000 270" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <symbol id="ba-router" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5v11M6.5 12h11M9.5 9 12 6.5 14.5 9M9.5 15l2.5 2.5 2.5-2.5"/></symbol>
+          <symbol id="ba-host" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7.5 7.5h.01M7.5 16.5h.01M11 7.5h6M11 16.5h6"/></symbol>
+          <symbol id="ba-cloud" viewBox="0 0 24 24"><path d="M7 18.5h10.2a4.3 4.3 0 0 0 .6-8.55A6.2 6.2 0 0 0 5.9 9.3 4.6 4.6 0 0 0 7 18.5z"/></symbol>
+          <symbol id="ba-hex" viewBox="0 0 24 24"><path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4z"/><circle cx="12" cy="12" r="2.6"/><path d="M12 2.8v6.6M12 14.6v6.6M4 7.4l5.7 3.3M14.3 13.3 20 16.6"/></symbol>
+          <symbol id="ba-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3.5v6.3M12 14.2v6.3M3.5 12h6.3M14.2 12h6.3M6 6l4.4 4.4M13.6 13.6 18 18M18 6l-4.4 4.4M10.4 13.6 6 18"/></symbol>
+          <symbol id="ba-sync" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 13-5.1M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M17.8 3.2v3.9h-3.9M6.2 20.8v-3.9h3.9"/></symbol>
+          <symbol id="ba-switch" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="10" rx="2.5"/><path d="M6.5 12h.01M10 12h.01M13.5 12h.01M17 12h.01"/></symbol>
+          <symbol id="ba-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.5"/><path d="M2.5 19h19"/></symbol>
+          <symbol id="ba-box" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></symbol>
+          <marker id="ba-ah" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path class="ah" d="M0,0.5 L9,5 L0,9.5 z"/></marker>
+          <symbol id="ba-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.2c2.3.2 4 1.7 4.5 4.3"/></symbol>
+          <symbol id="ba-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+          <symbol id="ba-shield" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+          <symbol id="ba-term" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M7 9.5l3 2.5-3 2.5M12.5 15h4.5"/></symbol>
+          <symbol id="ba-key" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M15.5 12v2"/></symbol>
+          <symbol id="ba-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+        </defs>
+        <rect class="zone-o" x="20" y="20" width="470" height="236" rx="16"/>
+        <text class="b h ot l" x="40" y="48">BEFORE · root over SSH</text>
+        <rect class="zcard" x="40" y="70" width="134" height="110" rx="12"/>
+        <rect class="icbg-o" x="54" y="84" width="32" height="32" rx="9.6"/><use href="#ba-key" x="60.4" y="90.4" width="19.2" height="19.2" class="ic ic-o"/>
+        <text class="t12 b l" x="54" y="138">vCenter shell</text>
+        <text class="t11 l" x="54" y="156">root password</text>
+        <path class="c-o" d="M174 125 C 180 125, 184 125, 188 125" marker-end="url(#ba-ah)"/>
+        <rect class="zcard" x="190" y="70" width="134" height="110" rx="12"/>
+        <rect class="icbg-o" x="204" y="84" width="32" height="32" rx="9.6"/><use href="#ba-term" x="210.4" y="90.4" width="19.2" height="19.2" class="ic ic-o"/>
+        <text class="t12 b l" x="204" y="138">decryptK8Pwd.py</text>
+        <text class="t11 l" x="204" y="156">CP root password</text>
+        <path class="c-o" d="M324 125 C 330 125, 334 125, 338 125" marker-end="url(#ba-ah)"/>
+        <rect class="zcard" x="340" y="70" width="134" height="110" rx="12"/>
+        <rect class="icbg-o" x="354" y="84" width="32" height="32" rx="9.6"/><use href="#ba-lock" x="360.4" y="90.4" width="19.2" height="19.2" class="ic ic-o"/>
+        <text class="t12 b l" x="354" y="138">ssh root@CP VM</text>
+        <text class="t11 l" x="354" y="156">full control</text>
+        <text class="t12 no l" x="40" y="212">✗ shared root secret   ✗ any change possible</text>
+        <text class="t12 no l" x="40" y="234">✗ hard to audit who looked at what</text>
+        <rect class="zone-v" x="510" y="20" width="470" height="236" rx="16"/>
+        <text class="b h vt l" x="530" y="48">AFTER · kubectl with SSO</text>
+        <rect class="zcard" x="530" y="70" width="134" height="110" rx="12"/>
+        <rect class="icbg-v" x="544" y="84" width="32" height="32" rx="9.6"/><use href="#ba-users" x="550.4" y="90.4" width="19.2" height="19.2" class="ic ic-v"/>
+        <text class="t12 b l" x="544" y="138">your SSO login</text>
+        <text class="t11 l" x="544" y="156">own identity</text>
+        <path class="c-v" d="M664 125 C 670 125, 674 125, 678 125" marker-end="url(#ba-ah)"/><path class="flow" d="M664 125 C 670 125, 674 125, 678 125"/>
+        <rect class="zcard" x="680" y="70" width="134" height="110" rx="12"/>
+        <rect class="icbg-v" x="694" y="84" width="32" height="32" rx="9.6"/><use href="#ba-term" x="700.4" y="90.4" width="19.2" height="19.2" class="ic ic-v"/>
+        <text class="t12 b l" x="694" y="138">vsphere login</text>
+        <text class="t11 l" x="694" y="156">kubectl → Supervisor</text>
+        <path class="c-v" d="M814 125 C 820 125, 824 125, 828 125" marker-end="url(#ba-ah)"/><path class="flow" d="M814 125 C 820 125, 824 125, 828 125"/>
+        <rect class="zcard" x="830" y="70" width="134" height="110" rx="12"/>
+        <rect class="icbg-v" x="844" y="84" width="32" height="32" rx="9.6"/><use href="#ba-shield" x="850.4" y="90.4" width="19.2" height="19.2" class="ic ic-v"/>
+        <text class="t12 b l" x="844" y="138">debug ClusterRole</text>
+        <text class="t11 l" x="844" y="156">read-only view</text>
+        <text class="t12 ok l" x="530" y="212">✓ personal identity   ✓ nothing can change</text>
+        <text class="t12 ok l" x="530" y="234">✓ secrets stay hidden, normal API audit</text>
+      </svg>
+    </div>
+    <figcaption>The reason it exists: the same visibility you used to get as root, without a shared root secret and without the ability to break anything.</figcaption>
+  </figure>
+
+  <h2 id="install-it">Install it</h2>
+  <div class="step"><div class="n">1</div><div>
+    <h3 id="download-the-service-definition">Download the service definition</h3>
+    <div class="gui"><b>Broadcom support</b>My Downloads → <strong>vSphere Supervisor Services</strong> → SRE Supervisor Role → <code>sre-supervisor-role-v1.0.1.yaml</code>. The same file is in the <a href="https://github.com/vsphere-tmm/Supervisor-Services">vsphere-tmm/Supervisor-Services</a> repository.</div>
+  </div></div>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>jump host</span></div><pre><span class="p">$</span> curl -LO https://raw.githubusercontent.com/vsphere-tmm/Supervisor-Services/main/sre-supervisor-role/sre-supervisor-role-v1.0.1.yaml</pre></div>
+
+  <div class="step"><div class="n">2</div><div>
+    <h3 id="register-it-with-vcenter">Register it with vCenter</h3>
+    <div class="gui"><b>vCenter</b>Supervisor Management → <strong>Services</strong> → Add New Service → <strong>Upload</strong> the YAML → Finish. Do this on every vCenter that has a Supervisor; each workload domain has its own.</div>
+  </div></div>
+  <figure class=dlg><img src="/images/sre/i1-register.webp" alt="New Service dialog, Register Service step with the Upload button" loading="lazy"><figcaption>The Register Service dialog. One upload; the service then appears as a card named <b>Supervisor Troubleshooting Access</b>.</figcaption></figure>
+
+  <div class="step"><div class="n">3</div><div>
+    <h3 id="install-it-on-the-supervisor">Install it on the Supervisor</h3>
+    <div class="gui"><b>vCenter</b>On the new card: <strong>Actions → Manage Service</strong>. Pick version 1.0.1 and the Supervisor, Next, let it validate, Next, and in <strong>YAML Service Config</strong> set the group. Finish.</div>
+  </div></div>
+  <figure><img src="/images/sre/i2-card-actions.webp" alt="Services tab, Supervisor Troubleshooting Access card with the Actions menu open: Manage Service, Add New Version, Manage Versions, Edit, Delete" loading="lazy"><figcaption>The card and its Actions menu. <b>Manage Service</b> is the install wizard.</figcaption></figure>
+  <div class="pair">
+    <figure><img src="/images/sre/i3-configure.webp" alt="Manage Service, Configure: version 1.0.1 and Supervisor sup-wld02-tepless" loading="lazy"><figcaption><b>Configure:</b> version and Supervisor. Here it already shows Configured, because I captured it after the install.</figcaption></figure>
+    <figure><img src="/images/sre/i4-validate.webp" alt="Manage Service, Validate: Compatibility Check Pass, Signature Verification Pass" loading="lazy"><figcaption><b>Validate:</b> compatibility and the package signature are checked.</figcaption></figure>
+  </div>
+  <figure class=dlg><img src="/images/sre/i5-review.webp" alt="Manage Service, Review: YAML Service Config with group Administrators@vcf.lab and the service namespace" loading="lazy"><figcaption><b>Review:</b> the one setting that matters, <code>group: Administrators@vcf.lab</code>. Use a group from <em>that</em> vCenter's SSO domain: my TEP-less domain has its own (<code>vcf.lab</code>), the overlay domain uses <code>vsphere.local</code>.</figcaption></figure>
+  <p class="note"><strong>Watch for:</strong> installing right after registering can fail with <code>signature verification result not found</code>. The Supervisor is still verifying the package. Wait a minute and run Manage Service again.</p>
+
+  <h2 id="use-it">Use it</h2>
+  <p>Log in as a member of the group, exactly as you would for any Supervisor work. The service namespace now shows up as a context too.</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>kubectl · log in and check the binding</span></div><pre><span class="p">$</span> kubectl vsphere login --server 10.1.1.188 --vsphere-username administrator@vcf.lab
+Logged in successfully.
+You have access to the following contexts:
+   10.1.1.188
+   svc-sre-supervisor-role-nfqog
+   …
+<span class="p">$</span> kubectl get clusterrolebinding supervisor:vmware-system-debug -o wide
+NAME                             ROLE                                         GROUPS
+supervisor:vmware-system-debug   ClusterRole/supervisor:vmware-system-debug   <span class="y">sso:Administrators@vcf.lab</span></pre></div>
+
+  <h3 id="where-to-look-first">Where to look first</h3>
+  <figure>
+    <div class="diagram v2" role="img" aria-label="Triage map: cluster stuck in provisioning, check machines and VMs then warning events; a Supervisor Service fails, check package installs then pods in the service namespace; VM or image problems, read the VM operator logs then the kubeimage pods; general health, list pods that are not running and package installs.">
+      <svg viewBox="0 0 1000 290" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <symbol id="tr-router" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5v11M6.5 12h11M9.5 9 12 6.5 14.5 9M9.5 15l2.5 2.5 2.5-2.5"/></symbol>
+          <symbol id="tr-host" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7.5 7.5h.01M7.5 16.5h.01M11 7.5h6M11 16.5h6"/></symbol>
+          <symbol id="tr-cloud" viewBox="0 0 24 24"><path d="M7 18.5h10.2a4.3 4.3 0 0 0 .6-8.55A6.2 6.2 0 0 0 5.9 9.3 4.6 4.6 0 0 0 7 18.5z"/></symbol>
+          <symbol id="tr-hex" viewBox="0 0 24 24"><path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4z"/><circle cx="12" cy="12" r="2.6"/><path d="M12 2.8v6.6M12 14.6v6.6M4 7.4l5.7 3.3M14.3 13.3 20 16.6"/></symbol>
+          <symbol id="tr-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3.5v6.3M12 14.2v6.3M3.5 12h6.3M14.2 12h6.3M6 6l4.4 4.4M13.6 13.6 18 18M18 6l-4.4 4.4M10.4 13.6 6 18"/></symbol>
+          <symbol id="tr-sync" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 13-5.1M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M17.8 3.2v3.9h-3.9M6.2 20.8v-3.9h3.9"/></symbol>
+          <symbol id="tr-switch" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="10" rx="2.5"/><path d="M6.5 12h.01M10 12h.01M13.5 12h.01M17 12h.01"/></symbol>
+          <symbol id="tr-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.5"/><path d="M2.5 19h19"/></symbol>
+          <symbol id="tr-box" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></symbol>
+          <marker id="tr-ah" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path class="ah" d="M0,0.5 L9,5 L0,9.5 z"/></marker>
+          <symbol id="tr-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.2c2.3.2 4 1.7 4.5 4.3"/></symbol>
+          <symbol id="tr-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+          <symbol id="tr-shield" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+          <symbol id="tr-term" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M7 9.5l3 2.5-3 2.5M12.5 15h4.5"/></symbol>
+          <symbol id="tr-key" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M15.5 12v2"/></symbol>
+          <symbol id="tr-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+        </defs>
+        <text class="up l" x="30" y="24">SYMPTOM</text>
+        <text class="up l" x="330" y="24">FIRST LOOK</text>
+        <text class="up l" x="660" y="24">THEN</text>
+        <rect class="card" x="30" y="38" width="262" height="48" rx="12"/>
+        <text class="b t12 l" x="48" y="67">Cluster stuck in Provisioning</text>
+        <rect class="chip-v" x="330" y="38" width="292" height="48" rx="12"/>
+        <text class="t12 l" x="346" y="67">kubectl get machines,vm -A</text>
+        <rect class="zcard" x="660" y="38" width="316" height="48" rx="12"/>
+        <text class="t12 s l" x="676" y="67">kubectl get events -A --field-selector type=Warning</text>
+        <path class="c-v" d="M292 62 C 306 62, 314 62, 328 62" marker-end="url(#tr-ah)"/><path class="flow" d="M292 62 C 306 62, 314 62, 328 62"/>
+        <path class="c" d="M622 62 C 636 62, 644 62, 658 62" marker-end="url(#tr-ah)"/>
+        <rect class="card" x="30" y="100" width="262" height="48" rx="12"/>
+        <text class="b t12 l" x="48" y="129">A Supervisor Service fails</text>
+        <rect class="chip-v" x="330" y="100" width="292" height="48" rx="12"/>
+        <text class="t12 l" x="346" y="129">kubectl get packageinstalls -A</text>
+        <rect class="zcard" x="660" y="100" width="316" height="48" rx="12"/>
+        <text class="t12 s l" x="676" y="129">kubectl get pods -n svc-&lt;service&gt;-…</text>
+        <path class="c-v" d="M292 124 C 306 124, 314 124, 328 124" marker-end="url(#tr-ah)"/><path class="flow" d="M292 124 C 306 124, 314 124, 328 124"/>
+        <path class="c" d="M622 124 C 636 124, 644 124, 658 124" marker-end="url(#tr-ah)"/>
+        <rect class="card" x="30" y="162" width="262" height="48" rx="12"/>
+        <text class="b t12 l" x="48" y="191">VM or image problems</text>
+        <rect class="chip-v" x="330" y="162" width="292" height="48" rx="12"/>
+        <text class="t12 l" x="346" y="191">kubectl logs -n vmware-system-vmop deploy/…</text>
+        <rect class="zcard" x="660" y="162" width="316" height="48" rx="12"/>
+        <text class="t12 s l" x="676" y="191">kubectl get pods -n vmware-system-kubeimage</text>
+        <path class="c-v" d="M292 186 C 306 186, 314 186, 328 186" marker-end="url(#tr-ah)"/><path class="flow" d="M292 186 C 306 186, 314 186, 328 186"/>
+        <path class="c" d="M622 186 C 636 186, 644 186, 658 186" marker-end="url(#tr-ah)"/>
+        <rect class="card" x="30" y="224" width="262" height="48" rx="12"/>
+        <text class="b t12 l" x="48" y="253">Is everything healthy?</text>
+        <rect class="chip-v" x="330" y="224" width="292" height="48" rx="12"/>
+        <text class="t12 l" x="346" y="253">kubectl get pods -A | grep -v Running</text>
+        <rect class="zcard" x="660" y="224" width="316" height="48" rx="12"/>
+        <text class="t12 s l" x="676" y="253">kubectl get packageinstalls -A</text>
+        <path class="c-v" d="M292 248 C 306 248, 314 248, 328 248" marker-end="url(#tr-ah)"/><path class="flow" d="M292 248 C 306 248, 314 248, 328 248"/>
+        <path class="c" d="M622 248 C 636 248, 644 248, 658 248" marker-end="url(#tr-ah)"/>
+      </svg>
+    </div>
+    <figcaption>A starting map for the common questions. Every command here works with the read-only role.</figcaption>
+  </figure>
+
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>kubectl · health sweep</span></div><pre><span class="p">$</span> kubectl get pods -A | grep -v -e Running -e Completed
+<span class="c"># (nothing: every Supervisor pod is up)</span>
+<span class="p">$</span> kubectl get packageinstalls -A
+NAMESPACE       NAME                                  PACKAGE VERSION     DESCRIPTION
+kube-system     supervisor-authz-service-controller   9.1.1-25712839      <span class="y">Reconcile succeeded</span>
+svc-tkg-gbmdf   tanzu-cluster-api                     1.13.2+vmware.1     <span class="y">Reconcile succeeded</span>
+svc-tkg-gbmdf   tkg-controller                        3.15.0              <span class="y">Reconcile succeeded</span>
+…</pre></div>
+
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>kubectl · VKS clusters and their VMs</span></div><pre><span class="p">$</span> kubectl get machines -A
+NAMESPACE            NAME                              CLUSTER        PHASE     VERSION
+tepless-demo-4tvk7   demo-git-67wrz-r4ztj              demo-git       <span class="y">Running</span>   v1.36.2+vmware.2
+tepless-demo-4tvk7   demo-git-np-1-rsg5v-s5fzk-x6wpr   demo-git       <span class="y">Running</span>   v1.36.2+vmware.2
+tepless-demo-4tvk7   tepless-demo-5hdpg-xbqb4          tepless-demo   <span class="y">Running</span>   v1.35.6+vmware.2
+<span class="p">$</span> kubectl get vm -A
+NAMESPACE            NAME                              POWER-STATE   AGE
+tepless-demo-4tvk7   demo-git-67wrz-r4ztj              PoweredOn     2d22h
+tepless-demo-4tvk7   demo-git-np-1-rsg5v-s5fzk-x6wpr   PoweredOn     2d22h</pre></div>
+
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>kubectl · logs and warnings</span></div><pre><span class="p">$</span> kubectl -n vmware-system-vmop logs deploy/vmware-system-vmop-controller-manager -c manager --tail=2
+I1023 16:15:26.211273  virtualmachine_controller.go:557] "Finished Reconciling VirtualMachine" …
+I1023 16:15:26.213802  recorder.go:116] "Update success" logger="events" type="Normal" …
+<span class="p">$</span> kubectl get events -A --field-selector type=Warning --sort-by=.lastTimestamp
+NAMESPACE           REASON                      OBJECT                                             MESSAGE
+vmware-system-ako   ConfigMapDataInsufficient   pod/vmware-system-ako-ako-controller-manager-…     ConfigMap data insufficient</pre></div>
+
+  <p>And the guardrails, tested on purpose (the delete was a server-side dry run):</p>
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>kubectl · what it will not do</span></div><pre><span class="p">$</span> kubectl -n kube-system get secrets
+<span class="n">Error from server (Forbidden): secrets is forbidden: User "sso:Administrator@vcf.lab" cannot list resource "secrets" …</span>
+<span class="p">$</span> kubectl -n vmware-system-vmop delete pod vmware-system-vmop-web-console-validator-… --dry-run=server
+<span class="n">Error from server (Forbidden): pods "…" is forbidden: User "sso:Administrator@vcf.lab" cannot delete resource "pods" …</span></pre></div>
+
+  <h2 id="takeaways">Takeaways</h2>
+  <ul>
+    <li><strong>Install it before you need it.</strong> It costs one namespace and two RBAC objects, and the next incident starts with <code>kubectl</code> instead of a root password hunt.</li>
+    <li><strong>One group per Supervisor, from that vCenter's SSO domain.</strong> Separate workload domains with their own SSO need their own group name.</li>
+    <li><strong>It is a view, not a fix.</strong> When something has to change, that is still a job for vCenter, VCF Automation or a support case.</li>
+  </ul>
+  <p class="closing">Lab: VCF 9.1.1 Holodeck, Supervisors <code>supervisor-wld01-a</code> (group Administrators@vsphere.local) and <code>sup-wld02-tepless</code> (Administrators@vcf.lab). Source: <a href="https://github.com/vsphere-tmm/Supervisor-Services">vsphere-tmm/Supervisor-Services</a>.</p>
+</div>

@@ -1,0 +1,13 @@
+/* Scoped extras for the SRE role post (content/posts/supervisor-sre-role); base styles come from .tepless */
+.tepless.sre .term { width: 100%; border-radius: 12px; overflow: hidden; background: #14181a; box-shadow: 0 1px 2px var(--shadow), 0 8px 24px var(--shadow) }
+.tepless.sre .term-bar { display: flex; align-items: center; gap: 7px; padding: 9px 12px; background: #23292c }
+.tepless.sre .term-bar i { width: 11px; height: 11px; border-radius: 50%; background: #4a5357 }
+.tepless.sre .term-bar i:first-child { background: #e06c60 } .tepless.sre .term-bar i:nth-child(2) { background: #8f9da3 } .tepless.sre .term-bar i:nth-child(3) { background: #43c79b }
+.tepless.sre .term-bar span { color: #aab4b8; font: 12px var(--body); margin-left: 8px }
+.tepless.sre .term pre { max-width: none; margin: 0; border-radius: 0; background: transparent; color: #dde5e2; font: 13px/1.55 var(--codefont); padding: 14px 16px; overflow-x: auto }
+.tepless.sre .term .p { color: #43c79b } .tepless.sre .term .c { color: #8a969a } .tepless.sre .term .y { color: #9fd9c3 } .tepless.sre .term .n { color: #ff9b8f }
+.tepless.sre figure.dlg img { max-width: min(100%, 880px); margin-inline: auto }
+.tepless.sre .diagram .dash { fill: var(--paper); stroke: var(--muted); stroke-dasharray: 5 4 }
+/* diagrams break out of the 760 px text column on wide screens so they need no sideways scroll */
+.tepless.sre > figure:has(> .diagram) { width: min(1040px, calc(100vw - 32px)); max-width: none; align-self: center }
+.tepless.sre > figure:has(> .diagram) figcaption { max-width: 760px; margin-inline: auto }

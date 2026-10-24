@@ -20,6 +20,9 @@ params:
   env: production
   images: ["/images/share-default.jpg"]
   goatcounter: "sorinplaton"   # stats at https://sorinplaton.goatcounter.com
+  analytics:
+    google:
+      SiteVerificationTag: "E99iaS6Ozyezzb4hK7x17204TqhuZ-GA0m0Md4j6TsU"   # Google Search Console; PaperMod renders <meta name="google-site-verification">
   title: "Sorin Platon"
   description: "Field notes on cloud networking — VCF, NSX, EVPN, BGP and Kubernetes."
   author: "Sorin Platon"

@@ -1,5 +1,5 @@
 ---
-title: "Kubernetes on a plain VLAN: VKS without TEPs"
+title: "VCF 9.1.1 TEP-less: VKS on a VLAN-backed VPC without NSX TEPs"
 date: 2026-10-20
 description: "VCF 9.1.1 runs VPC networking without NSX tunnel endpoints. A brand-new TEP-less workload domain on Holodeck, self-service VKS through VCF Automation, and the same app from the same Git commit measured against an overlay domain next to it."
 summary: "A TEP-less (VLAN-backed VPC) workload domain built from scratch on Holodeck, VKS on it through VCF Automation, and the same app deployed from one Git commit to it and to an overlay domain. What the network team has to provide: one VLAN and a /24, at MTU 1500."
@@ -271,7 +271,7 @@ showToc: false
 
   <div class="step"><div class="n">2</div><div>
     <h3 id="kubernetes-releases-for-the-supervisor">Kubernetes releases for the Supervisor</h3>
-    <p>The Supervisor came with the domain. It still needs a source of VKS releases.</p>
+    <p>The Supervisor came with the domain. It still needs a source of VKS releases, and it is worth giving your administrators a <a href="/posts/supervisor-sre-role/">read-only kubectl view of the Supervisor</a> before anything goes wrong.</p>
     <div class="gui"><b>vCenter</b>Content Libraries → Create → <strong>Subscribed</strong>, <code>https://wp-content.broadcom.com/v2/latest/lib.json</code>, download <strong>when needed</strong>. Then Supervisor → Configure → General → <strong>Kubernetes Service</strong> → Add the library.</div>
   </div></div>
   <figure><img src="/images/tepless/t04-supervisor-kubernetes-service.webp" alt="Supervisor sup-wld02-tepless, Configure, General, Kubernetes Service section listing the subscribed library VKS" loading="lazy"><figcaption><b>Easy to miss:</b> creating the library is not enough. Until it is attached here, VCF Automation reports <em>"missing … Kubernetes releases"</em>.</figcaption></figure>
@@ -327,7 +327,7 @@ showToc: false
             apiVersion: crd.nsx.vmware.com/v1alpha1
             kind: SubnetSet
             name: public</pre>
-  <p>Applied with <code>kubectl apply -f</code> straight from the repository, <code>demo-git</code> came up with two running nodes, including the one-time download of the v1.36.2 Ubuntu image. Argo CD, running on the overlay region's Supervisor, then deploys the same test app to both networks from one Git path.</p>
+  <p>Applied with <code>kubectl apply -f</code> straight from the repository, <code>demo-git</code> came up with two running nodes, including the one-time download of the v1.36.2 Ubuntu image. Argo CD, running on the overlay region's Supervisor as described in <a href="/posts/gitops-argocd-vcf-91/">GitOps on VCF 9.1 with the Argo CD Supervisor Service</a>, then deploys the same test app to both networks from one Git path.</p>
 <pre>$ kubectl -n argocd-demo-xxms8 get applications
 NAME               SERVER                       SYNC     HEALTH
 netprobe-tepless   https://10.203.203.5:6443    Synced   Healthy   <span style="color:var(--vlan)"># TEP-less cluster demo-git</span>

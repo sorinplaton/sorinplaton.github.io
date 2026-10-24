@@ -1,5 +1,7 @@
 # sorinplaton.github.io
 
+Blog: https://sorinplaton.github.io
+
 Hugo + [PaperMod](https://github.com/adityatelange/hugo-PaperMod) blog, published to GitHub Pages by GitHub Actions on every push to `main`.
 
 ## Go live (one time, ~5 minutes)

@@ -1012,7 +1012,7 @@ The lab cut corners on purpose. Before this pattern carries anything that matter
 
 ## Under the hood: how the tenant VPC reaches the outside
 
-Part 1 kept the lab to one drawing. This one zooms into the Supervisor's networking: how a pod in the `holo-east` project gets out through the transit gateway and VLAN 200, side by side with the system namespaces on VLAN 24. It is the background to most of what follows in When it breaks.
+Part 1 kept the lab to one drawing. This one zooms into the Supervisor's networking: how a pod in the `holo-east` project gets out through the transit gateway and VLAN 200, side by side with the system namespaces on VLAN 24. It is the background to most of what follows in When it breaks. The same VPC model also runs without an overlay: [VKS on a VLAN-backed VPC without NSX TEPs](/posts/vks-without-teps/) builds a TEP-less workload domain next to this one, and an Argo CD instance set up like this one deploys to it as well.
 
 <figure class="diagram">
 <img src="/images/gitops/diagram-lab-network.webp" loading="lazy" alt="lab network · holo-east and default projects, VLAN 200 and VLAN 24, holorouter, VyOS" />

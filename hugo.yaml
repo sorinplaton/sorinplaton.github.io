@@ -24,9 +24,9 @@ params:
     google:
       SiteVerificationTag: "E99iaS6Ozyezzb4hK7x17204TqhuZ-GA0m0Md4j6TsU"   # Google Search Console; PaperMod renders <meta name="google-site-verification">
   title: "Sorin Platon"
-  description: "Field notes on cloud networking — VCF, NSX, EVPN, BGP and Kubernetes."
+  description: "Field notes on VMware Cloud Foundation — NSX, EVPN, BGP, VKS and Kubernetes, VCF Automation and Operations, private AI — built and broken on a Holodeck lab."
   author: "Sorin Platon"
-  keywords: [VCF, NSX, EVPN, VXLAN, BGP, VMware, Kubernetes, networking]
+  keywords: [VCF, VMware Cloud Foundation, Holodeck, NSX, EVPN, VXLAN, BGP, VKS, Kubernetes, VCF Automation, VCF Operations, Argo CD, private AI, Ollama, networking]
   DateFormat: "2 January 2006"
   defaultTheme: auto
   disableThemeToggle: false
@@ -59,13 +59,15 @@ params:
     iconHeight: 22
 
   homeInfoParams:
-    Title: "Cloud networking, written down."
+    Title: "VMware Cloud Foundation, written down."
     Content: >
-      Field notes from the lab and the field: VMware Cloud Foundation, NSX,
-      EVPN/VXLAN, BGP traffic engineering and Kubernetes networking. Working
-      configs, the traps they contain, and why they look the way they do.
-      Most of it is built, broken and fixed on a nested VCF 9.1 Holodeck
-      before it gets anywhere near a real fabric.
+      Field notes from the lab and the field, across the whole VCF stack:
+      NSX, EVPN/VXLAN and BGP traffic engineering; VKS and Kubernetes;
+      VCF Automation, GitOps with Argo CD, VCF Operations and its AI
+      Assistant on a private LLM. Working configs, the traps they contain,
+      and why they look the way they do. All of it is built, broken and
+      fixed on a nested VCF 9.1 Holodeck before it gets anywhere near
+      production.
 
   socialIcons:
     - name: github

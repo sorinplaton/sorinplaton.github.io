@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 322" width="1000" height="322" font-family="Arial, Helvetica, sans-serif"><style>
+.bg{fill:#ffffff}
+.card{fill:#ffffff;stroke:#d9ded7} .zcard{fill:#ffffff;stroke:#d9ded7}
+.zcard-v{fill:#ffffff;stroke:#0d7a5a;stroke-width:1.5}
+.zone-o{fill:#e7e9f8;stroke:#4652b8;stroke-opacity:.35} .zone-v{fill:#e1f2ea;stroke:#0d7a5a;stroke-opacity:.35}
+.chip-o{fill:#e7e9f8} .chip-v{fill:#e1f2ea} .chip-p{fill:#e3f0fa}
+.ic{fill:none;stroke:#5b665f;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ic-o{stroke:#4652b8} .ic-v{stroke:#0d7a5a} .ic-p{stroke:#1f78b4}
+.icbg{fill:#edf0eb} .icbg-o{fill:#e7e9f8} .icbg-v{fill:#e1f2ea}
+.c{fill:none;stroke:#5b665f;stroke-width:2;stroke-linecap:round;stroke-opacity:.7}
+.c-v{fill:none;stroke:#0d7a5a;stroke-width:3;stroke-linecap:round}
+.c-o{fill:none;stroke:#4652b8;stroke-width:3;stroke-linecap:round}
+.flow{fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-dasharray:.5 13}
+.ah{fill:#18201c}
+.lp-bg{fill:#ffffff;stroke:#d9ded7}
+.xrow{fill:#fbeaea;stroke:#b23b3b;stroke-dasharray:4 3}
+text{fill:#18201c;font-family:Arial,Helvetica,sans-serif;font-size:14px;text-anchor:middle}
+.l{text-anchor:start} .r{text-anchor:end}
+.b{font-weight:700} .t12{font-size:12px} .t11{font-size:11px;fill:#5b665f} .s{font-size:13px;fill:#5b665f}
+.up{font-size:11px;font-weight:700;letter-spacing:.1em;fill:#5b665f}
+.vt{fill:#0d7a5a} .ot{fill:#4652b8} .pt{fill:#1f78b4} .wt{fill:#b23b3b}
+.ok{fill:#0d7a5a;font-weight:700} .no{fill:#b23b3b;font-weight:700}
+@media (prefers-color-scheme: dark){
+.bg{fill:#181d1a}
+.card{fill:#181d1a;stroke:#2b332e} .zcard{fill:#181d1a;stroke:#2b332e}
+.zcard-v{fill:#181d1a;stroke:#43c79b;stroke-width:1.5}
+.zone-o{fill:#22264a;stroke:#8e98f0;stroke-opacity:.35} .zone-v{fill:#16302a;stroke:#43c79b;stroke-opacity:.35}
+.chip-o{fill:#22264a} .chip-v{fill:#16302a} .chip-p{fill:#15303f}
+.ic{fill:none;stroke:#98a59c;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ic-o{stroke:#8e98f0} .ic-v{stroke:#43c79b} .ic-p{stroke:#6cb6ea}
+.icbg{fill:#1f2622} .icbg-o{fill:#22264a} .icbg-v{fill:#16302a}
+.c{fill:none;stroke:#98a59c;stroke-width:2;stroke-linecap:round;stroke-opacity:.7}
+.c-v{fill:none;stroke:#43c79b;stroke-width:3;stroke-linecap:round}
+.c-o{fill:none;stroke:#8e98f0;stroke-width:3;stroke-linecap:round}
+.flow{fill:none;stroke:#181d1a;stroke-width:2;stroke-linecap:round;stroke-dasharray:.5 13}
+.ah{fill:#e5ebe6}
+.lp-bg{fill:#181d1a;stroke:#2b332e}
+.xrow{fill:#3a2020;stroke:#ef8a80;stroke-dasharray:4 3}
+text{fill:#e5ebe6;font-family:Arial,Helvetica,sans-serif;font-size:14px;text-anchor:middle}
+.l{text-anchor:start} .r{text-anchor:end}
+.b{font-weight:700} .t12{font-size:12px} .t11{font-size:11px;fill:#98a59c} .s{font-size:13px;fill:#98a59c}
+.up{font-size:11px;font-weight:700;letter-spacing:.1em;fill:#98a59c}
+.vt{fill:#43c79b} .ot{fill:#8e98f0} .pt{fill:#6cb6ea} .wt{fill:#ef8a80}
+.ok{fill:#43c79b;font-weight:700} .no{fill:#ef8a80;font-weight:700}
+}</style><rect class="bg" x="0" y="0" width="1000" height="322" rx="12"/>
+        <defs>
+          <symbol id="rq-router" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5v11M6.5 12h11M9.5 9 12 6.5 14.5 9M9.5 15l2.5 2.5 2.5-2.5"/></symbol>
+          <symbol id="rq-host" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7.5 7.5h.01M7.5 16.5h.01M11 7.5h6M11 16.5h6"/></symbol>
+          <symbol id="rq-cloud" viewBox="0 0 24 24"><path d="M7 18.5h10.2a4.3 4.3 0 0 0 .6-8.55A6.2 6.2 0 0 0 5.9 9.3 4.6 4.6 0 0 0 7 18.5z"/></symbol>
+          <symbol id="rq-hex" viewBox="0 0 24 24"><path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4z"/><circle cx="12" cy="12" r="2.6"/><path d="M12 2.8v6.6M12 14.6v6.6M4 7.4l5.7 3.3M14.3 13.3 20 16.6"/></symbol>
+          <symbol id="rq-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 3.5v6.3M12 14.2v6.3M3.5 12h6.3M14.2 12h6.3M6 6l4.4 4.4M13.6 13.6 18 18M18 6l-4.4 4.4M10.4 13.6 6 18"/></symbol>
+          <symbol id="rq-sync" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 13-5.1M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M17.8 3.2v3.9h-3.9M6.2 20.8v-3.9h3.9"/></symbol>
+          <symbol id="rq-switch" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="10" rx="2.5"/><path d="M6.5 12h.01M10 12h.01M13.5 12h.01M17 12h.01"/></symbol>
+          <symbol id="rq-laptop" viewBox="0 0 24 24"><rect x="4.5" y="5" width="15" height="10.5" rx="1.5"/><path d="M2.5 19h19"/></symbol>
+          <symbol id="rq-box" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></symbol>
+          <marker id="rq-ah" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path class="ah" d="M0,0.5 L9,5 L0,9.5 z"/></marker>
+          <symbol id="rq-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2.5v3.5M15 2.5v3.5M9 18v3.5M15 18v3.5M2.5 9h3.5M2.5 15h3.5M18 9h3.5M18 15h3.5"/></symbol>
+          <symbol id="rq-apple" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="11" rx="3"/><path d="M8 18v2.5h8V18"/></symbol>
+          <symbol id="rq-shield" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+          <symbol id="rq-chart" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M7.5 16v-4M12 16V8M16.5 16v-6"/></symbol>
+          <symbol id="rq-dns" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 2.5 14.4 0 17M12 3.5c-2.5 2.6-2.5 14.4 0 17"/></symbol>
+          <symbol id="rq-brain" viewBox="0 0 24 24"><path d="M9 4.5a3 3 0 0 0-3 3 3 3 0 0 0-1.5 5.5A3 3 0 0 0 9 18.5V4.5zM15 4.5a3 3 0 0 1 3 3 3 3 0 0 1 1.5 5.5A3 3 0 0 1 15 18.5V4.5z"/><path d="M9 4.5h6M9 18.5h6"/></symbol>
+          <symbol id="rq-wrench" viewBox="0 0 24 24"><path d="M14.5 4a4.5 4.5 0 0 0-4.2 6.1L4 16.4 7.6 20l6.3-6.3A4.5 4.5 0 0 0 20 9.5l-2.8 2.8-3-1-1-3L16 5.5A4.5 4.5 0 0 0 14.5 4z"/></symbol>
+        </defs>
+        <text class="up l" x="30" y="24">VCF OPERATIONS NEEDS</text>
+        <text class="up l" x="530" y="24">HOW IT IS MET</text>
+        <rect class="card" x="30" y="38" width="440" height="42" rx="10"/>
+        <text class="t12 b l" x="48" y="64">HTTPS on an FQDN (IP rejected)</text>
+        <rect class="chip-v" x="530" y="38" width="440" height="42" rx="10"/>
+        <text class="t12 l" x="548" y="64">Caddy :443 + 10-year self-signed cert + A record</text>
+        <path class="c-v" d="M470 59 C 490 59, 510 59, 528 59" marker-end="url(#rq-ah)"/><path class="flow" d="M470 59 C 490 59, 510 59, 528 59"/>
+        <rect class="card" x="30" y="94" width="440" height="42" rx="10"/>
+        <text class="t12 b l" x="48" y="120">Bearer token on every call</text>
+        <rect class="chip-v" x="530" y="94" width="440" height="42" rx="10"/>
+        <text class="t12 l" x="548" y="120">Caddy header matcher, 401 otherwise</text>
+        <path class="c-v" d="M470 115 C 490 115, 510 115, 528 115" marker-end="url(#rq-ah)"/><path class="flow" d="M470 115 C 490 115, 510 115, 528 115"/>
+        <rect class="card" x="30" y="150" width="440" height="42" rx="10"/>
+        <text class="t12 b l" x="48" y="176">OpenAI API: /v1/models, chat, tools</text>
+        <rect class="chip-v" x="530" y="150" width="440" height="42" rx="10"/>
+        <text class="t12 l" x="548" y="176">Ollama's built-in /v1 endpoint</text>
+        <path class="c-v" d="M470 171 C 490 171, 510 171, 528 171" marker-end="url(#rq-ah)"/><path class="flow" d="M470 171 C 490 171, 510 171, 528 171"/>
+        <rect class="card" x="30" y="206" width="440" height="42" rx="10"/>
+        <text class="t12 b l" x="48" y="232">25 tools in every prompt (3–4k tokens)</text>
+        <rect class="chip-v" x="530" y="206" width="440" height="42" rx="10"/>
+        <text class="t12 l" x="548" y="232">16k context: Modelfile variant / OLLAMA_CONTEXT_LENGTH</text>
+        <path class="c-v" d="M470 227 C 490 227, 510 227, 528 227" marker-end="url(#rq-ah)"/><path class="flow" d="M470 227 C 490 227, 510 227, 528 227"/>
+        <rect class="card" x="30" y="262" width="440" height="42" rx="10"/>
+        <text class="t12 b l" x="48" y="288">Answers without a cold start</text>
+        <rect class="chip-v" x="530" y="262" width="440" height="42" rx="10"/>
+        <text class="t12 l" x="548" y="288">OLLAMA_KEEP_ALIVE=-1: model never unloads</text>
+        <path class="c-v" d="M470 283 C 490 283, 510 283, 528 283" marker-end="url(#rq-ah)"/><path class="flow" d="M470 283 C 490 283, 510 283, 528 283"/>
+      </svg>

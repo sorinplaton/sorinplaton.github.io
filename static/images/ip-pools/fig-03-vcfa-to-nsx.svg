@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="980" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1f4e9c"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#5b3fa0"/></marker></defs>
+<text x="700.0" y="30" text-anchor="middle" font-size="19" font-weight="bold">What VCF Automation calls it, and what NSX builds from it</text>
+<text x="700.0" y="50" text-anchor="middle" font-size="12" fill="#6b7785">Provider portal on the left, the NSX objects that appear when an organization gets regional networking on the right</text>
+<rect x="60" y="80" width="600" height="760" rx="6" fill="none" stroke="#5b3fa0" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="72" y="100" font-weight="bold" fill="#5b3fa0" font-size="14">VCF Automation — provider portal (system org)</text>
+<rect x="740" y="80" width="600" height="760" rx="6" fill="none" stroke="#2e7d32" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="752" y="100" font-weight="bold" fill="#2e7d32" font-size="14">NSX — objects created or consumed</text>
+<rect x="90" y="120" width="540" height="86" rx="8" fill="#faf8ff" stroke="#5b3fa0" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="100" y="138" font-weight="bold" fill="#5b3fa0" font-size="13">Region  east-1</text>
+<text x="102" y="156" fill="#1d2733" font-size="11" text-anchor="start">binds one NSX Manager + Supervisor(s) + storage class</text>
+<text x="102" y="171" fill="#6b7785" font-size="11" text-anchor="start">a Region usually maps to one workload domain</text>
+<rect x="90" y="230" width="540" height="110" rx="8" fill="#faf8ff" stroke="#5b3fa0" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="100" y="248" font-weight="bold" fill="#5b3fa0" font-size="13">IP Space  east-1-public</text>
+<text x="102" y="266" fill="#1d2733" font-size="11" text-anchor="start">IP blocks: 10.61.0.0/24 (south of the Provider GW, used for services)</text>
+<text x="102" y="281" fill="#6b7785" font-size="11" text-anchor="start">External reachability: prefixes north of the GW (for routing)</text>
+<text x="102" y="296" fill="#6b7785" font-size="11" text-anchor="start">Quotas per org: single IPs · CIDRs · max subnet size</text>
+<text x="102" y="311" fill="#6b7785" font-size="11" text-anchor="start">1–5 IP Spaces per Provider Gateway, 5 CIDRs max</text>
+<rect x="90" y="364" width="540" height="86" rx="8" fill="#faf8ff" stroke="#5b3fa0" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="100" y="382" font-weight="bold" fill="#5b3fa0" font-size="13">Provider Gateway  pgw-east</text>
+<text x="102" y="400" fill="#1d2733" font-size="11" text-anchor="start">imports an NSX Tier-0 or Tier-0 VRF · shared or dedicated per org</text>
+<text x="102" y="415" fill="#6b7785" font-size="11" text-anchor="start">advertises the IP Space blocks northbound</text>
+<rect x="90" y="474" width="540" height="100" rx="8" fill="#faf8ff" stroke="#5b3fa0" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="100" y="492" font-weight="bold" fill="#5b3fa0" font-size="13">Regional networking of org  holo-east</text>
+<text x="102" y="510" fill="#1d2733" font-size="11" text-anchor="start">links the org to: Provider Gateway + Edge cluster (+ bandwidth)</text>
+<text x="102" y="525" fill="#6b7785" font-size="11" text-anchor="start">this single action creates the NSX Project, TGW and default VPC</text>
+<text x="102" y="540" fill="#6b7785" font-size="11" text-anchor="start">9.0: one regional-networking config per org per region</text>
+<rect x="90" y="598" width="540" height="86" rx="8" fill="#faf8ff" stroke="#0b7a75" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="100" y="616" font-weight="bold" fill="#0b7a75" font-size="13">Org admin: Private IP Blocks  10.251.0.0/16</text>
+<text x="102" y="634" fill="#1d2733" font-size="11" text-anchor="start">created inside the organization, counted against no public quota</text>
+<text x="102" y="649" fill="#6b7785" font-size="11" text-anchor="start">feed the private subnets of the org's VPCs</text>
+<rect x="90" y="708" width="540" height="110" rx="8" fill="#faf8ff" stroke="#0b7a75" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="100" y="726" font-weight="bold" fill="#0b7a75" font-size="13">Org admin: VPC / Namespace</text>
+<text x="102" y="744" fill="#1d2733" font-size="11" text-anchor="start">VPC subnets: public (from IP Space) or private (from org block)</text>
+<text x="102" y="759" fill="#6b7785" font-size="11" text-anchor="start">vSphere Namespace → picks a VPC of this org's project</text>
+<text x="102" y="774" fill="#6b7785" font-size="11" text-anchor="start">LB VIPs, 1:1 NAT, SNAT consume IP Space quota</text>
+<rect x="770" y="120" width="540" height="86" rx="8" fill="#f3faf3" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="780" y="138" font-weight="bold" fill="#2e7d32" font-size="13">NSX Manager  nsx-wld01-a  (+ Supervisor, storage class)</text>
+<text x="782" y="156" fill="#1d2733" font-size="11" text-anchor="start">a Region is a pointer to one NSX instance and the Supervisors behind it</text>
+<text x="782" y="171" fill="#6b7785" font-size="11" text-anchor="start">Supervisors can only share a Region if they share the NSX Manager</text>
+<rect x="770" y="230" width="540" height="110" rx="8" fill="#f3faf3" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="780" y="248" font-weight="bold" fill="#2e7d32" font-size="13">IP Address Block  10.61.0.0/24  (visibility: External)</text>
+<text x="782" y="266" fill="#1d2733" font-size="11" text-anchor="start">same CIDRs as the IP Space, exposed to the org's project</text>
+<text x="782" y="281" fill="#6b7785" font-size="11" text-anchor="start">listed as External IP Block in the project's VPC Connectivity Profile</text>
+<text x="782" y="296" fill="#6b7785" font-size="11" text-anchor="start">auto-subnetted: public subnets, SNAT, 1:1 NAT, LB VIPs</text>
+<text x="782" y="311" fill="#6b7785" font-size="11" text-anchor="start">advertised by the Tier-0 (BGP) to the ToR</text>
+<rect x="770" y="364" width="540" height="86" rx="8" fill="#f3faf3" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="780" y="382" font-weight="bold" fill="#2e7d32" font-size="13">Tier-0 Gateway  t0-east  (Edge cluster, A/S) or Tier-0 VRF</text>
+<text x="782" y="400" fill="#1d2733" font-size="11" text-anchor="start">the Provider Gateway is a pointer to this object</text>
+<text x="782" y="415" fill="#6b7785" font-size="11" text-anchor="start">external-connection target for every org Transit Gateway using it</text>
+<rect x="770" y="474" width="540" height="100" rx="8" fill="#f3faf3" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="780" y="492" font-weight="bold" fill="#2e7d32" font-size="13">NSX Project  holo-east  +  Transit Gateway  +  east-1-default-vpc</text>
+<text x="782" y="510" fill="#1d2733" font-size="11" text-anchor="start">project named after the org · exactly one project and one TGW per org</text>
+<text x="782" y="525" fill="#6b7785" font-size="11" text-anchor="start">TGW: external connection → t0-east · Private TGW IP Block (not advertised)</text>
+<text x="782" y="540" fill="#6b7785" font-size="11" text-anchor="start">centralized (Edge) or distributed (VNA) — per org choice</text>
+<rect x="770" y="598" width="540" height="86" rx="8" fill="#f3faf3" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="780" y="616" font-weight="bold" fill="#2e7d32" font-size="13">VPC IP Blocks (Private CIDRs)  10.251.0.0/16</text>
+<text x="782" y="634" fill="#1d2733" font-size="11" text-anchor="start">private subnets are carved here · VPC-local · NAT'd by the VPC gateway</text>
+<text x="782" y="649" fill="#6b7785" font-size="11" text-anchor="start">may overlap across VPCs and across orgs</text>
+<rect x="770" y="708" width="540" height="110" rx="8" fill="#f3faf3" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="0"/>
+<text x="780" y="726" font-weight="bold" fill="#2e7d32" font-size="13">VPC  app-vpc  + Connectivity / Service Profile</text>
+<text x="782" y="744" fill="#1d2733" font-size="11" text-anchor="start">subnets: public (External block) · private (VPC IP block) · private-TGW</text>
+<text x="782" y="759" fill="#6b7785" font-size="11" text-anchor="start">LB VIPs, 1:1 NAT, SNAT taken from the External block (= IP Space quota)</text>
+<text x="782" y="774" fill="#6b7785" font-size="11" text-anchor="start">vCenter only manages VPCs of the Default project; org VPCs are read-only</text>
+<path d="M630,163 L700,163 L700,163 L762,163" fill="none" stroke="#6b7785" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+<path d="M630,285 L700,285 L700,285 L762,285" fill="none" stroke="#6b7785" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+<path d="M630,407 L700,407 L700,407 L762,407" fill="none" stroke="#6b7785" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+<path d="M630,524 L700,524 L700,524 L762,524" fill="none" stroke="#6b7785" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+<path d="M630,641 L700,641 L700,641 L762,641" fill="none" stroke="#6b7785" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+<path d="M630,763 L700,763 L700,763 L762,763" fill="none" stroke="#6b7785" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+<text x="60" y="870" fill="#1d2733" font-size="12" text-anchor="start" font-weight="bold">Where the Supervisor fits:</text>
+<text x="60" y="888" fill="#6b7785" font-size="11" text-anchor="start">The Supervisor itself is usually activated in the NSX Default project, so its kube-system and supervisor-services VPCs, its API VIP and its management SNAT consume the Default project's own</text>
+<text x="60" y="903" fill="#6b7785" font-size="11" text-anchor="start">External and Private-TGW blocks — not the org's IP Space. Tenant VKS nodes only need a route to that API VIP; everything else reaches the Supervisor through the VCFA Namespace Proxy.</text>
+<text x="60" y="930" fill="#6b7785" font-size="11" text-anchor="start">Default project vs org project: Default = admin context, VPCs editable from vCenter, not meant for multi-tenancy. Org project = one per organization, own TGW and blocks, quota-governed through IP Spaces.</text>
+</svg>

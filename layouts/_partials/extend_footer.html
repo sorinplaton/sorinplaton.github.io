@@ -3,3 +3,52 @@
 <script data-goatcounter="https://{{ . }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 {{- end }}
 {{- end }}
+<script>
+// Click a post image to enlarge it in place; click anywhere, press Esc or the × to shrink it back.
+(function () {
+  var imgs = document.querySelectorAll('.post-content img');
+  if (!imgs.length) return;
+  var overlay, lastFocus;
+  function close() {
+    if (!overlay) return;
+    var o = overlay; overlay = null;
+    o.classList.remove('lb-open');
+    document.body.classList.remove('lb-lock');
+    setTimeout(function () { o.remove(); }, 180);
+    if (lastFocus) lastFocus.focus();
+  }
+  function open(img) {
+    lastFocus = img;
+    overlay = document.createElement('div');
+    overlay.className = 'lb-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Enlarged image');
+    var big = document.createElement('img');
+    big.src = img.currentSrc || img.src;
+    big.alt = img.alt;
+    var btn = document.createElement('button');
+    btn.className = 'lb-close';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Close enlarged image');
+    btn.innerHTML = '&times;';
+    overlay.appendChild(btn);
+    overlay.appendChild(big);
+    var fig = img.closest('figure'), cap = fig && fig.querySelector('figcaption');
+    if (cap) { var c = document.createElement('div'); c.className = 'lb-caption'; c.textContent = cap.textContent; overlay.appendChild(c); }
+    overlay.addEventListener('click', close);
+    document.body.appendChild(overlay);
+    document.body.classList.add('lb-lock');
+    requestAnimationFrame(function () { overlay && overlay.classList.add('lb-open'); });
+    btn.focus();
+  }
+  imgs.forEach(function (img) {
+    if (img.closest('a')) return; // linked images keep their link
+    img.classList.add('lb-zoomable');
+    img.tabIndex = 0;
+    img.addEventListener('click', function () { open(img); });
+    img.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(img); } });
+  });
+  document.addEventListener('keydown', function (e) { if (overlay && (e.key === 'Escape' || e.key === 'Tab')) { e.preventDefault(); close(); } });
+})();
+</script>

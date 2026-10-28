@@ -15,6 +15,7 @@
   });
   if (!items.length) return;
   var overlay, lastFocus;
+  var fr = document.documentElement.lang.indexOf('fr') === 0;
   function close() {
     if (!overlay) return;
     var o = overlay; overlay = null;
@@ -52,11 +53,11 @@
     overlay.className = 'lb-overlay';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', 'Enlarged image');
+    overlay.setAttribute('aria-label', fr ? 'Image agrandie' : 'Enlarged image');
     var btn = document.createElement('button');
     btn.className = 'lb-close';
     btn.type = 'button';
-    btn.setAttribute('aria-label', 'Close enlarged image');
+    btn.setAttribute('aria-label', fr ? "Fermer l'image agrandie" : 'Close enlarged image');
     btn.innerHTML = '&times;';
     overlay.appendChild(btn);
     if (el.tagName.toLowerCase() === 'img') {

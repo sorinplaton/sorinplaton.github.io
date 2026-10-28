@@ -1,5 +1,4 @@
 baseURL: "https://sorinplaton.github.io/"
-languageCode: en-us
 title: "Sorin Platon"
 theme: PaperMod
 
@@ -8,6 +7,80 @@ buildDrafts: false
 buildFuture: false
 buildExpired: false
 enableEmoji: true
+
+defaultContentLanguage: en
+defaultContentLanguageInSubdir: false
+
+languages:
+  en:
+    label: English
+    locale: en-us
+    weight: 1
+    menus:
+      main:
+        - identifier: posts
+          name: Posts
+          url: /posts/
+          weight: 10
+        - identifier: tags
+          name: Tags
+          url: /tags/
+          weight: 20
+        - identifier: projects
+          name: Projects
+          url: /projects/
+          weight: 30
+        - identifier: search
+          name: Search
+          url: /search/
+          weight: 40
+        - identifier: about
+          name: About
+          url: /about/
+          weight: 50
+  fr:
+    label: Français
+    locale: fr-ca
+    weight: 2
+    title: "Sorin Platon"
+    params:
+      description: "Notes de terrain sur VMware Cloud Foundation — NSX, EVPN, BGP, VKS et Kubernetes, VCF Automation et Operations, IA privée — construites et cassées dans un lab Holodeck."
+      homeInfoParams:
+        Title: "VMware Cloud Foundation, mis par écrit."
+        Content: >
+          Notes de terrain, du lab comme du terrain, sur toute la pile VCF :
+          NSX, EVPN/VXLAN et ingénierie de trafic BGP ; VKS et Kubernetes ;
+          VCF Automation, GitOps avec Argo CD, VCF Operations et son
+          assistant IA sur un LLM privé. Des configurations qui fonctionnent,
+          les pièges qu'elles cachent et pourquoi elles ont cette forme. Tout
+          est construit, cassé et réparé sur un Holodeck VCF 9.1 imbriqué avant
+          d'approcher la production.
+      editPost:
+        URL: "https://github.com/sorinplaton/sorinplaton.github.io/tree/main/content"
+        Text: "Suggérer des modifications"
+        appendFilePath: true
+    menus:
+      main:
+        - identifier: posts
+          name: Articles
+          url: /fr/posts/
+          weight: 10
+        - identifier: tags
+          name: Étiquettes
+          url: /fr/tags/
+          weight: 20
+        - identifier: projects
+          name: Projets
+          url: /fr/projects/
+          weight: 30
+        - identifier: search
+          name: Recherche
+          url: /fr/search/
+          weight: 40
+        - identifier: about
+          name: À propos
+          url: /fr/about/
+          weight: 50
 
 pagination:
   pagerSize: 10
@@ -30,6 +103,7 @@ params:
   DateFormat: "2 January 2006"
   defaultTheme: auto
   disableThemeToggle: false
+  displayFullLangName: true
 
   ShowReadingTime: true
   ShowShareButtons: false
@@ -90,29 +164,6 @@ params:
     threshold: 0.4
     minMatchCharLength: 0
     keys: ["title", "permalink", "summary", "content"]
-
-menu:
-  main:
-    - identifier: posts
-      name: Posts
-      url: /posts/
-      weight: 10
-    - identifier: tags
-      name: Tags
-      url: /tags/
-      weight: 20
-    - identifier: projects
-      name: Projects
-      url: /projects/
-      weight: 30
-    - identifier: search
-      name: Search
-      url: /search/
-      weight: 40
-    - identifier: about
-      name: About
-      url: /about/
-      weight: 50
 
 outputs:
   home:

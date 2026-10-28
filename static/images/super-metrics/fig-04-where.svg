@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="560" viewBox="0 0 1560 560" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1560" height="560" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1f4e9c"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#5b3fa0"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#2e7d32"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b3261e"/></marker></defs>
+<text x="780.0" y="30" text-anchor="middle" font-size="19" font-weight="bold">The where clause chooses which values count</text>
+<text x="780.0" y="50" text-anchor="middle" font-size="12" fill="#6b7785">Average CPU of powered-on VMs only. Powered-off VMs report 0 %, so without the filter the cluster average reads 27.5 % instead of 55 %.</text>
+<rect x="295.0" y="98.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="332.0" cy="104.0" r="2.5" fill="#1d2733"/>
+<line x1="301.0" y1="102.0" x2="301.0" y2="106.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="306.0" y1="102.0" x2="306.0" y2="106.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="311.0" y1="102.0" x2="311.0" y2="106.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="316.0" y1="102.0" x2="316.0" y2="106.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="321.0" y1="102.0" x2="321.0" y2="106.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="295.0" y="112.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="332.0" cy="118.0" r="2.5" fill="#1d2733"/>
+<line x1="301.0" y1="116.0" x2="301.0" y2="120.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="306.0" y1="116.0" x2="306.0" y2="120.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="311.0" y1="116.0" x2="311.0" y2="120.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="316.0" y1="116.0" x2="316.0" y2="120.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="321.0" y1="116.0" x2="321.0" y2="120.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="319.0" y="114.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="356.0" cy="120.0" r="2.5" fill="#1d2733"/>
+<line x1="325.0" y1="118.0" x2="325.0" y2="122.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="330.0" y1="118.0" x2="330.0" y2="122.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="335.0" y1="118.0" x2="335.0" y2="122.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="340.0" y1="118.0" x2="340.0" y2="122.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="345.0" y1="118.0" x2="345.0" y2="122.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="319.0" y="128.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="356.0" cy="134.0" r="2.5" fill="#1d2733"/>
+<line x1="325.0" y1="132.0" x2="325.0" y2="136.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="330.0" y1="132.0" x2="330.0" y2="136.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="335.0" y1="132.0" x2="335.0" y2="136.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="340.0" y1="132.0" x2="340.0" y2="136.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="345.0" y1="132.0" x2="345.0" y2="136.0" stroke="#1d2733" stroke-width="1.5"/>
+<text x="388" y="125" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold">Cluster</text>
+<rect x="172.0" y="243.0" width="56" height="15.0" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5"/>
+<circle cx="219.0" cy="250.5" r="2.5" fill="#6b7785"/>
+<line x1="178.0" y1="247.0" x2="178.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="183.0" y1="247.0" x2="183.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="188.0" y1="247.0" x2="188.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="193.0" y1="247.0" x2="193.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="198.0" y1="247.0" x2="198.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<rect x="172.0" y="260.0" width="56" height="15.0" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5"/>
+<circle cx="219.0" cy="267.5" r="2.5" fill="#6b7785"/>
+<line x1="178.0" y1="264.0" x2="178.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="183.0" y1="264.0" x2="183.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="188.0" y1="264.0" x2="188.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="193.0" y1="264.0" x2="193.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="198.0" y1="264.0" x2="198.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<text x="238" y="265" font-size="13" fill="#6b7785" text-anchor="start" font-weight="bold">ESX A</text>
+<rect x="432.0" y="243.0" width="56" height="15.0" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5"/>
+<circle cx="479.0" cy="250.5" r="2.5" fill="#6b7785"/>
+<line x1="438.0" y1="247.0" x2="438.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="443.0" y1="247.0" x2="443.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="448.0" y1="247.0" x2="448.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="453.0" y1="247.0" x2="453.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="458.0" y1="247.0" x2="458.0" y2="254.0" stroke="#6b7785" stroke-width="1.5"/>
+<rect x="432.0" y="260.0" width="56" height="15.0" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5"/>
+<circle cx="479.0" cy="267.5" r="2.5" fill="#6b7785"/>
+<line x1="438.0" y1="264.0" x2="438.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="443.0" y1="264.0" x2="443.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="448.0" y1="264.0" x2="448.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="453.0" y1="264.0" x2="453.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="458.0" y1="264.0" x2="458.0" y2="271.0" stroke="#6b7785" stroke-width="1.5"/>
+<text x="498" y="265" font-size="13" fill="#6b7785" text-anchor="start" font-weight="bold">ESX B</text>
+<path d="M320,150 L320,200 L200,200 L200,241" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M340,150 L340,200 L460,200 L460,241" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M190,278 L190,340 L130,340 L130,378" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="108.0" y="378.0" width="44" height="44" rx="0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="130" y="405" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">VM1</text>
+<text x="130" y="440" font-size="12" fill="#2e7d32" text-anchor="middle" font-weight="bold">on · 40 %</text>
+<path d="M210,278 L210,340 L270,340 L270,378" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="248.0" y="378.0" width="44" height="44" rx="0" fill="none" stroke="#b4bcc6" stroke-width="2"/>
+<text x="270" y="405" font-size="13" fill="#b4bcc6" text-anchor="middle" font-weight="bold">VM2</text>
+<text x="270" y="440" font-size="12" fill="#b4bcc6" text-anchor="middle">off · excluded</text>
+<path d="M450,278 L450,340 L390,340 L390,378" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="368.0" y="378.0" width="44" height="44" rx="0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="390" y="405" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">VM3</text>
+<text x="390" y="440" font-size="12" fill="#2e7d32" text-anchor="middle" font-weight="bold">on · 70 %</text>
+<path d="M470,278 L470,340 L530,340 L530,378" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="508.0" y="378.0" width="44" height="44" rx="0" fill="none" stroke="#b4bcc6" stroke-width="2"/>
+<text x="530" y="405" font-size="13" fill="#b4bcc6" text-anchor="middle" font-weight="bold">VM4</text>
+<text x="530" y="440" font-size="12" fill="#b4bcc6" text-anchor="middle">off · excluded</text>
+<rect x="700" y="95" width="800" height="120" rx="0" fill="#eef4fb" stroke="#c9d1da" stroke-width="1"/>
+<text x="716" y="125" font-family="Menlo, Consolas, monospace" font-size="13">avg(${adaptertype=VMWARE, objecttype=VirtualMachine,</text>
+<text x="716" y="147" font-family="Menlo, Consolas, monospace" font-size="13">    metric=cpu|usage_average, depth=2,</text>
+<text x="716" y="169" font-family="Menlo, Consolas, monospace" font-size="13" fill="#5b3fa0" font-weight="bold">    where=(${metric=sys|poweredOn} == 1)</text>
+<text x="716" y="191" font-family="Menlo, Consolas, monospace" font-size="13">})</text>
+<text x="700" y="250" font-size="16" fill="#1d2733" text-anchor="start" font-weight="bold">= avg(40, 70) = </text>
+<text x="850" y="250" font-size="16" fill="#1f4e9c" text-anchor="start" font-weight="bold">55 %</text>
+<rect x="700" y="290" width="380" height="24" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="306" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">Rule</text>
+<rect x="1080" y="290" width="420" height="24" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="1088" y="306" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">Consequence</text>
+<rect x="700" y="314" width="380" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="330" font-size="12" fill="#1d2733" text-anchor="start">Reads only the same object’s metrics</text>
+<rect x="1080" y="314" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1088" y="330" font-size="12" fill="#1d2733" text-anchor="start">Cannot compare a VM to its cluster’s SLA</text>
+<rect x="700" y="338" width="380" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="354" font-size="12" fill="#1d2733" text-anchor="start">Right operand is a number</text>
+<rect x="1080" y="338" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1088" y="354" font-size="12" fill="#1d2733" text-anchor="start">Not another super metric or a variable</text>
+<rect x="700" y="362" width="380" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="378" font-size="12" fill="#1d2733" text-anchor="start">String operators allowed</text>
+<rect x="1080" y="362" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1088" y="378" font-size="12" fill="#1d2733" text-anchor="start">"… !contains GENERAL" style tests</text>
+<rect x="700" y="386" width="380" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="402" font-size="12" fill="#1d2733" text-anchor="start">$value is the entry’s own value</text>
+<rect x="1080" y="386" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1088" y="402" font-size="12" fill="#1d2733" text-anchor="start">where=($value > 60) for a threshold</text>
+<rect x="700" y="410" width="380" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="426" font-size="12" fill="#1d2733" text-anchor="start">$value.isFresh()</text>
+<rect x="1080" y="410" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1088" y="426" font-size="12" fill="#1d2733" text-anchor="start">Ignore stale last values</text>
+<text x="60" y="500" font-size="11" fill="#6b7785" text-anchor="start" font-style="italic">Values are illustrative.</text>
+</svg>

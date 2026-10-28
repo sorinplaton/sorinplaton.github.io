@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="600" viewBox="0 0 1560 600" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1560" height="600" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1f4e9c"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#5b3fa0"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#2e7d32"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b3261e"/></marker></defs>
+<text x="780.0" y="30" text-anchor="middle" font-size="19" font-weight="bold">Depth: how far a formula reaches</text>
+<text x="780.0" y="50" text-anchor="middle" font-size="12" fill="#6b7785">Hops are counted along the relationship chain from the object the super metric is assigned to. Negative depth walks up to parents; depth 0 is not valid.</text>
+<rect x="380" y="105" width="80" height="46" rx="0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<line x1="390" y1="125" x2="390" y2="145" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="400" y1="125" x2="400" y2="145" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="410" y1="125" x2="410" y2="145" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="420" y1="125" x2="420" y2="145" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="430" y1="125" x2="430" y2="145" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="440" y1="125" x2="440" y2="145" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="450" y1="125" x2="450" y2="145" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M380,118 L460,118" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="480" y="135" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold">Data center</text>
+<rect x="385.0" y="248.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="422.0" cy="254.0" r="2.5" fill="#1d2733"/>
+<line x1="391.0" y1="252.0" x2="391.0" y2="256.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="396.0" y1="252.0" x2="396.0" y2="256.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="401.0" y1="252.0" x2="401.0" y2="256.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="406.0" y1="252.0" x2="406.0" y2="256.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="411.0" y1="252.0" x2="411.0" y2="256.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="385.0" y="262.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="422.0" cy="268.0" r="2.5" fill="#1d2733"/>
+<line x1="391.0" y1="266.0" x2="391.0" y2="270.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="396.0" y1="266.0" x2="396.0" y2="270.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="401.0" y1="266.0" x2="401.0" y2="270.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="406.0" y1="266.0" x2="406.0" y2="270.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="411.0" y1="266.0" x2="411.0" y2="270.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="409.0" y="264.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="446.0" cy="270.0" r="2.5" fill="#1d2733"/>
+<line x1="415.0" y1="268.0" x2="415.0" y2="272.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="420.0" y1="268.0" x2="420.0" y2="272.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="425.0" y1="268.0" x2="425.0" y2="272.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="430.0" y1="268.0" x2="430.0" y2="272.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="435.0" y1="268.0" x2="435.0" y2="272.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="409.0" y="278.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="446.0" cy="284.0" r="2.5" fill="#1d2733"/>
+<line x1="415.0" y1="282.0" x2="415.0" y2="286.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="420.0" y1="282.0" x2="420.0" y2="286.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="425.0" y1="282.0" x2="425.0" y2="286.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="430.0" y1="282.0" x2="430.0" y2="286.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="435.0" y1="282.0" x2="435.0" y2="286.0" stroke="#1d2733" stroke-width="1.5"/>
+<text x="480" y="266" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold">Cluster</text>
+<text x="480" y="284" font-size="12" fill="#1f4e9c" text-anchor="start" font-weight="bold">super metric assigned here</text>
+<rect x="392.0" y="393.0" width="56" height="15.0" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5"/>
+<circle cx="439.0" cy="400.5" r="2.5" fill="#6b7785"/>
+<line x1="398.0" y1="397.0" x2="398.0" y2="404.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="403.0" y1="397.0" x2="403.0" y2="404.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="408.0" y1="397.0" x2="408.0" y2="404.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="413.0" y1="397.0" x2="413.0" y2="404.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="418.0" y1="397.0" x2="418.0" y2="404.0" stroke="#6b7785" stroke-width="1.5"/>
+<rect x="392.0" y="410.0" width="56" height="15.0" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5"/>
+<circle cx="439.0" cy="417.5" r="2.5" fill="#6b7785"/>
+<line x1="398.0" y1="414.0" x2="398.0" y2="421.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="403.0" y1="414.0" x2="403.0" y2="421.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="408.0" y1="414.0" x2="408.0" y2="421.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="413.0" y1="414.0" x2="413.0" y2="421.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="418.0" y1="414.0" x2="418.0" y2="421.0" stroke="#6b7785" stroke-width="1.5"/>
+<text x="480" y="415" font-size="13" fill="#6b7785" text-anchor="start" font-weight="bold">ESX host</text>
+<rect x="398.0" y="528.0" width="44" height="44" rx="0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="420" y="555" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">VM</text>
+<text x="480" y="555" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold">Virtual machine</text>
+<path d="M420,153 L420,238" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M420,302 L420,392" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M420,428 L420,527" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M300,270 L300,140" fill="none" stroke="#5b3fa0" stroke-width="2" marker-end="url(#arrp)"/>
+<text x="292" y="135" font-size="13" fill="#5b3fa0" text-anchor="end" font-weight="bold">depth = −1</text>
+<path d="M240,270 L240,400" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrg)"/>
+<text x="232" y="410" font-size="13" fill="#2e7d32" text-anchor="end" font-weight="bold">depth = 1</text>
+<path d="M180,270 L180,540" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrg)"/>
+<text x="172" y="550" font-size="13" fill="#2e7d32" text-anchor="end" font-weight="bold">depth = 2</text>
+<path d="M170,270 L310,270" fill="none" stroke="#1f4e9c" stroke-width="2"/>
+<rect x="700" y="110" width="160" height="24" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="126" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">Assigned to</text>
+<rect x="860" y="110" width="420" height="24" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="868" y="126" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">Reads from</text>
+<rect x="1280" y="110" width="180" height="24" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="1288" y="126" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">depth</text>
+<rect x="700" y="134" width="160" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="150" font-size="12" fill="#1d2733" text-anchor="start">Cluster</text>
+<rect x="860" y="134" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="868" y="150" font-size="12" fill="#1d2733" text-anchor="start">ESX hosts</text>
+<rect x="1280" y="134" width="180" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1288" y="150" font-size="12" fill="#1d2733" text-anchor="start">1</text>
+<rect x="700" y="158" width="160" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="174" font-size="12" fill="#1d2733" text-anchor="start">Cluster</text>
+<rect x="860" y="158" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="868" y="174" font-size="12" fill="#1d2733" text-anchor="start">VMs (through the hosts)</text>
+<rect x="1280" y="158" width="180" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1288" y="174" font-size="12" fill="#1d2733" text-anchor="start">2</text>
+<rect x="700" y="182" width="160" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="198" font-size="12" fill="#1d2733" text-anchor="start">Cluster</text>
+<rect x="860" y="182" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="868" y="198" font-size="12" fill="#1d2733" text-anchor="start">Its data center</text>
+<rect x="1280" y="182" width="180" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1288" y="198" font-size="12" fill="#1d2733" text-anchor="start">−1</text>
+<rect x="700" y="206" width="160" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="222" font-size="12" fill="#1d2733" text-anchor="start">ESX host</text>
+<rect x="860" y="206" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="868" y="222" font-size="12" fill="#1d2733" text-anchor="start">Its VMs</text>
+<rect x="1280" y="206" width="180" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1288" y="222" font-size="12" fill="#1d2733" text-anchor="start">1</text>
+<rect x="700" y="230" width="160" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="246" font-size="12" fill="#1d2733" text-anchor="start">Datastore</text>
+<rect x="860" y="230" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="868" y="246" font-size="12" fill="#1d2733" text-anchor="start">VMs that use it (VMs are its parents)</text>
+<rect x="1280" y="230" width="180" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1288" y="246" font-size="12" fill="#1d2733" text-anchor="start">−1</text>
+<rect x="700" y="254" width="160" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="708" y="270" font-size="12" fill="#1d2733" text-anchor="start">Any object</text>
+<rect x="860" y="254" width="420" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="868" y="270" font-size="12" fill="#1d2733" text-anchor="start">Itself</text>
+<rect x="1280" y="254" width="180" height="24" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="1288" y="270" font-size="12" fill="#1d2733" text-anchor="start">use ${this, …}</text>
+<rect x="700" y="320" width="760" height="92" rx="0" fill="#eef4fb" stroke="#c9d1da" stroke-width="1"/>
+<text x="716" y="342" font-size="12" fill="#1f4e9c" text-anchor="start" font-weight="bold">FIX THE DEFAULT</text>
+<text x="716" y="364" font-size="12" fill="#1d2733" text-anchor="start" font-style="italic">Picking a metric in the editor writes depth=1. A cluster super metric that should read VMs</text>
+<text x="716" y="382" font-size="12" fill="#1d2733" text-anchor="start" font-style="italic">needs depth=2; otherwise it reads hosts, or nothing of the type you named.</text>
+</svg>

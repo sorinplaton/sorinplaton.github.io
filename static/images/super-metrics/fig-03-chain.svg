@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="380" viewBox="0 0 1560 380" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1560" height="380" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1f4e9c"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#5b3fa0"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#2e7d32"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b3261e"/></marker></defs>
+<text x="780.0" y="30" text-anchor="middle" font-size="19" font-weight="bold">Depth cannot be 0: VM → datastore cluster needs two chained super metrics</text>
+<text x="780.0" y="50" text-anchor="middle" font-size="12" fill="#6b7785">VMs and the datastore cluster both sit above a datastore, so a direct hop would be −1 + 1 = 0. Super metric 1 aggregates the VMs on the datastore; super metric 2 sums it across the datastore cluster.</text>
+<rect x="118.0" y="138.0" width="44" height="44" rx="0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="140" y="165" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">VM1</text>
+<rect x="118.0" y="228.0" width="44" height="44" rx="0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="140" y="255" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">VM2</text>
+<rect x="640" y="115" width="500" height="190" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5" stroke-dasharray="6,5"/>
+<text x="890" y="292" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Datastore cluster</text>
+<ellipse cx="760" cy="177.0" rx="22.0" ry="7" fill="none" stroke="#1d2733" stroke-width="2"/>
+<path d="M738.0,177.0 V203.0 A22.0,7 0 0 0 782.0,203.0 V177.0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<path d="M738.0,190 A22.0,7 0 0 0 782.0,190" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="790" y="195" font-size="13" fill="#1d2733" text-anchor="start">DS-01</text>
+<ellipse cx="980" cy="177.0" rx="22.0" ry="7" fill="none" stroke="#1d2733" stroke-width="2"/>
+<path d="M958.0,177.0 V203.0 A22.0,7 0 0 0 1002.0,203.0 V177.0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<path d="M958.0,190 A22.0,7 0 0 0 1002.0,190" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="1010" y="195" font-size="13" fill="#1d2733" text-anchor="start">DS-02</text>
+<path d="M164,160 L450,160 L450,184 L736,184" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M164,250 L480,250 L480,198 L736,198" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<text x="200" y="148" font-size="12" fill="#6b7785" text-anchor="start">relationship: the VM is a parent of the datastore</text>
+<circle cx="180" cy="320" r="13" fill="#5b3fa0"/><text x="180" y="325" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">1</text>
+<text x="205" y="325" font-size="12" fill="#5b3fa0" text-anchor="start" font-weight="bold">SM #1 on the datastore, depth = −1, aggregates its VMs</text>
+<circle cx="890" cy="240" r="13" fill="#2e7d32"/><text x="890" y="245" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">2</text>
+<text x="890" y="270" font-size="12" fill="#2e7d32" text-anchor="middle" font-weight="bold">SM #2 on the datastore cluster, depth = 1, sums SM #1</text>
+<path d="M140,138 L140,90 L890,90 L890,113" fill="none" stroke="#6b7785" stroke-width="1.5" stroke-dasharray="5,4"/>
+<path d="M510,80 L530,100" fill="none" stroke="#b3261e" stroke-width="2.5"/>
+<path d="M510,100 L530,80" fill="none" stroke="#b3261e" stroke-width="2.5"/>
+<text x="545" y="78" font-size="12" fill="#b3261e" text-anchor="start" font-weight="bold">VM → datastore cluster directly: −1 + 1 = 0, not allowed</text>
+</svg>

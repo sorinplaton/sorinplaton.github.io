@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="520" viewBox="0 0 1560 520" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1560" height="520" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#1f4e9c"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#5b3fa0"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#2e7d32"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b3261e"/></marker></defs>
+<text x="780.0" y="30" text-anchor="middle" font-size="19" font-weight="bold">Real-time metrics: a separate pipeline, read on demand</text>
+<text x="780.0" y="50" text-anchor="middle" font-size="12" fill="#6b7785">The 5-minute collection, super metrics and dashboards keep working as before. The Workbench and PromQL clients query the real-time store when someone asks.</text>
+<rect x="82.0" y="103.0" width="56" height="15.0" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5"/>
+<circle cx="129.0" cy="110.5" r="2.5" fill="#6b7785"/>
+<line x1="88.0" y1="107.0" x2="88.0" y2="114.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="93.0" y1="107.0" x2="93.0" y2="114.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="98.0" y1="107.0" x2="98.0" y2="114.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="103.0" y1="107.0" x2="103.0" y2="114.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="108.0" y1="107.0" x2="108.0" y2="114.0" stroke="#6b7785" stroke-width="1.5"/>
+<rect x="82.0" y="120.0" width="56" height="15.0" rx="0" fill="none" stroke="#6b7785" stroke-width="1.5"/>
+<circle cx="129.0" cy="127.5" r="2.5" fill="#6b7785"/>
+<line x1="88.0" y1="124.0" x2="88.0" y2="131.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="93.0" y1="124.0" x2="93.0" y2="131.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="98.0" y1="124.0" x2="98.0" y2="131.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="103.0" y1="124.0" x2="103.0" y2="131.0" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="108.0" y1="124.0" x2="108.0" y2="131.0" stroke="#6b7785" stroke-width="1.5"/>
+<text x="150" y="125" font-size="13" fill="#6b7785" text-anchor="start" font-weight="bold">ESX hosts and VMs</text>
+<path d="M400,120 L440,120" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="75.0" y="188.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="112.0" cy="194.0" r="2.5" fill="#1d2733"/>
+<line x1="81.0" y1="192.0" x2="81.0" y2="196.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="86.0" y1="192.0" x2="86.0" y2="196.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="91.0" y1="192.0" x2="91.0" y2="196.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="96.0" y1="192.0" x2="96.0" y2="196.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="101.0" y1="192.0" x2="101.0" y2="196.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="75.0" y="202.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="112.0" cy="208.0" r="2.5" fill="#1d2733"/>
+<line x1="81.0" y1="206.0" x2="81.0" y2="210.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="86.0" y1="206.0" x2="86.0" y2="210.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="91.0" y1="206.0" x2="91.0" y2="210.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="96.0" y1="206.0" x2="96.0" y2="210.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="101.0" y1="206.0" x2="101.0" y2="210.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="99.0" y="204.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="136.0" cy="210.0" r="2.5" fill="#1d2733"/>
+<line x1="105.0" y1="208.0" x2="105.0" y2="212.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="110.0" y1="208.0" x2="110.0" y2="212.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="115.0" y1="208.0" x2="115.0" y2="212.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="120.0" y1="208.0" x2="120.0" y2="212.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="125.0" y1="208.0" x2="125.0" y2="212.0" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="99.0" y="218.0" width="46" height="12.0" rx="0" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<circle cx="136.0" cy="224.0" r="2.5" fill="#1d2733"/>
+<line x1="105.0" y1="222.0" x2="105.0" y2="226.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="110.0" y1="222.0" x2="110.0" y2="226.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="115.0" y1="222.0" x2="115.0" y2="226.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="120.0" y1="222.0" x2="120.0" y2="226.0" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="125.0" y1="222.0" x2="125.0" y2="226.0" stroke="#1d2733" stroke-width="1.5"/>
+<text x="150" y="215" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold">vCenter: clusters, data centers</text>
+<path d="M400,210 L440,210" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="88" y="284" width="44" height="32" rx="0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<path d="M88,300 L132,300" fill="none" stroke="#1d2733" stroke-width="2"/>
+<path d="M110,284 L110,316" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="150" y="305" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold">NSX transport nodes and Edges</text>
+<path d="M400,300 L440,300" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<ellipse cx="110" cy="377.0" rx="22.0" ry="7" fill="none" stroke="#1d2733" stroke-width="2"/>
+<path d="M88.0,377.0 V403.0 A22.0,7 0 0 0 132.0,403.0 V377.0" fill="none" stroke="#1d2733" stroke-width="2"/>
+<path d="M88.0,390 A22.0,7 0 0 0 132.0,390" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="150" y="395" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold">vSAN</text>
+<path d="M400,390 L440,390" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M440,120 L440,390" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<rect x="500" y="90" width="520" height="340" rx="0" fill="none" stroke="#2e7d32" stroke-width="1.5" stroke-dasharray="6,5"/>
+<text x="760" y="415" font-size="13" fill="#2e7d32" text-anchor="middle" font-weight="bold">VCF Management Services (per VCF instance)</text>
+<path d="M440,255 L560,255" fill="none" stroke="#1d2733" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="598.0" y="233.0" width="44" height="44" rx="3" fill="none" stroke="#2e7d32" stroke-width="2"/>
+<rect x="605.0" y="257.0" width="8" height="14" rx="0" fill="#2e7d32" stroke="#2e7d32" stroke-width="1"/>
+<rect x="616.0" y="245.0" width="8" height="26" rx="0" fill="#2e7d32" stroke="#2e7d32" stroke-width="1"/>
+<rect x="627.0" y="253.0" width="8" height="18" rx="0" fill="#2e7d32" stroke="#2e7d32" stroke-width="1"/>
+<text x="620" y="300" font-size="13" fill="#2e7d32" text-anchor="middle" font-weight="bold">Real-time</text>
+<text x="620" y="318" font-size="13" fill="#2e7d32" text-anchor="middle" font-weight="bold">metrics service</text>
+<path d="M645,255 L820,255" fill="none" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arrg)"/>
+<ellipse cx="880" cy="242.0" rx="22.0" ry="7" fill="none" stroke="#2e7d32" stroke-width="2"/>
+<path d="M858.0,242.0 V268.0 A22.0,7 0 0 0 902.0,268.0 V242.0" fill="none" stroke="#2e7d32" stroke-width="2"/>
+<path d="M858.0,255 A22.0,7 0 0 0 902.0,255" fill="none" stroke="#2e7d32" stroke-width="2"/>
+<text x="880" y="300" font-size="13" fill="#2e7d32" text-anchor="middle" font-weight="bold">Real-time</text>
+<text x="880" y="318" font-size="13" fill="#2e7d32" text-anchor="middle" font-weight="bold">metrics store</text>
+<text x="760" y="150" font-size="12" fill="#6b7785" text-anchor="middle">Tiers switched on in a policy:</text>
+<text x="760" y="168" font-size="12" fill="#6b7785" text-anchor="middle">Essentials (always on) · Standard, 20 s, vCenter · ESX Top, 2 s, hosts</text>
+<text x="760" y="365" font-size="12" fill="#6b7785" text-anchor="middle" font-style="italic">Scale the component to Large for the Standard tier</text>
+<path d="M904,255 L1100,255" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M1100,190 L1100,320" fill="none" stroke="#1d2733" stroke-width="1.5"/>
+<path d="M1100,190 L1150,190" fill="none" stroke="#1d2733" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="1163.0" y="168.0" width="44" height="44" rx="3" fill="none" stroke="#0b7a75" stroke-width="2"/>
+<rect x="1170.0" y="192.0" width="8" height="14" rx="0" fill="#0b7a75" stroke="#0b7a75" stroke-width="1"/>
+<rect x="1181.0" y="180.0" width="8" height="26" rx="0" fill="#0b7a75" stroke="#0b7a75" stroke-width="1"/>
+<rect x="1192.0" y="188.0" width="8" height="18" rx="0" fill="#0b7a75" stroke="#0b7a75" stroke-width="1"/>
+<text x="1222" y="186" font-size="13" fill="#0b7a75" text-anchor="start" font-weight="bold">VCF Operations Workbench</text>
+<text x="1222" y="204" font-size="12" fill="#0b7a75" text-anchor="start">Real Time Analysis: Overview, Top N, Custom Query</text>
+<path d="M1100,320 L1150,320" fill="none" stroke="#1d2733" stroke-width="1.5" marker-end="url(#arr)"/>
+<rect x="1163" y="300" width="44" height="40" rx="4" fill="none" stroke="#1d2733" stroke-width="2"/>
+<text x="1185" y="326" font-size="14" fill="#1d2733" text-anchor="middle" font-weight="bold">&lt;/&gt;</text>
+<text x="1222" y="316" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold">PromQL clients, e.g. Grafana</text>
+<text x="1222" y="334" font-size="12" fill="#6b7785" text-anchor="start">Prometheus data source + bearer token (community)</text>
+<rect x="60" y="450" width="220" height="22" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="68" y="466" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">Resource</text>
+<rect x="280" y="450" width="260" height="22" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="288" y="466" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">2 s</text>
+<rect x="540" y="450" width="220" height="22" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="548" y="466" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">20 s</text>
+<rect x="760" y="450" width="120" height="22" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="768" y="466" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">60 s</text>
+<rect x="880" y="450" width="200" height="22" rx="0" fill="#1f4e9c" stroke="#c9d1da" stroke-width="1"/>
+<text x="888" y="466" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">5 min</text>
+<rect x="60" y="472" width="220" height="22" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="68" y="488" font-size="12" fill="#1d2733" text-anchor="start">ESX host and VM</text>
+<rect x="280" y="472" width="260" height="22" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="288" y="488" font-size="12" fill="#1d2733" text-anchor="start">about 21 esxtop metrics</text>
+<rect x="540" y="472" width="220" height="22" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="548" y="488" font-size="12" fill="#1d2733" text-anchor="start">Standard real-time</text>
+<rect x="760" y="472" width="120" height="22" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="768" y="488" font-size="12" fill="#1d2733" text-anchor="start">—</text>
+<rect x="880" y="472" width="200" height="22" rx="0" fill="#ffffff" stroke="#c9d1da" stroke-width="1"/>
+<text x="888" y="488" font-size="12" fill="#1d2733" text-anchor="start">historical default</text>
+</svg>

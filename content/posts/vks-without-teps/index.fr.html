@@ -8,7 +8,7 @@ categories: ["Notes"]
 images: ["/images/tepless/share.jpg"]
 showToc: false
 ---
-<details class="toc"><summary accesskey="c" title="(Alt + C)"><span class="title">Table des matières</span></summary><div class="inner"><nav><ul><li><a href="#why-it-matters" aria-label="Pourquoi c'est important">Pourquoi c'est important</a></li><li><a href="#what-i-built" aria-label="Ce que j'ai construit">Ce que j'ai construit</a></li><li><a href="#build-it-step-by-step-gui" aria-label="La construction, étape par étape (GUI)">La construction, étape par étape (GUI)</a><ul><li><a href="#one-wizard-workload-domain-tep-less-networking-and-supervisor" aria-label="Un seul assistant : workload domain, réseau TEP-less et Supervisor">Un seul assistant : workload domain, réseau TEP-less et Supervisor</a></li><li><a href="#kubernetes-releases-for-the-supervisor" aria-label="Des versions Kubernetes pour le Supervisor">Des versions Kubernetes pour le Supervisor</a></li><li><a href="#a-second-vlan-for-vcf-automation" aria-label="Un deuxième VLAN pour VCF Automation">Un deuxième VLAN pour VCF Automation</a></li><li><a href="#vcf-automation-region-ip-block-connection-organization" aria-label="VCF Automation : région, bloc IP, connexion, organisation">VCF Automation : région, bloc IP, connexion, organisation</a></li><li><a href="#the-organization-s-namespace-and-a-public-subnet" aria-label="Le namespace de l'organisation et un sous-réseau public">Le namespace de l'organisation et un sous-réseau public</a></li><li><a href="#create-the-vks-cluster" aria-label="Créer le cluster VKS">Créer le cluster VKS</a></li><li><a href="#the-same-cluster-from-git" aria-label="Le même cluster depuis Git">Le même cluster depuis Git</a></li></ul></li><li><a href="#what-the-network-does-to-the-same-app" aria-label="Ce que le réseau change pour la même app">Ce que le réseau change pour la même app</a></li><li><a href="#what-to-watch-for" aria-label="Points de vigilance">Points de vigilance</a></li><li><a href="#the-concept-in-one-picture" aria-label="Le concept en une image">Le concept en une image</a></li><li><a href="#verdict" aria-label="Verdict">Verdict</a></li></ul></nav></div></details>
+<details class="toc"><summary accesskey="c" title="(Alt + C)"><span class="title">Table des matières</span></summary><div class="inner"><nav><ul><li><a href="#why-it-matters" aria-label="Pourquoi c'est important">Pourquoi c'est important</a></li><li><a href="#what-i-built" aria-label="Ce que j'ai construit">Ce que j'ai construit</a></li><li><a href="#build-it-step-by-step-gui" aria-label="La construction, étape par étape (GUI)">La construction, étape par étape (GUI)</a><ul><li><a href="#one-wizard-workload-domain-tep-less-networking-and-supervisor" aria-label="Un seul assistant : workload domain, réseau TEP-less et Supervisor">Un seul assistant : workload domain, réseau TEP-less et Supervisor</a></li><li><a href="#kubernetes-releases-for-the-supervisor" aria-label="Des versions Kubernetes pour le Supervisor">Des versions Kubernetes pour le Supervisor</a></li><li><a href="#a-second-vlan-for-vcf-automation" aria-label="Un deuxième VLAN pour VCF Automation">Un deuxième VLAN pour VCF Automation</a></li><li><a href="#vcf-automation-region-ip-block-connection-organization" aria-label="VCF Automation : région, bloc IP, connexion, organisation">VCF Automation : région, bloc IP, connexion, organisation</a></li><li><a href="#the-organization-s-namespace-and-a-public-subnet" aria-label="Le namespace de l'organisation et un subnet public">Le namespace de l'organisation et un subnet public</a></li><li><a href="#create-the-vks-cluster" aria-label="Créer le cluster VKS">Créer le cluster VKS</a></li><li><a href="#the-same-cluster-from-git" aria-label="Le même cluster depuis Git">Le même cluster depuis Git</a></li></ul></li><li><a href="#what-the-network-does-to-the-same-app" aria-label="Ce que le réseau change pour la même app">Ce que le réseau change pour la même app</a></li><li><a href="#what-to-watch-for" aria-label="Points de vigilance">Points de vigilance</a></li><li><a href="#the-concept-in-one-picture" aria-label="Le concept en une image">Le concept en une image</a></li><li><a href="#verdict" aria-label="Verdict">Verdict</a></li></ul></nav></div></details>
 <div class="tepless">
 <p class="lead">VCF 9.1.1 peut faire tourner le réseau VPC sans tunnel endpoints NSX. J'ai créé un tout nouveau workload domain TEP-less dans mon labo Holodeck, j'y ai mis du VKS en libre-service via VCF Automation, et j'ai fait tourner la même app, issue du même commit Git, sur un domaine overlay voisin. Toute la contribution de l'équipe réseau : <strong>un VLAN et un /24</strong>.</p>
 <div class="start"><b>Point de départ : un nouveau workload domain</b><p>Rien d'existant n'a été converti. À côté du domaine overlay <code>wld01</code>, j'ai créé de zéro un nouveau VI workload domain, <strong>tepless-wkld</strong> : son propre vCenter (<code>vc-wld02-a</code>, domaine SSO distinct), son propre NSX Manager (<code>nsx-wld02-a</code>), trois hôtes ESX neufs (<code>esx-08a</code>–<code>10a</code>) avec vSAN, le réseau VPC VLAN-backed et un Supervisor, le tout en une seule exécution de l'assistant de workload domain. Le domaine overlay a continué de tourner à côté sans être touché, ce qui rend possible la comparaison côte à côte plus loin dans ce billet.</p></div>
@@ -19,17 +19,17 @@ showToc: false
   </div>
 
   <h2 id="why-it-matters">Pourquoi c'est important</h2>
-  <p>Les VPC overlay exigent des tunnel endpoints sur chaque hôte : un VLAN TEP, un MTU d'au moins 1700 sur le réseau physique et du routage pour l'overlay. C'est souvent là qu'un projet VCF attend après l'équipe réseau. Un VPC VLAN-backed supprime ces trois exigences, et on obtient quand même un VPC avec transit gateway, load balancers, pare-feu distribué et libre-service via VCF Automation.</p>
+  <p>Les VPC overlay exigent des tunnel endpoints sur chaque hôte : un VLAN TEP, un MTU d'au moins 1700 sur le réseau physique et du routage pour l'overlay. C'est souvent là qu'un projet VCF se retrouve à attendre l'équipe réseau. Un VPC VLAN-backed supprime ces trois exigences, et on obtient quand même un VPC avec une transit gateway, des load balancers, le firewall distribué et le libre-service via VCF Automation.</p>
   <ul>
-    <li><strong>Un réseau physique plus simple.</strong> Pas de VLAN TEP, pas de trames jumbo, pas de routage overlay : un VLAN normal avec une passerelle.</li>
-    <li><strong>Les nœuds sont des citoyens à part entière sur ce VLAN.</strong> Les nœuds VKS reçoivent des adresses routables, répondent directement et sortent du cluster avec leur propre IP ; les pare-feu et les journaux voient donc quel nœud a communiqué.</li>
+    <li><strong>Un réseau physique plus simple.</strong> Pas de VLAN TEP, pas de trames jumbo, pas de routage overlay : un VLAN normal avec une gateway.</li>
+    <li><strong>Les nodes sont des citoyens à part entière sur ce VLAN.</strong> Les nodes VKS reçoivent des adresses routables, répondent directement et sortent du cluster avec leur propre IP ; les firewalls et les logs voient donc quel node a communiqué.</li>
     <li><strong>Rien ne change pour les équipes applicatives.</strong> Même VKS, même libre-service VCF Automation, même flux de travail Argo CD et Git.</li>
   </ul>
 
   <h2 id="what-i-built">Ce que j'ai construit</h2>
   <p>Le labo fait tourner deux workload domains côte à côte derrière un seul routeur. <strong>wld01</strong> est un domaine overlay classique avec TEP (région <code>east-1</code>), <strong>wld02</strong> est le domaine TEP-less (région <code>tepless</code>). VCF Automation dessert les deux, et une seule instance Argo CD dans la région overlay déploie vers des clusters des deux côtés.</p>
   <figure>
-    <div class="diagram v2" role="img" aria-label="Vue d'ensemble du réseau du labo : holorouter avec les passerelles des VLAN 200, 202 et 203 ; domaine overlay wld01 avec Argo CD et deux clusters VKS derrière le VLAN 200 ; domaine TEP-less wld02 avec le VLAN Day-0 202, le VLAN Day-1 203 et le cluster demo-git ; Argo CD joint demo-git sur TCP 6443">
+    <div class="diagram v2" role="img" aria-label="Vue d'ensemble du réseau du labo : holorouter avec les gateways des VLAN 200, 202 et 203 ; domaine overlay wld01 avec Argo CD et deux clusters VKS derrière le VLAN 200 ; domaine TEP-less wld02 avec le VLAN Day-0 202, le VLAN Day-1 203 et le cluster demo-git ; Argo CD joint demo-git sur TCP 6443">
       <svg viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <symbol id="ov-router" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5v11M6.5 12h11M9.5 9 12 6.5 14.5 9M9.5 15l2.5 2.5 2.5-2.5"/></symbol>
@@ -50,7 +50,7 @@ showToc: false
         <rect class="card" x="390" y="28" width="220" height="84" rx="14"/>
         <rect class="icbg" x="406" y="48" width="42" height="42" rx="12.6"/><use href="#ov-router" x="414.4" y="56.4" width="25.2" height="25.2" class="ic"/>
         <text class="b h l" x="460" y="62">holorouter</text>
-        <text class="t12 s l" x="460" y="80">10.0.6.33 · passerelles L3</text>
+        <text class="t12 s l" x="460" y="80">10.0.6.33 · gateways L3</text>
         <text class="t11 l" x="460" y="96">.200.1 · .202.1 · .203.1</text>
         <rect class="card" x="706" y="36" width="270" height="68" rx="12"/>
         <rect class="icbg" x="722" y="53" width="34" height="34" rx="10.2"/><use href="#ov-laptop" x="728.8" y="59.8" width="20.4" height="20.4" class="ic"/>
@@ -85,12 +85,12 @@ showToc: false
         <rect class="chip-o" x="264" y="388" width="186" height="74" rx="10"/>
         <use href="#ov-wheel" x="274.0" y="400.0" width="26.0" height="26.0" class="ic ic-o"/>
         <text class="b t12 l" x="308" y="411">demo-vks-cluster</text>
-        <text class="t11 l" x="308" y="428">nœuds 10.17.17.x · SNAT</text>
+        <text class="t11 l" x="308" y="428">nodes 10.17.17.x · SNAT</text>
         <text class="t11 l" x="308" y="444">API 10.200.200.7</text>
         <rect class="chip-p" x="264" y="474" width="186" height="74" rx="10"/>
         <use href="#ov-wheel" x="274.0" y="486.0" width="26.0" height="26.0" class="ic ic-p"/>
         <text class="b t12 l" x="308" y="497">overlay-public</text>
-        <text class="t11 l" x="308" y="514">nœuds publics .200.18 / .19</text>
+        <text class="t11 l" x="308" y="514">nodes publics .200.18 / .19</text>
         <text class="t11 l" x="308" y="530">API 10.200.200.11</text>
         <path class="c-o" d="M220 412 C 242 412, 244 425, 260 425" marker-end="url(#ov-ah)"/>
         <path class="c-o" d="M220 426 C 250 426, 236 511, 260 511" marker-end="url(#ov-ah)"/>
@@ -111,25 +111,25 @@ showToc: false
         <use href="#ov-wheel" x="560.0" y="440.0" width="26.0" height="26.0" class="ic ic-v"/>
         <text class="b t12 l" x="594" y="452">demo-git</text>
         <text class="t11 l" x="594" y="468">créé depuis Git</text>
-        <text class="t12 l" x="566" y="496">nœuds .203.36 / .37</text>
+        <text class="t12 l" x="566" y="496">nodes .203.36 / .37</text>
         <text class="t12 l" x="566" y="514">API LB 10.203.203.5</text>
         <text class="t12 l" x="566" y="532">netprobe LB .203.8</text>
         <rect class="chip-v" x="762" y="428" width="180" height="120" rx="10"/>
         <use href="#ov-wheel" x="772.0" y="440.0" width="26.0" height="26.0" class="ic ic-v"/>
         <text class="b t12 l" x="806" y="452">tepless-demo</text>
         <text class="t11 l" x="806" y="468">créé par l'assistant</text>
-        <text class="t12 l" x="778" y="496">v1.35.6 · 1 + 1 nœuds</text>
+        <text class="t12 l" x="778" y="496">v1.35.6 · 1 + 1 nodes</text>
         <path class="c-a" d="M139 446 C 139 612, 650 622, 650 552" marker-end="url(#ov-ah)"/>
         <rect class="lp-bg" x="223.0" y="570" width="344" height="24" rx="12"/><text class="t12 b" x="395" y="586.5">Argo CD → demo-git · TCP 6443, autorisé par le DFW</text>
       </svg>
     </div>
-    <div class="legend"><span><i class="lo"></i>overlay, sous-réseaux privés</span><span><i class="lp"></i>overlay, sous-réseau public</span><span><i class="lv"></i>TEP-less, VLAN-backed</span></div>
-    <figcaption>Vue d'ensemble du réseau du labo. Tout ce qui est hors des VPC n'est que des VLAN routés ordinaires sur un seul routeur. Argo CD joint les clusters overlay à l'intérieur de sa propre région, et le cluster TEP-less de l'autre côté du routeur, sur son adresse VLAN.</figcaption>
+    <div class="legend"><span><i class="lo"></i>overlay, subnets privés</span><span><i class="lp"></i>overlay, subnet public</span><span><i class="lv"></i>TEP-less, VLAN-backed</span></div>
+    <figcaption>Vue d'ensemble du réseau du labo. Hors des VPC, tout se résume à des VLAN routés ordinaires sur un seul routeur. Argo CD joint les clusters overlay à l'intérieur de sa propre région, et le cluster TEP-less de l'autre côté du routeur, sur son adresse VLAN.</figcaption>
   </figure>
 
-  <p>Dans le domaine TEP-less, deux réseaux séparent les responsabilités : SDDC Manager crée le VLAN <strong>Day-0</strong> pour le Supervisor lui-même, et VCF Automation reçoit son propre VLAN <strong>Day-1</strong> pour les workloads des organisations. Le routeur n'a besoin que d'une passerelle sur chacun.</p>
+  <p>Dans le domaine TEP-less, deux réseaux séparent les responsabilités : SDDC Manager crée le VLAN <strong>Day-0</strong> pour le Supervisor lui-même, et VCF Automation reçoit son propre VLAN <strong>Day-1</strong> pour les workloads des organisations. Le routeur n'a besoin que d'une gateway sur chacun.</p>
   <figure>
-    <div class="diagram v2" role="img" aria-label="Détail TEP-less : deux VLAN partent du routeur vers le switch distribué des hôtes, les hôtes n'ont aucune interface TEP, la transit gateway distribuée relie le VLAN 202 pour le Supervisor et le VLAN 203 pour le VPC du tenant, dont le sous-réseau public contient les nœuds VKS et l'adresse du load balancer">
+    <div class="diagram v2" role="img" aria-label="Détail TEP-less : deux VLAN partent du routeur vers le switch distribué des hôtes, les hôtes n'ont aucune interface TEP, la transit gateway distribuée relie le VLAN 202 pour le Supervisor et le VLAN 203 pour le VPC du tenant, dont le subnet public contient les nodes VKS et l'adresse du load balancer">
       <svg viewBox="0 0 1000 524" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <symbol id="tl-router" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5v11M6.5 12h11M9.5 9 12 6.5 14.5 9M9.5 15l2.5 2.5 2.5-2.5"/></symbol>
@@ -146,7 +146,7 @@ showToc: false
         <text class="up l" x="40" y="28">RÉSEAU PHYSIQUE</text>
         <text class="up l" x="264" y="28">HÔTES ESX</text>
         <text class="up l" x="514" y="28">NSX</text>
-        <text class="up l" x="774" y="28">VPCS</text>
+        <text class="up l" x="774" y="28">VPC</text>
         <rect class="card" x="40" y="48" width="184" height="72" rx="12"/>
         <rect class="icbg" x="54" y="66" width="36" height="36" rx="10.799999999999999"/><use href="#tl-router" x="61.2" y="73.2" width="21.6" height="21.6" class="ic"/>
         <text class="b l" x="102" y="80">holorouter</text>
@@ -209,7 +209,7 @@ showToc: false
         <text class="t11 l" x="544" y="368">VLAN 203 · par VCF Automation</text>
         <rect class="card" x="514" y="436" width="220" height="72" rx="12"/>
         <rect class="icbg" x="528" y="455" width="34" height="34" rx="10.2"/><use href="#tl-box" x="534.8" y="461.8" width="20.4" height="20.4" class="ic"/>
-        <text class="b l" x="574" y="469">Cluster VNA · 2 nœuds</text>
+        <text class="b l" x="574" y="469">Cluster VNA · 2 nodes</text>
         <text class="t11 l" x="574" y="487">Services LB · DHCP · NAT</text>
         <path class="c" d="M624 402 V436"/>
         <path class="c" d="M474 352 C 500 352, 500 206, 526 206"/>
@@ -242,7 +242,7 @@ showToc: false
         <path class="c-v" d="M720 356 C 748 356, 748 398, 772 398" marker-end="url(#tl-ah)"/><path class="flow" d="M720 356 C 748 356, 748 398, 772 398"/>
       </svg>
     </div>
-    <figcaption>TEP-less en détail. Les hôtes ne portent que les interfaces de gestion, vMotion, vSAN et Supervisor. La transit gateway distribuée place le Supervisor sur le VLAN Day-0 et le VPC du tenant sur le VLAN Day-1, où les nœuds VKS et les adresses de load balancer obtiennent des IP routables.</figcaption>
+    <figcaption>TEP-less en détail. Les hôtes ne portent que les interfaces de gestion, vMotion, vSAN et Supervisor. La transit gateway distribuée place le Supervisor sur le VLAN Day-0 et le VPC du tenant sur le VLAN Day-1, où les nodes VKS et les adresses de load balancer obtiennent des IP routables.</figcaption>
   </figure>
 
   <h2 id="build-it-step-by-step-gui">La construction, étape par étape (GUI)</h2>
@@ -256,36 +256,36 @@ showToc: false
     <figure><img src="/images/tepless/w01-wizard-vcenter-sso.webp" alt="Assistant Workload Domain, étape vCenter : FQDN vc-wld02-a et nouveau domaine SSO vcf.lab" loading="lazy"><figcaption><b>vCenter :</b> vc-wld02-a avec son propre domaine SSO, isolé (<code>vcf.lab</code>). À retenir au moment de vous connecter plus tard : ce n'est pas vsphere.local.</figcaption></figure>
     <figure><img src="/images/tepless/w03-wizard-supervisor.webp" alt="Assistant Workload Domain, étape vSphere Supervisor : sup-wld02-tepless, CIDR de services, plage d'IP du control plane, projet NSX par défaut et profil de connectivité VPC" loading="lazy"><figcaption><b>vSphere Supervisor :</b> nom, CIDR de services, cinq IP de control plane sur le réseau de gestion, le projet NSX par défaut et le profil de connectivité VPC. Pas d'assistant Supervisor séparé par la suite.</figcaption></figure>
   </div>
-  <figure class="narrow"><img src="/images/tepless/w02-wizard-distributed-connectivity.webp" alt="Assistant Workload Domain, étape NSX Manager, Distributed Connectivity : VLAN ID 202, gateway CIDR 10.202.202.1/24, nœuds du cluster Virtual Network Appliance vna-wld02-01a et 02a" loading="lazy"><figcaption><b>La page TEP-less.</b> Étape NSX Manager → <b>Distributed Connectivity</b> : un VLAN ID et un gateway CIDR pour la transit gateway (202, 10.202.202.1/24), plus le cluster Virtual Network Appliance (deux VNA sur le réseau de gestion) qui héberge les load balancers et les autres services. C'est l'ensemble des données réseau à fournir.</figcaption></figure>
+  <figure class="narrow"><img src="/images/tepless/w02-wizard-distributed-connectivity.webp" alt="Assistant Workload Domain, étape NSX Manager, Distributed Connectivity : VLAN ID 202, gateway CIDR 10.202.202.1/24, nodes du cluster Virtual Network Appliance vna-wld02-01a et 02a" loading="lazy"><figcaption><b>La page TEP-less.</b> Étape NSX Manager → <b>Distributed Connectivity</b> : un VLAN ID et un gateway CIDR pour la transit gateway (202, 10.202.202.1/24), plus le cluster Virtual Network Appliance (deux VNA sur le réseau de gestion) qui héberge les load balancers et les autres services. C'est l'ensemble des données réseau à fournir.</figcaption></figure>
   <figure class="narrow"><img src="/images/tepless/w04-wizard-validation.webp" alt="Validation de l'assistant Workload Domain : les cinq vérifications à Succeeded" loading="lazy"><figcaption>La validation passe, Finish, et le domaine, son NSX, la transit gateway et le Supervisor sont construits en une seule exécution.</figcaption></figure>
-  <p>Le résultat est visible sur chaque hôte : les adaptateurs VMkernel s'arrêtent à la gestion, vMotion, vSAN et au Supervisor.</p>
+  <p>Le résultat est visible sur chaque hôte : les adaptateurs VMkernel s'arrêtent à la gestion, à vMotion, à vSAN et au Supervisor.</p>
   <div class="pair">
     <figure><span class="tag vlan">TEP-less · esx-08a</span><img src="/images/tepless/t01-esx08a-vmk-tepless.webp" alt="Adaptateurs VMkernel d'esx-08a : vmk0 gestion, vmk1 vMotion, vmk2 vSAN, vmk50 hyperbus, aucune interface nsx-overlay" loading="lazy"></figure>
     <figure><span class="tag ovl">Overlay · esx-05a</span><img src="/images/tepless/t02-esx05a-vmk-overlay.webp" alt="Adaptateurs VMkernel d'esx-05a, dont vmk10 et vmk11 sur la pile TCP/IP nsx-overlay" loading="lazy"></figure>
   </div>
   <p><strong>Toute la fonctionnalité en une comparaison :</strong> l'hôte overlay porte <code>vmk10</code> et <code>vmk11</code> sur la pile <code>nsx-overlay</code> (les TEP). L'hôte TEP-less n'en a aucun.</p>
   <div class="pair">
-    <figure><img src="/images/tepless/w05-tgw-topology.webp" alt="Topologie de la transit gateway NSX : Default Transit Gateway sur le VLAN 202 10.202.202.1/24 avec deux VPC système du Supervisor, chacun avec un sous-réseau public issu de 10.202.202.0/24" loading="lazy"><figcaption>Juste après la construction : la transit gateway par défaut est sur le <b>VLAN 202</b>, et les deux VPC système du Supervisor reçoivent déjà des <b>sous-réseaux publics</b> découpés dans 10.202.202.0/24.</figcaption></figure>
-    <figure><img src="/images/tepless/w06-vnac-cluster.webp" alt="NSX Virtual Network Appliance Clusters : tepless-wkld-vna-cluster avec 2 nœuds actifs" loading="lazy"><figcaption>NSX → System → Virtual Network Appliance Clusters : <b>tepless-wkld-vna-cluster</b>, les deux VNA actives.</figcaption></figure>
+    <figure><img src="/images/tepless/w05-tgw-topology.webp" alt="Topologie de la transit gateway NSX : Default Transit Gateway sur le VLAN 202 10.202.202.1/24 avec deux VPC système du Supervisor, chacun avec un subnet public issu de 10.202.202.0/24" loading="lazy"><figcaption>Juste après la construction : la transit gateway par défaut est sur le <b>VLAN 202</b>, et les deux VPC système du Supervisor reçoivent déjà des <b>subnets publics</b> découpés dans 10.202.202.0/24.</figcaption></figure>
+    <figure><img src="/images/tepless/w06-vnac-cluster.webp" alt="NSX Virtual Network Appliance Clusters : tepless-wkld-vna-cluster avec 2 nodes actifs" loading="lazy"><figcaption>NSX → System → Virtual Network Appliance Clusters : <b>tepless-wkld-vna-cluster</b>, les deux VNA actives.</figcaption></figure>
   </div>
 
   <div class="step"><div class="n">2</div><div>
     <h3 id="kubernetes-releases-for-the-supervisor">Des versions Kubernetes pour le Supervisor</h3>
     <p>Le Supervisor est venu avec le domaine. Il lui faut encore une source de versions VKS, et il vaut la peine de donner à vos administrateurs une <a href="/fr/posts/supervisor-sre-role/">vue kubectl en lecture seule du Supervisor</a> avant que quoi que ce soit tourne mal.</p>
-    <div class="gui"><b>vCenter</b>Content Libraries → Create → <strong>Subscribed</strong>, <code>https://wp-content.broadcom.com/v2/latest/lib.json</code>, téléchargement <strong>when needed</strong> (au besoin). Ensuite Supervisor → Configure → General → <strong>Kubernetes Service</strong> → ajouter la bibliothèque.</div>
+    <div class="gui"><b>vCenter</b>Content Libraries → Create → <strong>Subscribed</strong>, <code>https://wp-content.broadcom.com/v2/latest/lib.json</code>, download <strong>when needed</strong> (au besoin). Ensuite Supervisor → Configure → General → <strong>Kubernetes Service</strong> → ajouter la bibliothèque.</div>
   </div></div>
   <figure><img src="/images/tepless/t04-supervisor-kubernetes-service.webp" alt="Supervisor sup-wld02-tepless, Configure, General, section Kubernetes Service listant la bibliothèque abonnée VKS" loading="lazy"><figcaption><b>Facile à manquer :</b> créer la bibliothèque ne suffit pas. Tant qu'elle n'est pas rattachée ici, VCF Automation signale <em>« missing … Kubernetes releases »</em>.</figcaption></figure>
 
   <div class="step"><div class="n">3</div><div>
     <h3 id="a-second-vlan-for-vcf-automation">Un deuxième VLAN pour VCF Automation</h3>
-    <p>SDDC Manager a donné toute la plage du VLAN 202 à son bloc Day-0. VCF Automation crée son propre bloc IP dans NSX et ne peut pas le chevaucher ; donnez donc à la région un VLAN Day-1 : une passerelle sur le routeur pour le VLAN 203, 10.203.203.1/24, sur le même trunk.</p>
+    <p>SDDC Manager a donné toute la plage du VLAN 202 à son bloc Day-0. VCF Automation crée son propre bloc IP dans NSX, qui ne peut pas chevaucher le bloc Day-0 ; donnez donc à la région un VLAN Day-1 : une gateway sur le routeur pour le VLAN 203, 10.203.203.1/24, sur le même trunk.</p>
   </div></div>
   <figure><img src="/images/tepless/t05-nsx-external-connections.webp" alt="NSX External Connections : d-tepless-203 Distributed VLAN 203 et Day0 Distributed Vlan Connection VLAN 202, toutes deux à Success" loading="lazy"><figcaption>NSX, Networking → VPC Connectivity → External Connections : la connexion <b>Day-0</b> sur le VLAN 202 et celle que VCF Automation a créée sur le <b>VLAN 203</b>, toutes deux en distributed VLAN, toutes deux en bonne santé.</figcaption></figure>
 
   <div class="step"><div class="n">4</div><div>
     <h3 id="vcf-automation-region-ip-block-connection-organization">VCF Automation : région, bloc IP, connexion, organisation</h3>
     <div class="gui"><b>Provider portal</b>Infrastructure → vCenter → d'abord <strong>Refresh</strong> sur le nouveau vCenter du workload domain. Ensuite Regions → New : le NSX Manager du domaine, son Supervisor, la storage class.</div>
-    <div class="gui"><b>Provider portal</b>Networking → External IP Blocks → New : <code>10.203.203.0/24</code> dans la région. External Connections → Distributed VLAN Connections → New : VLAN 203, passerelle 10.203.203.1/24, ce bloc IP.</div>
+    <div class="gui"><b>Provider portal</b>Networking → External IP Blocks → New : <code>10.203.203.0/24</code> dans la région. External Connections → Distributed VLAN Connections → New : VLAN 203, gateway 10.203.203.1/24, ce bloc IP.</div>
     <div class="gui"><b>Provider portal</b>Organizations → New (All-Apps) : quota de région, VM classes, storage class, <strong>partager la connexion VLAN 203</strong> avec un quota d'IP, et le premier administrateur de l'organisation.</div>
   </div></div>
   <figure><img src="/images/tepless/t07-vcfa-provider-regions.webp" alt="Regions du provider VCF Automation : east-1 et tepless, toutes deux Ready" loading="lazy"><figcaption>Les deux régions côte à côte : <b>east-1</b> (overlay) et <b>tepless</b>, chacune avec son propre Supervisor et son propre NSX Manager.</figcaption></figure>
@@ -295,13 +295,13 @@ showToc: false
   </div>
 
   <div class="step"><div class="n">5</div><div>
-    <h3 id="the-organization-s-namespace-and-a-public-subnet">Le namespace de l'organisation et un sous-réseau public</h3>
+    <h3 id="the-organization-s-namespace-and-a-public-subnet">Le namespace de l'organisation et un subnet public</h3>
     <div class="gui"><b>Org portal</b>Build &amp; Deploy → créer un namespace dans la région <code>tepless</code> (classe small). Ensuite Services → (namespace) → Network → SubnetSets → <strong>New SubnetSet</strong> : access mode <strong>Public</strong>, 32 adresses.</div>
     <p>Les détails du VPC du namespace racontent à eux seuls l'histoire TEP-less : aucun bloc IP privé, aucune IP SNAT par défaut, une adresse de load balancer sur le VLAN.</p>
   </div></div>
   <div class="pair">
     <figure><img src="/images/tepless/t11-vcfa-tenant-network.webp" alt="Network Service VPC Details : Private IP Blocks aucun, Default SNAT IP aucune, Load Balancer IP 10.203.203.3" loading="lazy"><figcaption>Détails du VPC : <b>aucun bloc privé, pas de SNAT</b>, IP de load balancer 10.203.203.3.</figcaption></figure>
-    <figure><img src="/images/tepless/t12-vcfa-tenant-subnetsets.webp" alt="SubnetSets : public, access mode Public, Success" loading="lazy"><figcaption>Le SubnetSet <b>public</b> qu'utiliseront les nœuds VKS.</figcaption></figure>
+    <figure><img src="/images/tepless/t12-vcfa-tenant-subnetsets.webp" alt="SubnetSets : public, access mode Public, Success" loading="lazy"><figcaption>Le SubnetSet <b>public</b> qu'utiliseront les nodes VKS.</figcaption></figure>
   </div>
 
   <div class="step"><div class="n">6</div><div>
@@ -311,7 +311,7 @@ showToc: false
   </div></div>
   <div class="pair">
     <figure><img src="/images/tepless/t10-vcfa-tenant-kubernetes-clusters.webp" alt="Liste Kubernetes Clusters : demo-git et tepless-demo Provisioned" loading="lazy"><figcaption>Deux clusters dans le namespace : <b>tepless-demo</b> créé par l'assistant et <b>demo-git</b> créé depuis Git (étape 7).</figcaption></figure>
-    <figure><img src="/images/tepless/t03-vcenter-vpc-subnets.webp" alt="VPC Subnets dans vCenter : sous-réseau public dans vpc-tepless-demo avec 4 VM" loading="lazy"><figcaption>vCenter, datacenter → Networks → VPC Subnets : le sous-réseau <b>public</b> contient les 4 VM nœuds VKS des deux clusters.</figcaption></figure>
+    <figure><img src="/images/tepless/t03-vcenter-vpc-subnets.webp" alt="VPC Subnets dans vCenter : subnet public dans vpc-tepless-demo avec 4 VM" loading="lazy"><figcaption>vCenter, datacenter → Networks → VPC Subnets : le subnet <b>public</b> contient les 4 VM nodes VKS des deux clusters.</figcaption></figure>
   </div>
 
   <div class="step"><div class="n">7</div><div>
@@ -327,7 +327,7 @@ showToc: false
             apiVersion: crd.nsx.vmware.com/v1alpha1
             kind: SubnetSet
             name: public</pre>
-  <p>Appliqué avec <code>kubectl apply -f</code> directement depuis le dépôt, <code>demo-git</code> a démarré avec deux nœuds en marche, téléchargement unique de l'image Ubuntu v1.36.2 compris. Argo CD, qui tourne sur le Supervisor de la région overlay comme décrit dans <a href="/fr/posts/gitops-argocd-vcf-91/">GitOps sur VCF 9.1 avec le Supervisor Service Argo CD</a>, déploie ensuite la même app de test sur les deux réseaux depuis un seul chemin Git.</p>
+  <p>Appliqué avec <code>kubectl apply -f</code> directement depuis le repo, <code>demo-git</code> a démarré avec deux nodes en marche, download unique de l'image Ubuntu v1.36.2 compris. Argo CD, qui tourne sur le Supervisor de la région overlay comme décrit dans <a href="/fr/posts/gitops-argocd-vcf-91/">GitOps sur VCF 9.1 avec le Supervisor Service Argo CD</a>, déploie ensuite la même app de test sur les deux réseaux depuis un seul chemin Git.</p>
 <pre>$ kubectl -n argocd-demo-xxms8 get applications
 NAME               SERVER                       SYNC     HEALTH
 netprobe-tepless   https://10.203.203.5:6443    Synced   Healthy   <span style="color:var(--vlan)"># TEP-less cluster demo-git</span>
@@ -337,10 +337,10 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
   <p>Une instance Argo CD, deux réseaux : le cluster TEP-less n'est qu'une destination de plus, jointe sur son adresse VLAN.</p>
 
   <h2 id="what-the-network-does-to-the-same-app">Ce que le réseau change pour la même app</h2>
-  <p>Une petite app d'inspection (<em>netprobe</em> : une page web, iperf3 et un pod boîte à outils) tourne depuis un seul chemin Git sur les deux clusters. Mesures prises depuis un client sur le routeur du labo, contre trois clusters :</p>
+  <p>Une petite app d'inspection (<em>netprobe</em> : une page web, iperf3 et un pod boîte à outils) tourne depuis un seul chemin Git sur les deux clusters. Mesures prises depuis un client sur le routeur du labo, sur trois clusters :</p>
 
   <figure>
-    <div class="diagram v2" role="img" aria-label="Montage de test netprobe : un client sur le routeur du labo teste chacun des trois clusters via son load balancer et directement sur un nœud. TEP-less et overlay public : les deux chemins fonctionnent et les pods sortent avec l'adresse du nœud. Overlay privé : le nœud est injoignable et les pods sortent par une seule adresse SNAT partagée.">
+    <div class="diagram v2" role="img" aria-label="Montage de test netprobe : un client sur le routeur du labo teste chacun des trois clusters via son load balancer et directement sur un node. TEP-less et overlay public : les deux chemins fonctionnent et les pods sortent avec l'adresse du node. Overlay privé : le node est injoignable et les pods sortent par une seule adresse SNAT partagée.">
       <svg viewBox="0 0 1000 332" xmlns="http://www.w3.org/2000/svg">
         <defs><marker id="np-ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path class="ah" d="M0,0 L9,4.5 L0,9 z"/></marker></defs>
         <rect class="v" x="10" y="10" width="310" height="312" rx="12"/>
@@ -354,13 +354,13 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
         <rect class="card" x="32" y="168" width="120" height="48" rx="8"/>
         <text class="s" x="92" y="187">load balancer</text><text class="m" x="92" y="205">10.203.203.8</text>
         <rect class="card" x="180" y="168" width="118" height="48" rx="8"/>
-        <text class="s" x="239" y="187">nœud VKS</text><text class="m" x="239" y="205">10.203.203.37</text>
+        <text class="s" x="239" y="187">node VKS</text><text class="m" x="239" y="205">10.203.203.37</text>
         <text class="s" x="92" y="272">✓ l'app voit le LB</text>
         <text class="s" x="239" y="272">✓ l'app voit votre IP</text>
         <text class="s" x="165" y="298">sort du cluster sous</text>
-        <text class="m vt" x="165" y="314" style="font-weight:600">le nœud · .203.37</text>
+        <text class="m vt" x="165" y="314" style="font-weight:600">le node · .203.37</text>
         <rect class="o" x="345" y="10" width="310" height="312" rx="12"/>
-        <text class="h ot" x="500" y="36">Overlay · sous-réseau privé</text>
+        <text class="h ot" x="500" y="36">Overlay · subnet privé</text>
         <rect class="card" x="430" y="50" width="140" height="42" rx="8"/>
         <text x="500" y="68">client</text><text class="m" x="500" y="84">routeur labo</text>
         <rect class="sub" x="357" y="148" width="286" height="102" rx="8"/>
@@ -371,13 +371,13 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
         <rect class="card" x="367" y="168" width="120" height="48" rx="8"/>
         <text class="s" x="427" y="187">load balancer</text><text class="m" x="427" y="205">10.200.200.9</text>
         <rect class="dashw" x="515" y="168" width="118" height="48" rx="8"/>
-        <text class="s" x="574" y="187">nœud VKS</text><text class="m" x="574" y="205">10.17.17.x</text>
+        <text class="s" x="574" y="187">node VKS</text><text class="m" x="574" y="205">10.17.17.x</text>
         <text class="s" x="427" y="272">✓ l'app voit le LB</text>
         <text class="s wt" x="574" y="272">✗ privé, aucune route</text>
         <text class="s" x="500" y="298">sort du cluster sous</text>
         <text class="m wt" x="500" y="314" style="font-weight:600">SNAT partagé · .200.4</text>
         <rect class="pb" x="680" y="10" width="310" height="312" rx="12"/>
-        <text class="h pt" x="835" y="36">Overlay · sous-réseau public</text>
+        <text class="h pt" x="835" y="36">Overlay · subnet public</text>
         <rect class="card" x="765" y="50" width="140" height="42" rx="8"/>
         <text x="835" y="68">client</text><text class="m" x="835" y="84">routeur labo</text>
         <rect class="sub" x="692" y="148" width="286" height="102" rx="8"/>
@@ -387,56 +387,56 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
         <rect class="card" x="702" y="168" width="120" height="48" rx="8"/>
         <text class="s" x="762" y="187">load balancer</text><text class="m" x="762" y="205">10.200.200.13</text>
         <rect class="card" x="850" y="168" width="118" height="48" rx="8"/>
-        <text class="s" x="909" y="187">nœud VKS</text><text class="m" x="909" y="205">10.200.200.19</text>
+        <text class="s" x="909" y="187">node VKS</text><text class="m" x="909" y="205">10.200.200.19</text>
         <text class="s" x="762" y="272">✓ l'app voit le LB</text>
         <text class="s" x="909" y="272">✓ l'app voit votre IP</text>
         <text class="s" x="835" y="298">sort du cluster sous</text>
-        <text class="m pt" x="835" y="314" style="font-weight:600">le nœud · .200.19</text>
+        <text class="m pt" x="835" y="314" style="font-weight:600">le node · .200.19</text>
       </svg>
     </div>
-    <figcaption><b>Ce que teste netprobe.</b> Depuis un même client, chaque cluster est appelé deux fois : via son load balancer et directement sur un nœud. Ensuite, chaque pod appelle un observateur hors du cluster, qui enregistre l'adresse source qu'il voit.</figcaption>
+    <figcaption><b>Ce que teste netprobe.</b> Depuis un même client, chaque cluster est appelé deux fois : via son load balancer et directement sur un node. Ensuite, chaque pod appelle un observateur hors du cluster, qui enregistre l'adresse source qu'il voit.</figcaption>
   </figure>
   <figure>
-    <div class="np" role="group" aria-label="Instantané du tableau de bord netprobe">
-      <div class="np-head"><b>netprobe <span>· même app, trois réseaux</span></b><small>instantané · client = routeur du labo</small></div>
-      <div class="np-grid"><section class="np-col t"><div><h4>TEP-less · VPC VLAN-backed</h4><div class="cid">cluster demo-git</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">joignable · 9 ms</span></div><div class="url">http://10.203.203.8:8080</div><dl><dt>Réponse de</dt><dd>demo-git-np-1-…-x6wpr</dd><dt>IP du nœud</dt><dd>10.203.203.37</dd><dt>Pod</dt><dd>100.96.1.19</dd><dt>Vous voit comme</dt><dd>10.203.203.3<i>adresse du load balancer du VPC</i></dd></dl></div><div class="np-path"><div class="top">Direct au nœud<span class="pill ok">joignable · 3 ms</span></div><div class="url">http://10.203.203.37:30090</div><dl><dt>Réponse de</dt><dd>demo-git-np-1-…-x6wpr</dd><dt>IP du nœud</dt><dd>10.203.203.37</dd><dt>Pod</dt><dd>100.96.1.19</dd><dt>Vous voit comme</dt><dd>10.203.203.1<i>votre adresse réelle</i></dd></dl></div><div class="np-eg"><span>Sort du cluster sous</span><b>10.203.203.37</b><span>l'adresse VLAN propre du nœud, sans NAT</span></div></section><section class="np-col o"><div><h4>Overlay · sous-réseau privé</h4><div class="cid">cluster demo-vks-cluster</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">joignable · 8 ms</span></div><div class="url">http://10.200.200.9:8080</div><dl><dt>Réponse de</dt><dd>demo-vks-cluster-…-xsrsz</dd><dt>IP du nœud</dt><dd>10.17.17.4</dd><dt>Pod</dt><dd>100.96.1.6</dd><dt>Vous voit comme</dt><dd>100.64.32.3<i>adresse du load balancer du VPC</i></dd></dl></div><div class="np-path"><div class="top">Direct au nœud<span class="pill bad">injoignable</span></div><div class="url">http://10.17.17.6:30090</div><dl><dt>Résultat</dt><dd>aucune réponse en 4 s : 10.17.17.0/24 est privé au VPC</dd></dl></div><div class="np-eg"><span>Sort du cluster sous</span><b>10.200.200.4</b><span>une seule adresse SNAT partagée pour tout le VPC</span></div></section><section class="np-col p"><div><h4>Overlay · sous-réseau public</h4><div class="cid">cluster overlay-public</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">joignable · 8 ms</span></div><div class="url">http://10.200.200.13:8080</div><dl><dt>Réponse de</dt><dd>overlay-public-np-1-…-rj5vc</dd><dt>IP du nœud</dt><dd>10.200.200.19</dd><dt>Pod</dt><dd>100.96.1.8</dd><dt>Vous voit comme</dt><dd>100.64.32.3<i>adresse du load balancer du VPC</i></dd></dl></div><div class="np-path"><div class="top">Direct au nœud<span class="pill ok">joignable · 4 ms</span></div><div class="url">http://10.200.200.19:30090</div><dl><dt>Réponse de</dt><dd>overlay-public-np-1-…-rj5vc</dd><dt>IP du nœud</dt><dd>10.200.200.19</dd><dt>Pod</dt><dd>100.96.1.9</dd><dt>Vous voit comme</dt><dd>10.200.200.1<i>votre adresse réelle</i></dd></dl></div><div class="np-eg"><span>Sort du cluster sous</span><b>10.200.200.19</b><span>l'adresse propre du nœud dans le sous-réseau public</span></div></section></div>
+    <div class="np" role="group" aria-label="Snapshot du dashboard netprobe">
+      <div class="np-head"><b>netprobe <span>· même app, trois réseaux</span></b><small>snapshot · client = routeur du labo</small></div>
+      <div class="np-grid"><section class="np-col t"><div><h4>TEP-less · VPC VLAN-backed</h4><div class="cid">cluster demo-git</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">joignable · 9 ms</span></div><div class="url">http://10.203.203.8:8080</div><dl><dt>Réponse de</dt><dd>demo-git-np-1-…-x6wpr</dd><dt>IP du node</dt><dd>10.203.203.37</dd><dt>Pod</dt><dd>100.96.1.19</dd><dt>Vous voit sous</dt><dd>10.203.203.3<i>adresse du load balancer du VPC</i></dd></dl></div><div class="np-path"><div class="top">Accès direct au node<span class="pill ok">joignable · 3 ms</span></div><div class="url">http://10.203.203.37:30090</div><dl><dt>Réponse de</dt><dd>demo-git-np-1-…-x6wpr</dd><dt>IP du node</dt><dd>10.203.203.37</dd><dt>Pod</dt><dd>100.96.1.19</dd><dt>Vous voit sous</dt><dd>10.203.203.1<i>votre adresse réelle</i></dd></dl></div><div class="np-eg"><span>Sort du cluster sous</span><b>10.203.203.37</b><span>l'adresse VLAN propre du node, sans NAT</span></div></section><section class="np-col o"><div><h4>Overlay · subnet privé</h4><div class="cid">cluster demo-vks-cluster</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">joignable · 8 ms</span></div><div class="url">http://10.200.200.9:8080</div><dl><dt>Réponse de</dt><dd>demo-vks-cluster-…-xsrsz</dd><dt>IP du node</dt><dd>10.17.17.4</dd><dt>Pod</dt><dd>100.96.1.6</dd><dt>Vous voit sous</dt><dd>100.64.32.3<i>adresse du load balancer du VPC</i></dd></dl></div><div class="np-path"><div class="top">Accès direct au node<span class="pill bad">injoignable</span></div><div class="url">http://10.17.17.6:30090</div><dl><dt>Résultat</dt><dd>aucune réponse en 4 s : 10.17.17.0/24 est un réseau privé interne au VPC</dd></dl></div><div class="np-eg"><span>Sort du cluster sous</span><b>10.200.200.4</b><span>une seule adresse SNAT partagée pour tout le VPC</span></div></section><section class="np-col p"><div><h4>Overlay · subnet public</h4><div class="cid">cluster overlay-public</div></div><div class="np-path"><div class="top">Load balancer<span class="pill ok">joignable · 8 ms</span></div><div class="url">http://10.200.200.13:8080</div><dl><dt>Réponse de</dt><dd>overlay-public-np-1-…-rj5vc</dd><dt>IP du node</dt><dd>10.200.200.19</dd><dt>Pod</dt><dd>100.96.1.8</dd><dt>Vous voit sous</dt><dd>100.64.32.3<i>adresse du load balancer du VPC</i></dd></dl></div><div class="np-path"><div class="top">Accès direct au node<span class="pill ok">joignable · 4 ms</span></div><div class="url">http://10.200.200.19:30090</div><dl><dt>Réponse de</dt><dd>overlay-public-np-1-…-rj5vc</dd><dt>IP du node</dt><dd>10.200.200.19</dd><dt>Pod</dt><dd>100.96.1.9</dd><dt>Vous voit sous</dt><dd>10.200.200.1<i>votre adresse réelle</i></dd></dl></div><div class="np-eg"><span>Sort du cluster sous</span><b>10.200.200.19</b><span>l'adresse propre du node dans le subnet public</span></div></section></div>
     </div>
-    <figcaption><b>Le tableau de bord netprobe, figé.</b> Toutes les valeurs sont réelles, capturées depuis le routeur du labo ; les latences sont la médiane de neuf requêtes. La page en direct (servie par chaque cluster sur le port 8080) se rafraîchit toutes les 5 secondes et affiche les trois mêmes colonnes.</figcaption>
+    <figcaption><b>Le dashboard netprobe, figé.</b> Toutes les valeurs sont réelles, capturées depuis le routeur du labo ; les latences sont la médiane de neuf requêtes. La page en direct (servie par chaque cluster sur le port 8080) se rafraîchit toutes les 5 secondes et affiche les trois mêmes colonnes.</figcaption>
   </figure>
 
   <div class="tablewrap"><table>
-    <thead><tr><th>Test</th><th>TEP-less (VPC VLAN-backed)</th><th>Overlay, sous-réseau privé (par défaut)</th><th>Overlay, sous-réseau public</th></tr></thead>
+    <thead><tr><th>Test</th><th>TEP-less (VPC VLAN-backed)</th><th>Overlay, subnet privé (par défaut)</th><th>Overlay, subnet public</th></tr></thead>
     <tbody>
-      <tr><td>Joindre un nœud directement (NodePort)</td><td class="vlan"><span class="yes">Répond</span> sur 10.203.203.37, et l'app voit la vraie adresse du client</td><td class="ovl"><span class="no">Injoignable</span> : les nœuds sont sur le réseau privé 10.17.17.0/24</td><td class="ovl"><span class="yes">Répond</span> sur 10.200.200.19, vraie adresse du client</td></tr>
-      <tr><td>Adresse source quand un pod appelle vers l'extérieur</td><td class="vlan"><strong>10.203.203.37</strong>, l'adresse VLAN propre du nœud</td><td class="ovl"><strong>10.200.200.4</strong>, une seule adresse NAT partagée pour le VPC</td><td class="ovl"><strong>10.200.200.19</strong>, l'adresse propre du nœud</td></tr>
+      <tr><td>Joindre un node directement (NodePort)</td><td class="vlan"><span class="yes">Répond</span> sur 10.203.203.37, et l'app voit la vraie adresse du client</td><td class="ovl"><span class="no">Injoignable</span> : les nodes sont sur le réseau privé 10.17.17.0/24</td><td class="ovl"><span class="yes">Répond</span> sur 10.200.200.19, vraie adresse du client</td></tr>
+      <tr><td>Adresse source quand un pod appelle vers l'extérieur</td><td class="vlan"><strong>10.203.203.37</strong>, l'adresse VLAN propre du node</td><td class="ovl"><strong>10.200.200.4</strong>, une seule adresse NAT partagée pour le VPC</td><td class="ovl"><strong>10.200.200.19</strong>, l'adresse propre du node</td></tr>
       <tr><td>Via le load balancer</td><td class="vlan">Fonctionne ; l'app voit l'adresse du LB</td><td class="ovl">Fonctionne ; l'app voit l'adresse du LB</td><td class="ovl">Fonctionne ; l'app voit l'adresse du LB</td></tr>
       <tr><td>MTU du chemin des pods</td><td class="vlan">1450</td><td class="ovl">1450</td><td class="ovl">1450</td></tr>
       <tr><td>Exigences du réseau physique</td><td class="vlan"><strong>Un VLAN + /24, MTU 1500</strong></td><td class="ovl">VLAN TEP, MTU ≥ 1700, routage overlay</td><td class="ovl">VLAN TEP, MTU ≥ 1700, routage overlay</td></tr>
     </tbody>
   </table></div>
-  <p><strong>Pour être juste envers l'overlay :</strong> j'ai construit un troisième cluster, <code>overlay-public</code>, à partir du même fichier Git sur le domaine overlay, avec ses nœuds sur un sous-réseau VPC <em>public</em>. Vu de l'extérieur, il se comporte comme le TEP-less : les nœuds répondent directement et sortent avec leur propre adresse. Les nœuds routables ne sont donc pas propres au TEP-less. Ce qui l'est, c'est de les obtenir sans TEP, sans trames jumbo ni routage overlay, et que le mode public soit le seul possible : personne n'a à se souvenir de le choisir.</p>
-  <p>Deux lignes sont identiques, et c'est voulu. Le load balancer NSX fait proxy dans les deux modèles, et le MTU de 1450 des pods vient du CNI Kubernetes (Antrea) à l'intérieur du cluster. Le gain de MTU du TEP-less est réel, mais il se situe sur les hôtes et le réseau physique, là où les captures d'écran de l'étape 1 le montrent.</p>
+  <p><strong>Pour être juste envers l'overlay :</strong> j'ai construit un troisième cluster, <code>overlay-public</code>, à partir du même fichier Git sur le domaine overlay, avec ses nodes sur un subnet VPC <em>public</em>. Vu de l'extérieur, il se comporte comme le TEP-less : les nodes répondent directement et sortent avec leur propre adresse. Les nodes routables ne sont donc pas propres au TEP-less. Ce qui lui est propre, c'est qu'on les obtient sans TEP, sans trames jumbo ni routage overlay, et que le mode public est le seul possible : personne n'a à penser à le choisir.</p>
+  <p>Deux lignes sont identiques, et c'est voulu. Le load balancer NSX joue le rôle de proxy dans les deux modèles, et le MTU de 1450 des pods vient du CNI Kubernetes (Antrea) à l'intérieur du cluster. Le gain de MTU du TEP-less est réel, mais il se situe sur les hôtes et le réseau physique, là où les captures d'écran de l'étape 1 le montrent.</p>
 
   <h2 id="what-to-watch-for">Points de vigilance</h2>
   <p>Chaque point ci-dessous s'est produit pendant cette construction. Aucun n'est difficile à corriger une fois qu'on connaît le message.</p>
   <div class="watch">
-    <div class="w"><h4>VCF Automation ne peut pas créer son bloc IP</h4><div class="err">IP Space Block tepless is not found</div><p>Le bloc Day-0 possède déjà le /24 du VLAN. Donnez à VCF Automation son propre VLAN et sa propre plage.</p></div>
+    <div class="w"><h4>VCF Automation ne peut pas créer son bloc IP</h4><div class="err">IP Space Block tepless is not found</div><p>Le bloc Day-0 occupe déjà tout le /24 du VLAN. Donnez à VCF Automation son propre VLAN et sa propre plage.</p></div>
     <div class="w"><h4>La région refuse le Supervisor</h4><div class="err">zones … do not have a network stack configured</div><p>VCF Automation n'a pas encore vu le nouveau domaine. Faites un Refresh du vCenter dans le provider portal, puis réessayez.</p></div>
     <div class="w"><h4>Aucune version Kubernetes à choisir</h4><div class="err">namespace is missing … Kubernetes releases</div><p>Rattachez la bibliothèque abonnée sous Supervisor → Configure → General → Kubernetes Service.</p></div>
     <div class="w"><h4>Default Configuration est refusée</h4><div class="err">cannot be deployed with default network(private) in a VPC namespace without SNAT</div><p>Utilisez Custom Configuration avec un SubnetSet <strong>Public</strong> comme réseau principal (VKS 3.7).</p></div>
-    <div class="w"><h4>Aucune image de nœud compatible</h4><div class="err">Missing compatible KR/OSImage … / Multiple OSImages resolved</div><p>Juste après l'abonnement, les versions récentes peuvent n'offrir que des images Ubuntu le temps que le catalogue se synchronise (environ une heure). En YAML, fixez à la fois <code>os-name</code> et <code>os-version</code>.</p></div>
-    <div class="w"><h4>Les téléchargements échouent sur une bibliothèque plus ancienne</h4><div class="err">SSL Certificate mismatch … certificate_unknown</div><p>Une bibliothèque abonnée il y a quelques semaines peut encore faire confiance à l'ancien certificat de Broadcom. Modifiez la bibliothèque et acceptez le certificat actuel. Le problème a touché le côté overlay de ce labo, pas le côté TEP-less.</p></div>
+    <div class="w"><h4>Aucune image de node compatible</h4><div class="err">Missing compatible KR/OSImage … / Multiple OSImages resolved</div><p>Juste après l'abonnement, les versions récentes peuvent n'offrir que des images Ubuntu le temps que le catalogue se synchronise (environ une heure). En YAML, fixez à la fois <code>os-name</code> et <code>os-version</code>.</p></div>
+    <div class="w"><h4>Les downloads échouent sur une bibliothèque plus ancienne</h4><div class="err">SSL Certificate mismatch … certificate_unknown</div><p>Une bibliothèque abonnée il y a quelques semaines peut encore faire confiance à l'ancien certificat de Broadcom. Modifiez la bibliothèque et acceptez le certificat actuel. Le problème a touché le côté overlay de ce labo, pas le côté TEP-less.</p></div>
     <div class="w"><h4>Les namespaces créés par l'API en demandent plus</h4><div class="err">Zone should be specified … / Storage Class should be specified</div><p>Si la classe de namespace ne les définit pas, indiquez la zone (avec limites et réservations de CPU et de mémoire) et une storage class avec une limite.</p></div>
-    <div class="w"><h4>Argo CD sur un autre Supervisor</h4><div class="err">automatic registration only covers its own Supervisor</div><p>Enregistrez le cluster TEP-less avec un cluster secret Argo CD standard, et autorisez TCP 6443 vers la plage Day-1 dans la politique de pare-feu d'Argo CD.</p></div>
+    <div class="w"><h4>Argo CD sur un autre Supervisor</h4><div class="err">automatic registration only covers its own Supervisor</div><p>Enregistrez le cluster TEP-less avec un cluster secret Argo CD standard, et autorisez TCP 6443 vers la plage Day-1 dans la politique de firewall d'Argo CD.</p></div>
   </div>
   <p class="note"><strong>Astuce de labo :</strong> vérifiez les noms auprès du DNS du labo lui-même. Le résolveur de l'hôte de rebond avait un enregistrement périmé pour le NSX Manager TEP-less, ce qui a failli envoyer cette construction dans la mauvaise direction.</p>
 
 
 
   <h2 id="the-concept-in-one-picture">Le concept en une image</h2>
-  <p>Les deux modèles offrent des VPC, une transit gateway, des load balancers et le pare-feu distribué. La différence, c'est l'allure d'un paquet sur le réseau physique, et donc ce que ce réseau doit prendre en charge.</p>
+  <p>Les deux modèles offrent des VPC, une transit gateway, des load balancers et le firewall distribué. La différence, c'est l'allure d'un paquet sur le réseau physique, et donc ce que ce réseau doit prendre en charge.</p>
   <figure>
-    <div class="diagram v2" role="img" aria-label="Comparaison conceptuelle. VPC overlay : les hôtes encapsulent le trafic des nœuds en Geneve entre interfaces TEP, le réseau physique transporte un VLAN TEP avec un MTU d'au moins 1600, et le trafic nord-sud sort par SNAT. VPC TEP-less : les hôtes se contentent d'étiqueter le trafic des nœuds avec le VLAN 203, le réseau physique transporte un VLAN simple en MTU 1500, et les adresses des nœuds sont routées telles quelles.">
+    <div class="diagram v2" role="img" aria-label="Comparaison conceptuelle. VPC overlay : les hôtes encapsulent le trafic des nodes en Geneve entre interfaces TEP, le réseau physique transporte un VLAN TEP avec un MTU d'au moins 1600, et le trafic nord-sud sort par SNAT. VPC TEP-less : les hôtes se contentent d'étiqueter le trafic des nodes avec le VLAN 203, le réseau physique transporte un VLAN simple en MTU 1500, et les adresses des nodes sont routées telles quelles.">
       <svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg">
         <rect class="o" x="10" y="10" width="480" height="500" rx="14"/>
         <text class="h l ot" x="30" y="40">VPC overlay · avec TEP</text>
@@ -457,7 +457,7 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
         <rect class="card" x="35" y="300" width="190" height="190" rx="10"/>
         <text class="h" x="130" y="326">Hôte ESX A</text>
         <rect class="o" x="55" y="340" width="150" height="40" rx="8"/>
-        <text x="130" y="365">Nœud VKS CP</text>
+        <text x="130" y="365">Node VKS CP</text>
         <rect class="op" x="55" y="400" width="150" height="40" rx="8"/>
         <text class="m ot" x="130" y="425">vmk10 TEP · Geneve</text>
         <text class="s" x="130" y="470">encapsule chaque trame</text>
@@ -465,7 +465,7 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
         <rect class="card" x="275" y="300" width="190" height="190" rx="10"/>
         <text class="h" x="370" y="326">Hôte ESX B</text>
         <rect class="o" x="295" y="340" width="150" height="40" rx="8"/>
-        <text x="370" y="365">Nœud VKS worker</text>
+        <text x="370" y="365">Node VKS worker</text>
         <rect class="op" x="295" y="400" width="150" height="40" rx="8"/>
         <text class="m ot" x="370" y="425">vmk10 TEP · Geneve</text>
         <text class="s" x="370" y="470">encapsule chaque trame</text>
@@ -480,7 +480,7 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
         <rect class="card" x="530" y="160" width="440" height="44" rx="22"/>
         <text x="750" y="187">Réseau physique · un VLAN · MTU 1500</text>
         <path class="lv" d="M750 118 V160"/>
-        <text class="m l" x="760" y="144">IP des nœuds routées sans NAT</text>
+        <text class="m l" x="760" y="144">IP des nodes routées sans NAT</text>
         <text class="cap" x="750" y="228" style="text-anchor:middle">SUR LE FIL</text>
         <rect class="sub" x="604" y="236" width="96" height="28" rx="4"/>
         <text class="m" x="652" y="255">802.1Q · 203</text>
@@ -489,7 +489,7 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
         <rect class="card" x="535" y="300" width="190" height="190" rx="10"/>
         <text class="h" x="630" y="326">Hôte ESX A</text>
         <rect class="v" x="555" y="340" width="150" height="40" rx="8"/>
-        <text x="630" y="365">Nœud VKS CP</text>
+        <text x="630" y="365">Node VKS CP</text>
         <rect class="sub" x="555" y="400" width="150" height="40" rx="8"/>
         <text class="m" x="630" y="425">VDS · tag VLAN 203</text>
         <text class="s" x="630" y="470">ni TEP ni encapsulation</text>
@@ -497,20 +497,20 @@ podinfo-vks        https://10.200.200.7:6443    Synced   Healthy</pre>
         <rect class="card" x="775" y="300" width="190" height="190" rx="10"/>
         <text class="h" x="870" y="326">Hôte ESX B</text>
         <rect class="v" x="795" y="340" width="150" height="40" rx="8"/>
-        <text x="870" y="365">Nœud VKS worker</text>
+        <text x="870" y="365">Node VKS worker</text>
         <rect class="sub" x="795" y="400" width="150" height="40" rx="8"/>
         <text class="m" x="870" y="425">VDS · tag VLAN 203</text>
         <text class="s" x="870" y="470">ni TEP ni encapsulation</text>
         <path class="ln" d="M870 380 V400"/>
         <path class="lv" d="M705 420 H715 V276 M715 212 V204 M785 204 V212 M785 276 V420 H795"/>
-        <text class="s l vt" x="530" y="288">trames VLAN simples, nœud à nœud</text>
+        <text class="s l vt" x="530" y="288">trames VLAN simples, node à node</text>
       </svg>
     </div>
-    <figcaption><b>À gauche :</b> chaque trame entre hôtes est encapsulée en Geneve entre interfaces TEP, ce qui coûte environ 100 octets par paquet (d'où un MTU ≥ 1600, 1700 recommandé) et exige un VLAN TEP et un pool d'IP. <b>À droite :</b> l'hôte se contente d'étiqueter la trame avec le VLAN du VPC ; le réseau physique ne voit que du trafic VLAN ordinaire, si bien qu'un réseau standard à 1500 octets, une passerelle et un /24 suffisent. L'isolation entre VPC et entre tenants vient toujours de la transit gateway distribuée et du pare-feu distribué, dans le noyau de chaque hôte.</figcaption>
+    <figcaption><b>À gauche :</b> chaque trame entre hôtes est encapsulée en Geneve entre interfaces TEP, ce qui coûte environ 100 octets par paquet (d'où un MTU ≥ 1600, 1700 recommandé) et exige un VLAN TEP et un pool d'IP. <b>À droite :</b> l'hôte se contente d'étiqueter la trame avec le VLAN du VPC ; le réseau physique ne voit que du trafic VLAN ordinaire, si bien qu'un réseau standard à 1500 octets, une gateway et un /24 suffisent. L'isolation entre VPC et entre tenants vient toujours de la transit gateway distribuée et du firewall distribué, dans le noyau de chaque hôte.</figcaption>
   </figure>
 
   <h2 id="verdict">Verdict</h2>
-  <p>Le TEP-less est le moyen le plus simple que j'aie trouvé pour amener des VPC et du Kubernetes en libre-service sur un réseau que vous ne contrôlez pas : un VLAN, un /24, aucun changement de MTU. La contrepartie : chaque adresse de workload est publique sur ce VLAN, par conception. Planifiez la plage Day-1 et les règles de pare-feu en conséquence, et VKS, VCF Automation et Argo CD fonctionnent comme sur un overlay.</p>
+  <p>Le TEP-less est le moyen le plus simple que j'aie trouvé pour amener des VPC et du Kubernetes en libre-service sur un réseau que vous ne contrôlez pas : un VLAN, un /24, aucun changement de MTU. La contrepartie : chaque adresse de workload est publique sur ce VLAN, par conception. Planifiez la plage Day-1 et les règles de firewall en conséquence, et VKS, VCF Automation et Argo CD fonctionnent comme sur un overlay.</p>
 <p class="closing">Sources et code : <a href="https://williamlam.com/2026/09/vcf-9-1-1-simplified-vsphere-kubernetes-service-vks-using-vlan-backed-vpcs-without-nsx-tunnel-endpoints-teps.html">William Lam sur les VPC VLAN-backed sans TEP</a> ·
     <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-1/organization-management/adding-and-managing-virtual-private-clouds/create-a-transit-gateway-in-vcf-automation.html">Broadcom : les transit gateways dans VCF Automation</a> ·
     <a href="https://knowledge.broadcom.com/external/article/443024/how-to-configure-a-custom-subnet-prefix.html">Broadcom KB 443024</a> ·

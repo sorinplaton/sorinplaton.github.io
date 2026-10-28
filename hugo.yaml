@@ -46,13 +46,13 @@ languages:
     params:
       description: "Notes de terrain sur VMware Cloud Foundation — NSX, EVPN, BGP, VKS et Kubernetes, VCF Automation et Operations, IA privée — construites et cassées dans un lab Holodeck."
       homeInfoParams:
-        Title: "VMware Cloud Foundation, mis par écrit."
+        Title: "VMware Cloud Foundation, noir sur blanc."
         Content: >
-          Notes de terrain, du lab comme du terrain, sur toute la pile VCF :
+          Des notes tirées du lab comme du terrain, sur toute la pile VCF :
           NSX, EVPN/VXLAN et ingénierie de trafic BGP ; VKS et Kubernetes ;
           VCF Automation, GitOps avec Argo CD, VCF Operations et son
           assistant IA sur un LLM privé. Des configurations qui fonctionnent,
-          les pièges qu'elles cachent et pourquoi elles ont cette forme. Tout
+          les pièges qu'elles cachent et pourquoi elles sont conçues ainsi. Tout
           est construit, cassé et réparé sur un Holodeck VCF 9.1 imbriqué avant
           d'approcher la production.
       editPost:

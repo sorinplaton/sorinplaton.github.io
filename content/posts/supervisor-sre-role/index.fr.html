@@ -8,13 +8,13 @@ categories: ["Notes"]
 images: ["/images/sre/share.jpg"]
 showToc: false
 ---
-<details class="toc"><summary accesskey="c" title="(Alt + C)"><span class="title">Table des matières</span></summary><div class="inner"><nav><ul><li><a href="#how-it-works" aria-label="Fonctionnement">Fonctionnement</a></li><li><a href="#install-it" aria-label="Installation">Installation</a><ul><li><a href="#download-the-service-definition" aria-label="Télécharger la définition du service">Télécharger la définition du service</a></li><li><a href="#register-it-with-vcenter" aria-label="L'enregistrer dans vCenter">L'enregistrer dans vCenter</a></li><li><a href="#install-it-on-the-supervisor" aria-label="L'installer sur le Supervisor">L'installer sur le Supervisor</a></li></ul></li><li><a href="#use-it" aria-label="Utilisation">Utilisation</a><ul><li><a href="#where-to-look-first" aria-label="Par où commencer">Par où commencer</a></li></ul></li><li><a href="#takeaways" aria-label="À retenir">À retenir</a></li></ul></nav></div></details>
+<details class="toc"><summary accesskey="c" title="(Alt + C)"><span class="title">Table des matières</span></summary><div class="inner"><nav><ul><li><a href="#how-it-works" aria-label="Fonctionnement">Fonctionnement</a></li><li><a href="#install-it" aria-label="Installation">Installation</a><ul><li><a href="#download-the-service-definition" aria-label="Faire le download de la définition du service">Faire le download de la définition du service</a></li><li><a href="#register-it-with-vcenter" aria-label="L'enregistrer dans vCenter">L'enregistrer dans vCenter</a></li><li><a href="#install-it-on-the-supervisor" aria-label="L'installer sur le Supervisor">L'installer sur le Supervisor</a></li></ul></li><li><a href="#use-it" aria-label="Utilisation">Utilisation</a><ul><li><a href="#where-to-look-first" aria-label="Par où commencer">Par où commencer</a></li></ul></li><li><a href="#takeaways" aria-label="À retenir">À retenir</a></li></ul></nav></div></details>
 <div class="tepless sre">
-  <p class="lead">Quand un Supervisor se comporte mal, la méthode classique pour y entrer, c'est root en SSH avec un mot de passe déchiffré. Le service <strong>SRE Supervisor Role</strong> donne plutôt à vos administrateurs SSO une vue <code>kubectl</code> en lecture seule de tout le Supervisor : pods, logs, clusters VKS, VM et services, mais aucun secret et aucune modification. Installé sur deux Supervisors de mon lab en quelques minutes.</p>
+  <p class="lead">Quand un Supervisor se comporte mal, la méthode classique pour y accéder, c'est root en SSH avec un mot de passe déchiffré. Le service <strong>SRE Supervisor Role</strong> donne plutôt à vos administrateurs SSO une vue <code>kubectl</code> en lecture seule de tout le Supervisor : pods, logs, clusters VKS, VM et services, mais aucun secret et aucune modification. Installé sur deux Supervisors de mon lab en quelques minutes.</p>
   <div class="stats">
     <div class="stat"><b>1 YAML</b><span>enregistré une fois par vCenter</span></div>
     <div class="stat"><b>~1 min</b><span>de Finish à Configured</span></div>
-    <div class="stat"><b>0</b><span>secret lisible, objet modifiable</span></div>
+    <div class="stat"><b>0</b><span>secret lisible ni objet modifiable</span></div>
   </div>
 
   <h2 id="how-it-works">Fonctionnement</h2>
@@ -41,7 +41,7 @@ showToc: false
           <symbol id="hw-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
         </defs>
         <text class="up l" x="30" y="26">QUI</text>
-        <text class="up l" x="276" y="26">LIAISON</text>
+        <text class="up l" x="276" y="26">BINDING</text>
         <text class="up l" x="530" y="26">RÔLE</text>
         <text class="up l" x="772" y="26">CE QU'ILS VOIENT</text>
         <rect class="card" x="30" y="44" width="200" height="112" rx="14"/>
@@ -67,11 +67,11 @@ showToc: false
         <path class="c-v" d="M740 100 C 752 100, 756 80, 770 80" marker-end="url(#hw-ah)"/><path class="flow" d="M740 100 C 752 100, 756 80, 770 80"/>
         <path class="c" d="M740 112 C 756 112, 754 196, 770 196" marker-end="url(#hw-ah)"/>
         <rect class="chip-v" x="772" y="44" width="214" height="118" rx="12"/>
-        <text class="t12 l" x="786" y="66">✓ pods, nœuds, événements</text>
+        <text class="t12 l" x="786" y="66">✓ pods, nodes, événements</text>
         <text class="t12 l" x="786" y="85">✓ logs des pods</text>
         <text class="t12 l" x="786" y="104">✓ clusters VKS, machines, VM</text>
         <text class="t12 l" x="786" y="123">✓ packages Supervisor Service</text>
-        <text class="t12 l" x="786" y="142">✓ CRD stockage, réseau</text>
+        <text class="t12 l" x="786" y="142">✓ CRD de stockage, réseau</text>
         <rect class="xrow" x="772" y="172" width="214" height="62" rx="12"/>
         <text class="t12 no l" x="786" y="196">✗ secrets</text>
         <text class="t12 no l" x="786" y="216">✗ create · update · delete</text>
@@ -105,7 +105,7 @@ showToc: false
           <symbol id="ba-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
         </defs>
         <rect class="zone-o" x="20" y="20" width="470" height="236" rx="16"/>
-        <text class="b h ot l" x="40" y="48">AVANT · root via SSH</text>
+        <text class="b h ot l" x="40" y="48">AVANT · root en SSH</text>
         <rect class="zcard" x="40" y="70" width="134" height="110" rx="12"/>
         <rect class="icbg-o" x="54" y="84" width="32" height="32" rx="9.6"/><use href="#ba-key" x="60.4" y="90.4" width="19.2" height="19.2" class="ic ic-o"/>
         <text class="t12 b l" x="54" y="138">shell vCenter</text>
@@ -114,7 +114,7 @@ showToc: false
         <rect class="zcard" x="190" y="70" width="134" height="110" rx="12"/>
         <rect class="icbg-o" x="204" y="84" width="32" height="32" rx="9.6"/><use href="#ba-term" x="210.4" y="90.4" width="19.2" height="19.2" class="ic ic-o"/>
         <text class="t12 b l" x="204" y="138">decryptK8Pwd.py</text>
-        <text class="t11 l" x="204" y="156">mdp root du CP</text>
+        <text class="t11 l" x="204" y="156">root password du CP</text>
         <path class="c-o" d="M324 125 C 330 125, 334 125, 338 125" marker-end="url(#ba-ah)"/>
         <rect class="zcard" x="340" y="70" width="134" height="110" rx="12"/>
         <rect class="icbg-o" x="354" y="84" width="32" height="32" rx="9.6"/><use href="#ba-lock" x="360.4" y="90.4" width="19.2" height="19.2" class="ic ic-o"/>
@@ -138,17 +138,17 @@ showToc: false
         <rect class="icbg-v" x="844" y="84" width="32" height="32" rx="9.6"/><use href="#ba-shield" x="850.4" y="90.4" width="19.2" height="19.2" class="ic ic-v"/>
         <text class="t12 b l" x="844" y="138">debug ClusterRole</text>
         <text class="t11 l" x="844" y="156">lecture seule</text>
-        <text class="t12 ok l" x="530" y="212">✓ identité personnelle   ✓ rien ne change</text>
+        <text class="t12 ok l" x="530" y="212">✓ identité personnelle   ✓ rien n'est modifiable</text>
         <text class="t12 ok l" x="530" y="234">✓ secrets masqués, audit API normal</text>
       </svg>
     </div>
-    <figcaption>Sa raison d'être : la même visibilité qu'avant en root, sans secret root partagé et sans possibilité de rien casser.</figcaption>
+    <figcaption>Sa raison d'être : la même visibilité qu'avant en root, sans secret root partagé et sans pouvoir rien casser.</figcaption>
   </figure>
 
   <h2 id="install-it">Installation</h2>
   <div class="step"><div class="n">1</div><div>
-    <h3 id="download-the-service-definition">Télécharger la définition du service</h3>
-    <div class="gui"><b>Support Broadcom</b>My Downloads → <strong>vSphere Supervisor Services</strong> → SRE Supervisor Role → <code>sre-supervisor-role-v1.0.1.yaml</code>. Le même fichier se trouve dans le dépôt <a href="https://github.com/vsphere-tmm/Supervisor-Services">vsphere-tmm/Supervisor-Services</a>.</div>
+    <h3 id="download-the-service-definition">Faire le download de la définition du service</h3>
+    <div class="gui"><b>Support Broadcom</b>My Downloads → <strong>vSphere Supervisor Services</strong> → SRE Supervisor Role → <code>sre-supervisor-role-v1.0.1.yaml</code>. Le même fichier se trouve dans le repo <a href="https://github.com/vsphere-tmm/Supervisor-Services">vsphere-tmm/Supervisor-Services</a>.</div>
   </div></div>
   <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>jump host</span></div><pre><span class="p">$</span> curl -LO https://raw.githubusercontent.com/vsphere-tmm/Supervisor-Services/main/sre-supervisor-role/sre-supervisor-role-v1.0.1.yaml</pre></div>
 
@@ -168,7 +168,7 @@ showToc: false
     <figure><img src="/images/sre/i4-validate.webp" alt="Manage Service, Validate : Compatibility Check Pass, Signature Verification Pass" loading="lazy"><figcaption><b>Validate :</b> la compatibilité et la signature du package sont vérifiées.</figcaption></figure>
   </div>
   <figure class=dlg><img src="/images/sre/i5-review.webp" alt="Manage Service, Review : YAML Service Config avec le groupe Administrators@vcf.lab et le namespace du service" loading="lazy"><figcaption><b>Review :</b> le seul paramètre qui compte, <code>group: Administrators@vcf.lab</code>. Utilisez un groupe du domaine SSO de <em>ce</em> vCenter : mon domaine TEP-less a le sien (<code>vcf.lab</code>), le domaine overlay utilise <code>vsphere.local</code>.</figcaption></figure>
-  <p class="note"><strong>À surveiller :</strong> installer juste après l'enregistrement peut échouer avec <code>signature verification result not found</code>. Le Supervisor est encore en train de vérifier le package. Attendez une minute et relancez Manage Service.</p>
+  <p class="note"><strong>À surveiller :</strong> une installation lancée juste après l'enregistrement peut échouer avec <code>signature verification result not found</code>. Le Supervisor est encore en train de vérifier le package. Attendez une minute et relancez Manage Service.</p>
 
   <h2 id="use-it">Utilisation</h2>
   <p>Connectez-vous en tant que membre du groupe, exactement comme pour n'importe quel travail sur le Supervisor. Le namespace du service apparaît maintenant aussi comme contexte.</p>
@@ -205,7 +205,7 @@ supervisor:vmware-system-debug   ClusterRole/supervisor:vmware-system-debug   <s
           <symbol id="tr-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
         </defs>
         <text class="up l" x="30" y="24">SYMPTÔME</text>
-        <text class="up l" x="330" y="24">PREMIER COUP D'ŒIL</text>
+        <text class="up l" x="330" y="24">D'ABORD</text>
         <text class="up l" x="660" y="24">ENSUITE</text>
         <rect class="card" x="30" y="38" width="262" height="48" rx="12"/>
         <text class="b t12 l" x="48" y="67">Cluster bloqué en Provisioning</text>
@@ -224,7 +224,7 @@ supervisor:vmware-system-debug   ClusterRole/supervisor:vmware-system-debug   <s
         <path class="c-v" d="M292 124 C 306 124, 314 124, 328 124" marker-end="url(#tr-ah)"/><path class="flow" d="M292 124 C 306 124, 314 124, 328 124"/>
         <path class="c" d="M622 124 C 636 124, 644 124, 658 124" marker-end="url(#tr-ah)"/>
         <rect class="card" x="30" y="162" width="262" height="48" rx="12"/>
-        <text class="b t12 l" x="48" y="191">Problème de VM ou d'image</text>
+        <text class="b t12 l" x="48" y="191">Problèmes de VM ou d'image</text>
         <rect class="chip-v" x="330" y="162" width="292" height="48" rx="12"/>
         <text class="t12 l" x="346" y="191">kubectl logs -n vmware-system-vmop deploy/…</text>
         <rect class="zcard" x="660" y="162" width="316" height="48" rx="12"/>
@@ -241,7 +241,7 @@ supervisor:vmware-system-debug   ClusterRole/supervisor:vmware-system-debug   <s
         <path class="c" d="M622 248 C 636 248, 644 248, 658 248" marker-end="url(#tr-ah)"/>
       </svg>
     </div>
-    <figcaption>Une carte de départ pour les questions courantes. Chaque commande ici fonctionne avec le rôle en lecture seule.</figcaption>
+    <figcaption>Un point de départ pour les questions courantes. Toutes les commandes présentées ici fonctionnent avec le rôle en lecture seule.</figcaption>
   </figure>
 
   <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>kubectl · bilan de santé</span></div><pre><span class="p">$</span> kubectl get pods -A | grep -v -e Running -e Completed
@@ -278,9 +278,9 @@ vmware-system-ako   ConfigMapDataInsufficient   pod/vmware-system-ako-ako-contro
 
   <h2 id="takeaways">À retenir</h2>
   <ul>
-    <li><strong>Installez-le avant d'en avoir besoin.</strong> Ça coûte un namespace et deux objets RBAC, et le prochain incident commence par <code>kubectl</code> plutôt que par la chasse au mot de passe root.</li>
+    <li><strong>Installez-le avant d'en avoir besoin.</strong> Cela ne coûte qu'un namespace et deux objets RBAC, et le prochain incident commence par <code>kubectl</code> plutôt que par la chasse au mot de passe root.</li>
     <li><strong>Un groupe par Supervisor, issu du domaine SSO de ce vCenter.</strong> Des workload domains distincts, avec leur propre SSO, ont besoin de leur propre nom de groupe.</li>
-    <li><strong>C'est une vue, pas un correctif.</strong> Quand quelque chose doit changer, ça reste le travail de vCenter, de VCF Automation ou d'un dossier de support.</li>
+    <li><strong>C'est une vue, pas un correctif.</strong> Quand quelque chose doit changer, cela passe toujours par vCenter, VCF Automation ou un dossier de support.</li>
   </ul>
   <p class="closing">Lab : VCF 9.1.1 Holodeck, Supervisors <code>supervisor-wld01-a</code> (groupe Administrators@vsphere.local) et <code>sup-wld02-tepless</code> (Administrators@vcf.lab). Source : <a href="https://github.com/vsphere-tmm/Supervisor-Services">vsphere-tmm/Supervisor-Services</a>.</p>
 </div>

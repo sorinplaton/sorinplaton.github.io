@@ -4,10 +4,16 @@
 {{- end }}
 {{- end }}
 <script>
-// Click a post image to enlarge it in place; click anywhere, press Esc or the × to shrink it back.
+// Click a post image or diagram to enlarge it in place; click anywhere, press Esc or the × to shrink it back.
 (function () {
-  var imgs = document.querySelectorAll('.post-content img');
-  if (!imgs.length) return;
+  var root = document.querySelector('.post-content');
+  if (!root) return;
+  var items = [].filter.call(root.querySelectorAll('img, figure svg'), function (el) {
+    if (el.closest('a')) return false;                                   // linked images keep their link
+    if (el.tagName.toLowerCase() === 'svg') return !el.parentElement.closest('svg') && el.viewBox && el.viewBox.baseVal && el.viewBox.baseVal.width;
+    return true;
+  });
+  if (!items.length) return;
   var overlay, lastFocus;
   function close() {
     if (!overlay) return;
@@ -17,24 +23,51 @@
     setTimeout(function () { o.remove(); }, 180);
     if (lastFocus) lastFocus.focus();
   }
-  function open(img) {
-    lastFocus = img;
+  // An inline SVG is styled by its post's scoped CSS (.evpn figure svg, .tepless .diagram ...),
+  // so rebuild its ancestor chain (tag + class) around the copy to keep the same colours and fonts.
+  function svgCopy(svg) {
+    var chain = [], el = svg.parentElement;
+    while (el && el !== document.body) { chain.unshift(el); if (el === root) break; el = el.parentElement; }
+    var outer, inner;
+    chain.forEach(function (a) {
+      var w = document.createElement(a.tagName.toLowerCase());
+      w.className = a.className;
+      w.setAttribute('style', 'margin:0;width:auto;max-width:none;min-width:0;overflow:visible;align-self:auto');
+      if (inner) inner.appendChild(w); else outer = w;
+      inner = w;
+    });
+    var vb = svg.viewBox.baseVal, big = svg.cloneNode(true);
+    var wpx = Math.min(window.innerWidth * 0.94 - 64, (window.innerHeight - 160) * vb.width / vb.height);
+    big.style.cssText = 'display:block;width:' + Math.max(wpx, 200) + 'px;max-width:none;height:auto';
+    big.removeAttribute('width'); big.removeAttribute('height');
+    inner.appendChild(big);
+    var card = document.createElement('div');
+    card.className = 'lb-svg';
+    card.appendChild(outer);
+    return card;
+  }
+  function open(el) {
+    lastFocus = el;
     overlay = document.createElement('div');
     overlay.className = 'lb-overlay';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-label', 'Enlarged image');
-    var big = document.createElement('img');
-    big.src = img.currentSrc || img.src;
-    big.alt = img.alt;
     var btn = document.createElement('button');
     btn.className = 'lb-close';
     btn.type = 'button';
     btn.setAttribute('aria-label', 'Close enlarged image');
     btn.innerHTML = '&times;';
     overlay.appendChild(btn);
-    overlay.appendChild(big);
-    var fig = img.closest('figure'), cap = fig && fig.querySelector('figcaption');
+    if (el.tagName.toLowerCase() === 'img') {
+      var big = document.createElement('img');
+      big.src = el.currentSrc || el.src;
+      big.alt = el.alt;
+      overlay.appendChild(big);
+    } else {
+      overlay.appendChild(svgCopy(el));
+    }
+    var fig = el.closest('figure'), cap = fig && fig.querySelector('figcaption');
     if (cap) { var c = document.createElement('div'); c.className = 'lb-caption'; c.textContent = cap.textContent; overlay.appendChild(c); }
     overlay.addEventListener('click', close);
     document.body.appendChild(overlay);
@@ -42,12 +75,11 @@
     requestAnimationFrame(function () { overlay && overlay.classList.add('lb-open'); });
     btn.focus();
   }
-  imgs.forEach(function (img) {
-    if (img.closest('a')) return; // linked images keep their link
-    img.classList.add('lb-zoomable');
-    img.tabIndex = 0;
-    img.addEventListener('click', function () { open(img); });
-    img.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(img); } });
+  items.forEach(function (el) {
+    el.classList.add('lb-zoomable');
+    el.setAttribute('tabindex', '0');
+    el.addEventListener('click', function () { open(el); });
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(el); } });
   });
   document.addEventListener('keydown', function (e) { if (overlay && (e.key === 'Escape' || e.key === 'Tab')) { e.preventDefault(); close(); } });
 })();

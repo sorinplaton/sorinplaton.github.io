@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="440" viewBox="0 0 1400 440" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="440" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrbs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrgs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrts" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrps" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#5b3fa0"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b23a3a"/></marker><marker id="arrrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b23a3a"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrms" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker></defs>
+<text x="700.0" y="30" text-anchor="middle" font-size="21" font-weight="bold">Greenfield VCF 9.1: getting Operations and Automation onto an NSX overlay segment</text>
+<text x="700.0" y="54" text-anchor="middle" font-size="13" fill="#6b7785">Bring-up cannot target an overlay segment directly — defer the fleet components, build the segment, then come back to the Installer</text>
+<rect x="50" y="80" width="390" height="220" rx="6" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="66" y="108" font-size="15.4" fill="#1f4e9c" text-anchor="start" font-weight="bold">1 · VCF Installer — bring-up</text>
+<text x="66" y="126" font-size="12.1" fill="#6b7785" text-anchor="start" font-style="italic">Deploy a new VCF fleet</text>
+<text x="66" y="156.0" font-size="13.2" fill="#1d2733" text-anchor="start">Toggle: Deploy VCF Operations and VCF Automation</text>
+<text x="66" y="176.9" font-size="13.2" fill="#1d2733" text-anchor="start">to a specific vSphere distributed switch or NSX segment</text>
+<text x="66" y="197.8" font-size="13.2" fill="#1d2733" text-anchor="start">→ Operations, cloud proxy, license server and</text>
+<text x="66" y="218.7" font-size="13.2" fill="#1d2733" text-anchor="start">   Automation are skipped</text>
+<text x="66" y="239.60000000000002" font-size="13.2" fill="#1d2733" text-anchor="start">Bring-up completes with SDDC Manager, vCenter,</text>
+<text x="66" y="260.5" font-size="13.2" fill="#1d2733" text-anchor="start">NSX Manager cluster and the management domain</text>
+<text x="66" y="281.4" font-size="13.2" fill="#1d2733" text-anchor="start">(all on the VM management VLAN)</text>
+<rect x="505" y="80" width="390" height="220" rx="6" fill="#f4f7fb" stroke="#0b7a75" stroke-width="1.6"/>
+<text x="521" y="108" font-size="15.4" fill="#0b7a75" text-anchor="start" font-weight="bold">2 · NSX — management domain</text>
+<text x="521" y="126" font-size="12.1" fill="#6b7785" text-anchor="start" font-style="italic">Build the overlay landing zone</text>
+<text x="521" y="156.0" font-size="13.2" fill="#1d2733" text-anchor="start">Edge cluster in the management domain (SDDC Manager)</text>
+<text x="521" y="176.9" font-size="13.2" fill="#1d2733" text-anchor="start">Tier-0: BGP to the fabric, advertise connected segments</text>
+<text x="521" y="197.8" font-size="13.2" fill="#1d2733" text-anchor="start">Tier-1 attached to the Tier-0 (DR-only is enough)</text>
+<text x="521" y="218.7" font-size="13.2" fill="#1d2733" text-anchor="start">Overlay segment on the management overlay transport zone</text>
+<text x="521" y="239.60000000000002" font-size="13.2" fill="#1d2733" text-anchor="start">DNS A/PTR for every node, NTP, routes verified</text>
+<text x="521" y="260.5" font-size="13.2" fill="#1d2733" text-anchor="start">from the VM management VLAN to the new segment</text>
+<rect x="960" y="80" width="390" height="220" rx="6" fill="#f4f7fb" stroke="#2e7d32" stroke-width="1.6"/>
+<text x="976" y="108" font-size="15.4" fill="#2e7d32" text-anchor="start" font-weight="bold">3 · VCF Installer — deferred components</text>
+<text x="976" y="126" font-size="12.1" fill="#6b7785" text-anchor="start" font-style="italic">Land the fleet components</text>
+<text x="976" y="156.0" font-size="13.2" fill="#1d2733" text-anchor="start">Deployment wizard → Deploy deferred components</text>
+<text x="976" y="176.9" font-size="13.2" fill="#1d2733" text-anchor="start">Pick the NSX overlay segment (backed by a port group)</text>
+<text x="976" y="197.8" font-size="13.2" fill="#1d2733" text-anchor="start">Enter FQDNs + IP range for Operations, Automation</text>
+<text x="976" y="218.7" font-size="13.2" fill="#1d2733" text-anchor="start">(5 IPs: contiguous &lt; 9.1.0.400, any since), license server</text>
+<text x="976" y="239.60000000000002" font-size="13.2" fill="#1d2733" text-anchor="start">Or POST the same JSON through the Installer API</text>
+<text x="976" y="260.5" font-size="13.2" fill="#1d2733" text-anchor="start">Cloud proxy stays on the VM management VLAN</text>
+<path d="M440,190.0 L505,190.0" fill="none" stroke="#1d2733" stroke-width="1.8" marker-end="url(#arr)"/>
+<path d="M895,190.0 L960,190.0" fill="none" stroke="#1d2733" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="60" y="330" width="1280" height="70" rx="6" fill="#fff7e6" stroke="none" stroke-width="1.4"/>
+<text x="80" y="356" font-size="12.1" fill="#8a6d00" text-anchor="start" font-weight="bold" letter-spacing="1.5">AVOID</text>
+<text x="80" y="378" font-size="13.2" fill="#1d2733" text-anchor="start">Adding Automation later from VCF Operations (Build › Lifecycle) places the service-runtime cluster on the management network. Custom placement is offered only by the Installer's deferred-components path.</text>
+</svg>

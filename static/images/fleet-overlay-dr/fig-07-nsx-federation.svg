@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="840" viewBox="0 0 1640 840" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1640" height="840" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrbs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrgs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrts" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrps" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#5b3fa0"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b23a3a"/></marker><marker id="arrrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b23a3a"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrms" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker></defs>
+<text x="820.0" y="30" text-anchor="middle" font-size="23" font-weight="bold">NSX Federation objects behind the stretched management segment</text>
+<text x="820.0" y="56" text-anchor="middle" font-size="14" fill="#6b7785">Global Manager, stretched Tier-0 and Tier-1, RTEP tunnels, and where north–south traffic goes before and after a failover</text>
+<rect x="40" y="80" width="740" height="640" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="52" y="100" font-size="16.8" fill="#1f4e9c" text-anchor="start" font-weight="bold">Site A — NSX Location A</text>
+<text x="52" y="117" font-size="13.2" fill="#6b7785" text-anchor="start">primary location for the stretched gateways</text>
+<rect x="860" y="80" width="740" height="640" rx="6" fill="none" stroke="#2e7d32" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="872" y="100" font-size="16.8" fill="#2e7d32" text-anchor="start" font-weight="bold">Site B — NSX Location B</text>
+<text x="872" y="117" font-size="13.2" fill="#6b7785" text-anchor="start">secondary location · takes over after Network Recovery</text>
+<rect x="780" y="80" width="80" height="640" rx="0" fill="#fbfbfd" stroke="none" stroke-width="1.4"/>
+<polygon points="205.6,181.0 205.6,199.0 190.0,208.0 174.4,199.0 174.4,181.0 190.0,172.0" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.8"/>
+<text x="190" y="230.0" font-size="14.4" fill="#5b3fa0" text-anchor="middle">Global Manager</text>
+<text x="190" y="248.0" font-size="14.4" fill="#5b3fa0" text-anchor="middle">active</text>
+<polygon points="1465.6,181.0 1465.6,199.0 1450.0,208.0 1434.4,199.0 1434.4,181.0 1450.0,172.0" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.8" stroke-dasharray="4 3"/>
+<text x="1450" y="230.0" font-size="14.4" fill="#5b3fa0" text-anchor="middle">Global Manager</text>
+<text x="1450" y="248.0" font-size="14.4" fill="#5b3fa0" text-anchor="middle">standby</text>
+<path d="M208,190 L780,190" fill="none" stroke="#5b3fa0" stroke-width="1.3" stroke-dasharray="4 4"/>
+<path d="M860,190 L1432,190" fill="none" stroke="#5b3fa0" stroke-width="1.3" stroke-dasharray="4 4"/>
+<text x="820.0" y="182" font-size="13.2" fill="#5b3fa0" text-anchor="middle" font-weight="bold">GM sync</text>
+<text x="820.0" y="214" font-size="13.2" fill="#5b3fa0" text-anchor="middle">active ↔ standby</text>
+<rect x="560" y="176" width="30" height="26" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="565" y1="184.66666666666666" x2="580" y2="184.66666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="584" cy="184.66666666666666" r="1.4" fill="#1d2733"/>
+<line x1="565" y1="193.33333333333334" x2="580" y2="193.33333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="584" cy="193.33333333333334" r="1.4" fill="#1d2733"/>
+<rect x="598" y="176" width="30" height="26" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="603" y1="184.66666666666666" x2="618" y2="184.66666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="622" cy="184.66666666666666" r="1.4" fill="#1d2733"/>
+<line x1="603" y1="193.33333333333334" x2="618" y2="193.33333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="622" cy="193.33333333333334" r="1.4" fill="#1d2733"/>
+<rect x="636" y="176" width="30" height="26" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="641" y1="184.66666666666666" x2="656" y2="184.66666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="660" cy="184.66666666666666" r="1.4" fill="#1d2733"/>
+<line x1="641" y1="193.33333333333334" x2="656" y2="193.33333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="660" cy="193.33333333333334" r="1.4" fill="#1d2733"/>
+<text x="612" y="230.0" font-size="14.4" fill="#1d2733" text-anchor="middle">Local Manager A</text>
+<text x="612" y="248.0" font-size="14.4" fill="#1d2733" text-anchor="middle">NSX Manager cluster of the instance</text>
+<rect x="960" y="176" width="30" height="26" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="965" y1="184.66666666666666" x2="980" y2="184.66666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="984" cy="184.66666666666666" r="1.4" fill="#1d2733"/>
+<line x1="965" y1="193.33333333333334" x2="980" y2="193.33333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="984" cy="193.33333333333334" r="1.4" fill="#1d2733"/>
+<rect x="998" y="176" width="30" height="26" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="1003" y1="184.66666666666666" x2="1018" y2="184.66666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1022" cy="184.66666666666666" r="1.4" fill="#1d2733"/>
+<line x1="1003" y1="193.33333333333334" x2="1018" y2="193.33333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1022" cy="193.33333333333334" r="1.4" fill="#1d2733"/>
+<rect x="1036" y="176" width="30" height="26" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="1041" y1="184.66666666666666" x2="1056" y2="184.66666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1060" cy="184.66666666666666" r="1.4" fill="#1d2733"/>
+<line x1="1041" y1="193.33333333333334" x2="1056" y2="193.33333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1060" cy="193.33333333333334" r="1.4" fill="#1d2733"/>
+<text x="1012" y="230.0" font-size="14.4" fill="#1d2733" text-anchor="middle">Local Manager B</text>
+<text x="1012" y="248.0" font-size="14.4" fill="#1d2733" text-anchor="middle">NSX Manager cluster of the instance</text>
+<path d="M190,172 L190,140 L612,140 L612,176" fill="none" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="2 3" marker-end="url(#arrp)"/>
+<path d="M190,140 L780,140" fill="none" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="2 3"/>
+<path d="M860,140 L1012,140 L1012,176" fill="none" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="2 3" marker-end="url(#arrp)"/>
+<text x="820.0" y="134" font-size="13.2" fill="#5b3fa0" text-anchor="middle">GM → LM push · ≤ 150 ms</text>
+<circle cx="430" cy="290" r="24" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<line x1="416.8" y1="284.72" x2="443.2" y2="284.72" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M438.2,280.72 L443.2,284.72 L438.2,288.72" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="443.2" y1="295.28" x2="416.8" y2="295.28" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M421.8,291.28 L416.8,295.28 L421.8,299.28" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="443.2" y1="284.72" x2="416.8" y2="284.72" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M421.8,280.72 L416.8,284.72 L421.8,288.72" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="416.8" y1="295.28" x2="443.2" y2="295.28" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M438.2,291.28 L443.2,295.28 L438.2,299.28" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<text x="392" y="286" font-size="15.6" fill="#1d2733" text-anchor="end">ToR / fabric A · AS 65000</text>
+<text x="392" y="304" font-size="13.2" fill="#6b7785" text-anchor="end">eBGP · receives seg prefix, best path</text>
+<circle cx="1210" cy="290" r="24" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<line x1="1196.8" y1="284.72" x2="1223.2" y2="284.72" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1218.2,280.72 L1223.2,284.72 L1218.2,288.72" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="1223.2" y1="295.28" x2="1196.8" y2="295.28" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1201.8,291.28 L1196.8,295.28 L1201.8,299.28" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="1223.2" y1="284.72" x2="1196.8" y2="284.72" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1201.8,280.72 L1196.8,284.72 L1201.8,288.72" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="1196.8" y1="295.28" x2="1223.2" y2="295.28" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1218.2,291.28 L1223.2,295.28 L1218.2,299.28" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<text x="1248" y="286" font-size="15.6" fill="#1d2733" text-anchor="start">ToR / fabric B · AS 65000</text>
+<text x="1248" y="304" font-size="13.2" fill="#6b7785" text-anchor="start">eBGP · receives seg prefix, AS-path ×3</text>
+<path d="M454,290 L1186,290" fill="none" stroke="#6b7785" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="820.0" y="282" font-size="13.2" fill="#6b7785" text-anchor="middle">WAN / DCI</text>
+<rect x="370" y="340" width="120" height="230" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="362" y="356" font-size="13.2" fill="#1f4e9c" text-anchor="end">Edge cluster A · 2 nodes</text>
+<text x="362" y="371" font-size="13.2" fill="#6b7785" text-anchor="end">RTEP on its own VLAN · MTU 1700</text>
+<rect x="1150" y="340" width="120" height="230" rx="6" fill="none" stroke="#2e7d32" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="1278" y="356" font-size="13.2" fill="#2e7d32" text-anchor="start">Edge cluster B · 2 nodes</text>
+<text x="1278" y="371" font-size="13.2" fill="#6b7785" text-anchor="start">RTEP on its own VLAN · MTU 1700</text>
+<path d="M430,314 L430,386" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1210,314 L1210,386" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<circle cx="430" cy="410" r="24" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.8"/>
+<line x1="416.8" y1="404.72" x2="443.2" y2="404.72" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M438.2,400.72 L443.2,404.72 L438.2,408.72" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="443.2" y1="415.28" x2="416.8" y2="415.28" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M421.8,411.28 L416.8,415.28 L421.8,419.28" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="443.2" y1="404.72" x2="416.8" y2="404.72" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M421.8,400.72 L416.8,404.72 L421.8,408.72" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="416.8" y1="415.28" x2="443.2" y2="415.28" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M438.2,411.28 L443.2,415.28 L438.2,419.28" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="360" y="406" font-size="15.6" fill="#1d2733" text-anchor="end">Tier-0 · stretched · active/active</text>
+<text x="360" y="424" font-size="13.2" fill="#6b7785" text-anchor="end">location A = PRIMARY · local AS 65100</text>
+<circle cx="1210" cy="410" r="24" fill="#ffffff" stroke="#2e7d32" stroke-width="1.8"/>
+<line x1="1196.8" y1="404.72" x2="1223.2" y2="404.72" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1218.2,400.72 L1223.2,404.72 L1218.2,408.72" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1223.2" y1="415.28" x2="1196.8" y2="415.28" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1201.8,411.28 L1196.8,415.28 L1201.8,419.28" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1223.2" y1="404.72" x2="1196.8" y2="404.72" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1201.8,400.72 L1196.8,404.72 L1201.8,408.72" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1196.8" y1="415.28" x2="1223.2" y2="415.28" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1218.2,411.28 L1223.2,415.28 L1218.2,419.28" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<text x="1280" y="406" font-size="15.6" fill="#1d2733" text-anchor="start">Tier-0 · stretched · active/active</text>
+<text x="1280" y="424" font-size="13.2" fill="#6b7785" text-anchor="start">location B = secondary · AS-path prepend ×2</text>
+<path d="M454,410 L1186,410" fill="none" stroke="#0b7a75" stroke-width="1.8" stroke-dasharray="8 5"/>
+<text x="820.0" y="400" font-size="14.4" fill="#0b7a75" text-anchor="middle" font-weight="bold">RTEP Geneve tunnels</text>
+<text x="820.0" y="436" font-size="13.2" fill="#0b7a75" text-anchor="middle">inter-SR iBGP · stretched forwarding</text>
+<path d="M430,434 L430,490" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1210,434 L1210,490" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<circle cx="430" cy="510" r="20" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.8"/>
+<line x1="419.0" y1="505.6" x2="441.0" y2="505.6" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M436.0,501.6 L441.0,505.6 L436.0,509.6" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="441.0" y1="514.4" x2="419.0" y2="514.4" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M424.0,510.4 L419.0,514.4 L424.0,518.4" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="441.0" y1="505.6" x2="419.0" y2="505.6" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M424.0,501.6 L419.0,505.6 L424.0,509.6" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="419.0" y1="514.4" x2="441.0" y2="514.4" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M436.0,510.4 L441.0,514.4 L436.0,518.4" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="360" y="506" font-size="15.6" fill="#1d2733" text-anchor="end">Tier-1 · stretched · DR-only</text>
+<text x="360" y="524" font-size="13.2" fill="#6b7785" text-anchor="end">no SR, no stateful services · follows T0 primary</text>
+<circle cx="1210" cy="510" r="20" fill="#ffffff" stroke="#2e7d32" stroke-width="1.8"/>
+<line x1="1199.0" y1="505.6" x2="1221.0" y2="505.6" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1216.0,501.6 L1221.0,505.6 L1216.0,509.6" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1221.0" y1="514.4" x2="1199.0" y2="514.4" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1204.0,510.4 L1199.0,514.4 L1204.0,518.4" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1221.0" y1="505.6" x2="1199.0" y2="505.6" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1204.0,501.6 L1199.0,505.6 L1204.0,509.6" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1199.0" y1="514.4" x2="1221.0" y2="514.4" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1216.0,510.4 L1221.0,514.4 L1216.0,518.4" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<text x="1280" y="506" font-size="15.6" fill="#1d2733" text-anchor="start">Tier-1 · stretched · DR-only</text>
+<text x="1280" y="524" font-size="13.2" fill="#6b7785" text-anchor="start">same span as the Tier-0</text>
+<path d="M430,530 L430,600" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1210,530 L1210,600" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<rect x="100" y="595.0" width="1440" height="10" rx="5.0" fill="#1f4e9c"/>
+<text x="100" y="586" font-size="15.6" fill="#1f4e9c" text-anchor="start" font-weight="bold">seg-vcf-mgmt · created on the Global Manager · same subnet + gateway in both locations · VNI-A ↔ VNI-B stitched over RTEP</text>
+<path d="M177,605 L177,640" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="160" y="640" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="165" y1="649.3333333333334" x2="184" y2="649.3333333333334" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="188" cy="649.3333333333334" r="1.4" fill="#1f4e9c"/>
+<line x1="165" y1="658.6666666666666" x2="184" y2="658.6666666666666" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="188" cy="658.6666666666666" r="1.4" fill="#1f4e9c"/>
+<path d="M221,605 L221,640" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="204" y="640" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="209" y1="649.3333333333334" x2="228" y2="649.3333333333334" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="232" cy="649.3333333333334" r="1.4" fill="#1f4e9c"/>
+<line x1="209" y1="658.6666666666666" x2="228" y2="658.6666666666666" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="232" cy="658.6666666666666" r="1.4" fill="#1f4e9c"/>
+<path d="M265,605 L265,640" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="248" y="640" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="253" y1="649.3333333333334" x2="272" y2="649.3333333333334" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="276" cy="649.3333333333334" r="1.4" fill="#1f4e9c"/>
+<line x1="253" y1="658.6666666666666" x2="272" y2="658.6666666666666" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="276" cy="658.6666666666666" r="1.4" fill="#1f4e9c"/>
+<text x="221" y="690" font-size="14.4" fill="#1f4e9c" text-anchor="middle">fleet components (site A)</text>
+<path d="M1317,605 L1317,640" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1300" y="640" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1305" y1="649.3333333333334" x2="1324" y2="649.3333333333334" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1328" cy="649.3333333333334" r="1.4" fill="#9aa5b1"/>
+<line x1="1305" y1="658.6666666666666" x2="1324" y2="658.6666666666666" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1328" cy="658.6666666666666" r="1.4" fill="#9aa5b1"/>
+<path d="M1361,605 L1361,640" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1344" y="640" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1349" y1="649.3333333333334" x2="1368" y2="649.3333333333334" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1372" cy="649.3333333333334" r="1.4" fill="#9aa5b1"/>
+<line x1="1349" y1="658.6666666666666" x2="1368" y2="658.6666666666666" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1372" cy="658.6666666666666" r="1.4" fill="#9aa5b1"/>
+<path d="M1405,605 L1405,640" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1388" y="640" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1393" y1="649.3333333333334" x2="1412" y2="649.3333333333334" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1416" cy="649.3333333333334" r="1.4" fill="#9aa5b1"/>
+<line x1="1393" y1="658.6666666666666" x2="1412" y2="658.6666666666666" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1416" cy="658.6666666666666" r="1.4" fill="#9aa5b1"/>
+<text x="1361" y="690" font-size="14.4" fill="#6b7785" text-anchor="middle">replica targets (site B)</text>
+<path d="M416,316 L416,592" fill="none" stroke="#2e7d32" stroke-width="3"/>
+<text x="466" y="470" font-size="13.2" fill="#2e7d32" text-anchor="start" font-weight="bold">all N–S traffic</text>
+<text x="466" y="486" font-size="13.2" fill="#2e7d32" text-anchor="start">enters and leaves here</text>
+<path d="M1224,316 L1224,592" fill="none" stroke="#6b7785" stroke-width="3" stroke-dasharray="6 6"/>
+<text x="1174" y="470" font-size="13.2" fill="#6b7785" text-anchor="end" font-weight="bold">dormant until</text>
+<text x="1174" y="486" font-size="13.2" fill="#6b7785" text-anchor="end">Network Recovery</text>
+<rect x="60" y="740" width="1540" height="84" rx="6" fill="#fff7e6" stroke="none" stroke-width="1.4"/>
+<text x="80" y="762" font-size="12.0" fill="#8a6d00" text-anchor="start" font-weight="bold" letter-spacing="1.5">FAILURE OF SITE A</text>
+<text x="80" y="782.0" font-size="13.2" fill="#1d2733" text-anchor="start">1 · Make the standby Global Manager active.  2 · Network Recovery: set Location B primary for the Tier-0 (the same-span Tier-1 follows).  3 · Tier-0 B now advertises the segment prefix without the prepend.</text>
+<text x="80" y="801.2" font-size="13.2" fill="#1d2733" text-anchor="start">Nothing here is automatic: stretched gateways and the Global Manager do not fail over on their own (KB 441764, KB 444980). Until step 2, the segment is up on site B's hosts but has no north–south path (KB 412806).</text>
+</svg>

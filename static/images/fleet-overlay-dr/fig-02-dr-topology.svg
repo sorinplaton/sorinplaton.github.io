@@ -1,0 +1,377 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="1040" viewBox="0 0 1640 1040" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1640" height="1040" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrbs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrgs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrts" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrps" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#5b3fa0"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b23a3a"/></marker><marker id="arrrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b23a3a"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrms" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker></defs>
+<text x="820.0" y="30" text-anchor="middle" font-size="23" font-weight="bold">Fleet DR in VCF 9.1: two instances, one stretched management segment</text>
+<text x="820.0" y="57" text-anchor="middle" font-size="15" fill="#6b7785">What is replicated, what is redeployed, and what never leaves its site — when Site A and Site B are too far apart for a stretched cluster</text>
+<rect x="40" y="80" width="740" height="890" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="52" y="100" font-size="17.1" fill="#1f4e9c" text-anchor="start" font-weight="bold">Site A — protected VCF instance</text>
+<text x="52" y="117" font-size="13.4" fill="#6b7785" text-anchor="start">NSX Location A · Global Manager active · all fleet components run here</text>
+<rect x="860" y="80" width="740" height="890" rx="6" fill="none" stroke="#2e7d32" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="872" y="100" font-size="17.1" fill="#2e7d32" text-anchor="start" font-weight="bold">Site B — recovery VCF instance</text>
+<text x="872" y="117" font-size="13.4" fill="#6b7785" text-anchor="start">NSX Location B · Global Manager standby · placeholders until failover</text>
+<rect x="780" y="80" width="80" height="890" rx="0" fill="#fbfbfd" stroke="none" stroke-width="1.4"/>
+<text x="820.0" y="938.0" font-size="13.4" fill="#6b7785" text-anchor="middle">DCI</text>
+<text x="820.0" y="955.08" font-size="13.4" fill="#6b7785" text-anchor="middle">&gt; 5 ms</text>
+<text x="820.0" y="972.16" font-size="13.4" fill="#6b7785" text-anchor="middle">RTT</text>
+<circle cx="410" cy="150" r="24" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<line x1="396.8" y1="144.72" x2="423.2" y2="144.72" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M418.2,140.72 L423.2,144.72 L418.2,148.72" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="423.2" y1="155.28" x2="396.8" y2="155.28" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M401.8,151.28 L396.8,155.28 L401.8,159.28" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="423.2" y1="144.72" x2="396.8" y2="144.72" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M401.8,140.72 L396.8,144.72 L401.8,148.72" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="396.8" y1="155.28" x2="423.2" y2="155.28" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M418.2,151.28 L423.2,155.28 L418.2,159.28" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<text x="372" y="146" font-size="15.9" fill="#1d2733" text-anchor="end">ToR / fabric A</text>
+<text x="372" y="164" font-size="13.4" fill="#6b7785" text-anchor="end">eBGP with Tier-0 A</text>
+<circle cx="1230" cy="150" r="24" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<line x1="1216.8" y1="144.72" x2="1243.2" y2="144.72" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1238.2,140.72 L1243.2,144.72 L1238.2,148.72" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="1243.2" y1="155.28" x2="1216.8" y2="155.28" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1221.8,151.28 L1216.8,155.28 L1221.8,159.28" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="1243.2" y1="144.72" x2="1216.8" y2="144.72" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1221.8,140.72 L1216.8,144.72 L1221.8,148.72" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="1216.8" y1="155.28" x2="1243.2" y2="155.28" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1238.2,151.28 L1243.2,155.28 L1238.2,159.28" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<text x="1268" y="146" font-size="15.9" fill="#1d2733" text-anchor="start">ToR / fabric B</text>
+<text x="1268" y="164" font-size="13.4" fill="#6b7785" text-anchor="start">eBGP with Tier-0 B</text>
+<path d="M434,150 L1206,150" fill="none" stroke="#6b7785" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="820.0" y="140" font-size="13.4" fill="#6b7785" text-anchor="middle">WAN / DCI</text>
+<rect x="366" y="205" width="88" height="180" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="360" y="222" font-size="13.4" fill="#1f4e9c" text-anchor="end">Edge cluster A · 2 nodes · RTEP</text>
+<rect x="1186" y="205" width="88" height="180" rx="6" fill="none" stroke="#2e7d32" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="1280" y="222" font-size="13.4" fill="#2e7d32" text-anchor="start">Edge cluster B · 2 nodes · RTEP</text>
+<path d="M410,174 L410,225" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1230,174 L1230,225" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<circle cx="410" cy="250" r="24" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.8"/>
+<line x1="396.8" y1="244.72" x2="423.2" y2="244.72" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M418.2,240.72 L423.2,244.72 L418.2,248.72" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="423.2" y1="255.28" x2="396.8" y2="255.28" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M401.8,251.28 L396.8,255.28 L401.8,259.28" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="423.2" y1="244.72" x2="396.8" y2="244.72" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M401.8,240.72 L396.8,244.72 L401.8,248.72" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="396.8" y1="255.28" x2="423.2" y2="255.28" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M418.2,251.28 L423.2,255.28 L418.2,259.28" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="372" y="246" font-size="15.9" fill="#1d2733" text-anchor="end">Tier-0 · stretched · A/A</text>
+<text x="372" y="264" font-size="13.4" fill="#6b7785" text-anchor="end">location A = primary</text>
+<circle cx="1230" cy="250" r="24" fill="#ffffff" stroke="#2e7d32" stroke-width="1.8"/>
+<line x1="1216.8" y1="244.72" x2="1243.2" y2="244.72" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1238.2,240.72 L1243.2,244.72 L1238.2,248.72" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1243.2" y1="255.28" x2="1216.8" y2="255.28" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1221.8,251.28 L1216.8,255.28 L1221.8,259.28" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1243.2" y1="244.72" x2="1216.8" y2="244.72" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1221.8,240.72 L1216.8,244.72 L1221.8,248.72" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1216.8" y1="255.28" x2="1243.2" y2="255.28" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1238.2,251.28 L1243.2,255.28 L1238.2,259.28" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<text x="1268" y="246" font-size="15.9" fill="#1d2733" text-anchor="start">Tier-0 · stretched · A/A</text>
+<text x="1268" y="264" font-size="13.4" fill="#6b7785" text-anchor="start">location B = secondary (AS-path prepend)</text>
+<path d="M434,250 L1206,250" fill="none" stroke="#0b7a75" stroke-width="1.8" stroke-dasharray="8 5"/>
+<text x="820.0" y="240" font-size="14.6" fill="#0b7a75" text-anchor="middle" font-weight="bold">RTEP Geneve tunnels · Federation data plane</text>
+<text x="820.0" y="266" font-size="13.4" fill="#0b7a75" text-anchor="middle">MTU 1700 preferred on the DCI</text>
+<path d="M410,274 L410,325" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1230,274 L1230,325" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<circle cx="410" cy="345" r="20" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.8"/>
+<line x1="399.0" y1="340.6" x2="421.0" y2="340.6" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M416.0,336.6 L421.0,340.6 L416.0,344.6" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="421.0" y1="349.4" x2="399.0" y2="349.4" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M404.0,345.4 L399.0,349.4 L404.0,353.4" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="421.0" y1="340.6" x2="399.0" y2="340.6" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M404.0,336.6 L399.0,340.6 L404.0,344.6" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="399.0" y1="349.4" x2="421.0" y2="349.4" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M416.0,345.4 L421.0,349.4 L416.0,353.4" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="372" y="341" font-size="15.9" fill="#1d2733" text-anchor="end">Tier-1 · stretched · DR-only</text>
+<text x="372" y="359" font-size="13.4" fill="#6b7785" text-anchor="end">primary A</text>
+<circle cx="1230" cy="345" r="20" fill="#ffffff" stroke="#2e7d32" stroke-width="1.8"/>
+<line x1="1219.0" y1="340.6" x2="1241.0" y2="340.6" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1236.0,336.6 L1241.0,340.6 L1236.0,344.6" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1241.0" y1="349.4" x2="1219.0" y2="349.4" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1224.0,345.4 L1219.0,349.4 L1224.0,353.4" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1241.0" y1="340.6" x2="1219.0" y2="340.6" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1224.0,336.6 L1219.0,340.6 L1224.0,344.6" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1219.0" y1="349.4" x2="1241.0" y2="349.4" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1236.0,345.4 L1241.0,349.4 L1236.0,353.4" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<text x="1268" y="341" font-size="15.9" fill="#1d2733" text-anchor="start">Tier-1 · stretched · DR-only</text>
+<text x="1268" y="359" font-size="13.4" fill="#6b7785" text-anchor="start">secondary B</text>
+<path d="M410,365 L410,420" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1230,365 L1230,420" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<rect x="100" y="415.0" width="1440" height="10" rx="5.0" fill="#1f4e9c"/>
+<text x="100" y="406" font-size="15.9" fill="#1f4e9c" text-anchor="start" font-weight="bold">seg-vcf-mgmt · one overlay segment stretched by Federation · same subnet and gateway in both locations</text>
+<path d="M122.0,425 L122.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="105" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="110" y1="479.3333333333333" x2="129" y2="479.3333333333333" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="133" cy="479.3333333333333" r="1.4" fill="#1f4e9c"/>
+<line x1="110" y1="488.6666666666667" x2="129" y2="488.6666666666667" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="133" cy="488.6666666666667" r="1.4" fill="#1f4e9c"/>
+<path d="M162.0,425 L162.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="145" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="150" y1="479.3333333333333" x2="169" y2="479.3333333333333" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="173" cy="479.3333333333333" r="1.4" fill="#1f4e9c"/>
+<line x1="150" y1="488.6666666666667" x2="169" y2="488.6666666666667" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="173" cy="488.6666666666667" r="1.4" fill="#1f4e9c"/>
+<path d="M202.0,425 L202.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="185" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="190" y1="479.3333333333333" x2="209" y2="479.3333333333333" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="213" cy="479.3333333333333" r="1.4" fill="#1f4e9c"/>
+<line x1="190" y1="488.6666666666667" x2="209" y2="488.6666666666667" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="213" cy="488.6666666666667" r="1.4" fill="#1f4e9c"/>
+<text x="162.0" y="518.0" font-size="14.6" fill="#1f4e9c" text-anchor="middle">VCF Operations</text>
+<text x="162.0" y="536.3" font-size="14.6" fill="#1f4e9c" text-anchor="middle">primary · replica · data</text>
+<path d="M287.0,425 L287.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="270" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="275" y1="479.3333333333333" x2="294" y2="479.3333333333333" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="298" cy="479.3333333333333" r="1.4" fill="#1f4e9c"/>
+<line x1="275" y1="488.6666666666667" x2="294" y2="488.6666666666667" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="298" cy="488.6666666666667" r="1.4" fill="#1f4e9c"/>
+<text x="287.0" y="518.0" font-size="14.6" fill="#1f4e9c" text-anchor="middle">Ops for</text>
+<text x="287.0" y="536.3" font-size="14.6" fill="#1f4e9c" text-anchor="middle">Networks</text>
+<path d="M387.0,425 L387.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="370" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="375" y1="479.3333333333333" x2="394" y2="479.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="398" cy="479.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="375" y1="488.6666666666667" x2="394" y2="488.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="398" cy="488.6666666666667" r="1.4" fill="#5b3fa0"/>
+<path d="M427.0,425 L427.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="410" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="415" y1="479.3333333333333" x2="434" y2="479.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="438" cy="479.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="415" y1="488.6666666666667" x2="434" y2="488.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="438" cy="488.6666666666667" r="1.4" fill="#5b3fa0"/>
+<path d="M467.0,425 L467.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="450" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="455" y1="479.3333333333333" x2="474" y2="479.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="478" cy="479.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="455" y1="488.6666666666667" x2="474" y2="488.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="478" cy="488.6666666666667" r="1.4" fill="#5b3fa0"/>
+<text x="427.0" y="518.0" font-size="14.6" fill="#5b3fa0" text-anchor="middle">VCF Automation</text>
+<text x="427.0" y="536.3" font-size="14.6" fill="#5b3fa0" text-anchor="middle">service runtime</text>
+<path d="M577.0,425 L577.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="560" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#0b7a75" stroke-width="1.5"/>
+<line x1="565" y1="479.3333333333333" x2="584" y2="479.3333333333333" stroke="#0b7a75" stroke-width="1.1"/>
+<circle cx="588" cy="479.3333333333333" r="1.4" fill="#0b7a75"/>
+<line x1="565" y1="488.6666666666667" x2="584" y2="488.6666666666667" stroke="#0b7a75" stroke-width="1.1"/>
+<circle cx="588" cy="488.6666666666667" r="1.4" fill="#0b7a75"/>
+<text x="577.0" y="518.0" font-size="14.6" fill="#0b7a75" text-anchor="middle">VCF mgmt</text>
+<text x="577.0" y="536.3" font-size="14.6" fill="#0b7a75" text-anchor="middle">services A</text>
+<path d="M687.0,425 L687.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="670" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#8a6d00" stroke-width="1.5"/>
+<line x1="675" y1="479.3333333333333" x2="694" y2="479.3333333333333" stroke="#8a6d00" stroke-width="1.1"/>
+<circle cx="698" cy="479.3333333333333" r="1.4" fill="#8a6d00"/>
+<line x1="675" y1="488.6666666666667" x2="694" y2="488.6666666666667" stroke="#8a6d00" stroke-width="1.1"/>
+<circle cx="698" cy="488.6666666666667" r="1.4" fill="#8a6d00"/>
+<text x="687.0" y="518.0" font-size="14.6" fill="#8a6d00" text-anchor="middle">License</text>
+<text x="687.0" y="536.3" font-size="14.6" fill="#8a6d00" text-anchor="middle">server</text>
+<path d="M942.0,425 L942.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="925" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="930" y1="479.3333333333333" x2="949" y2="479.3333333333333" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="953" cy="479.3333333333333" r="1.4" fill="#9aa5b1"/>
+<line x1="930" y1="488.6666666666667" x2="949" y2="488.6666666666667" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="953" cy="488.6666666666667" r="1.4" fill="#9aa5b1"/>
+<path d="M982.0,425 L982.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="965" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="970" y1="479.3333333333333" x2="989" y2="479.3333333333333" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="993" cy="479.3333333333333" r="1.4" fill="#9aa5b1"/>
+<line x1="970" y1="488.6666666666667" x2="989" y2="488.6666666666667" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="993" cy="488.6666666666667" r="1.4" fill="#9aa5b1"/>
+<path d="M1022.0,425 L1022.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1005" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1010" y1="479.3333333333333" x2="1029" y2="479.3333333333333" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1033" cy="479.3333333333333" r="1.4" fill="#9aa5b1"/>
+<line x1="1010" y1="488.6666666666667" x2="1029" y2="488.6666666666667" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1033" cy="488.6666666666667" r="1.4" fill="#9aa5b1"/>
+<text x="982.0" y="518.0" font-size="14.6" fill="#6b7785" text-anchor="middle">replica targets</text>
+<text x="982.0" y="536.3" font-size="14.6" fill="#6b7785" text-anchor="middle">powered off</text>
+<path d="M1107.0,425 L1107.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1090" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1095" y1="479.3333333333333" x2="1114" y2="479.3333333333333" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1118" cy="479.3333333333333" r="1.4" fill="#9aa5b1"/>
+<line x1="1095" y1="488.6666666666667" x2="1114" y2="488.6666666666667" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1118" cy="488.6666666666667" r="1.4" fill="#9aa5b1"/>
+<text x="1107.0" y="518.0" font-size="14.6" fill="#6b7785" text-anchor="middle">replica</text>
+<text x="1107.0" y="536.3" font-size="14.6" fill="#6b7785" text-anchor="middle">target</text>
+<path d="M1207.0,425 L1207.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1190" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1195" y1="479.3333333333333" x2="1214" y2="479.3333333333333" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1218" cy="479.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="1195" y1="488.6666666666667" x2="1214" y2="488.6666666666667" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1218" cy="488.6666666666667" r="1.4" fill="#5b3fa0"/>
+<path d="M1247.0,425 L1247.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1230" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1235" y1="479.3333333333333" x2="1254" y2="479.3333333333333" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1258" cy="479.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="1235" y1="488.6666666666667" x2="1254" y2="488.6666666666667" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1258" cy="488.6666666666667" r="1.4" fill="#5b3fa0"/>
+<path d="M1287.0,425 L1287.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1270" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1275" y1="479.3333333333333" x2="1294" y2="479.3333333333333" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1298" cy="479.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="1275" y1="488.6666666666667" x2="1294" y2="488.6666666666667" stroke="#5b3fa0" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1298" cy="488.6666666666667" r="1.4" fill="#5b3fa0"/>
+<text x="1247.0" y="518.0" font-size="14.6" fill="#5b3fa0" text-anchor="middle">new Automation</text>
+<text x="1247.0" y="536.3" font-size="14.6" fill="#5b3fa0" text-anchor="middle">restored from backup</text>
+<path d="M1397.0,425 L1397.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1380" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#0b7a75" stroke-width="1.5"/>
+<line x1="1385" y1="479.3333333333333" x2="1404" y2="479.3333333333333" stroke="#0b7a75" stroke-width="1.1"/>
+<circle cx="1408" cy="479.3333333333333" r="1.4" fill="#0b7a75"/>
+<line x1="1385" y1="488.6666666666667" x2="1404" y2="488.6666666666667" stroke="#0b7a75" stroke-width="1.1"/>
+<circle cx="1408" cy="488.6666666666667" r="1.4" fill="#0b7a75"/>
+<text x="1397.0" y="518.0" font-size="14.6" fill="#0b7a75" text-anchor="middle">VCF mgmt</text>
+<text x="1397.0" y="536.3" font-size="14.6" fill="#0b7a75" text-anchor="middle">services B</text>
+<path d="M1507.0,425 L1507.0,470" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1490" y="470" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1495" y1="479.3333333333333" x2="1514" y2="479.3333333333333" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1518" cy="479.3333333333333" r="1.4" fill="#9aa5b1"/>
+<line x1="1495" y1="488.6666666666667" x2="1514" y2="488.6666666666667" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1518" cy="488.6666666666667" r="1.4" fill="#9aa5b1"/>
+<text x="1507.0" y="518.0" font-size="14.6" fill="#6b7785" text-anchor="middle">license server</text>
+<text x="1507.0" y="536.3" font-size="14.6" fill="#6b7785" text-anchor="middle">redeploy</text>
+<path d="M230,484 L925,484" fill="none" stroke="#b23a3a" stroke-width="1.6" stroke-dasharray="7 4" marker-end="url(#arrr)"/>
+<text x="820.0" y="472" font-size="14.6" fill="#b23a3a" text-anchor="middle" font-weight="bold">vSphere Replication</text>
+<text x="820.0" y="560" font-size="13.4" fill="#b23a3a" text-anchor="middle">RPO 15 min · 3 PIT copies / 24 h</text>
+<text x="820.0" y="578" font-size="13.4" fill="#b23a3a" text-anchor="middle">compression on · crash-consistent</text>
+<rect x="100" y="655.0" width="640" height="10" rx="5.0" fill="#8a6d00"/>
+<text x="100" y="646" font-size="15.9" fill="#8a6d00" text-anchor="start" font-weight="bold">VM management VLAN A · not stretched · reaches the segment through Tier-0 A</text>
+<rect x="900" y="655.0" width="640" height="10" rx="5.0" fill="#8a6d00"/>
+<text x="900" y="646" font-size="15.9" fill="#8a6d00" text-anchor="start" font-weight="bold">VM management VLAN B · not stretched · reaches the segment through Tier-0 B</text>
+<path d="M410,174 L410,190 L80,190 L80,660 L100,660" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<path d="M1230,174 L1230,190 L1580,190 L1580,660 L1540,660" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<path d="M122.0,665 L122.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="105" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="110" y1="719.3333333333334" x2="129" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="133" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="110" y1="728.6666666666666" x2="129" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="133" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="122.0" y="758.0" font-size="14.6" fill="#1d2733" text-anchor="middle">SDDC</text>
+<text x="122.0" y="776.3" font-size="14.6" fill="#1d2733" text-anchor="middle">Manager A</text>
+<path d="M217.0,665 L217.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="200" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="205" y1="719.3333333333334" x2="224" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="228" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="205" y1="728.6666666666666" x2="224" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="228" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="217.0" y="758.0" font-size="14.6" fill="#1d2733" text-anchor="middle">vCenter A</text>
+<path d="M312.0,665 L312.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="295" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="300" y1="719.3333333333334" x2="319" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="323" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="300" y1="728.6666666666666" x2="319" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="323" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<path d="M352.0,665 L352.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="335" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="340" y1="719.3333333333334" x2="359" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="363" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="340" y1="728.6666666666666" x2="359" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="363" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<path d="M392.0,665 L392.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="375" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="380" y1="719.3333333333334" x2="399" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="403" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="380" y1="728.6666666666666" x2="399" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="403" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="352.0" y="758.0" font-size="14.6" fill="#1d2733" text-anchor="middle">NSX Manager</text>
+<text x="352.0" y="776.3" font-size="14.6" fill="#1d2733" text-anchor="middle">cluster A (LM)</text>
+<path d="M497.0,665 L497.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="480" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="485" y1="719.3333333333334" x2="504" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="508" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="485" y1="728.6666666666666" x2="504" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="508" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="497.0" y="758.0" font-size="14.6" fill="#1d2733" text-anchor="middle">Cloud proxy /</text>
+<text x="497.0" y="776.3" font-size="14.6" fill="#1d2733" text-anchor="middle">collector A</text>
+<path d="M597.0,665 L597.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="580" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#b23a3a" stroke-width="1.5"/>
+<line x1="585" y1="719.3333333333334" x2="604" y2="719.3333333333334" stroke="#b23a3a" stroke-width="1.1"/>
+<circle cx="608" cy="719.3333333333334" r="1.4" fill="#b23a3a"/>
+<line x1="585" y1="728.6666666666666" x2="604" y2="728.6666666666666" stroke="#b23a3a" stroke-width="1.1"/>
+<circle cx="608" cy="728.6666666666666" r="1.4" fill="#b23a3a"/>
+<text x="597.0" y="758.0" font-size="14.6" fill="#b23a3a" text-anchor="middle">Protection &amp;</text>
+<text x="597.0" y="776.3" font-size="14.6" fill="#b23a3a" text-anchor="middle">Recovery A</text>
+<path d="M942.0,665 L942.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="925" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="930" y1="719.3333333333334" x2="949" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="953" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="930" y1="728.6666666666666" x2="949" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="953" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="942.0" y="758.0" font-size="14.6" fill="#1d2733" text-anchor="middle">SDDC</text>
+<text x="942.0" y="776.3" font-size="14.6" fill="#1d2733" text-anchor="middle">Manager B</text>
+<path d="M1037.0,665 L1037.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1020" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="1025" y1="719.3333333333334" x2="1044" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1048" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="1025" y1="728.6666666666666" x2="1044" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1048" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="1037.0" y="758.0" font-size="14.6" fill="#1d2733" text-anchor="middle">vCenter B</text>
+<path d="M1132.0,665 L1132.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1115" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="1120" y1="719.3333333333334" x2="1139" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1143" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="1120" y1="728.6666666666666" x2="1139" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1143" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<path d="M1172.0,665 L1172.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1155" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="1160" y1="719.3333333333334" x2="1179" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1183" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="1160" y1="728.6666666666666" x2="1179" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1183" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<path d="M1212.0,665 L1212.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1195" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="1200" y1="719.3333333333334" x2="1219" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1223" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="1200" y1="728.6666666666666" x2="1219" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1223" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="1172.0" y="758.0" font-size="14.6" fill="#1d2733" text-anchor="middle">NSX Manager</text>
+<text x="1172.0" y="776.3" font-size="14.6" fill="#1d2733" text-anchor="middle">cluster B (LM)</text>
+<path d="M1317.0,665 L1317.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1300" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="1305" y1="719.3333333333334" x2="1324" y2="719.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1328" cy="719.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="1305" y1="728.6666666666666" x2="1324" y2="728.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1328" cy="728.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="1317.0" y="758.0" font-size="14.6" fill="#1d2733" text-anchor="middle">Cloud proxy /</text>
+<text x="1317.0" y="776.3" font-size="14.6" fill="#1d2733" text-anchor="middle">collector B</text>
+<path d="M1417.0,665 L1417.0,710" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1400" y="710" width="34" height="28" rx="3" fill="#ffffff" stroke="#b23a3a" stroke-width="1.5"/>
+<line x1="1405" y1="719.3333333333334" x2="1424" y2="719.3333333333334" stroke="#b23a3a" stroke-width="1.1"/>
+<circle cx="1428" cy="719.3333333333334" r="1.4" fill="#b23a3a"/>
+<line x1="1405" y1="728.6666666666666" x2="1424" y2="728.6666666666666" stroke="#b23a3a" stroke-width="1.1"/>
+<circle cx="1428" cy="728.6666666666666" r="1.4" fill="#b23a3a"/>
+<text x="1417.0" y="758.0" font-size="14.6" fill="#b23a3a" text-anchor="middle">Protection &amp;</text>
+<text x="1417.0" y="776.3" font-size="14.6" fill="#b23a3a" text-anchor="middle">Recovery B</text>
+<path d="M725,665 L725,714" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<polygon points="740.6,721.0 740.6,739.0 725.0,748.0 709.4,739.0 709.4,721.0 725.0,712.0" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.8"/>
+<text x="725" y="772.0" font-size="14.6" fill="#5b3fa0" text-anchor="middle">Global Manager</text>
+<text x="725" y="790.3" font-size="14.6" fill="#5b3fa0" text-anchor="middle">active</text>
+<path d="M1525,665 L1525,714" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<polygon points="1540.6,721.0 1540.6,739.0 1525.0,748.0 1509.4,739.0 1509.4,721.0 1525.0,712.0" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.8" stroke-dasharray="4 3"/>
+<text x="1525" y="772.0" font-size="14.6" fill="#5b3fa0" text-anchor="middle">Global Manager</text>
+<text x="1525" y="790.3" font-size="14.6" fill="#5b3fa0" text-anchor="middle">standby</text>
+<path d="M743,730 L1507,730" fill="none" stroke="#5b3fa0" stroke-width="1.4" stroke-dasharray="4 4"/>
+<text x="820.0" y="718" font-size="14.6" fill="#5b3fa0" text-anchor="middle" font-weight="bold">GM sync</text>
+<text x="820.0" y="750" font-size="13.4" fill="#5b3fa0" text-anchor="middle">≤ 150 ms</text>
+<path d="M597,738 L597,830 L1417,830 L1417,738" fill="none" stroke="#b23a3a" stroke-width="1.4" stroke-dasharray="4 4"/>
+<text x="820.0" y="822" font-size="14.6" fill="#b23a3a" text-anchor="middle" font-weight="bold">site pairing · replication traffic</text>
+<text x="820.0" y="848" font-size="13.4" fill="#b23a3a" text-anchor="middle">dedicated VMkernel + VLAN per host</text>
+<path d="M390.0,895.0 v20 a20.0,6 0 0 0 40,0 v-20" fill="#ffffff" stroke="#6b7785" stroke-width="1.5"/>
+<ellipse cx="410" cy="895.0" rx="20.0" ry="6" fill="#ffffff" stroke="#6b7785" stroke-width="1.5"/>
+<text x="378" y="901" font-size="15.9" fill="#1d2733" text-anchor="end">SFTP backup location A</text>
+<text x="378" y="919" font-size="13.4" fill="#6b7785" text-anchor="end">Automation + mgmt-services backups</text>
+<path d="M1210.0,895.0 v20 a20.0,6 0 0 0 40,0 v-20" fill="#ffffff" stroke="#6b7785" stroke-width="1.5"/>
+<ellipse cx="1230" cy="895.0" rx="20.0" ry="6" fill="#ffffff" stroke="#6b7785" stroke-width="1.5"/>
+<text x="1262" y="901" font-size="15.9" fill="#1d2733" text-anchor="start">SFTP backup location B</text>
+<text x="1262" y="919" font-size="13.4" fill="#6b7785" text-anchor="start">Automation + mgmt-services backups</text>
+<path d="M430,905 L1210,905" fill="none" stroke="#6b7785" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#arrm)"/>
+<text x="820.0" y="897" font-size="14.6" fill="#6b7785" text-anchor="middle">same server, or replicated A → B</text>
+<rect x="60" y="990.5" width="34" height="9" rx="4.5" fill="#1f4e9c"/>
+<text x="104" y="999" font-size="14.6" fill="#6b7785" text-anchor="start">overlay segment (stretched)</text>
+<rect x="340" y="990.5" width="34" height="9" rx="4.5" fill="#8a6d00"/>
+<text x="384" y="999" font-size="14.6" fill="#6b7785" text-anchor="start">VLAN (per site)</text>
+<rect x="530" y="984" width="26" height="20" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="535" y1="990.6666666666666" x2="546" y2="990.6666666666666" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="550" cy="990.6666666666666" r="1.4" fill="#9aa5b1"/>
+<line x1="535" y1="997.3333333333334" x2="546" y2="997.3333333333334" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="550" cy="997.3333333333334" r="1.4" fill="#9aa5b1"/>
+<text x="566" y="999" font-size="14.6" fill="#6b7785" text-anchor="start">placeholder / created at failover</text>
+<path d="M820,995 L860,995" fill="none" stroke="#b23a3a" stroke-width="1.6" stroke-dasharray="7 4" marker-end="url(#arrr)"/>
+<text x="870" y="999" font-size="14.6" fill="#6b7785" text-anchor="start">replication</text>
+<path d="M980,995 L1020,995" fill="none" stroke="#0b7a75" stroke-width="1.8" stroke-dasharray="8 5"/>
+<text x="1030" y="999" font-size="14.6" fill="#6b7785" text-anchor="start">RTEP tunnels</text>
+</svg>

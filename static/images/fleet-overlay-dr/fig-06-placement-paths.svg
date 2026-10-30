@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="620" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrbs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrgs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrts" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrps" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#5b3fa0"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b23a3a"/></marker><marker id="arrrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b23a3a"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrms" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker></defs>
+<text x="700.0" y="30" text-anchor="middle" font-size="21" font-weight="bold">Two ways to add VCF Automation after bring-up — only one lets you choose the network</text>
+<text x="700.0" y="54" text-anchor="middle" font-size="13" fill="#6b7785">Decide the segment before anyone opens the Lifecycle page in VCF Operations</text>
+<rect x="500" y="80" width="400" height="56" rx="6" fill="#f4f7fb" stroke="#1d2733" stroke-width="1.4"/>
+<text x="700" y="104" font-size="15.4" fill="#1d2733" text-anchor="middle" font-weight="bold">VCF Automation skipped at bring-up</text>
+<text x="700" y="124" font-size="12.1" fill="#6b7785" text-anchor="middle">the defer option in the VCF Installer</text>
+<path d="M700,136 L700,170 L160,170 L160,200" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M700,170 L900,170 L900,200" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="110" y="200" width="440" height="90" rx="6" fill="#f4f7fb" stroke="#2e7d32" stroke-width="1.6"/>
+<circle cx="132" cy="222" r="11" fill="#2e7d32"/>
+<text x="132" y="226.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">A</text>
+<text x="150" y="227" font-size="14.3" fill="#1d2733" text-anchor="start" font-weight="bold">VCF Installer › Deployment Wizard › Deploy deferred components</text>
+<text x="124" y="250.0" font-size="13.2" fill="#6b7785" text-anchor="start">Asks for the network: a vDS port group or an NSX segment</text>
+<text x="124" y="268.7" font-size="13.2" fill="#6b7785" text-anchor="start">Takes the FQDNs and the 5-IP range for the service runtime</text>
+<rect x="850" y="200" width="440" height="90" rx="6" fill="#f4f7fb" stroke="#b23a3a" stroke-width="1.6"/>
+<circle cx="872" cy="222" r="11" fill="#b23a3a"/>
+<text x="872" y="226.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">B</text>
+<text x="890" y="227" font-size="14.3" fill="#1d2733" text-anchor="start" font-weight="bold">VCF Operations › Build › Lifecycle › VCF Management Components</text>
+<text x="864" y="250.0" font-size="13.2" fill="#6b7785" text-anchor="start">No network choice — the service runtime goes on the</text>
+<text x="864" y="268.7" font-size="13.2" fill="#6b7785" text-anchor="start">management network, the Installer's default port group</text>
+<path d="M160,290 L160,352" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M900,290 L900,352" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="110" y="355.0" width="440" height="10" rx="5.0" fill="#1f4e9c"/>
+<text x="185" y="346" font-size="13.2" fill="#1f4e9c" text-anchor="start" font-weight="bold">seg-vcf-mgmt · NSX overlay segment (stretchable with Federation)</text>
+<path d="M267,365 L267,395" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="250" y="395" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="255" y1="404.3333333333333" x2="274" y2="404.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="278" cy="404.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="255" y1="413.6666666666667" x2="274" y2="413.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="278" cy="413.6666666666667" r="1.4" fill="#5b3fa0"/>
+<path d="M317,365 L317,395" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="300" y="395" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="305" y1="404.3333333333333" x2="324" y2="404.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="328" cy="404.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="305" y1="413.6666666666667" x2="324" y2="413.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="328" cy="413.6666666666667" r="1.4" fill="#5b3fa0"/>
+<path d="M367,365 L367,395" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="350" y="395" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="355" y1="404.3333333333333" x2="374" y2="404.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="378" cy="404.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="355" y1="413.6666666666667" x2="374" y2="413.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="378" cy="413.6666666666667" r="1.4" fill="#5b3fa0"/>
+<text x="342" y="448" font-size="13.2" fill="#5b3fa0" text-anchor="middle">VCF Automation service runtime</text>
+<text x="342" y="465" font-size="12.1" fill="#6b7785" text-anchor="middle">same subnet as VCF Operations · IP mobility for DR</text>
+<rect x="850" y="355.0" width="440" height="10" rx="5.0" fill="#8a6d00"/>
+<text x="925" y="346" font-size="13.2" fill="#8a6d00" text-anchor="start" font-weight="bold">VM management VLAN · per site, not stretched</text>
+<path d="M1007,365 L1007,395" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="990" y="395" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="995" y1="404.3333333333333" x2="1014" y2="404.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="1018" cy="404.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="995" y1="413.6666666666667" x2="1014" y2="413.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="1018" cy="413.6666666666667" r="1.4" fill="#5b3fa0"/>
+<path d="M1057,365 L1057,395" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1040" y="395" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="1045" y1="404.3333333333333" x2="1064" y2="404.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="1068" cy="404.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="1045" y1="413.6666666666667" x2="1064" y2="413.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="1068" cy="413.6666666666667" r="1.4" fill="#5b3fa0"/>
+<path d="M1107,365 L1107,395" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1090" y="395" width="34" height="28" rx="3" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.5"/>
+<line x1="1095" y1="404.3333333333333" x2="1114" y2="404.3333333333333" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="1118" cy="404.3333333333333" r="1.4" fill="#5b3fa0"/>
+<line x1="1095" y1="413.6666666666667" x2="1114" y2="413.6666666666667" stroke="#5b3fa0" stroke-width="1.1"/>
+<circle cx="1118" cy="413.6666666666667" r="1.4" fill="#5b3fa0"/>
+<text x="1082" y="448" font-size="13.2" fill="#5b3fa0" text-anchor="middle">VCF Automation service runtime</text>
+<text x="1082" y="465" font-size="12.1" fill="#6b7785" text-anchor="middle">next to vCenter and SDDC Manager · no network choice offered</text>
+<text x="330" y="500" font-size="13.2" fill="#2e7d32" text-anchor="middle" font-weight="bold">✓  the only path that lands Automation on the segment</text>
+<text x="1070" y="500" font-size="13.2" fill="#b23a3a" text-anchor="middle" font-weight="bold">✗  fine for a single site, wrong for the stretched design</text>
+<rect x="60" y="530" width="1280" height="64" rx="6" fill="#fff7e6" stroke="none" stroke-width="1.4"/>
+<text x="80" y="552" font-size="11.0" fill="#8a6d00" text-anchor="start" font-weight="bold" letter-spacing="1.5">IN BOTH CASES</text>
+<text x="80" y="570.0" font-size="12.1" fill="#1d2733" text-anchor="start">The cloud proxy stays on the VM management VLAN in every case; it is site-specific and collects locally.</text>
+<text x="80" y="587.6" font-size="12.1" fill="#1d2733" text-anchor="start">Brownfield is different: after an upgrade to 9.1, Operations and Automation on NSX VLAN-backed segments remain fully supported (KB 443842) — no migration required.</text>
+</svg>

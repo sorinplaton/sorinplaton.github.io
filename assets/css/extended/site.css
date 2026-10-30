@@ -208,3 +208,8 @@ details.toc summary { font-family: "IBM Plex Mono", monospace; font-size: .85rem
 .post-content figure + p > em:only-child { color: var(--secondary); font-size: .92rem; }
 .post-content .tbl { overflow-x: auto; margin: 0 0 1.4em; }
 .post-content .closing { margin-top: 3em; padding-top: 1em; border-top: 1px solid var(--line); color: var(--secondary); font-size: .88rem; }
+
+/* wide drawn figures: let them break out of the text column on large screens (click = lightbox) */
+@media (min-width: 1180px) {
+  .post-content p > img[src*="/images/fleet-overlay-dr/"] { width: 1100px; max-width: none; margin-left: calc(50% - 550px); }
+}

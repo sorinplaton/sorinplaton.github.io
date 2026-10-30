@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="760" viewBox="0 0 1640 760" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1640" height="760" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrbs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrgs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrts" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrps" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#5b3fa0"/></marker><marker id="arrr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b23a3a"/></marker><marker id="arrrs" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b23a3a"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrms" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker></defs>
+<text x="820.0" y="30" text-anchor="middle" font-size="23" font-weight="bold">Option: VCF Operations Continuous Availability across the two instances</text>
+<text x="820.0" y="57" text-anchor="middle" font-size="15" fill="#6b7785">When the DCI stays under 10 ms RTT, the Ops cluster can be split into two fault domains on the stretched segment, with a witness in a third site</text>
+<rect x="40" y="80" width="660" height="560" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="52" y="100" font-size="17.1" fill="#1f4e9c" text-anchor="start" font-weight="bold">Site A — VCF instance A</text>
+<text x="52" y="117" font-size="13.4" fill="#6b7785" text-anchor="start">VCF Operations fault domain 1</text>
+<rect x="780" y="80" width="660" height="560" rx="6" fill="none" stroke="#2e7d32" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="792" y="100" font-size="17.1" fill="#2e7d32" text-anchor="start" font-weight="bold">Site B — VCF instance B</text>
+<text x="792" y="117" font-size="13.4" fill="#6b7785" text-anchor="start">VCF Operations fault domain 2</text>
+<rect x="1470" y="80" width="150" height="560" rx="6" fill="none" stroke="#5b3fa0" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="1482" y="100" font-size="17.1" fill="#5b3fa0" text-anchor="start" font-weight="bold">Site C</text>
+<text x="1482" y="117" font-size="13.4" fill="#6b7785" text-anchor="start">witness only</text>
+<rect x="700" y="80" width="80" height="560" rx="0" fill="#fbfbfd" stroke="none" stroke-width="1.4"/>
+<text x="740.0" y="596.0" font-size="13.4" fill="#6b7785" text-anchor="middle">DCI</text>
+<text x="740.0" y="613.08" font-size="13.4" fill="#6b7785" text-anchor="middle">&lt; 10 ms</text>
+<text x="740.0" y="630.16" font-size="13.4" fill="#6b7785" text-anchor="middle">RTT</text>
+<circle cx="370" cy="150" r="20" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.8"/>
+<line x1="359.0" y1="145.6" x2="381.0" y2="145.6" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M376.0,141.6 L381.0,145.6 L376.0,149.6" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="381.0" y1="154.4" x2="359.0" y2="154.4" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M364.0,150.4 L359.0,154.4 L364.0,158.4" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="381.0" y1="145.6" x2="359.0" y2="145.6" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M364.0,141.6 L359.0,145.6 L364.0,149.6" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="359.0" y1="154.4" x2="381.0" y2="154.4" stroke="#1f4e9c" stroke-width="1.6"/>
+<path d="M376.0,150.4 L381.0,154.4 L376.0,158.4" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="336" y="146" font-size="15.9" fill="#1d2733" text-anchor="end">Tier-1 · stretched · DR-only</text>
+<text x="336" y="164" font-size="13.4" fill="#6b7785" text-anchor="end">primary A</text>
+<circle cx="1110" cy="150" r="20" fill="#ffffff" stroke="#2e7d32" stroke-width="1.8"/>
+<line x1="1099.0" y1="145.6" x2="1121.0" y2="145.6" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1116.0,141.6 L1121.0,145.6 L1116.0,149.6" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1121.0" y1="154.4" x2="1099.0" y2="154.4" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1104.0,150.4 L1099.0,154.4 L1104.0,158.4" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1121.0" y1="145.6" x2="1099.0" y2="145.6" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1104.0,141.6 L1099.0,145.6 L1104.0,149.6" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1099.0" y1="154.4" x2="1121.0" y2="154.4" stroke="#2e7d32" stroke-width="1.6"/>
+<path d="M1116.0,150.4 L1121.0,154.4 L1116.0,158.4" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<text x="1144" y="146" font-size="15.9" fill="#1d2733" text-anchor="start">Tier-1 · stretched · DR-only</text>
+<text x="1144" y="164" font-size="13.4" fill="#6b7785" text-anchor="start">secondary B</text>
+<path d="M370,170 L370,230" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<path d="M1110,170 L1110,230" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<rect x="100" y="225.0" width="1280" height="10" rx="5.0" fill="#1f4e9c"/>
+<text x="100" y="216" font-size="15.9" fill="#1f4e9c" text-anchor="start" font-weight="bold">seg-vcf-mgmt · stretched overlay segment · CA nodes must share one VLAN / IP subnet across both fault domains</text>
+<path d="M137.0,235 L137.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="120" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="125" y1="299.3333333333333" x2="144" y2="299.3333333333333" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="148" cy="299.3333333333333" r="1.4" fill="#1f4e9c"/>
+<line x1="125" y1="308.6666666666667" x2="144" y2="308.6666666666667" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="148" cy="308.6666666666667" r="1.4" fill="#1f4e9c"/>
+<text x="137.0" y="338.0" font-size="14.6" fill="#1f4e9c" text-anchor="middle">primary</text>
+<text x="137.0" y="356.3" font-size="14.6" fill="#1f4e9c" text-anchor="middle">node</text>
+<path d="M247.0,235 L247.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="230" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="235" y1="299.3333333333333" x2="254" y2="299.3333333333333" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="258" cy="299.3333333333333" r="1.4" fill="#1f4e9c"/>
+<line x1="235" y1="308.6666666666667" x2="254" y2="308.6666666666667" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="258" cy="308.6666666666667" r="1.4" fill="#1f4e9c"/>
+<path d="M291.0,235 L291.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="274" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="279" y1="299.3333333333333" x2="298" y2="299.3333333333333" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="302" cy="299.3333333333333" r="1.4" fill="#1f4e9c"/>
+<line x1="279" y1="308.6666666666667" x2="298" y2="308.6666666666667" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="302" cy="308.6666666666667" r="1.4" fill="#1f4e9c"/>
+<path d="M335.0,235 L335.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="318" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="323" y1="299.3333333333333" x2="342" y2="299.3333333333333" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="346" cy="299.3333333333333" r="1.4" fill="#1f4e9c"/>
+<line x1="323" y1="308.6666666666667" x2="342" y2="308.6666666666667" stroke="#1f4e9c" stroke-width="1.1"/>
+<circle cx="346" cy="308.6666666666667" r="1.4" fill="#1f4e9c"/>
+<text x="291.0" y="338.0" font-size="14.6" fill="#1f4e9c" text-anchor="middle">data nodes · FD 1</text>
+<text x="291.0" y="356.3" font-size="14.6" fill="#1f4e9c" text-anchor="middle">n nodes</text>
+<path d="M487.0,235 L487.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="470" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#0b7a75" stroke-width="1.5"/>
+<line x1="475" y1="299.3333333333333" x2="494" y2="299.3333333333333" stroke="#0b7a75" stroke-width="1.1"/>
+<circle cx="498" cy="299.3333333333333" r="1.4" fill="#0b7a75"/>
+<line x1="475" y1="308.6666666666667" x2="494" y2="308.6666666666667" stroke="#0b7a75" stroke-width="1.1"/>
+<circle cx="498" cy="308.6666666666667" r="1.4" fill="#0b7a75"/>
+<text x="487.0" y="338.0" font-size="14.6" fill="#0b7a75" text-anchor="middle">Ops for</text>
+<text x="487.0" y="356.3" font-size="14.6" fill="#0b7a75" text-anchor="middle">Networks</text>
+<path d="M877.0,235 L877.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="860" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="865" y1="299.3333333333333" x2="884" y2="299.3333333333333" stroke="#2e7d32" stroke-width="1.1"/>
+<circle cx="888" cy="299.3333333333333" r="1.4" fill="#2e7d32"/>
+<line x1="865" y1="308.6666666666667" x2="884" y2="308.6666666666667" stroke="#2e7d32" stroke-width="1.1"/>
+<circle cx="888" cy="308.6666666666667" r="1.4" fill="#2e7d32"/>
+<text x="877.0" y="338.0" font-size="14.6" fill="#2e7d32" text-anchor="middle">primary</text>
+<text x="877.0" y="356.3" font-size="14.6" fill="#2e7d32" text-anchor="middle">replica</text>
+<path d="M987.0,235 L987.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="970" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="975" y1="299.3333333333333" x2="994" y2="299.3333333333333" stroke="#2e7d32" stroke-width="1.1"/>
+<circle cx="998" cy="299.3333333333333" r="1.4" fill="#2e7d32"/>
+<line x1="975" y1="308.6666666666667" x2="994" y2="308.6666666666667" stroke="#2e7d32" stroke-width="1.1"/>
+<circle cx="998" cy="308.6666666666667" r="1.4" fill="#2e7d32"/>
+<path d="M1031.0,235 L1031.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1014" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="1019" y1="299.3333333333333" x2="1038" y2="299.3333333333333" stroke="#2e7d32" stroke-width="1.1"/>
+<circle cx="1042" cy="299.3333333333333" r="1.4" fill="#2e7d32"/>
+<line x1="1019" y1="308.6666666666667" x2="1038" y2="308.6666666666667" stroke="#2e7d32" stroke-width="1.1"/>
+<circle cx="1042" cy="308.6666666666667" r="1.4" fill="#2e7d32"/>
+<path d="M1075.0,235 L1075.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1058" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="1063" y1="299.3333333333333" x2="1082" y2="299.3333333333333" stroke="#2e7d32" stroke-width="1.1"/>
+<circle cx="1086" cy="299.3333333333333" r="1.4" fill="#2e7d32"/>
+<line x1="1063" y1="308.6666666666667" x2="1082" y2="308.6666666666667" stroke="#2e7d32" stroke-width="1.1"/>
+<circle cx="1086" cy="308.6666666666667" r="1.4" fill="#2e7d32"/>
+<text x="1031.0" y="338.0" font-size="14.6" fill="#2e7d32" text-anchor="middle">data nodes · FD 2</text>
+<text x="1031.0" y="356.3" font-size="14.6" fill="#2e7d32" text-anchor="middle">same n, same size</text>
+<path d="M1227.0,235 L1227.0,290" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1210" y="290" width="34" height="28" rx="3" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="1215" y1="299.3333333333333" x2="1234" y2="299.3333333333333" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1238" cy="299.3333333333333" r="1.4" fill="#9aa5b1"/>
+<line x1="1215" y1="308.6666666666667" x2="1234" y2="308.6666666666667" stroke="#9aa5b1" stroke-width="1.1" stroke-dasharray="4 3"/>
+<circle cx="1238" cy="308.6666666666667" r="1.4" fill="#9aa5b1"/>
+<text x="1227.0" y="338.0" font-size="14.6" fill="#6b7785" text-anchor="middle">Ops for Networks</text>
+<text x="1227.0" y="356.3" font-size="14.6" fill="#6b7785" text-anchor="middle">replica target</text>
+<path d="M360,304 L700,304" fill="none" stroke="#0b7a75" stroke-width="1.6" stroke-dasharray="2 4"/>
+<path d="M780,304 L970,304" fill="none" stroke="#0b7a75" stroke-width="1.6" stroke-dasharray="2 4" marker-end="url(#arrt)" marker-start="url(#arrts)"/>
+<text x="740.0" y="292" font-size="14.6" fill="#0b7a75" text-anchor="middle" font-weight="bold">synchronous pairing</text>
+<text x="740.0" y="324" font-size="13.4" fill="#0b7a75" text-anchor="middle">every object on one node per FD</text>
+<path d="M504,366 L504,390 L1227,390 L1227,366" fill="none" stroke="#b23a3a" stroke-width="1.3" stroke-dasharray="6 4" marker-end="url(#arrr)"/>
+<text x="740.0" y="406" font-size="13.4" fill="#b23a3a" text-anchor="middle">Ops for Networks: still vSphere Replication (not covered by CA)</text>
+<polygon points="1560.6,295.0 1560.6,313.0 1545.0,322.0 1529.4,313.0 1529.4,295.0 1545.0,286.0" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.8"/>
+<text x="1545" y="348.0" font-size="14.6" fill="#5b3fa0" text-anchor="middle">witness node</text>
+<text x="1545" y="366.3" font-size="14.6" fill="#5b3fa0" text-anchor="middle">2 vCPU · 8 GB</text>
+<text x="1545" y="384" font-size="13.4" fill="#6b7785" text-anchor="middle">routed (L3) reachability</text>
+<text x="1545" y="400" font-size="13.4" fill="#6b7785" text-anchor="middle">from both fault domains</text>
+<path d="M140,318 L140,470 L1545,470 L1545,322" fill="none" stroke="#5b3fa0" stroke-width="1.2" stroke-dasharray="4 4"/>
+<path d="M877,318 L877,470" fill="none" stroke="#5b3fa0" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="1000" y="462" font-size="13.4" fill="#5b3fa0" text-anchor="middle">witness ↔ each fault domain ≤ 30 ms RTT</text>
+<text x="380" y="462" font-size="13.4" fill="#5b3fa0" text-anchor="middle">tie-breaker only: decides which fault domain stays online on a split</text>
+<rect x="100" y="535.0" width="560" height="10" rx="5.0" fill="#8a6d00"/>
+<text x="100" y="526" font-size="15.9" fill="#8a6d00" text-anchor="start" font-weight="bold">VM management VLAN A</text>
+<rect x="820" y="535.0" width="560" height="10" rx="5.0" fill="#8a6d00"/>
+<text x="820" y="526" font-size="15.9" fill="#8a6d00" text-anchor="start" font-weight="bold">VM management VLAN B</text>
+<path d="M137.0,545 L137.0,570" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="120" y="570" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="125" y1="579.3333333333334" x2="144" y2="579.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="148" cy="579.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="125" y1="588.6666666666666" x2="144" y2="588.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="148" cy="588.6666666666666" r="1.4" fill="#1d2733"/>
+<path d="M181.0,545 L181.0,570" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="164" y="570" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="169" y1="579.3333333333334" x2="188" y2="579.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="192" cy="579.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="169" y1="588.6666666666666" x2="188" y2="588.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="192" cy="588.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="159.0" y="618.0" font-size="14.6" fill="#1d2733" text-anchor="middle">collector group A</text>
+<text x="159.0" y="636.3" font-size="14.6" fill="#1d2733" text-anchor="middle">local adapters only</text>
+<path d="M857.0,545 L857.0,570" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="840" y="570" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="845" y1="579.3333333333334" x2="864" y2="579.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="868" cy="579.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="845" y1="588.6666666666666" x2="864" y2="588.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="868" cy="588.6666666666666" r="1.4" fill="#1d2733"/>
+<path d="M901.0,545 L901.0,570" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="884" y="570" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="889" y1="579.3333333333334" x2="908" y2="579.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="912" cy="579.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="889" y1="588.6666666666666" x2="908" y2="588.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="912" cy="588.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="879.0" y="618.0" font-size="14.6" fill="#1d2733" text-anchor="middle">collector group B</text>
+<text x="879.0" y="636.3" font-size="14.6" fill="#1d2733" text-anchor="middle">local adapters only</text>
+<path d="M487.0,545 L487.0,570" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="470" y="570" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="475" y1="579.3333333333334" x2="494" y2="579.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="498" cy="579.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="475" y1="588.6666666666666" x2="494" y2="588.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="498" cy="588.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="487.0" y="618.0" font-size="14.6" fill="#1d2733" text-anchor="middle">cloud proxy A</text>
+<path d="M1207.0,545 L1207.0,570" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="1190" y="570" width="34" height="28" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.5"/>
+<line x1="1195" y1="579.3333333333334" x2="1214" y2="579.3333333333334" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1218" cy="579.3333333333334" r="1.4" fill="#1d2733"/>
+<line x1="1195" y1="588.6666666666666" x2="1214" y2="588.6666666666666" stroke="#1d2733" stroke-width="1.1"/>
+<circle cx="1218" cy="588.6666666666666" r="1.4" fill="#1d2733"/>
+<text x="1207.0" y="618.0" font-size="14.6" fill="#1d2733" text-anchor="middle">cloud proxy B</text>
+<rect x="60" y="665" width="1560" height="72" rx="6" fill="#eef6f5" stroke="none" stroke-width="1.4"/>
+<text x="80" y="690" font-size="12.2" fill="#0b7a75" text-anchor="start" font-weight="bold" letter-spacing="1.5">WHAT CHANGES VERSUS REPLICATION</text>
+<text x="80" y="710.0" font-size="13.4" fill="#1d2733" text-anchor="start">VCF Operations never fails over: lose a site and the surviving fault domain keeps serving. No recovery plan for Ops, no RPO on Ops data, no re-IP. Price: double the Ops nodes, a third site for the witness, and a DCI that stays under 10 ms RTT.</text>
+<text x="80" y="729.52" font-size="13.4" fill="#1d2733" text-anchor="start">Everything else in the runbook is unchanged: Network Recovery on the Global Manager, Ops for Networks via replication, Automation and the management services from backup.</text>
+</svg>

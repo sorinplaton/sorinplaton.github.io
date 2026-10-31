@@ -23,8 +23,8 @@
     --secondary: var(--muted);
     --tertiary: #d7dce3;
     --content: #1f2630;
-    --code-block-bg: #12171e;
-    --code-bg: #e9edf2;
+    --code-block-bg: #eef1f5;
+    --code-bg: #e6eaef;
     --border: var(--line);
     --radius: 12px;
     --main-width: 760px;
@@ -69,58 +69,12 @@ h1, h2, h3, .entry-header h2, .post-title { letter-spacing: -.015em; }
 .post-content a:hover { text-decoration-color: var(--blue); }
 .post-content code { color: var(--ink); }
 
-/* ---------- background: paper + fabric dot grid + accent wash ---------- */
-body {
-    background-color: var(--theme);
-    background-image:
-        radial-gradient(60% 420px at 50% -40px, var(--blue-soft), transparent 70%),
-        radial-gradient(var(--grid) 1px, transparent 1px);
-    background-size: auto, 22px 22px;
-    background-position: 0 0, 10px 10px;
-    background-attachment: fixed, fixed;
-}
+/* ---------- background: flat paper ---------- */
+body { background: var(--theme); }
 
-/* ---------- header ---------- */
-.header { background: transparent; }
-.nav { border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--theme) 72%, transparent); backdrop-filter: blur(6px); }
-.logo a { font-weight: 600; letter-spacing: -.01em; }
-.logo a svg { color: var(--blue); }
-#menu a { font-weight: 500; }
-#menu .active { color: var(--blue); box-shadow: 0 2px 0 var(--blue); }
-
-/* ---------- home hero ---------- */
-.home-info {
-    position: relative;
-    overflow: hidden;
-    background: var(--entry);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 44px 40px 36px;
-    margin-top: 12px;
-    box-shadow: 0 1px 2px rgba(22, 27, 34, .04), 0 10px 30px -14px rgba(22, 27, 34, .18);
-}
-:root[data-theme="dark"] .home-info { box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 18px 40px -20px rgba(0,0,0,.7); }
-.home-info::before {
-    /* blue → green ridge on the top edge */
-    content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
-    background: linear-gradient(90deg, var(--blue), var(--teal) 55%, var(--green));
-}
-.home-info::after {
-    /* faint fabric sketch: spine / leaf / hosts, orthogonal links only */
-    content: ""; position: absolute; right: -10px; top: 8px; width: 300px; height: 100%;
-    pointer-events: none; opacity: .55;
-    background-repeat: no-repeat; background-size: 300px auto; background-position: right top;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='230' viewBox='0 0 300 230' fill='none' stroke='%230f5fb5' stroke-width='1.3' stroke-linecap='round' opacity='.45'><g stroke='%230f5fb5'><rect x='96' y='18' width='40' height='26' rx='6'/><rect x='172' y='18' width='40' height='26' rx='6'/></g><g stroke='%231f8f5a'><rect x='40' y='96' width='40' height='26' rx='6'/><rect x='134' y='96' width='40' height='26' rx='6'/><rect x='228' y='96' width='40' height='26' rx='6'/></g><path d='M116 44v26H60v26M116 70h38v26M116 70h132v26M192 44v26h-38M192 70h56M192 70H60'/><g stroke='%231a9c84'><circle cx='60' cy='186' r='9'/><circle cx='154' cy='186' r='9'/><circle cx='248' cy='186' r='9'/><path d='M60 122v55M154 122v55M248 122v55'/></g></svg>");
-}
-@media (max-width: 700px) { .home-info::after { display: none; } .home-info { padding: 32px 24px 28px; } }
-.home-info .entry-header h1 { font-size: 2.1rem; line-height: 1.15; max-width: 14ch; }
-.home-info .entry-header::before {
-    content: "VCF · NSX · EVPN · BGP · KUBERNETES · HOLODECK";
-    display: block; font-family: "IBM Plex Mono", monospace; font-size: .7rem; letter-spacing: .14em;
-    color: var(--blue); margin-bottom: 10px;
-}
-.home-info .entry-content { font-size: 1.05rem; line-height: 1.65; color: var(--secondary); max-width: 54ch; }
-.home-info .entry-footer { margin-top: 18px; }
+/* ---------- header: the shared bar lives in static/css/bar.css ---------- */
+.header, .header-nav { display: none; }
+.main { padding-top: 32px; }
 .social-icons a { color: var(--secondary); }
 .social-icons a:hover { color: var(--green); }
 
@@ -265,3 +219,43 @@ details.toc summary { font-family: inherit; font-size: .95rem; font-weight: 600;
 .layer-more__all { margin: 14px 0 0; font-size: .9rem; }
 .layer-more__all a { color: var(--blue); text-underline-offset: 3px; }
 @media (max-width: 560px) { .layer-more { grid-template-columns: 56px 1fr; gap: 16px; padding: 18px; } .layer-more__stack { width: 56px; } }
+
+/* =====================================================================
+   Cleaner post pages (Oct 2026, second pass)
+   ===================================================================== */
+
+/* code blocks follow the page: light surface in light mode, dark in dark */
+.post-content pre, .post-content .highlight pre, .post-content .chroma { background: var(--code-block-bg) !important; border: 1px solid var(--line); }
+.post-content .highlight { background: transparent; }
+:root:not([data-theme="dark"]) .chroma { color: #1f2630; }
+:root:not([data-theme="dark"]) .chroma .k, :root:not([data-theme="dark"]) .chroma .kd, :root:not([data-theme="dark"]) .chroma .kn, :root:not([data-theme="dark"]) .chroma .kt, :root:not([data-theme="dark"]) .chroma .kr, :root:not([data-theme="dark"]) .chroma .kc { color: #0b4fa0; }
+:root:not([data-theme="dark"]) .chroma .s, :root:not([data-theme="dark"]) .chroma .s1, :root:not([data-theme="dark"]) .chroma .s2, :root:not([data-theme="dark"]) .chroma .sb, :root:not([data-theme="dark"]) .chroma .sx, :root:not([data-theme="dark"]) .chroma .dl { color: #0a5c3a; }
+:root:not([data-theme="dark"]) .chroma .c, :root:not([data-theme="dark"]) .chroma .c1, :root:not([data-theme="dark"]) .chroma .cm, :root:not([data-theme="dark"]) .chroma .ch, :root:not([data-theme="dark"]) .chroma .cp { color: #6b7480; font-style: italic; }
+:root:not([data-theme="dark"]) .chroma .m, :root:not([data-theme="dark"]) .chroma .mi, :root:not([data-theme="dark"]) .chroma .mf, :root:not([data-theme="dark"]) .chroma .mh, :root:not([data-theme="dark"]) .chroma .l { color: #8a4b00; }
+:root:not([data-theme="dark"]) .chroma .nt, :root:not([data-theme="dark"]) .chroma .nb, :root:not([data-theme="dark"]) .chroma .bp { color: #6a3fb0; }
+:root:not([data-theme="dark"]) .chroma .na, :root:not([data-theme="dark"]) .chroma .nv, :root:not([data-theme="dark"]) .chroma .nf, :root:not([data-theme="dark"]) .chroma .nx, :root:not([data-theme="dark"]) .chroma .n { color: #1f2630; }
+:root:not([data-theme="dark"]) .chroma .o, :root:not([data-theme="dark"]) .chroma .p, :root:not([data-theme="dark"]) .chroma .w { color: #4a5563; }
+:root:not([data-theme="dark"]) .chroma .err { color: #1f2630; background: transparent; }
+:root:not([data-theme="dark"]) .chroma .gh, :root:not([data-theme="dark"]) .chroma .gu { color: #0b4fa0; font-weight: 600; }
+:root:not([data-theme="dark"]) .chroma .gi { color: #0a5c3a; } :root:not([data-theme="dark"]) .chroma .gd { color: #a12d2d; }
+:root:not([data-theme="dark"]) .chroma .hl { background: rgba(15, 95, 181, .10); }
+.copy-code { background: var(--entry); color: var(--secondary); border: 1px solid var(--line); border-radius: 6px; font-family: "IBM Plex Sans", sans-serif; font-size: .78rem; }
+.copy-code:hover { color: var(--blue); border-color: var(--blue); }
+
+/* post header: title, description, date · reading time; the table of contents as a plain collapsed line */
+.post-header { margin-bottom: 28px; }
+.post-title { font-size: 2.3rem; line-height: 1.12; letter-spacing: -.025em; }
+.post-description { color: var(--secondary); font-size: 1.1rem; line-height: 1.55; margin-top: 10px; max-width: 62ch; }
+.post-meta { margin-top: 12px; }
+details.toc { background: transparent; border: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; margin: 0 0 28px; }
+details.toc summary { padding: 10px 0; font-size: .95rem; font-weight: 600; cursor: pointer; }
+details.toc summary::marker, details.toc summary::-webkit-details-marker { color: var(--secondary); }
+.toc .inner { padding: 0 0 12px; }
+.toc .inner ul { padding-left: 1.1rem; }
+.toc .inner a { color: var(--secondary); }
+.toc .inner a:hover { color: var(--blue); }
+
+/* footer */
+.footer { font-family: "IBM Plex Sans", sans-serif; font-size: .82rem; color: var(--secondary); border-top: 1px solid var(--line); margin-top: 56px; padding: 24px 0 40px; }
+.footer a { color: var(--secondary); box-shadow: none; text-decoration: underline; text-underline-offset: 3px; }
+.footer a:hover { color: var(--blue); }

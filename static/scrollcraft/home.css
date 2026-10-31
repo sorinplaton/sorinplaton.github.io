@@ -44,26 +44,6 @@ body.home { background: var(--sc-canvas); color: var(--sc-ink); }
 .skip { position: absolute; left: var(--sc-4); top: -4rem; z-index: 99; background: var(--sc-surface); padding: var(--sc-2) var(--sc-3); }
 .skip:focus { top: var(--sc-3); }
 
-/* ---- bar: the site's own nav, kept small ------------------------------- */
-.bar {
-  position: fixed; inset: 0 0 auto 0; z-index: var(--sc-z-chrome);
-  display: flex; align-items: center; justify-content: space-between; gap: var(--sc-4);
-  padding: var(--sc-3) var(--sc-gutter);
-  background: color-mix(in oklab, var(--sc-canvas) 88%, transparent);
-  border-bottom: 1px solid var(--line-soft);
-}
-.bar__mark { font-weight: 600; letter-spacing: -.01em; color: var(--sc-ink) !important; text-decoration: none; }
-.bar__nav { display: flex; align-items: center; gap: var(--sc-5); font-size: var(--sc-t-sm); }
-.bar__nav a { color: var(--sc-ink-soft); text-decoration: none; padding-block: var(--sc-2); transition: color var(--sc-d-fast) var(--sc-ease-out); }
-.bar__nav a:hover { color: var(--sc-ink); }
-.bar__theme { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border: 1px solid var(--line); border-radius: var(--sc-r-sm); background: transparent; color: var(--sc-ink-soft); cursor: pointer; transition: color var(--sc-d-fast) var(--sc-ease-out), transform 120ms var(--sc-ease-out); }
-.bar__theme:hover { color: var(--sc-ink); }
-.bar__theme:active { transform: scale(.97); }
-@media (max-width: 640px) {
-  .bar__nav { gap: var(--sc-4); }
-  .bar__nav a[href*="search"] { display: none; }
-}
-
 /* ---- the drawing language: ink lines on paper ---------------------------- */
 .ink, .callout, .leader { fill: none; stroke: var(--drawing); stroke-width: 1.6; stroke-linecap: butt; stroke-linejoin: miter; vector-effect: non-scaling-stroke; }
 .callout, .leader { stroke: var(--sc-ink-soft); stroke-width: 1.2; }

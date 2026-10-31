@@ -33,9 +33,9 @@
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:image" content="{{ "images/share-default.jpg" | absURL }}">
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="preload" href="{{ "fonts/ibm-plex-sans-latin-400-normal.woff2" | relURL }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ "fonts/ibm-plex-sans-latin-600-normal.woff2" | relURL }}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ "fonts/fonts.css" | relURL }}">
 <script>
   /* Same preference key PaperMod uses, so the theme a reader picked on a post carries here. */
   (function () {
@@ -45,24 +45,14 @@
   })();
 </script>
 <link rel="stylesheet" href="{{ "scrollcraft/scrollcraft.css" | relURL }}">
+<link rel="stylesheet" href="{{ "css/bar.css" | relURL }}">
 <link rel="stylesheet" href="{{ "scrollcraft/home.css" | relURL }}">
 </head>
 <body class="home">
 
 <a class="skip" href="#posts">{{ $t.list_title }}</a>
 
-<header class="bar">
-  <a class="bar__mark" href="{{ "" | relLangURL }}">Sorin Platon</a>
-  <nav class="bar__nav" aria-label="Site">
-    <a href="#posts">{{ $t.nav_posts }}</a>
-    <a href="{{ "search/" | relLangURL }}">{{ $t.nav_search }}</a>
-    <a href="{{ "about/" | relLangURL }}">{{ $t.nav_about }}</a>
-    {{- with $other }}<a href="{{ .RelPermalink }}" hreflang="{{ .Language.Lang }}" lang="{{ .Language.Lang }}" aria-label="{{ $t.other_lang_label }}">{{ $t.other_lang }}</a>{{ end }}
-    <button class="bar__theme" type="button" aria-label="Toggle dark mode" data-theme-toggle>
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    </button>
-  </nav>
-</header>
+{{ partial "site_bar.html" . }}
 
 <main id="top">
 

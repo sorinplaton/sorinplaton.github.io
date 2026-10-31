@@ -1,0 +1,32 @@
+/* The site bar, shared by the home page and the post pages.
+   Colours fall back from the home page tokens (--sc-*) to PaperMod's (--theme, --primary). */
+.bar {
+  --bar-bg: var(--sc-canvas, var(--theme));
+  --bar-ink: var(--sc-ink, var(--primary));
+  --bar-soft: var(--sc-ink-soft, var(--secondary));
+  --bar-line: var(--line-soft, var(--line, #e3e7ed));
+  position: sticky; top: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .75rem clamp(1.25rem, 5vw, 5.5rem);
+  background: color-mix(in oklab, var(--bar-bg) 88%, transparent);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--bar-line);
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+body.home .bar { position: fixed; inset: 0 0 auto 0; }
+.bar__mark { font-weight: 600; letter-spacing: -.01em; color: var(--bar-ink) !important; text-decoration: none !important; box-shadow: none !important; }
+.bar__nav { display: flex; align-items: center; gap: 1.5rem; font-size: .92rem; }
+.bar__nav a { color: var(--bar-soft) !important; text-decoration: none !important; box-shadow: none !important; padding-block: .5rem; transition: color 160ms cubic-bezier(.23,1,.32,1); }
+.bar__nav a:hover { color: var(--bar-ink) !important; }
+.bar__theme { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border: 1px solid var(--bar-line); border-radius: 6px; background: transparent; color: var(--bar-soft); cursor: pointer; transition: color 160ms, transform 120ms; }
+.bar__theme:hover { color: var(--bar-ink); }
+.bar__theme:active { transform: scale(.97); }
+.bar__theme:focus-visible, .bar__nav a:focus-visible, .bar__mark:focus-visible { outline: 2px solid var(--sc-accent, var(--blue, #0f5fb5)); outline-offset: 3px; border-radius: 3px; }
+/* the icon shows the mode you would switch to */
+.bar__sun { display: none; }
+:root[data-theme="dark"] .bar__moon { display: none; }
+:root[data-theme="dark"] .bar__sun { display: block; }
+@media (max-width: 640px) {
+  .bar__nav { gap: 1rem; font-size: .88rem; }
+  .bar__nav a[href*="search"], .bar__nav a[href*="projects"] { display: none; }
+}

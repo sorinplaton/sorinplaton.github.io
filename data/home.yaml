@@ -1,0 +1,117 @@
+# Data for the ScrollCraft home page (layouts/home.html).
+# Layers are listed bottom-up, the order the stack is drawn in.
+# Each post bundle (folder name under content/posts) is mapped to one layer.
+
+layers:
+  - id: host
+    en: { m: "Holodeck host", name: "Holodeck host", sub: "one physical server" }
+    fr: { m: "Hôte Holodeck", name: "Hôte Holodeck", sub: "un seul serveur physique" }
+  - id: vsphere
+    en: { m: "ESX, vCenter", name: "ESX, vCenter, lifecycle", sub: "nested hosts, depot, installer" }
+    fr: { m: "ESX, vCenter", name: "ESX, vCenter, cycle de vie", sub: "hôtes imbriqués, depot, installer" }
+  - id: nsx
+    en: { m: "NSX", name: "NSX networking", sub: "overlay, EVPN, VPC, Federation" }
+    fr: { m: "NSX", name: "Réseau NSX", sub: "overlay, EVPN, VPC, Federation" }
+  - id: vks
+    en: { m: "Supervisor, VKS", name: "Supervisor and VKS", sub: "Kubernetes on VCF" }
+    fr: { m: "Supervisor, VKS", name: "Supervisor et VKS", sub: "Kubernetes sur VCF" }
+  - id: vcfa
+    en: { m: "Automation, GitOps", name: "VCF Automation and GitOps", sub: "self-service, Argo CD" }
+    fr: { m: "Automation, GitOps", name: "VCF Automation et GitOps", sub: "libre-service, Argo CD" }
+  - id: ops
+    en: { m: "Operations", name: "VCF Operations", sub: "metrics, AI Assistant" }
+    fr: { m: "Operations", name: "VCF Operations", sub: "métriques, AI Assistant" }
+
+posts:
+  vcf-91-offline-depot-migration:
+    layer: vsphere
+    en: "Clone an offline depot appliance with scp and serve it over plain HTTP."
+    fr: "Cloner une appliance offline depot avec scp et la servir en HTTP simple."
+  evpn-nsx-vyos:
+    layer: nsx
+    en: "NSX transit gateways meshed to a VyOS border with EVPN Type-5 routes."
+    fr: "Des transit gateways NSX raccordés à une bordure VyOS en routes EVPN Type-5."
+  vcf9-ip-pools-explained:
+    layer: nsx
+    en: "Seven things VCF calls a pool, and the component that consumes each one."
+    fr: "Sept objets que VCF appelle pool, et le composant qui consomme chacun."
+  vcf91-fleet-overlay-dr:
+    layer: nsx
+    en: "Fleet components on an overlay segment, then DR over a Federation-stretched segment."
+    fr: "Les composants du fleet sur un segment overlay, puis la reprise sur un segment étiré par Federation."
+  vks-without-teps:
+    layer: vks
+    en: "VKS on a VLAN-backed VPC. The network team provides one VLAN and a /24."
+    fr: "VKS sur un VPC VLAN-backed. L'équipe réseau fournit un VLAN et un /24."
+  supervisor-sre-role:
+    layer: vks
+    en: "Read-only kubectl on the Supervisor from one service and one SSO group."
+    fr: "kubectl en lecture seule sur le Supervisor avec un service et un groupe SSO."
+  gitops-argocd-vcf-91:
+    layer: vcfa
+    en: "One commit, six VMs: Argo CD builds a VKS cluster and deploys an app into it."
+    fr: "Un commit, six VM : Argo CD construit un cluster VKS et y déploie une application."
+  argocd-vcf-service-tech-preview:
+    layer: vcfa
+    en: "Argo CD ordered from VCF Automation like a namespace, with SSO instead of a shared password."
+    fr: "Argo CD commandé depuis VCF Automation comme un namespace, avec le SSO au lieu d'un mot de passe partagé."
+  vcf-ops-super-metrics:
+    layer: ops
+    en: "Many objects into one stored KPI, and when 2-second real-time data fits better."
+    fr: "Plusieurs objets en un KPI stocké, et quand les données temps réel à 2 secondes conviennent mieux."
+  vcf-ops-private-llm:
+    layer: ops
+    en: "The Ops AI Assistant on your own Ollama, behind 30 lines of Caddy."
+    fr: "L'AI Assistant d'Ops sur votre propre Ollama, derrière 30 lignes de Caddy."
+
+strings:
+  en:
+    pageTitle: "Sorin Platon · VMware Cloud Foundation, written down"
+    nav_posts: "All posts"
+    nav_about: "About"
+    nav_search: "Search"
+    other_lang: "FR"
+    other_lang_label: "Lire en français"
+    exhibit_name: "Holodeck"
+    exhibit_line: "VCF 9.1 nested on one physical host. Every config on this site ran here first."
+    exhibit_c1: "one physical host"
+    exhibit_c2: "the whole stack, nested inside"
+    latest: "Latest"
+    stack_title: "The stack, as this site covers it"
+    stack_turn: "Each post below plugs into one of these layers."
+    dim_label: "VCF 9.1, one host"
+    shelf_title: "Posts, by layer"
+    shelf_hint: "Pick a layer to jump to its posts."
+    shelf_end: "That is the whole shelf for now. New posts land in the layer they are about."
+    shelf_all: "Every post, newest first"
+    min: "min"
+    plate_role: "VCF Solution Architect, Quebec"
+    plate_creds: "CCIE Service Provider, CCIE Routing & Switching, Nokia NRS II, VCIX-NV"
+    plate_lang: "Writes in English, answers in French too."
+    plate_more: "More about me"
+    small: "Posts built with Hugo and PaperMod. This page uses ScrollCraft (MIT)."
+  fr:
+    pageTitle: "Sorin Platon · VMware Cloud Foundation, noir sur blanc"
+    nav_posts: "Tous les articles"
+    nav_about: "À propos"
+    nav_search: "Recherche"
+    other_lang: "EN"
+    other_lang_label: "Read in English"
+    exhibit_name: "Holodeck"
+    exhibit_line: "VCF 9.1 imbriqué sur un seul hôte physique. Chaque configuration du site a d'abord tourné ici."
+    exhibit_c1: "un seul hôte physique"
+    exhibit_c2: "toute la pile, imbriquée dedans"
+    latest: "Dernier article"
+    stack_title: "La pile, telle que ce site la couvre"
+    stack_turn: "Chaque article ci-dessous se branche sur l'une de ces couches."
+    dim_label: "VCF 9.1, un hôte"
+    shelf_title: "Les articles, par couche"
+    shelf_hint: "Choisissez une couche pour aller à ses articles."
+    shelf_end: "C'est toute l'étagère pour l'instant. Les nouveaux articles arrivent dans la couche qu'ils traitent."
+    shelf_all: "Tous les articles, du plus récent au plus ancien"
+    min: "min"
+    plate_role: "Architecte de solutions VCF, Québec"
+    plate_creds: "CCIE Service Provider, CCIE Routing & Switching, Nokia NRS II, VCIX-NV"
+    plate_lang: "Écrit en anglais, répond aussi en français."
+    plate_more: "En savoir plus"
+    small: "Articles générés avec Hugo et PaperMod. Cette page utilise ScrollCraft (MIT)."

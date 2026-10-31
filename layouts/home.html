@@ -9,7 +9,6 @@
 {{- $t := index $d.strings $lang -}}
 {{- $short := dict "vsphere" "ESX" "nsx" "NSX" "vks" "VKS" "vcfa" "VCFA" "ops" "Ops" -}}
 {{- $posts := where site.RegularPages "Section" "posts" -}}
-{{- $latest := index ($posts.ByDate.Reverse) 0 -}}
 {{- $other := "" -}}{{- range .Translations }}{{ $other = . }}{{ end -}}
 <!doctype html>
 <html lang="{{ site.Language.LanguageCode | default $lang }}">
@@ -50,7 +49,7 @@
 </head>
 <body class="home">
 
-<a class="skip" href="#shelf">{{ $t.shelf_title }}</a>
+<a class="skip" href="#posts">{{ $t.list_title }}</a>
 
 <header class="bar">
   <a class="bar__mark" href="{{ "" | relLangURL }}">Sorin Platon</a>
@@ -73,9 +72,6 @@
       <div class="exhibit__copy sc-stack" data-sc-in data-sc-stagger="60">
         <h1 class="exhibit__title">{{ site.Params.homeInfoParams.Title }}</h1>
         <p class="label"><span class="label__k">{{ $t.exhibit_name }}.</span> {{ $t.exhibit_line }}</p>
-        {{- with $latest }}
-        <p class="exhibit__latest"><span class="mono">{{ $t.latest }}</span> <a href="{{ .RelPermalink }}">{{ .Title }}</a></p>
-        {{- end }}
       </div>
       <figure class="exhibit__fig" aria-hidden="true">
         <svg class="host" viewBox="0 0 560 300" role="presentation">
@@ -101,21 +97,22 @@
     </div>
   </section>
 
-  {{- /* 2 · AWE, the peak. The stack draws itself on the host, one layer per stretch of scroll.
-         The host is already drawn when the stage arrives (ground, not an empty frame). */}}
-  <section class="build" data-sc-act="pin" data-sc-span="4.6" aria-labelledby="build-h">
-    <div data-sc-stage class="build__stage">
+  {{- /* 2 · AWE, the peak. The stack draws itself on the host as the section scrolls through
+         (flow progress drives the strokes; the inner block is sticky so the drawing stays in
+         view while it completes). The host layer is always drawn. */}}
+  <section class="build" data-sc-act="flow" aria-labelledby="build-h">
+    <div class="build__stage">
       <div class="build__copy">
-        <h2 id="build-h" class="build__title" data-sc-cue="0 0.97 0 0.03">{{ $t.stack_title }}</h2>
-        <p class="build__turn" data-sc-cue="0.8 1 0.06 0.02">{{ $t.stack_turn }}</p>
+        <h2 id="build-h" class="build__title">{{ $t.stack_title }}</h2>
+        <p class="build__turn">{{ $t.stack_turn }}</p>
       </div>
       <svg class="stack" viewBox="0 0 760 640" role="img" aria-labelledby="build-h">
         {{- $ys := slice 546 460 374 288 202 116 }}
         {{- range $i, $L := $d.layers }}
         {{- $y := index $ys $i }}
-        {{- $s := cond (eq $i 0) -1.0 (add 0.04 (mul (sub $i 1) 0.15)) }}
+        {{- $s := cond (eq $i 0) -1.0 (add 0.14 (mul (sub $i 1) 0.085)) }}
         {{- $nm := index $L $lang }}
-        <g class="layer" data-layer="{{ $L.id }}" style="--s:{{ $s }};--l:0.12">
+        <g class="layer" data-layer="{{ $L.id }}" style="--s:{{ $s }};--l:0.11">
           <g class="ink draw">
             <rect x="60" y="{{ $y }}" width="340" height="64" rx="3" pathLength="1"/>
             {{- if eq $L.id "host" }}
@@ -156,7 +153,7 @@
           </g>
         </g>
         {{- end }}
-        <g class="dim" style="--s:0.8;--l:0.1">
+        <g class="dim" style="--s:0.55;--l:0.08">
           <path class="ink draw" d="M60 96V86H400V96M230 86V74" pathLength="1"/>
           <text class="dim__label" x="230" y="64" text-anchor="middle">{{ $t.dim_label }}</text>
         </g>
@@ -164,68 +161,37 @@
     </div>
   </section>
 
-  {{- /* 3 · APPETITE. The posts, by layer, travelling sideways. The docked stack is the index. */}}
-  <section id="shelf" class="shelf" data-sc-act="pan" data-sc-span="4.4" aria-labelledby="shelf-h">
-    <div data-sc-stage class="shelf__stage">
-      <nav class="index" aria-label="{{ $t.shelf_title }}">
-        <p class="index__hint">{{ $t.shelf_hint }}</p>
-        <ol class="index__stack">
-          {{- range $i := seq (sub (len $d.layers) 1) -1 1 }}{{ with index $d.layers $i }}
-          <li><button type="button" class="index__btn" data-jump="{{ .id }}"><span class="index__bar" aria-hidden="true"></span><span class="index__name">{{ (index . $lang).name }}</span><span class="index__short" aria-hidden="true">{{ index $short .id }}</span></button></li>
-          {{- end }}{{ end }}
-          <li class="index__base" aria-hidden="true"><span class="index__bar"></span><span class="index__name">{{ (index (index $d.layers 0) $lang).name }}</span></li>
-        </ol>
-      </nav>
-      <div class="rail" data-sc-pan="0.04">
-        <div class="rail__lead">
-          <h2 id="shelf-h" class="rail__title">{{ $t.shelf_title }}</h2>
-        </div>
-        {{- range $L := $d.layers }}
-        {{- $lname := (index $L $lang).name }}
-        {{- range $p := $posts.ByDate }}
-        {{- $key := path.Base $p.File.Dir }}
-        {{- $m := index $d.posts $key }}
-        {{- if and $m (eq $m.layer $L.id) }}
-        {{- $v := "" }}{{ range $p.Params.tags }}{{ if and (not $v) (hasPrefix . "VCF 9") }}{{ $v = . }}{{ end }}{{ end }}
-        <article class="obj" data-layer="{{ $L.id }}">
-          <p class="obj__layer">{{ $lname }}</p>
-          <h3 class="obj__title"><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h3>
-          <p class="obj__line">{{ index $m $lang }}</p>
-          <dl class="obj__meta">
-            {{- with $v }}<div><dt class="vh">Version</dt><dd>{{ . }}</dd></div>{{ end }}
-            <div><dt class="vh">Date</dt><dd><time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date | time.Format ":date_medium" }}</time></dd></div>
-            <div><dt class="vh">Reading time</dt><dd>{{ $p.ReadingTime }} {{ $t.min }}</dd></div>
-          </dl>
-        </article>
-        {{- end }}
-        {{- end }}
-        {{- end }}
-        <div class="rail__end">
-          <p>{{ $t.shelf_end }}</p>
-          <p><a href="#posts">{{ $t.shelf_all }}</a></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {{- /* Every post, newest first, on the landing page itself (no separate list page needed). */}}
+  {{- /* 3 · APPETITE. Every post, newest first. The stack is the index: it lights the layer
+         of the post under the eye, and a tap filters the list. */}}
   <section id="posts" class="list sc-section" data-sc-act="flow" aria-labelledby="list-h">
     <div class="sc-wrap list__wrap">
-      <h2 id="list-h" class="list__title">{{ $t.list_title }}</h2>
-      <ol class="list__items" data-sc-in data-sc-stagger="40">
-        {{- range $p := $posts.ByDate.Reverse }}
-        {{- $key := path.Base $p.File.Dir }}
-        {{- $m := index $d.posts $key }}
-        {{- $lname := "" }}{{ with $m }}{{ range $d.layers }}{{ if eq .id $m.layer }}{{ $lname = (index . $lang).name }}{{ end }}{{ end }}{{ end }}
-        <li class="row">
-          <p class="row__meta"><time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date | time.Format ":date_medium" }}</time><span>{{ $p.ReadingTime }} {{ $t.min }}</span>{{ with $lname }}<span>{{ . }}</span>{{ end }}</p>
-          <div class="row__main">
-            <h3 class="row__title"><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h3>
-            <p class="row__line">{{ with $m }}{{ index . $lang }}{{ else }}{{ $p.Summary | plainify | truncate 160 }}{{ end }}</p>
-          </div>
-        </li>
-        {{- end }}
-      </ol>
+      <nav class="index" aria-label="{{ $t.index_hint }}">
+        <p class="index__hint">{{ $t.index_hint }}</p>
+        <ul class="index__stack">
+          {{- range $i := seq (sub (len $d.layers) 1) -1 1 }}{{ with index $d.layers $i }}
+          <li><button type="button" class="index__btn" data-filter="{{ .id }}" aria-pressed="false"><span class="index__bar" aria-hidden="true"></span><span class="index__name">{{ (index . $lang).name }}</span><span class="index__short" aria-hidden="true">{{ index $short .id }}</span></button></li>
+          {{- end }}{{ end }}
+          <li class="index__base" aria-hidden="true"><span class="index__bar"></span><span class="index__name">{{ (index (index $d.layers 0) $lang).name }}</span></li>
+          <li class="index__all"><button type="button" class="index__btn index__btn--all" data-filter="" aria-pressed="true"><span class="index__name">{{ $t.index_all }}</span></button></li>
+        </ul>
+      </nav>
+      <div class="list__main">
+        <h2 id="list-h" class="list__title">{{ $t.list_title }} <span class="list__count" data-count data-one="{{ $t.list_count_one }}" data-many="{{ $t.list_count }}">{{ printf $t.list_count (len $posts) }}</span></h2>
+        <ol class="list__items" data-sc-in data-sc-stagger="40">
+          {{- range $p := $posts.ByDate.Reverse }}
+          {{- $key := path.Base $p.File.Dir }}
+          {{- $m := index $d.posts $key }}
+          {{- $lname := "" }}{{ with $m }}{{ range $d.layers }}{{ if eq .id $m.layer }}{{ $lname = (index . $lang).name }}{{ end }}{{ end }}{{ end }}
+          <li class="row" data-layer="{{ with $m }}{{ .layer }}{{ end }}">
+            <p class="row__meta"><time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date | time.Format ":date_medium" }}</time><span>{{ $p.ReadingTime }} {{ $t.min }}</span>{{ with $lname }}<span>{{ . }}</span>{{ end }}</p>
+            <div class="row__main">
+              <h3 class="row__title"><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h3>
+              <p class="row__line">{{ with $m }}{{ index . $lang }}{{ else }}{{ $p.Summary | plainify | truncate 160 }}{{ end }}</p>
+            </div>
+          </li>
+          {{- end }}
+        </ol>
+      </div>
     </div>
   </section>
 

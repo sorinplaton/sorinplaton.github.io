@@ -44,16 +44,16 @@ languages:
     weight: 2
     title: "Sorin Platon"
     params:
-      description: "Notes de terrain sur VMware Cloud Foundation — NSX, EVPN, BGP, VKS et Kubernetes, VCF Automation et Operations, IA privée — construites et cassées dans un lab Holodeck."
+      description: "Notes de terrain sur VMware Cloud Foundation (NSX, EVPN, BGP, VKS et Kubernetes, VCF Automation et Operations, IA privée), construites et cassées dans un lab Holodeck."
       homeInfoParams:
         Title: "VMware Cloud Foundation, noir sur blanc."
         Content: >
           Des notes tirées du lab comme du terrain, sur toute la pile VCF :
-          NSX, EVPN/VXLAN et ingénierie de trafic BGP ; VKS et Kubernetes ;
-          VCF Automation, GitOps avec Argo CD, VCF Operations et son
-          assistant IA sur un LLM privé. Des configurations qui fonctionnent,
-          les pièges qu'elles cachent et pourquoi elles sont conçues ainsi. Tout
-          est construit, cassé et réparé sur un Holodeck VCF 9.1 imbriqué avant
+          NSX, EVPN/VXLAN et ingénierie de trafic BGP, VKS et Kubernetes, VCF
+          Automation et GitOps avec Argo CD, VCF Operations et son assistant IA
+          sur un LLM privé. Chaque article donne une configuration qui
+          fonctionne, les pièges qu'elle cache et la raison de sa forme. Tout
+          tourne d'abord sur un Holodeck VCF 9.1 imbriqué, bien avant
           d'approcher la production.
       editPost:
         URL: "https://github.com/sorinplaton/sorinplaton.github.io/tree/main/content"
@@ -97,7 +97,7 @@ params:
     google:
       SiteVerificationTag: "E99iaS6Ozyezzb4hK7x17204TqhuZ-GA0m0Md4j6TsU"   # Google Search Console; PaperMod renders <meta name="google-site-verification">
   title: "Sorin Platon"
-  description: "Field notes on VMware Cloud Foundation — NSX, EVPN, BGP, VKS and Kubernetes, VCF Automation and Operations, private AI — built and broken on a Holodeck lab."
+  description: "Field notes on VMware Cloud Foundation (NSX, EVPN, BGP, VKS and Kubernetes, VCF Automation and Operations, private AI), built and broken on a Holodeck lab."
   author: "Sorin Platon"
   keywords: [VCF, VMware Cloud Foundation, Holodeck, NSX, EVPN, VXLAN, BGP, VKS, Kubernetes, VCF Automation, VCF Operations, Argo CD, private AI, Ollama, networking]
   DateFormat: "2 January 2006"
@@ -135,13 +135,12 @@ params:
   homeInfoParams:
     Title: "VMware Cloud Foundation, written down."
     Content: >
-      Field notes from the lab and the field, across the whole VCF stack:
-      NSX, EVPN/VXLAN and BGP traffic engineering; VKS and Kubernetes;
-      VCF Automation, GitOps with Argo CD, VCF Operations and its AI
-      Assistant on a private LLM. Working configs, the traps they contain,
-      and why they look the way they do. All of it is built, broken and
-      fixed on a nested VCF 9.1 Holodeck before it gets anywhere near
-      production.
+      Notes from the lab and the field on the whole VCF stack: NSX,
+      EVPN/VXLAN and BGP traffic engineering, VKS and Kubernetes, VCF
+      Automation and GitOps with Argo CD, and VCF Operations with its AI
+      Assistant on a private LLM. Each post gives you a config that works,
+      the traps hiding in it, and why it is built that way. Everything runs
+      on a nested VCF 9.1 Holodeck before it gets anywhere near production.
 
   socialIcons:
     - name: github

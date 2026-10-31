@@ -12,7 +12,7 @@ params:
   seoDescription: "Network Pool, pools TEP, External IP Block, bloc Transit Gateway, CIDR de VPC et IP Spaces : ce qu'est chaque « pool » de VCF 9.1 et quel composant le consomme."
 ---
 
-VCF 9.1 demande des adresses à quatre endroits différents : SDDC Manager veut un *Network Pool*, NSX veut des *IP Address Pools* et des *IP Address Blocks*, l'assistant Supervisor veut des *CIDR*, et VCF Automation veut des *IP Spaces*. Tout cela ressemble à « une plage d'adresses », tout cela s'appelle un pool à un moment ou à un autre, et tout cela fait quelque chose de différent. La confusion se comprend : le même `10.x.0.0/16` tapé dans le mauvais champ, soit ne sort jamais de la fabrique, soit se retrouve annoncé à tout le centre de données.
+VCF 9.1 demande des adresses à quatre endroits différents : SDDC Manager veut un *Network Pool*, NSX veut des *IP Address Pools* et des *IP Address Blocks*, l'assistant Supervisor veut des *CIDR*, et VCF Automation veut des *IP Spaces*. Tout cela ressemble à « une plage d'adresses », chacun finit par s'appeler un pool à un moment ou à un autre, et aucun ne fait le même travail. Tapez le même `10.x.0.0/16` dans le mauvais champ et il ne sort jamais de la fabrique, ou bien il se retrouve annoncé à tout le centre de données.
 
 Ce billet est la carte que j'aurais voulu avoir. Pour chaque pool : ce que c'est, où on le définit, quel composant réseau le consomme, et s'il est un jour visible au nord du Tier-0.
 
@@ -41,13 +41,13 @@ Lisez-la de haut en bas comme un paquet, du sud vers le nord. Tout ce qui est en
 
 Ce sont les seuls « pools » qui sont d'honnêtes sous-réseaux VLAN avec une passerelle physique sur le ToR.
 
-**Network Pool (SDDC Manager).** Créé au moment de commissionner les hôtes. Il contient une plage par type de trafic — vMotion, vSAN, NFS et *Host Overlay* — et SDDC Manager remet une adresse de chaque plage au port vmkernel de chaque hôte. Dans le lab, les hôtes de charge de travail sont sur `wld-a-np01`. Un Network Pool n'a rien à voir avec le routage NSX ; c'est de la plomberie par hôte.
+**Network Pool (SDDC Manager).** Créé au moment de commissionner les hôtes. Il contient une plage par type de trafic (vMotion, vSAN, NFS et *Host Overlay*), et SDDC Manager remet une adresse de chaque plage au port vmkernel de chaque hôte. Dans le lab, les hôtes de charge de travail sont sur `wld-a-np01`. Un Network Pool n'a rien à voir avec le routage NSX ; c'est de la plomberie par hôte.
 
 **Host TEP IP Pool (NSX).** La plage Host Overlay du Network Pool réapparaît dans NSX comme un *IP Address Pool* sous Networking › IP Address Pools ; VCF le crée pour vous à la création du cluster, ou vous pouvez le pré-créer dans NSX. Chaque nœud de transport ESX y prend une adresse par uplink ; ces adresses sont la source et la destination externes de chaque paquet GENEVE. Du DHCP sur le VLAN TEP est une alternative acceptée.
 
 **Edge TEP IP Pool.** Même idée pour les nœuds Edge, créé à la volée dans l'assistant *Setup Network Connectivity* qui déploie le cluster Edge (choisissez *IP Pool* comme mode d'attribution et l'assistant vous laisse le définir sur place). Les Edges reçoivent aussi leurs VLAN d'uplink ici : un /29 ou /30 point à point par ToR pour le peering BGP du Tier-0.
 
-Aucun de ces pools n'est annoncé nulle part, et aucun n'est nécessaire dans le modèle VPC sans TEP, adossé à des VLAN, de 9.1.1 — c'est tout l'objet du [billet sur VKS sans TEP](/fr/posts/vks-without-teps/).
+Aucun de ces pools n'est annoncé nulle part, et aucun n'est nécessaire dans le modèle VPC sans TEP, adossé à des VLAN, de 9.1.1. C'est tout l'objet du [billet sur VKS sans TEP](/fr/posts/vks-without-teps/).
 
 ## 2. Les IP Address Blocks de NSX : les deux qui comptent
 
@@ -55,7 +55,7 @@ Sous NSX › Networking › IP Address Management › IP Address Blocks vivent l
 
 ### External IP Block (visibilité : External)
 
-Ce sont des plages que VCF possède, elles ne doivent chevaucher rien d'autre dans le réseau physique, et le Tier-0 les annonce aux routeurs amont en BGP. Tout ce qui doit être joignable depuis l'extérieur du VPC prend une adresse ici : les sous-réseaux publics, l'adresse SNAT de chaque VPC, les adresses de NAT 1:1 et chaque VIP de répartiteur de charge — y compris la VIP de l'API du Supervisor, ce qui explique que le FQDN du serveur d'API se résolve dans ce bloc et non dans le VLAN de gestion.
+Ce sont des plages que VCF possède, elles ne doivent chevaucher rien d'autre dans le réseau physique, et le Tier-0 les annonce aux routeurs amont en BGP. Tout ce qui doit être joignable depuis l'extérieur du VPC prend une adresse ici : les sous-réseaux publics, l'adresse SNAT de chaque VPC, les adresses de NAT 1:1 et chaque VIP de répartiteur de charge. Cela inclut la VIP de l'API du Supervisor, ce qui explique que le FQDN du serveur d'API se résolve dans ce bloc et non dans le VLAN de gestion.
 
 Deux pièges de dimensionnement :
 
@@ -66,7 +66,7 @@ Un profil de connectivité accepte jusqu'à cinq External IP Blocks.
 
 ### Private Transit Gateway IP Block (visibilité : Private)
 
-Ce bloc alimente les *sous-réseaux privés de transit gateway*. Ses adresses ne sont jamais annoncées au nord et il est limité au projet qui possède le Transit Gateway. Un sous-réseau private-TGW est joignable depuis chaque VPC rattaché au même Transit Gateway, sans NAT ; c'est ce qu'utilise le VPC des Supervisor Services pour que les pods de service soient joignables depuis les autres VPC du projet. Pour quitter le projet, le trafic d'un tel sous-réseau est NATé en source au Transit Gateway vers une IP externe — sauf si vous activez l'interrupteur *Private IP Blocks* de 9.1 sur la connexion externe, qui permet d'étendre les sous-réseaux private-TGW tels quels à travers la connexion externe (voir le [billet VCF sur les options de connectivité du Transit Gateway](https://blogs.vmware.com/cloud-foundation/2026/05/12/transit-gateway-connectivity-options-in-vcf-9-1/)).
+Ce bloc alimente les *sous-réseaux privés de transit gateway*. Ses adresses ne sont jamais annoncées au nord et il est limité au projet qui possède le Transit Gateway. Un sous-réseau private-TGW est joignable depuis chaque VPC rattaché au même Transit Gateway, sans NAT ; c'est ce qu'utilise le VPC des Supervisor Services pour que les pods de service soient joignables depuis les autres VPC du projet. Pour quitter le projet, le trafic d'un tel sous-réseau est NATé en source au Transit Gateway vers une IP externe, sauf si vous activez l'interrupteur *Private IP Blocks* de 9.1 sur la connexion externe, qui permet d'étendre les sous-réseaux private-TGW tels quels à travers la connexion externe (voir le [billet VCF sur les options de connectivité du Transit Gateway](https://blogs.vmware.com/cloud-foundation/2026/05/12/transit-gateway-connectivity-options-in-vcf-9-1/)).
 
 Et le piège de 9.1 : donnez un **/16** à ce bloc. Un /24 suffisait en 9.0 ; en 9.1 le déploiement du Supervisor/VKS se bloque avec un /24, comme le rapportent [vstellar](https://vstellar.com/2026/05/vcf-9-1-home-lab-series-part-6-configure-network-connectivity/) et d'autres. Broadcom ne documente aucun minimum ; les praticiens s'accordent sur le symptôme. Comme le bloc n'est jamais annoncé, un /16 ne coûte rien. Évitez simplement de réutiliser la valeur Day-0 par défaut `172.31.0.0/16` si vous parlez aussi à AWS.
 
@@ -88,10 +88,10 @@ Tout ce qui précède ne compte qu'au moment où un sous-réseau est créé, par
 
 Quelques conséquences faciles à manquer :
 
-- **Les CIDR privés peuvent se chevaucher** entre VPC et entre organisations ; les deux autres types de blocs doivent être uniques dans le projet, et l'External block doit être unique dans le centre de données.
-- L'interrupteur **SNAT par défaut** vit dans le VPC Connectivity Profile. Désactivé, un sous-réseau privé n'a aucune sortie tant que vous ne publiez pas un NAT 1:1 ; le VPC adossé à des VLAN de 9.1.1 l'exige désactivé parce qu'il n'y a pas de moteur de NAT sur un simple VLAN.
-- Une **VIP de LoadBalancer** est une IP externe quel que soit le sous-réseau des backends. Sous-réseau privé + VIP LB est le motif normal de VKS : des nœuds sur le CIDR privé, un point d'accès API sur une IP externe.
-- Le **ToR n'apprend jamais que des External blocks**. Si un préfixe d'un bloc privé ou private-TGW apparaît dans votre table BGP, quelqu'un a mis la mauvaise visibilité sur le bloc.
+- Les CIDR privés peuvent se chevaucher entre VPC et entre organisations ; les deux autres types de blocs doivent être uniques dans le projet, et l'External block doit être unique dans le centre de données.
+- L'interrupteur SNAT par défaut vit dans le VPC Connectivity Profile. Désactivé, un sous-réseau privé n'a aucune sortie tant que vous ne publiez pas un NAT 1:1 ; le VPC adossé à des VLAN de 9.1.1 l'exige désactivé parce qu'il n'y a pas de moteur de NAT sur un simple VLAN.
+- Une VIP de LoadBalancer est une IP externe quel que soit le sous-réseau des backends. Sous-réseau privé + VIP LB est le motif normal de VKS : des nœuds sur le CIDR privé, un point d'accès API sur une IP externe.
+- Le ToR n'apprend jamais que des External blocks. Si un préfixe d'un bloc privé ou private-TGW apparaît dans votre table BGP, quelqu'un a mis la mauvaise visibilité sur le bloc.
 
 ## 4. Comment VCF Automation appelle tout cela
 
@@ -101,9 +101,9 @@ VCF Automation (organisations All Apps) n'invente pas de nouveaux objets réseau
 
 **Region.** Lie un NSX Manager, les Supervisors qui sont derrière et une classe de stockage. En général un domaine de charge de travail, et plusieurs Supervisors ne peuvent partager une Region que s'ils dépendent du même NSX Manager.
 
-**IP Space.** C'est celui qui embrouille tout le monde, parce que c'est le nom VCFA d'un External IP Block. Un IP Space a deux moitiés. Ses *IP blocks* sont les adresses au sud du Provider Gateway — celles que les tenants consomment réellement pour leurs sous-réseaux et services. Son *external reachability* est la liste des préfixes au nord de la passerelle vers lesquels les tenants sont autorisés à router. NSX auto-découpe les IP blocks pour les sous-réseaux publics des tenants, pour le NAT source de leurs sous-réseaux privés et pour leurs VIP de répartiteur — exactement les trois rôles d'un External IP Block. La consommation est mesurée par organisation avec des quotas sur les IP unitaires, les CIDR et la taille maximale de sous-réseau.
+**IP Space.** C'est celui qui embrouille tout le monde, parce que c'est le nom VCFA d'un External IP Block. Un IP Space a deux moitiés. Ses *IP blocks* sont les adresses au sud du Provider Gateway, celles que les tenants consomment réellement pour leurs sous-réseaux et services. Son *external reachability* est la liste des préfixes au nord de la passerelle vers lesquels les tenants sont autorisés à router. NSX auto-découpe les IP blocks pour les sous-réseaux publics des tenants, pour le NAT source de leurs sous-réseaux privés et pour leurs VIP de répartiteur, soit exactement les trois rôles d'un External IP Block. La consommation est mesurée par organisation avec des quotas sur les IP unitaires, les CIDR et la taille maximale de sous-réseau.
 
-**Provider Gateway.** Un pointeur vers un Tier-0 ou un Tier-0 VRF de NSX. Vous y rattachez d'un à cinq IP Spaces, et cinq CIDR au total (cinq IP Spaces veut donc dire un CIDR chacun). Il peut être partagé entre organisations ou dédié à une seule — un VRF dédié avec ses propres IP Spaces est la façon de donner à un tenant à la fois Internet et un WAN privé.
+**Provider Gateway.** Un pointeur vers un Tier-0 ou un Tier-0 VRF de NSX. Vous y rattachez d'un à cinq IP Spaces, et cinq CIDR au total (cinq IP Spaces veut donc dire un CIDR chacun). Il peut être partagé entre organisations ou dédié à une seule. Un VRF dédié avec ses propres IP Spaces est la façon de donner à un tenant à la fois Internet et un WAN privé.
 
 **Réseau régional (regional networking).** L'étape qui construit vraiment les choses. Vous donnez à une organisation un Provider Gateway et un cluster Edge dans une Region, et VCF Automation crée un projet NSX au nom de l'organisation, un Default Transit Gateway à l'intérieur avec une connexion externe vers le Tier-0 derrière le Provider Gateway, et un premier VPC nommé `<region>-default-vpc` (le [deep dive de Fojta](https://fojta.wordpress.com/2025/12/05/vcf-automation-9-0-networking-deep-dive/) le détaille). À partir de ce moment, l'organisation *est* un projet NSX : un projet, un Transit Gateway, et les CIDR de l'IP Space apparaissent comme External IP Block du VPC Connectivity Profile de ce projet.
 
@@ -115,13 +115,13 @@ Le vocabulaire VCFA tient donc en une ligne : **IP Space = External IP Block ave
 
 Le Supervisor ajoute trois entrées qui lui sont propres et consomme deux des blocs ci-dessus.
 
-- **Plage de gestion.** Cinq IP consécutives sur le VLAN de gestion — l'adresse de départ devient l'IP flottante, les trois suivantes vont aux VM du plan de contrôle, la cinquième est gardée pour les mises à niveau progressives. Dans le lab, c'est `10.1.1.188–.192`. C'est la seule entrée du Supervisor qui soit une simple adresse de VLAN routable.
+- **Plage de gestion.** Cinq IP consécutives sur le VLAN de gestion. L'adresse de départ devient l'IP flottante, les trois suivantes vont aux VM du plan de contrôle et la cinquième est gardée pour les mises à niveau progressives. Dans le lab, c'est `10.1.1.188–.192`. C'est la seule entrée du Supervisor qui soit une simple adresse de VLAN routable.
 - **Service CIDR.** La plage ClusterIP de Kubernetes. Jamais routée, elle ne doit chevaucher rien de ce que voit le plan de contrôle, y compris les CIDR de pods et de services des clusters invités VKS (Antrea, non routables, par cluster).
 - **CIDR privés (VPC).** Le bloc privé de VPC dans lequel le Supervisor taillera les sous-réseaux privés des nœuds VKS et des vSphere Pods.
 
-Il prend ensuite un projet NSX et un VPC Connectivity Profile, qui amènent avec eux les blocs External et Private-TGW, et crée deux VPC dans ce projet : `kube-system_<id>` (la VIP de l'API et ses répartiteurs) et `vmware-system-supervisor-services-vpc_<id>` (les Supervisor Services sur des sous-réseaux private-TGW), plus une règle SNAT pour la sortie du plan de contrôle — le tout tiré des blocs *de ce projet*.
+Il prend ensuite un projet NSX et un VPC Connectivity Profile, qui amènent avec eux les blocs External et Private-TGW, et crée deux VPC dans ce projet : `kube-system_<id>` (la VIP de l'API et ses répartiteurs) et `vmware-system-supervisor-services-vpc_<id>` (les Supervisor Services sur des sous-réseaux private-TGW), plus une règle SNAT pour la sortie du plan de contrôle, le tout tiré des blocs *de ce projet*.
 
-En pratique, le Supervisor est activé dans le **projet Default** : ses VPC système, sa VIP d'API et sa sortie utilisent l'External block du projet Default, et chaque organisation tenant reçoit son propre projet avec son propre IP Space. Les deux ne partagent jamais d'espace d'adressage ; les nœuds VKS d'un tenant ont juste besoin d'une route vers la VIP de l'API du Supervisor, et tout le reste passe par le Namespace Proxy de VCFA. Projet Default contre projet d'organisation, c'est une histoire à part — la version courte : Default = contexte administrateur, modifiable depuis vCenter, pas pour la multi-location ; projet d'org = un par organisation, son propre Transit Gateway, ses propres blocs, des quotas via les IP Spaces.
+En pratique, le Supervisor est activé dans le **projet Default** : ses VPC système, sa VIP d'API et sa sortie utilisent l'External block du projet Default, et chaque organisation tenant reçoit son propre projet avec son propre IP Space. Les deux ne partagent jamais d'espace d'adressage ; les nœuds VKS d'un tenant ont juste besoin d'une route vers la VIP de l'API du Supervisor, et tout le reste passe par le Namespace Proxy de VCFA. Projet Default contre projet d'organisation mériterait son propre billet. La version courte : Default = contexte administrateur, modifiable depuis vCenter, pas pour la multi-location ; projet d'org = un par organisation, son propre Transit Gateway, ses propres blocs, des quotas via les IP Spaces.
 
 ## 6. Aide-mémoire de planification
 
@@ -142,7 +142,7 @@ L'adressage du lab, avec la règle qui s'applique à chaque ligne. Changez les c
 
 Deux vérifications avant de cliquer sur *Finish* dans n'importe lequel des assistants :
 
-1. Ouvrez NSX › IP Address Blocks et lisez la colonne **visibility**. External pour tout ce qui doit être joignable, Private pour le bloc du Transit Gateway. Les listes déroulantes des assistants filtrent dessus, et une liste *External IP Blocks* vide est presque toujours un bloc créé avec la mauvaise visibilité — ou un assistant resté sur un état périmé ; annulez et relancez.
+1. Ouvrez NSX › IP Address Blocks et lisez la colonne **visibility**. External pour tout ce qui doit être joignable, Private pour le bloc du Transit Gateway. Les listes déroulantes des assistants filtrent dessus, et une liste *External IP Blocks* vide est presque toujours un bloc créé avec la mauvaise visibilité, ou un assistant resté sur un état périmé (annulez et relancez).
 2. Pinguez les cinq adresses de gestion et résolvez le FQDN du serveur d'API. Le FQDN ne doit *pas* encore se résoudre vers une IP de gestion ; il recevra une VIP de l'External block pendant l'activation, donc les enregistrements A et PTR suivent en général.
 
 ## Sources

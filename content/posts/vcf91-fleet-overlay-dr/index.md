@@ -14,8 +14,6 @@ Two questions tend to show up together. The first: how do I get VCF Operations a
 
 They are really one question. An overlay segment for the fleet components only earns its extra edge cluster if you intend to stretch it, and you stretch it for one reason: IP mobility for disaster recovery. So this post takes both halves in order — the greenfield sequence first, then the DR design it sets up: what gets replicated, what gets rebuilt from backup, where the inter-site latency constrains you and where it doesn't, and the order of operations on the day.
 
-*October 2026 · VCF 9.1.1 documentation and design library, checked in the Holodeck lab · "Protection and Recovery" is the 9.1 name of the VMware Live Recovery appliance (Site Recovery Manager plus vSphere Replication); I write SRM when I mean the orchestration function.*
-
 ## Part 1 — Greenfield: landing the fleet components on an overlay segment
 
 ### Bring-up won't do it for you

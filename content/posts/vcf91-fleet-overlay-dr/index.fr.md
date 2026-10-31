@@ -14,8 +14,6 @@ Deux questions arrivent souvent ensemble. La première : comment mettre VCF Oper
 
 C'est en fait une seule question. Un segment overlay pour les composants du fleet ne mérite son cluster d'edges supplémentaire que si on compte l'étirer, et on l'étire pour une seule raison : la mobilité IP pour la reprise après sinistre. Ce billet prend donc les deux moitiés dans l'ordre — la séquence greenfield d'abord, puis le design de reprise qu'elle met en place : ce qui se réplique, ce qui se reconstruit depuis une sauvegarde, où la latence entre les sites vous contraint et où elle ne change rien, et l'ordre des opérations le jour J.
 
-*Octobre 2026 · documentation et design library VCF 9.1.1, vérifiées dans le lab Holodeck · « Protection and Recovery » est le nom 9.1 de l'appliance VMware Live Recovery (Site Recovery Manager plus vSphere Replication) ; j'écris SRM quand je parle de la fonction d'orchestration.*
-
 ## Partie 1 — Greenfield : poser les composants du fleet sur un segment overlay
 
 ### Le bring-up ne le fera pas pour vous

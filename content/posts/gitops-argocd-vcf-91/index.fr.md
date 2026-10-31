@@ -2,7 +2,7 @@
 title: "GitOps sur VCF 9.1 : ce que demande vraiment le Supervisor Service Argo CD"
 date: 2026-09-30
 description: "Argo CD comme Supervisor Service, un cluster VKS et une application construits à partir d'un seul repo Git, de bout en bout dans un lab Holodeck."
-summary: "Un commit, six VM : Argo CD, exécuté comme vSphere Supervisor Service, construit un cluster VKS et y déploie podinfo à partir d'un seul repo Git — chaque étape, chaque piège et, dans la partie 2, qui contrôle quoi et ce qui casse."
+summary: "Un commit, six VM : Argo CD, exécuté comme vSphere Supervisor Service, construit un cluster VKS et y déploie podinfo à partir d'un seul repo Git. Chaque étape, chaque piège et, dans la partie 2, qui contrôle quoi et ce qui casse."
 tags: ["VCF 9.1", "Argo CD", "GitOps", "VKS", "Supervisor", "VCF Automation", "Holodeck"]
 categories: ["Notes"]
 showToc: true
@@ -32,7 +32,7 @@ Ensuite, un commit d'une ligne fait passer podinfo d'un pod à trois en 16 secon
 <figcaption aria-hidden="true">l'exécution complète · sept étapes avec les durées mesurées dans le lab, du commit au self-heal</figcaption>
 </figure>
 
-C'est précisément ce qu'un cluster Kubernetes ordinaire ne sait pas faire et que VMware Cloud Foundation sait faire : la même boucle GitOps qui déploie les containers crée et redimensionne aussi les machines sur lesquelles ils tournent, parce que le vSphere Supervisor expose les VM, les clusters Kubernetes à base de VM et les vSphere Pods comme des objets Kubernetes.
+Un cluster Kubernetes ordinaire ne sait pas faire cela. Sur VMware Cloud Foundation, la même boucle GitOps qui déploie les containers crée et redimensionne aussi les machines sur lesquelles ils tournent, parce que le vSphere Supervisor expose les VM, les clusters Kubernetes à base de VM et les vSphere Pods comme des objets Kubernetes.
 
 Ce billet construit tout cela à partir d'un Supervisor nu, dans un lab Holodeck imbriqué, avec chaque commande et chaque « piège ».
 
@@ -44,7 +44,7 @@ La partie 2 traite de qui a le droit de modifier quoi une fois que plus personne
 >
 > Argo CD est un cuisinier qui relit le livre toutes les quelques minutes, prépare tout ce qui y est écrit et, si quelqu'un touche à une assiette, la refait discrètement comme le livre l'indique.
 >
-> Le vSphere Supervisor est une cuisine capable de construire à la fois les fours (les machines virtuelles) et les plats (les containers) à partir de la même recette ; c'est pourquoi un seul livre peut décrire un cluster entier, et pas seulement ce qui tourne dedans.
+> Le vSphere Supervisor est une cuisine capable de construire à la fois les fours (les machines virtuelles) et les plats (les containers) à partir de la même recette ; c'est pourquoi un seul livre peut décrire un cluster entier aussi bien que ce qui tourne dedans.
 
 ## Ce que vous n'avez pas eu à faire {#what-you-did-not-have-to-do}
 
@@ -944,7 +944,7 @@ Quoi que disent la politique RBAC et les Projects, le moteur ne peut faire que c
 
 </div>
 
-C'est pourquoi **une instance Argo CD par équipe constitue une vraie frontière de sécurité sur VCF**, et pas seulement une question de propreté : l'instance d'une équipe ne détient des credentials que pour ses propres namespaces et clusters. L'Operator rend les instances peu coûteuses ; profitez-en.
+C'est pourquoi **une instance Argo CD par équipe constitue une vraie frontière de sécurité sur VCF** : l'instance d'une équipe ne détient des credentials que pour ses propres namespaces et clusters. L'Operator rend les instances peu coûteuses ; profitez-en.
 
 ### L'auto-attach en 9.1.1 : enregistrer la cible 2 sans la CLI {#auto-attach-on-911-registering-target-2-without-the-cli}
 

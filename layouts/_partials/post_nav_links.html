@@ -1,0 +1,63 @@
+{{- /*
+  Override of PaperMod's post_nav_links.html.
+  Adds "More on <layer>": a small drawing of the VCF stack with this post's layer filled in,
+  and the other posts on the same layer (same map as the home page: data/home.yaml).
+  The chronological previous/next links stay underneath, unchanged from PaperMod.
+*/ -}}
+{{- $d := hugo.Data.home -}}
+{{- $lang := site.Language.Lang -}}
+{{- $t := index $d.strings $lang -}}
+{{- $key := path.Base .File.Dir -}}
+{{- $m := index $d.posts $key -}}
+{{- if $m }}
+{{- $layerID := $m.layer -}}
+{{- $layer := dict -}}{{- range $d.layers }}{{ if eq .id $layerID }}{{ $layer = index . $lang }}{{ end }}{{ end -}}
+{{- $self := . -}}
+{{- $siblings := slice -}}
+{{- range (where site.RegularPages "Section" "posts").ByDate.Reverse }}
+  {{- $k := path.Base .File.Dir -}}
+  {{- $pm := index $d.posts $k -}}
+  {{- if and $pm (eq $pm.layer $layerID) (ne .RelPermalink $self.RelPermalink) }}{{ $siblings = $siblings | append . }}{{ end -}}
+{{- end }}
+<section class="layer-more" aria-labelledby="layer-more-h">
+  <svg class="layer-more__stack" viewBox="0 0 120 150" role="img" aria-label="{{ $t.stack_where }}: {{ $layer.name }}">
+    {{- $n := len $d.layers }}
+    {{- range $i, $L := $d.layers }}
+    {{- $y := sub 128 (mul $i 24) }}
+    <rect x="6" y="{{ $y }}" width="108" height="16" rx="2"
+      class="{{ if eq $L.id "host" }}is-base{{ else if eq $L.id $layerID }}is-here{{ end }}"/>
+    {{- end }}
+  </svg>
+  <div class="layer-more__body">
+    <h2 id="layer-more-h" class="layer-more__title">{{ printf $t.more_on $layer.name }}</h2>
+    {{- with $siblings }}
+    <ul class="layer-more__list">
+      {{- range first 3 . }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a> <span class="layer-more__meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_medium" }}</time>, {{ .ReadingTime }} min</span></li>
+      {{- end }}
+    </ul>
+    {{- else }}
+    <p class="layer-more__none">{{ $t.only_one }}</p>
+    {{- end }}
+    <p class="layer-more__all"><a href="{{ "" | relLangURL }}#shelf">{{ $t.all_layers }}</a></p>
+  </div>
+</section>
+{{- end }}
+
+{{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- if and (gt (len $pages) 1) (in $pages . ) }}
+<nav class="paginav">
+  {{- with $pages.Next . }}
+  <a class="prev" href="{{ .Permalink }}">
+    <span class="title">« {{ i18n "prev_page" }}</span>
+    <span>{{- .Name -}}</span>
+  </a>
+  {{- end }}
+  {{- with $pages.Prev . }}
+  <a class="next" href="{{ .Permalink }}">
+    <span class="title">{{ i18n "next_page" }} »</span>
+    <span>{{- .Name -}}</span>
+  </a>
+  {{- end }}
+</nav>
+{{- end }}

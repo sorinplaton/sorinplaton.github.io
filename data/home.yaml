@@ -90,6 +90,10 @@ strings:
     plate_lang: "Writes in English, answers in French too."
     plate_more: "More about me"
     small: "Posts built with Hugo and PaperMod. This page uses ScrollCraft (MIT)."
+    more_on: "More on %s"
+    only_one: "This is the only post on this layer so far."
+    all_layers: "Every post, by layer"
+    stack_where: "Where this post sits in the VCF stack"
   fr:
     pageTitle: "Sorin Platon · VMware Cloud Foundation, noir sur blanc"
     nav_posts: "Tous les articles"
@@ -115,3 +119,7 @@ strings:
     plate_lang: "Écrit en anglais, répond aussi en français."
     plate_more: "En savoir plus"
     small: "Articles générés avec Hugo et PaperMod. Cette page utilise ScrollCraft (MIT)."
+    more_on: "Autres articles : %s"
+    only_one: "C'est pour l'instant le seul article de cette couche."
+    all_layers: "Tous les articles, par couche"
+    stack_where: "La place de cet article dans la pile VCF"

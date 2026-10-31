@@ -2,7 +2,7 @@
 title: "Super metrics in VCF Operations: one number from many, and when real-time metrics are the better tool"
 date: 2026-10-28
 description: "A super metric turns the values of many objects into one KPI stored on the object where the question is asked. This post covers the formula language, the depth rule that breaks most first attempts, the where clause, what super metrics cost a VCF Operations cluster, and how VCF 9.1 real-time metrics differ: 2-second data for a troubleshooting window, not a stored KPI."
-summary: "The questions operators ask — the worst CPU ready in a cluster, how many VMs run hot — are not single metrics. A super metric is the formula that answers them, stored like a built-in metric. The syntax, the depth rule, the where clause, worked examples, the sizing cost, and a side-by-side with VCF 9.1 real-time metrics."
+summary: "The questions operators ask, such as the worst CPU ready in a cluster or how many VMs run hot, are not single metrics. A super metric is the formula that answers them, stored like a built-in metric. The syntax, the depth rule, the where clause, worked examples, the sizing cost, and a side-by-side with VCF 9.1 real-time metrics."
 tags: ["VCF 9.1", "VCF Operations", "Super metrics", "Real-time metrics", "PromQL", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
@@ -34,7 +34,7 @@ The lifecycle has five steps, and the third one is the one people miss:
 
 The editor's *Preview* computes the formula on the fly for one object and keeps nothing. Only a super metric that is activated in the policy covering an object is persisted. So a super metric that validates and previews perfectly, then shows nothing in a view, is almost always missing step 3. Broadcom's [KB 429899](https://knowledge.broadcom.com/external/article/429899/view-not-displaying-super-metrics-in-ari.html) describes exactly this case.
 
-Name it like a built-in metric while you are there: Title Case, spaces between words, the unit at the end — `Worst VM CPU Ready (%)`. The name shows up in dashboards, alerts and reports, and the description is the place to record why it exists and who owns it.
+Name it like a built-in metric while you are there: Title Case, spaces between words, the unit at the end: `Worst VM CPU Ready (%)`. The name shows up in dashboards, alerts and reports, and the description is the place to record why it exists and who owns it.
 
 ## Anatomy of a formula
 
@@ -56,11 +56,11 @@ Read aloud: *the average CPU usage of virtual machines from the vCenter adapter,
 | `where` | Filters which values are used | Same object only · numeric right operand |
 | `as alias` | Names the entry for reuse | Case-insensitive · each name defined once |
 
-In the editor you rarely type keys by hand: enter a few letters and press *ctrl+space*; it completes object types, metrics and properties. Do that rather than copying metric keys from a blog post, mine included — the keys in this post are the ones the documentation uses, but pick them from the list so they match your version.
+In the editor you rarely type keys by hand: enter a few letters and press *ctrl+space*; it completes object types, metrics and properties. Do that rather than copying metric keys from a blog post, mine included. The keys in this post are the ones the documentation uses, but pick them from the list so they match your version.
 
 ### Functions and operators, briefly
 
-Looping functions take a set (every VM, every vCPU instance) and reduce it. Single functions shape one value: `abs`, `ceil`, `floor`, `sqrt`, `pow(x, y)`, `log`, `log10`, `exp`, `rand()` and the trigonometric set. Operators are what you expect — `+ − * / %`, comparisons, `&& || !` — plus two worth knowing:
+Looping functions take a set (every VM, every vCPU instance) and reduce it. Single functions shape one value: `abs`, `ceil`, `floor`, `sqrt`, `pow(x, y)`, `log`, `log10`, `exp`, `rand()` and the trigonometric set. Operators are what you expect (`+ − * / %`, comparisons, `&& || !`), plus two worth knowing:
 
 - **Arrays**: `min([x, y, z])` picks between expressions.
 - **Ternary**: `condition ? if_true : if_false`. The condition is converted to a number (anything other than 0 is true) and *only the chosen branch is evaluated*, which is what makes this divide-by-zero guard safe:
@@ -69,7 +69,7 @@ Looping functions take a set (every VM, every vCPU instance) and reduce it. Sing
 ${this, metric=cpu|demandmhz} as a != 0 ? 1/a : -1
 ```
 
-String operators (`equals`, `contains`, `startsWith`, `endsWith` and their `!` negations) exist too, but only inside a `where` condition — you cannot compute with strings.
+String operators (`equals`, `contains`, `startsWith`, `endsWith` and their `!` negations) exist too, but only inside a `where` condition; you cannot compute with strings.
 
 ## Depth: the rule that breaks most first attempts
 
@@ -77,7 +77,7 @@ String operators (`equals`, `contains`, `startsWith`, `endsWith` and their `!` n
 
 *Count hops along the relationship chain, starting from the object the super metric is assigned to.*
 
-Depth is where most wrong or empty super metrics come from. From the cluster, hosts are depth 1, VMs are depth 2, and the data center is depth −1. The trap is the default: when you pick a metric in the editor it writes `depth=1`, so a cluster formula meant to read VMs silently reads hosts — or nothing of the type you named — until you change it to 2.
+Depth is where most wrong or empty super metrics come from. From the cluster, hosts are depth 1, VMs are depth 2, and the data center is depth −1. The trap is the default: when you pick a metric in the editor it writes `depth=1`, so a cluster formula meant to read VMs silently reads hosts (or nothing of the type you named) until you change it to 2.
 
 Datastores are the other trap. VMs are *parents* of a datastore, so from a datastore you reach its VMs with `depth=-1`. And because the datastore cluster is also a parent of the datastore, VM → datastore cluster cannot be done in one entry: −1 + 1 = 0, and depth 0 is not valid.
 
@@ -98,7 +98,7 @@ In the editor, pick SM #1 from the metric list for SM #2 rather than typing its 
 
 *Two VMs are off. They still report 0 % CPU, so an unfiltered average says 27.5 % when the running VMs are at 55 %.*
 
-The `where` clause tests each value before it enters the aggregation. It can look at a different metric of the *same* object — `where=(${metric=sys|poweredOn} == 1)` — or at the entry's own value with `$value`, as in `where=($value > 60)`. Two limits matter in practice:
+The `where` clause tests each value before it enters the aggregation. It can look at a different metric of the *same* object, as in `where=(${metric=sys|poweredOn} == 1)`, or at the entry's own value with `$value`, as in `where=($value > 60)`. Two limits matter in practice:
 
 - It cannot look at another object. "VMs above the cluster's SLA" is not expressible in one super metric, because the SLA belongs to the cluster, not the VM.
 - The right operand must be a plain number: not another super metric, not a variable.
@@ -114,7 +114,7 @@ Three features for longer formulas. An **alias** lets you write a resource entry
       depth=5, where=($value>=0)} as cpuload) + 0.0001) / (max(cpuload) + 0.0001)
 ```
 
-Alias names are case-insensitive, cannot start with a digit or contain operators, each name is defined once, and one entry can carry several (`as a1 as a2`). The **ternary guard** we saw above protects divisions. And **`objecttype=*`** aggregates across every object type of an adapter without listing them — the adapter type stays mandatory:
+Alias names are case-insensitive, cannot start with a digit or contain operators, each name is defined once, and one entry can carry several (`as a1 as a2`). The **ternary guard** we saw above protects divisions. And **`objecttype=*`** aggregates across every object type of an adapter without listing them. The adapter type stays mandatory:
 
 ```text
 count(${adaptertype=VMWARE, objecttype=*, attribute=badge|health, depth=1})
@@ -122,7 +122,7 @@ count(${adaptertype=VMWARE, objecttype=*, attribute=badge|health, depth=1})
 
 ## Creating, consuming, automating
 
-The wizard lives under **Infrastructure Operations → Configuration → Super Metrics** (9.0; *Operate → Administration → Configurations* in 9.1): *Add*, name and description, the object type that holds the result, the formula, the unit, *Validate* and *Preview* on a real object, and finally the policy page — select the policy for the target objects and *Update*. Then check it where it lives: open an object of that type and look under *All Metrics → Super Metric*. The super metrics list shows each one's object types, formula and the policies it is activated in; use it to confirm step 3 before building dashboards on top.
+The wizard lives under **Infrastructure Operations → Configuration → Super Metrics** (9.0; *Operate → Administration → Configurations* in 9.1): *Add*, name and description, the object type that holds the result, the formula, the unit, *Validate* and *Preview* on a real object, and finally the policy page, where you select the policy for the target objects and *Update*. Then check it where it lives: open an object of that type and look under *All Metrics → Super Metric*. The super metrics list shows each one's object types, formula and the policies it is activated in; use it to confirm step 3 before building dashboards on top.
 
 Once stored, a super metric feeds any widget that takes a metric, list and trend views, scheduled reports, and the chain I use most: a **symptom** on the super metric with a threshold → an **alert definition** → a notification or action. It can be flagged as a KPI in the policy, and it appears in the system audit report, which is a quick way to inventory them.
 
@@ -155,7 +155,7 @@ The memory metric is in KB, hence the division. The spread ratio is 1 when hosts
 
 ## What super metrics cost
 
-There is nothing to deploy: super metrics are built into the VCF Operations analytics cluster. What they need is upstream — the input metrics collected by an adapter *and enabled in the policy* (several are disabled by default in 9.x), the super metric activated in a specific policy covering the target objects, and an account allowed to edit both.
+There is nothing to deploy: super metrics are built into the VCF Operations analytics cluster. What they need is upstream: the input metrics collected by an adapter *and enabled in the policy* (several are disabled by default in 9.x), the super metric activated in a specific policy covering the target objects, and an account allowed to edit both.
 
 What they cost is metric series. Each activated super metric yields one stored value per object it is active on, and those series count against the node limits in Broadcom's [VCF Operations 9.0 Sizing Guidelines, KB 397782](https://knowledge.broadcom.com/external/article/397782/vcf-operations-90-sizing-guidelines.html) (for 9.1.x the limits moved to [configmax.broadcom.com](https://configmax.broadcom.com)):
 
@@ -167,7 +167,7 @@ What they cost is metric series. Each activated super metric yields one stored v
 | Large | 16 | 48 | 44,000 | 8,000,000 |
 | Extra large | 24 | 128 | 100,000 | 20,000,000 |
 
-A rule of thumb, mine rather than Broadcom's: multiply super metrics by objects in scope. Ten super metrics on a hundred clusters add a thousand series, noise. The same ten on 2,000 hosts add 20,000, about 1.3 % of a Small node. On 50,000 VMs they add 500,000 — a third of a Small node. That is why super metrics belong on clusters and hosts, not on every VM, and why the Aria Operations best-practices guide says to apply them only to relevant objects and avoid heavy calculations on world-level objects.
+A rule of thumb, mine rather than Broadcom's: multiply super metrics by objects in scope. Ten super metrics on a hundred clusters add a thousand series, noise. The same ten on 2,000 hosts add 20,000, about 1.3 % of a Small node. On 50,000 VMs they add 500,000, a third of a Small node. That is why super metrics belong on clusters and hosts, not on every VM, and why the Aria Operations best-practices guide says to apply them only to relevant objects and avoid heavy calculations on world-level objects.
 
 Three habits keep them cheap:
 
@@ -196,7 +196,7 @@ Use both: the super metric alert tells you a cluster is in trouble; real-time da
 
 *A separate pipeline. The 5-minute collection, super metrics and dashboards keep working as before.*
 
-**How they are used.** In the Workbench, *Real Time Analysis* has three views. *Overview* streams 20-second data, or 2-second data when you switch the view to ESX Top on a selected host or VM. *Top N* ranks the heaviest consumers below a VM, host, cluster, datacenter, NSX or vSAN object — always at 20 seconds, even with ESX Top on. *Custom Query* takes PromQL; a `feature` label picks the series:
+**How they are used.** In the Workbench, *Real Time Analysis* has three views. *Overview* streams 20-second data, or 2-second data when you switch the view to ESX Top on a selected host or VM. *Top N* ranks the heaviest consumers below a VM, host, cluster, datacenter, NSX or vSAN object, always at 20 seconds, even with ESX Top on. *Custom Query* takes PromQL; a `feature` label picks the series:
 
 ```text
 cpu.ready.HOST{feature='ESX_TOP'}          # 2-second host data
@@ -207,7 +207,7 @@ The query field has no autocomplete, so use the *Metrics* help tab to find exact
 
 **What they produce.** Three tiers. *Essentials* is always on: a curated set across vCenter, ESX, NSX and vSAN. *Standard* adds more vCenter metrics at 20 seconds and needs the Large deployment type. *ESX Top* gives 2-second esxtop data for hosts and their VMs. Clusters and datacenters report every 60 seconds from the vCenter statistics registry, NSX transport nodes every 60 seconds. The full metric list is a spreadsheet, `VODAP-9.1-Metrics-List-Per-Provider.xlsx`, linked from the [Real-Time Metrics Details](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-1/infrastructure-operations/configuring-policies/using-the-monitoring-policy-workspace/policy-workspace/real-time-metrics-policy-workspace.html) page.
 
-**What they require.** VCF 9.1, ideally the latest 9.1.1 binaries. Two components — *Real-time metrics* and *Real-time metrics store* — added under **Build → Lifecycle → VCF Management → Add Component**, on every VCF instance you want to analyse (the fleet lifecycle API does the same with component type `OPS_DATA_PLATFORM`). The Large size if you want the Standard tier. And the policy tiers, which only appear in a policy once the components are deployed: **Operate → Administration → Configurations → Policy Definition**, *Real time metrics* tile, Standard on the vCenter object type, ESX Top on Host System. Collection starts after one cycle.
+**What they require.** VCF 9.1, ideally the latest 9.1.1 binaries. Two components, *Real-time metrics* and *Real-time metrics store*, added under **Build → Lifecycle → VCF Management → Add Component**, on every VCF instance you want to analyse (the fleet lifecycle API does the same with component type `OPS_DATA_PLATFORM`). The Large size if you want the Standard tier. And the policy tiers, which only appear in a policy once the components are deployed: **Operate → Administration → Configurations → Policy Definition**, *Real time metrics* tile, Standard on the vCenter object type, ESX Top on Host System. Collection starts after one cycle.
 
 For Grafana, the community has documented the connection: a Prometheus data source pointed at the real-time metrics FQDN with an `Authorization: Bearer` header and the vCenter UUID as `sourceId`, with a token that expires after 35 minutes, so [GrafanaRTMsync](https://github.com/makolos2/GrafanaRTMsync) refreshes it from cron. That part is not in Broadcom's documentation; treat it as a working recipe, not a supported interface. And check CPU, memory and storage for the Large size on the *Deploy Real-Time Metrics* page before scaling; I could not find published figures anywhere else.
 

@@ -1,8 +1,8 @@
 ---
 title: "Pools, blocs et IP Spaces dans VCF 9.1 : lequel alimente quel composant réseau"
 date: 2026-10-28
-description: "VCF 9.1 demande un Network Pool, deux pools TEP, un External IP Block, un Private Transit Gateway IP Block, des CIDR privés de VPC, un service CIDR et — dans VCF Automation — des IP Spaces. Un seul mot, pool, pour sept objets différents. Voici ce qu'est chacun, où il se définit et quelle passerelle, quel sous-réseau ou quel hôte le consomme vraiment."
-summary: "Entre SDDC Manager, NSX, l'assistant Supervisor et VCF Automation, VCF 9.1 vous demande au moins sept « pools » différents. Ce billet associe chacun au composant réseau qui le consomme — Tier-0, Transit Gateway, passerelle VPC, sous-réseaux, hôtes ESX, Supervisor — avec trois schémas, les points de NAT, les règles de chevauchement et les pièges de dimensionnement de 9.1."
+description: "VCF 9.1 demande un Network Pool, deux pools TEP, un External IP Block, un Private Transit Gateway IP Block, des CIDR privés de VPC, un service CIDR et, dans VCF Automation, des IP Spaces. Un seul mot, pool, pour sept objets différents. Voici ce qu'est chacun, où il se définit et quelle passerelle, quel sous-réseau ou quel hôte le consomme vraiment."
+summary: "Entre SDDC Manager, NSX, l'assistant Supervisor et VCF Automation, VCF 9.1 vous demande au moins sept « pools » différents. Ce billet associe chacun au composant réseau qui le consomme (Tier-0, Transit Gateway, passerelle VPC, sous-réseaux, hôtes ESX, Supervisor), avec trois schémas, les points de NAT, les règles de chevauchement et les pièges de dimensionnement de 9.1."
 tags: ["VCF 9.1", "NSX", "VPC", "Transit Gateway", "VCF Automation", "Supervisor", "Adressage IP", "Holodeck"]
 categories: ["Notes"]
 showToc: true

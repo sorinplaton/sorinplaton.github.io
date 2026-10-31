@@ -213,3 +213,55 @@ details.toc summary { font-family: "IBM Plex Mono", monospace; font-size: .85rem
 @media (min-width: 1180px) {
   .post-content p > img[src*="/images/fleet-overlay-dr/"] { width: 1100px; max-width: none; margin-left: calc(50% - 550px); }
 }
+
+/* =====================================================================
+   Post pages, design pass (Oct 2026).
+   Fewer costume details (mono caps labels, heading squares), one image
+   treatment for every post, wide drawings allowed past the text column,
+   and an end-of-post "More on <layer>" block tied to the home page stack.
+   ===================================================================== */
+
+/* quieter chrome: sans, sentence case; mono stays for code and data only */
+.post-meta, .breadcrumbs, .footer, .post-tags a, .terms-tags a, .logo a { font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; }
+.post-meta { font-size: .86rem; color: var(--secondary); font-variant-numeric: tabular-nums; }
+.breadcrumbs { font-size: .84rem; }
+details.toc summary { font-family: inherit; font-size: .95rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.post-content h2::before { display: none; }
+.post-content h2 { margin-top: 2.6em; }
+.post-content h3 { margin-top: 1.9em; }
+.post-content table thead th { font-family: inherit; font-size: .84rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--primary); }
+.post-content p, .post-content li { text-wrap: pretty; }
+.post-title { text-wrap: balance; }
+
+/* every Markdown image gets the same frame as <figure> images */
+.post-content p > img:only-child { display: block; height: auto; border: 1px solid var(--line); border-radius: 8px; margin: 1.6em auto .4em; }
+.post-content p:has(> img:only-child) + p > em:only-child { display: block; color: var(--secondary); font-size: .88rem; line-height: 1.5; margin-top: -.6em; }
+
+/* drawings may run wider than the text column on large screens, up to 1040px,
+   centred on the column; a narrow drawing keeps its own width */
+@media (min-width: 1180px) {
+  .post-content p > img[src$=".svg"]:only-child {
+    width: auto; max-width: min(1040px, calc(100vw - 96px));
+    position: relative; left: 50%; transform: translateX(-50%);
+  }
+}
+
+/* end of post: More on <layer> */
+.layer-more {
+  display: grid; grid-template-columns: 88px 1fr; gap: 22px; align-items: start;
+  margin: 8px 0 18px; padding: 22px 24px; background: var(--entry);
+  border: 1px solid var(--line); border-radius: var(--radius);
+}
+.layer-more__stack { width: 88px; height: auto; display: block; }
+.layer-more__stack rect { fill: none; stroke: var(--primary); stroke-width: 1.4; }
+.layer-more__stack rect.is-base { stroke-dasharray: 3 3; stroke: var(--secondary); }
+.layer-more__stack rect.is-here { fill: var(--blue); stroke: var(--blue); }
+.layer-more__title { font-size: 1.15rem; margin: 0 0 10px; }
+.layer-more__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.layer-more__list a { font-weight: 600; color: var(--primary); text-decoration: none; }
+.layer-more__list a:hover { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+.layer-more__meta { display: block; font-size: .82rem; color: var(--secondary); font-variant-numeric: tabular-nums; }
+.layer-more__none { margin: 0; color: var(--secondary); }
+.layer-more__all { margin: 14px 0 0; font-size: .9rem; }
+.layer-more__all a { color: var(--blue); text-underline-offset: 3px; }
+@media (max-width: 560px) { .layer-more { grid-template-columns: 56px 1fr; gap: 16px; padding: 18px; } .layer-more__stack { width: 56px; } }

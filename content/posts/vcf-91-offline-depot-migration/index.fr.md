@@ -1,8 +1,8 @@
 ---
-title: "Migration d'un offline depot VCF 9.1 — de l'ancien ODA au nouveau, en HTTP simple"
+title: "Migration d'un offline depot VCF 9.1 : de l'ancien ODA au nouveau, en HTTP simple"
 date: 2026-09-22
 description: "Runbook pour cloner une appliance offline depot VCF 9.1 vers une nouvelle sans autre outil que scp, puis exposer le nouveau depot au VCF Installer en HTTP, sans authentification."
-summary: "Un runbook étape par étape pour cloner une appliance offline depot (ODA) VCF 9.1 existante vers une nouvelle avec seulement scp, puis l'exposer au VCF Installer en HTTP simple — y compris le piège du mot de passe root de Photon et le correctif de propriété pour nginx."
+summary: "Un runbook étape par étape pour cloner une appliance offline depot (ODA) VCF 9.1 existante vers une nouvelle avec seulement scp, puis l'exposer au VCF Installer en HTTP simple, y compris le piège du mot de passe root de Photon et le correctif de propriété pour nginx."
 tags: ["VCF 9.1", "Offline depot", "ODA", "VCF Installer", "nginx"]
 categories: ["Runbooks"]
 showToc: true
@@ -35,7 +35,7 @@ sudo su
 
 ---
 
-## Étape 0 — Vérifications préalables
+## Étape 0 : Vérifications préalables
 
 **Sur l'ancien ODA :**
 
@@ -56,18 +56,18 @@ mkdir -p /var/www/build/PROD
 
 ---
 
-## Étape 1 — Copier les ISO (`PROD/COMP`)
+## Étape 1 : Copier les ISO (`PROD/COMP`)
 
 `COMP` contient tous les binaires des composants (ISO, OVA, vlcp, tar).
 
-**Sur l'ancien ODA** — permettre à `admin` de lire le depot :
+**Sur l'ancien ODA :** permettre à `admin` de lire le depot :
 
 ```bash
 sudo su
 chmod -R o+rX /var/www
 ```
 
-**Sur le nouvel ODA** — tirer les données en root :
+**Sur le nouvel ODA :** tirer les données en root :
 
 ```bash
 sudo su
@@ -78,13 +78,13 @@ ls /var/www/build/PROD/COMP         # expect VCENTER, NSX_T_MANAGER, SDDC_MANAGE
 
 ---
 
-## Étape 2 — Transférer les métadonnées (`PROD/metadata` + `PROD/vsan`)
+## Étape 2 : Transférer les métadonnées (`PROD/metadata` + `PROD/vsan`)
 
 Obligatoire : la première requête du VCF Installer porte sur `/PROD/metadata/productVersionCatalog/v1/productVersionCatalog.json` ; sans ce fichier (et son `.sig`), la connexion au depot échoue avec *Path not found*.
 
-**Sur l'ancien ODA** — rien à faire ; `admin` peut déjà lire après l'étape 1.
+**Sur l'ancien ODA :** rien à faire ; `admin` peut déjà lire après l'étape 1.
 
-**Sur le nouvel ODA** — tirer les données en root :
+**Sur le nouvel ODA :** tirer les données en root :
 
 ```bash
 scp -rp admin@old-oda:/var/www/build/PROD/metadata admin@old-oda:/var/www/build/PROD/vsan /var/www/build/PROD/
@@ -100,7 +100,7 @@ ln -s PROD/COMP/ESX_HOST/patch-store /var/www/build/umds-patch-store
 
 ---
 
-## Étape 3 — Seulement si l'ancien ODA n'a pas de métadonnées
+## Étape 3 : Seulement si l'ancien ODA n'a pas de métadonnées
 
 Les métadonnées sont produites par le VCF Download Tool (VCFDT) et ne viennent pas d'un download depuis le portail de support. Sur n'importe quelle machine connectée à Internet où VCFDT 9.1 est extrait :
 
@@ -124,7 +124,7 @@ mv /home/admin/metadata /home/admin/vsan /var/www/build/PROD/
 
 ---
 
-## Étape 4 — Droits sur les fichiers (selon la documentation Broadcom)
+## Étape 4 : Droits sur les fichiers (selon la documentation Broadcom)
 
 État cible tiré de la procédure Broadcom VCF 9.1 *Set Up an Offline Depot* (dernière étape, « Set ownership and permissions for the document root directory »). La doc suppose Apache (`/var/www/html`, utilisateur `apache`) ; ce runbook y substitue la racine du depot `/var/www/build` et l'utilisateur worker de nginx, `nginx` (vu à l'étape 0). Les propriétaires et les modes sont ceux de la doc.
 
@@ -145,7 +145,7 @@ chmod 755 /var/www/
 chmod 755 /var/www/html/
 ```
 
-**Sur le nouvel ODA** — les mêmes commandes, avec le chemin et l'utilisateur substitués. Respectez l'ordre : le `find` met `/var/www/build` lui-même à `0500`, donc le `chmod 755` final doit venir en dernier :
+**Sur le nouvel ODA :** les mêmes commandes, avec le chemin et l'utilisateur substitués. Respectez l'ordre : le `find` met `/var/www/build` lui-même à `0500`, donc le `chmod 755` final doit venir en dernier :
 
 ```bash
 rm -f /var/www/build/index.html     # from Broadcom's doc: a stray index.html would be served instead of the directory listing (used to verify PROD is at the root); usually a no-op here
@@ -165,7 +165,7 @@ stat -c '%U %a %n' /var/www /var/www/build /var/www/build/PROD /var/www/build/PR
 #   nginx 400 /var/www/build/PROD/metadata/productVersionCatalog/v1/productVersionCatalog.json
 ```
 
-**Sur l'ancien ODA** — rétablir les droits documentés, assouplis à l'étape 1 (facultatif ; le service n'a jamais été affecté) :
+**Sur l'ancien ODA :** rétablir les droits documentés, assouplis à l'étape 1 (facultatif ; le service n'a jamais été affecté) :
 
 ```bash
 find /var/www/build -type d -exec chmod 0500 {} \;
@@ -173,15 +173,15 @@ find /var/www/build -type f -exec chmod 0400 {} \;
 chmod 755 /var/www/ /var/www/build/
 ```
 
-> Les autres droits de la doc — `0400 root:root` sur `server.key`/`server.crt` et `0400` sur `.htpasswd` — relèvent de la configuration HTTPS/basic auth et ne s'appliquent pas à un depot uniquement HTTP.
+> Les autres droits de la doc (`0400 root:root` sur `server.key`/`server.crt` et `0400` sur `.htpasswd`) relèvent de la configuration HTTPS/basic auth et ne s'appliquent pas à un depot uniquement HTTP.
 
 ---
 
-## Étape 5 — nginx en HTTP, sans authentification
+## Étape 5 : nginx en HTTP, sans authentification
 
 Objectif : un seul bloc `server` à l'écoute sur le port 80, `root /var/www/build`, le listage des répertoires activé (pour que `http://new-oda/` affiche `PROD`, la vérification que demande le KB Broadcom 413848), et aucune directive `auth_basic` / `ssl_*` dans ce bloc.
 
-**Sur le nouvel ODA** — voir ce qui est déjà configuré :
+**Sur le nouvel ODA :** voir ce qui est déjà configuré :
 
 ```bash
 grep -n 'include\|listen\|server_name\|root \|index \|autoindex\|auth_basic\|ssl_certificate' /etc/nginx/nginx.conf
@@ -191,7 +191,7 @@ grep -rn 'listen\|root \|auth_basic' /etc/nginx/conf.d/ 2>/dev/null
 
 Appliquez ensuite **un seul** des cas suivants, selon ce que montre le grep :
 
-**Cas A — un bloc `server { listen 80; ... }` existe déjà** (la configuration par défaut de nginx en amont, `root html;` + `index index.html`). Modifiez ce bloc avec `vi` pour qu'il ressemble à ceci :
+**Cas A : un bloc `server { listen 80; ... }` existe déjà** (la configuration par défaut de nginx en amont, `root html;` + `index index.html`). Modifiez ce bloc avec `vi` pour qu'il ressemble à ceci :
 
 ```nginx
 server {
@@ -203,9 +203,9 @@ server {
 }
 ```
 
-Retirez-en toute ligne `index`, `auth_basic`, `auth_basic_user_file` ; ne touchez pas aux autres blocs `server` (par exemple un bloc `listen 443 ssl`) — leur `auth_basic` ne s'applique pas au port 80.
+Retirez-en toute ligne `index`, `auth_basic`, `auth_basic_user_file` ; ne touchez pas aux autres blocs `server` (par exemple un bloc `listen 443 ssl`), car leur `auth_basic` ne s'applique pas au port 80.
 
-**Cas B — aucun bloc sur le port 80, et `nginx.conf` contient `include /etc/nginx/conf.d/*.conf;` dans `http { }`.** Créez un fichier de configuration dédié :
+**Cas B : aucun bloc sur le port 80, et `nginx.conf` contient `include /etc/nginx/conf.d/*.conf;` dans `http { }`.** Créez un fichier de configuration dédié :
 
 ```bash
 cat > /etc/nginx/conf.d/depot-http.conf << 'EOF'
@@ -219,7 +219,7 @@ server {
 EOF
 ```
 
-**Cas C — aucun bloc sur le port 80 et aucun include de `conf.d`.** Collez le même bloc `server { … }` dans la section `http { … }` de `/etc/nginx/nginx.conf` avec `vi`.
+**Cas C : aucun bloc sur le port 80 et aucun include de `conf.d`.** Collez le même bloc `server { … }` dans la section `http { … }` de `/etc/nginx/nginx.conf` avec `vi`.
 
 Ensuite, testez, ouvrez le firewall, activez et vérifiez :
 
@@ -244,7 +244,7 @@ Un `HTTP/1.1 200 OK` sur le dernier curl signifie que le depot sert correctement
 
 ---
 
-## Étape 6 — Pointer le VCF Installer vers le nouvel ODA
+## Étape 6 : Pointer le VCF Installer vers le nouvel ODA
 
 L'interface du VCF Installer 9.1 n'accepte pas de depot `http://` ; il faut le définir par l'API de l'Installer. Le réglage est repris automatiquement par le Fleet Depot Service après le déploiement. Depuis n'importe quelle machine qui a `curl` :
 
@@ -274,8 +274,8 @@ Actualisez l'interface de l'Installer : le depot apparaît comme connecté et la
 
 ## Références
 
-- Broadcom TechDocs — *Set Up an Offline Depot* (VCF 9.1) : https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-1/lifecycle-management/binary-management-for-vmware-cloud-foundation/set-up-an-offline-depot-web-server-for-vmware-cloud-foundation.html
-- William Lam — *VCF 9.1: New HTTP Offline Depot Support for VCF Installer & Fleet Depot Service* : https://williamlam.com/2026/05/vcf-9-1-new-http-offline-depot-support-for-vcf-installer-fleet-depot-service.html
-- KB Broadcom 413848 — *Path not found* de l'Installer sur un offline depot : https://knowledge.broadcom.com/external/article/413848/the-vmware-cloud-foundation-vcf-installe.html
-- KB Broadcom 312168 — *VCF Offline Depot deployment* : https://knowledge.broadcom.com/external/article/312168/vcf-offline-depot-deployment.html
-- vTAM — *VCF 9.1 patches installation experience* (`metadata download` de VCFDT) : https://vtam.nl/2026/07/14/vcf-9-1-patches-installation-experience/
+- Broadcom TechDocs : *Set Up an Offline Depot* (VCF 9.1) : https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-1/lifecycle-management/binary-management-for-vmware-cloud-foundation/set-up-an-offline-depot-web-server-for-vmware-cloud-foundation.html
+- William Lam : *VCF 9.1: New HTTP Offline Depot Support for VCF Installer & Fleet Depot Service* : https://williamlam.com/2026/05/vcf-9-1-new-http-offline-depot-support-for-vcf-installer-fleet-depot-service.html
+- KB Broadcom 413848 : *Path not found* de l'Installer sur un offline depot : https://knowledge.broadcom.com/external/article/413848/the-vmware-cloud-foundation-vcf-installe.html
+- KB Broadcom 312168 : *VCF Offline Depot deployment* : https://knowledge.broadcom.com/external/article/312168/vcf-offline-depot-deployment.html
+- vTAM : *VCF 9.1 patches installation experience* (`metadata download` de VCFDT) : https://vtam.nl/2026/07/14/vcf-9-1-patches-installation-experience/

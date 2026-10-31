@@ -1,0 +1,30 @@
+{{- /*
+  Root /sitemap.xml for this multilingual site.
+
+  Hugo's default writes a sitemap *index* here that points at /en/sitemap.xml
+  and /fr/sitemap.xml. English is the default language and lives at the site
+  root, so /en/sitemap.xml lists URLs outside its own directory, which search
+  engines may ignore (a sitemap only covers its parent directory and below).
+
+  This override emits one flat urlset with every page of every language, so a
+  single root sitemap covers the whole site. The per-language sitemaps are
+  still generated and unaffected.
+*/ -}}
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  {{- range . }}
+  {{- range where .Pages "Sitemap.Disable" "ne" true }}
+    {{- if .Permalink }}
+  <url>
+    <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
+    <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
+    <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
+    <priority>{{ .Sitemap.Priority }}</priority>{{ end }}{{ if .IsTranslated }}{{ range .Translations }}
+    <xhtml:link rel="alternate" hreflang="{{ .Language.Locale }}" href="{{ .Permalink }}" />{{ end }}
+    <xhtml:link rel="alternate" hreflang="{{ .Language.Locale }}" href="{{ .Permalink }}" />{{ end }}
+  </url>
+    {{- end }}
+  {{- end }}
+  {{- end }}
+</urlset>

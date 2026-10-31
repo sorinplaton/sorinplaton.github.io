@@ -55,7 +55,7 @@
 <header class="bar">
   <a class="bar__mark" href="{{ "" | relLangURL }}">Sorin Platon</a>
   <nav class="bar__nav" aria-label="Site">
-    <a href="{{ "posts/" | relLangURL }}">{{ $t.nav_posts }}</a>
+    <a href="#posts">{{ $t.nav_posts }}</a>
     <a href="{{ "search/" | relLangURL }}">{{ $t.nav_search }}</a>
     <a href="{{ "about/" | relLangURL }}">{{ $t.nav_about }}</a>
     {{- with $other }}<a href="{{ .RelPermalink }}" hreflang="{{ .Language.Lang }}" lang="{{ .Language.Lang }}" aria-label="{{ $t.other_lang_label }}">{{ $t.other_lang }}</a>{{ end }}
@@ -202,9 +202,30 @@
         {{- end }}
         <div class="rail__end">
           <p>{{ $t.shelf_end }}</p>
-          <p><a href="{{ "posts/" | relLangURL }}">{{ $t.shelf_all }}</a></p>
+          <p><a href="#posts">{{ $t.shelf_all }}</a></p>
         </div>
       </div>
+    </div>
+  </section>
+
+  {{- /* Every post, newest first, on the landing page itself (no separate list page needed). */}}
+  <section id="posts" class="list sc-section" data-sc-act="flow" aria-labelledby="list-h">
+    <div class="sc-wrap list__wrap">
+      <h2 id="list-h" class="list__title">{{ $t.list_title }}</h2>
+      <ol class="list__items" data-sc-in data-sc-stagger="40">
+        {{- range $p := $posts.ByDate.Reverse }}
+        {{- $key := path.Base $p.File.Dir }}
+        {{- $m := index $d.posts $key }}
+        {{- $lname := "" }}{{ with $m }}{{ range $d.layers }}{{ if eq .id $m.layer }}{{ $lname = (index . $lang).name }}{{ end }}{{ end }}{{ end }}
+        <li class="row">
+          <p class="row__meta"><time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date | time.Format ":date_medium" }}</time><span>{{ $p.ReadingTime }} {{ $t.min }}</span>{{ with $lname }}<span>{{ . }}</span>{{ end }}</p>
+          <div class="row__main">
+            <h3 class="row__title"><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h3>
+            <p class="row__line">{{ with $m }}{{ index . $lang }}{{ else }}{{ $p.Summary | plainify | truncate 160 }}{{ end }}</p>
+          </div>
+        </li>
+        {{- end }}
+      </ol>
     </div>
   </section>
 

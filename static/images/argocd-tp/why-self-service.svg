@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1200" height="400" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="600.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">Self-service: the tenant creates the instance, the vSphere team raises no ticket</text>
+<circle cx="80" cy="111" r="7" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<path d="M66 134a14 14 0 0 1 28 0" fill="none" stroke="#1d2733" stroke-width="1.8"/>
+<text x="110" y="112" font-size="12" fill="#1d2733" font-weight="bold">Org admin</text>
+<text x="110" y="128" font-size="12" fill="#6b7785">Build &amp; Deploy → Services → GitOps,</text>
+<text x="110" y="144" font-size="12" fill="#6b7785">or one YAML file</text>
+<circle cx="72" cy="281" r="7" fill="#ffffff" stroke="#6b7785" stroke-width="1.8"/>
+<path d="M58 304a14 14 0 0 1 28 0" fill="none" stroke="#6b7785" stroke-width="1.8"/>
+<circle cx="90" cy="281" r="7" fill="#ffffff" stroke="#6b7785" stroke-width="1.8"/>
+<path d="M76 304a14 14 0 0 1 28 0" fill="none" stroke="#6b7785" stroke-width="1.8"/>
+<text x="110" y="282" font-size="12" fill="#1d2733" font-weight="bold">vSphere team</text>
+<text x="110" y="298" font-size="12" fill="#6b7785">no ticket to raise</text>
+<rect x="640" y="70" width="520" height="290" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="654" y="92" font-size="14" fill="#1f4e9c" font-weight="bold">VCF Automation org</text>
+<text x="654" y="110" font-size="12" fill="#6b7785">project namespace</text>
+<circle cx="700" cy="230" r="16" fill="#ffffff" stroke="#1f4e9c" stroke-width="2"/>
+<path d="M692 228a8 8 0 0 1 14-4M708 232a8 8 0 0 1-14 4" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<text x="730" y="224" font-size="12" fill="#1d2733" font-weight="bold">Argo CD instance</text>
+<text x="730" y="240" font-size="12" fill="#6b7785">created by the tenant,</text>
+<text x="730" y="256" font-size="12" fill="#6b7785">visible next to VMs and clusters</text>
+<path d="M390 120 L520 120 L520 230 L680 230" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="385.0" y="97" width="140.0" height="17" fill="#ffffff"/>
+<text x="455" y="108" font-size="12" fill="#1f4e9c" text-anchor="middle">creates the instance</text>
+<path d="M390 290 L640 290" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="6 4"/>
+<rect x="481.3" y="267" width="67.4" height="17" fill="#ffffff"/>
+<text x="515" y="278" font-size="12" fill="#6b7785" text-anchor="middle">no ticket</text>
+</svg>

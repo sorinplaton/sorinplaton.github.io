@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1200" height="430" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="600.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">One login: the Argo CD UI hands you to VCF Automation, no admin password exists</text>
+<rect x="70" y="100" width="30" height="24" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<path d="M77 108l5 4-5 4M85 117h8" fill="none" stroke="#1d2733" stroke-width="1.6" stroke-linecap="round"/>
+<text x="112" y="112" font-size="12" fill="#1d2733" font-weight="bold">You, browser or vcf CLI</text>
+<text x="112" y="128" font-size="12" fill="#6b7785">log in via VCF Automation</text>
+<text x="112" y="144" font-size="12" fill="#6b7785">vcf argocd login --sso</text>
+<rect x="760" y="85" width="400" height="84" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="772" y="116.0" font-size="13" fill="#1d2733" font-weight="bold">VCF Automation</text>
+<text x="772" y="132.0" font-size="12" fill="#6b7785">org holo-east, OIDC provider</text>
+<text x="772" y="148.0" font-size="12" fill="#6b7785">client, redirect URIs, PKCE</text>
+<circle cx="430" cy="300" r="16" fill="#ffffff" stroke="#1f4e9c" stroke-width="2"/>
+<path d="M422 298a8 8 0 0 1 14-4M438 302a8 8 0 0 1-14 4" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="460" y="258" width="420" height="110" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="472" y="302.0" font-size="13" fill="#1d2733" font-weight="bold">Argo CD instance</text>
+<text x="472" y="318.0" font-size="12" fill="#6b7785">OIDC client, registered automatically</text>
+<text x="472" y="334.0" font-size="12" fill="#6b7785">login: no admin password handed out</text>
+<path d="M85 124 L85 300 L414 300" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="96" y="201" width="100.4" height="17" fill="#ffffff"/>
+<text x="100" y="212" font-size="12" fill="#1f4e9c">1  open the UI</text>
+<path d="M960 169 L960 300 L880 300" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)" stroke-dasharray="6 4"/>
+<rect x="971" y="229" width="107.00000000000001" height="17" fill="#ffffff"/>
+<text x="975" y="240" font-size="12" fill="#6b7785">2  OIDC sign-in</text>
+</svg>

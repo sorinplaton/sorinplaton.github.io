@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="760" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="700.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">One commit per target: a Cluster object becomes VMs, a Deployment becomes pods</text>
+<circle cx="82" cy="138" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<circle cx="82" cy="162" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<circle cx="100" cy="148" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<path d="M82 142V158M100 152V154Q100 160 88 160" fill="none" stroke="#1d2733" stroke-width="1.8"/>
+<rect x="120" y="110" width="320" height="130" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="132" y="164.0" font-size="13" fill="#1d2733" font-weight="bold">Git repository</text>
+<text x="132" y="180.0" font-size="12" fill="#6b7785">clusters/…/cluster.yaml</text>
+<text x="132" y="196.0" font-size="12" fill="#6b7785">apps/podinfo/podinfo.yaml</text>
+<path d="M280 240 L280 330" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<rect x="288" y="279" width="34.400000000000006" height="17" fill="#ffffff"/>
+<text x="292" y="290" font-size="12" fill="#6b7785">pull</text>
+<rect x="60" y="330" width="380" height="90" rx="5" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="250.0" y="372.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Argo CD instance</text>
+<text x="250.0" y="388.0" font-size="12" fill="#6b7785" text-anchor="middle">one engine, two targets</text>
+<rect x="490" y="110" width="860" height="580" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="515" y="148" font-size="15" fill="#1d2733" font-weight="bold">Target 1: vSphere Namespace podinfo-demo-vkjhr</text>
+<text x="515" y="170" font-size="12" fill="#6b7785">kubernetes.default.svc/?context=podinfo-demo-vkjhr</text>
+<text x="515" y="240" font-size="13" fill="#1d2733">Cluster object  →  the Supervisor builds node VMs</text>
+<rect x="515" y="262" width="30" height="20" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="521" y1="278" x2="539" y2="278" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="551" y="262" width="30" height="20" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="557" y1="278" x2="575" y2="278" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="587" y="262" width="30" height="20" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="593" y1="278" x2="611" y2="278" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="637" y="262" width="30" height="20" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="643" y1="278" x2="661" y2="278" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="673" y="262" width="30" height="20" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="679" y1="278" x2="697" y2="278" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="709" y="262" width="30" height="20" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="715" y1="278" x2="733" y2="278" stroke="#1d2733" stroke-width="1.2"/>
+<text x="515" y="310" font-size="12" fill="#6b7785">3 control plane</text>
+<text x="737" y="310" font-size="12" fill="#6b7785">3 workers</text>
+<text x="920" y="280" font-size="12" fill="#6b7785">rights stop at this namespace</text>
+<rect x="550" y="360" width="770" height="300" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="575" y="400" font-size="15" fill="#1d2733" font-weight="bold">Target 2: inside demo-vks-cluster</text>
+<text x="575" y="422" font-size="12" fill="#6b7785">https://10.200.200.7:6443, namespace podinfo</text>
+<text x="575" y="490" font-size="13" fill="#1d2733">Deployment + Service  →  pods behind a VIP</text>
+<polygon points="615.6,551.0 615.6,569.0 600.0,578.0 584.4,569.0 584.4,551.0 600.0,542.0" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.8"/>
+<polygon points="667.6,551.0 667.6,569.0 652.0,578.0 636.4,569.0 636.4,551.0 652.0,542.0" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.8"/>
+<polygon points="719.6,551.0 719.6,569.0 704.0,578.0 688.4,569.0 688.4,551.0 704.0,542.0" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.8"/>
+<text x="760" y="565" font-size="13" fill="#1d2733">podinfo ×3, LoadBalancer 10.200.200.8</text>
+<text x="575" y="620" font-size="12" fill="#6b7785">cluster-admin here, so the AppProject is the fence</text>
+<path d="M440 360 L470 360 L470 200 L490 200" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<circle cx="470" cy="280" r="13" fill="#ffffff" stroke="#1f4e9c" stroke-width="2"/>
+<text x="470" y="285" font-size="12" fill="#1f4e9c" text-anchor="middle" font-weight="bold">1</text>
+<path d="M440 400 L470 400 L470 520 L550 520" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<circle cx="470" cy="460" r="13" fill="#ffffff" stroke="#1f4e9c" stroke-width="2"/>
+<text x="470" y="465" font-size="12" fill="#1f4e9c" text-anchor="middle" font-weight="bold">2</text>
+<text x="60" y="560" font-size="13" fill="#6b7785">1  manual sync: a person presses the button</text>
+<text x="60" y="584" font-size="13" fill="#6b7785">2  automated, self-heal, prune</text>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="640" viewBox="0 0 1400 640" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="640" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="700.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">A commit passes four gates, each owned by a different person</text>
+<rect x="44" y="240" width="170" height="70" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="129.0" y="280.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">A commit</text>
+<path d="M214 275 L1160 275" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<text x="305" y="134" font-size="11" fill="#6b7785" text-anchor="middle" font-weight="bold">GATE 1</text>
+<text x="305" y="158" font-size="15" fill="#1d2733" text-anchor="middle" font-weight="bold">Git</text>
+<rect x="295" y="200" width="20" height="150" rx="4" fill="#eef4fb" stroke="#1f4e9c" stroke-width="2"/>
+<text x="305" y="392" font-size="13" fill="#1d2733" text-anchor="middle">branch protection</text>
+<text x="305" y="414" font-size="13" fill="#1d2733" text-anchor="middle">pull-request review</text>
+<text x="305" y="436" font-size="13" fill="#1d2733" text-anchor="middle">read-only token</text>
+<text x="305" y="480" font-size="12" fill="#6b7785" text-anchor="middle">repo owners,</text>
+<text x="305" y="500" font-size="12" fill="#6b7785" text-anchor="middle">reviewers</text>
+<text x="563" y="134" font-size="11" fill="#6b7785" text-anchor="middle" font-weight="bold">GATE 2</text>
+<text x="563" y="158" font-size="15" fill="#1d2733" text-anchor="middle" font-weight="bold">Argo CD instance</text>
+<rect x="553" y="200" width="20" height="150" rx="4" fill="#eef4fb" stroke="#1f4e9c" stroke-width="2"/>
+<text x="563" y="392" font-size="13" fill="#1d2733" text-anchor="middle">RBAC policy</text>
+<text x="563" y="414" font-size="13" fill="#1d2733" text-anchor="middle">AppProject fence</text>
+<text x="563" y="436" font-size="13" fill="#1d2733" text-anchor="middle">sync policy</text>
+<text x="563" y="480" font-size="12" fill="#6b7785" text-anchor="middle">platform admin,</text>
+<text x="563" y="500" font-size="12" fill="#6b7785" text-anchor="middle">per instance</text>
+<text x="821" y="134" font-size="11" fill="#6b7785" text-anchor="middle" font-weight="bold">GATE 3</text>
+<text x="821" y="158" font-size="15" fill="#1d2733" text-anchor="middle" font-weight="bold">Target credentials</text>
+<rect x="811" y="200" width="20" height="150" rx="4" fill="#eef4fb" stroke="#1f4e9c" stroke-width="2"/>
+<text x="821" y="392" font-size="13" fill="#1d2733" text-anchor="middle">namespace: RoleBinding</text>
+<text x="821" y="414" font-size="13" fill="#1d2733" text-anchor="middle">cluster: argocd-manager,</text>
+<text x="821" y="436" font-size="13" fill="#1d2733" text-anchor="middle">cluster-admin</text>
+<text x="821" y="480" font-size="12" fill="#6b7785" text-anchor="middle">created by</text>
+<text x="821" y="500" font-size="12" fill="#6b7785" text-anchor="middle">cluster add</text>
+<text x="1079" y="134" font-size="11" fill="#6b7785" text-anchor="middle" font-weight="bold">GATE 4</text>
+<text x="1079" y="158" font-size="15" fill="#1d2733" text-anchor="middle" font-weight="bold">vSphere</text>
+<rect x="1069" y="200" width="20" height="150" rx="4" fill="#eef4fb" stroke="#1f4e9c" stroke-width="2"/>
+<text x="1079" y="392" font-size="13" fill="#1d2733" text-anchor="middle">namespace roles</text>
+<text x="1079" y="414" font-size="13" fill="#1d2733" text-anchor="middle">VM classes, quotas</text>
+<text x="1079" y="436" font-size="13" fill="#1d2733" text-anchor="middle">restricted PSA</text>
+<text x="1079" y="480" font-size="12" fill="#6b7785" text-anchor="middle">vSphere admin,</text>
+<text x="1079" y="500" font-size="12" fill="#6b7785" text-anchor="middle">SSO</text>
+<rect x="1160" y="240" width="196" height="70" rx="5" fill="#f4f6f8" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="1258.0" y="280.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Running VKS cluster</text>
+<text x="40" y="590" font-size="12" fill="#6b7785">Any gate can stop the change; none of them can widen what the next one allows.</text>
+</svg>

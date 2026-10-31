@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="820" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="700.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">Lab architecture: sign in through VCF Automation, Argo CD in its own VPC, two VKS targets</text>
+<text x="700.0" y="50" font-size="12" fill="#6b7785" text-anchor="middle">Addresses are in the table under the drawing.</text>
+<rect x="60" y="92" width="30" height="24" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<path d="M67 100l5 4-5 4M75 109h8" fill="none" stroke="#1d2733" stroke-width="1.6" stroke-linecap="round"/>
+<text x="102" y="104" font-size="12" fill="#1d2733" font-weight="bold">You, browser or vcf CLI</text>
+<text x="102" y="120" font-size="12" fill="#6b7785">vcf argocd login --sso</text>
+<rect x="430" y="80" width="420" height="90" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="442" y="114.0" font-size="13" fill="#1d2733" font-weight="bold">VCF Automation</text>
+<text x="442" y="130.0" font-size="12" fill="#6b7785">org holo-east, OIDC provider</text>
+<text x="442" y="146.0" font-size="12" fill="#6b7785">service account, ArgoCD Instance role</text>
+<circle cx="992" cy="113" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<circle cx="992" cy="137" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<circle cx="1010" cy="123" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<path d="M992 117V133M1010 127V129Q1010 135 998 135" fill="none" stroke="#1d2733" stroke-width="1.8"/>
+<text x="1030" y="118" font-size="12" fill="#1d2733" font-weight="bold">GitHub, vcf-gitops</text>
+<text x="1030" y="134" font-size="12" fill="#6b7785">platform/argocd-vcfa, apps/</text>
+<path d="M330 110 L430 110" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<rect x="60" y="240" width="1290" height="470" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="74" y="262" font-size="14" fill="#1f4e9c" font-weight="bold">wld01 Supervisor</text>
+<text x="74" y="280" font-size="12" fill="#6b7785">region east-1, project default-project</text>
+<rect x="90" y="310" width="580" height="50" rx="5" fill="#f4f6f8" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="102" y="340.0" font-size="13" fill="#1d2733" font-weight="bold">Service: ArgoCD Service 1.2.0, from VCF Automation</text>
+<rect x="90" y="385" width="580" height="300" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="104" y="407" font-size="14" fill="#1d2733" font-weight="bold">podinfo-demo-dx643</text>
+<text x="104" y="425" font-size="12" fill="#6b7785">Supervisor namespace, edit for argocd-k8s-sa</text>
+<circle cx="130" cy="500" r="14" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><circle cx="130" cy="500" r="4" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="135.0" y1="500.0" x2="141.0" y2="500.0" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="132.5" y1="504.3" x2="135.5" y2="509.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="127.5" y1="504.3" x2="124.5" y2="509.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="125.0" y1="500.0" x2="119.0" y2="500.0" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="127.5" y1="495.7" x2="124.5" y2="490.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="132.5" y1="495.7" x2="135.5" y2="490.5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="160" y="494" font-size="12" fill="#1d2733" font-weight="bold">demo-vks-cluster</text>
+<text x="160" y="510" font-size="12" fill="#6b7785">VKS, 3 control plane + 4 workers</text>
+<text x="160" y="526" font-size="12" fill="#6b7785">API and podinfo on VLAN 200</text>
+<circle cx="130" cy="640" r="14" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><circle cx="130" cy="640" r="4" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="135.0" y1="640.0" x2="141.0" y2="640.0" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="132.5" y1="644.3" x2="135.5" y2="649.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="127.5" y1="644.3" x2="124.5" y2="649.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="125.0" y1="640.0" x2="119.0" y2="640.0" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="127.5" y1="635.7" x2="124.5" y2="630.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="132.5" y1="635.7" x2="135.5" y2="630.5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="160" y="634" font-size="12" fill="#1d2733" font-weight="bold">overlay-public</text>
+<text x="160" y="650" font-size="12" fill="#6b7785">VKS, 1 + 1 nodes</text>
+<rect x="730" y="385" width="590" height="300" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="744" y="407" font-size="14" fill="#1d2733" font-weight="bold">vpc-argocd-gitops</text>
+<text x="744" y="425" font-size="12" fill="#6b7785">ns argocd-gitops-9xsrd, own VPC and load balancer</text>
+<circle cx="775" cy="500" r="16" fill="#ffffff" stroke="#1f4e9c" stroke-width="2"/>
+<path d="M767 498a8 8 0 0 1 14-4M783 502a8 8 0 0 1-14 4" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="800" y="460" width="490" height="90" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="812" y="494.0" font-size="13" fill="#1d2733" font-weight="bold">Argo CD 3.4.4</text>
+<text x="812" y="510.0" font-size="12" fill="#6b7785">argocd-gitops, UI on VLAN 200</text>
+<text x="812" y="526.0" font-size="12" fill="#6b7785">SSO through VCF Automation, RBAC in spec.rbac</text>
+<text x="760" y="610" font-size="12" fill="#6b7785">Managed: demo-vks, overlay-public, podinfo-demo</text>
+<text x="760" y="632" font-size="12" fill="#6b7785">Secrets: one per entity, kept current by the service</text>
+<path d="M640 170 L640 220 L700 220 L700 440 L900 440 L900 460" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)" stroke-dasharray="6 4"/>
+<rect x="711" y="309" width="87.2" height="17" fill="#ffffff"/>
+<text x="715" y="320" font-size="12" fill="#6b7785">OIDC sign-in</text>
+<path d="M1010 150 L1010 460" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#arr-2e7d32)"/>
+<rect x="1021" y="309" width="107.00000000000001" height="17" fill="#ffffff"/>
+<text x="1025" y="320" font-size="12" fill="#2e7d32">pulls manifests</text>
+<path d="M800 520 L700 520 L700 500 L620 500" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<path d="M700 520 L700 640 L620 640" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<text x="68" y="750" font-size="12" fill="#1d2733" font-weight="bold">Argo CD UI</text>
+<text x="388" y="750" font-size="12" fill="#2f3a46">10.200.200.5</text>
+<line x1="60" y1="757" x2="880" y2="757" stroke="#c9d1da" stroke-width="1"/>
+<text x="68" y="772" font-size="12" fill="#1d2733" font-weight="bold">demo-vks-cluster API / podinfo</text>
+<text x="388" y="772" font-size="12" fill="#2f3a46">10.200.200.7 / 10.200.200.8:9898</text>
+<line x1="60" y1="779" x2="880" y2="779" stroke="#c9d1da" stroke-width="1"/>
+<text x="68" y="794" font-size="12" fill="#1d2733" font-weight="bold">overlay-public API</text>
+<text x="388" y="794" font-size="12" fill="#2f3a46">10.200.200.11</text>
+<line x1="60" y1="801" x2="880" y2="801" stroke="#c9d1da" stroke-width="1"/>
+</svg>

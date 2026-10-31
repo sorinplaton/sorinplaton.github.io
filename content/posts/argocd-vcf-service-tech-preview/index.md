@@ -37,27 +37,27 @@ The big win is that Argo CD stops being a side install with a shared password an
 
 **Self-service for tenants.** An org admin creates an instance from **Build & Deploy → Services → GitOps** or with one YAML file. No ticket to the vSphere team.
 
-![Self-service: an org admin creates the Argo CD instance from the portal or one YAML file, straight into the project namespace; no ticket to the vSphere team](/images/argocd-tp/why-self-service.webp)
+![Self-service: an org admin creates the Argo CD instance from the portal or one YAML file, straight into the project namespace; no ticket to the vSphere team](/images/argocd-tp/why-self-service.svg)
 
 **One login.** The instance is registered as an OIDC client of VCF Automation automatically (client, redirect URIs, PKCE). Users click *Log in via VCF Automation*; nobody hands out the `admin` password.
 
-![One login: the user opens the Argo CD UI, is sent to VCF Automation for the OIDC sign-in, and no admin password is handed out](/images/argocd-tp/why-one-login.webp)
+![One login: the user opens the Argo CD UI, is sent to VCF Automation for the OIDC sign-in, and no admin password is handed out](/images/argocd-tp/why-one-login.svg)
 
 **Tenancy is built in.** The instance lives in a project namespace, gets its own VCF Automation service account, and is visible in the org portal next to VMs and Kubernetes clusters.
 
-![Tenancy: inside the holo-east org, the project namespace holds VMs, Kubernetes clusters and the Argo CD instance side by side, with its own service account](/images/argocd-tp/why-tenancy.webp)
+![Tenancy: inside the holo-east org, the project namespace holds VMs, Kubernetes clusters and the Argo CD instance side by side, with its own service account](/images/argocd-tp/why-tenancy.svg)
 
 **Clusters without tokens.** A `ManagedEntity` points at a VKS cluster or a Supervisor namespace; the service writes the Argo CD cluster secret and keeps its credentials current.
 
-![Clusters without tokens: a ManagedEntity registers the target, the service writes the cluster secret in the Argo CD instance and keeps it current, and Argo CD deploys to demo-vks-cluster with it](/images/argocd-tp/why-clusters-without-tokens.webp)
+![Clusters without tokens: a ManagedEntity registers the target, the service writes the cluster secret in the Argo CD instance and keeps it current, and Argo CD deploys to demo-vks-cluster with it](/images/argocd-tp/why-clusters-without-tokens.svg)
 
 **Lifecycle from one place.** The provider uploads and upgrades the service once in VCF Automation; it lands on every Supervisor. Tenants pick a supported Argo CD version (3.4.4 or 3.3.12 in this build) per instance.
 
-![Lifecycle: the provider uploads or upgrades the service once in VCF Automation and it lands on every Supervisor; tenants pick the Argo CD version per instance](/images/argocd-tp/why-lifecycle.webp)
+![Lifecycle: the provider uploads or upgrades the service once in VCF Automation and it lands on every Supervisor; tenants pick the Argo CD version per instance](/images/argocd-tp/why-lifecycle.svg)
 
 **GitOps for the platform too.** The same Argo CD can deploy apps *and* the VKS clusters they run on, so a commit can add a worker node as easily as it changes an app.
 
-![GitOps for the platform: Argo CD pulls manifests from GitHub and one commit can change podinfo or the demo-vks-cluster Cluster object itself](/images/argocd-tp/why-platform-gitops.webp)
+![GitOps for the platform: Argo CD pulls manifests from GitHub and one commit can change podinfo or the demo-vks-cluster Cluster object itself](/images/argocd-tp/why-platform-gitops.svg)
 
 ![The org portal: Build & Deploy → Services → GitOps lists the instance with its project and status](/images/argocd-tp/org-portal-gitops.webp)
 
@@ -65,7 +65,7 @@ The big win is that Argo CD stops being a side install with a shared password an
 
 ## How the pieces fit
 
-![Lab architecture: you sign in through VCF Automation, Argo CD in its own VPC pulls from GitHub and deploys to two VKS clusters on the wld01 Supervisor](/images/argocd-tp/diagram-lab-architecture.webp)
+![Lab architecture: you sign in through VCF Automation, Argo CD in its own VPC pulls from GitHub and deploys to two VKS clusters on the wld01 Supervisor](/images/argocd-tp/diagram-lab-architecture.svg)
 
 The instance sits in its own namespace and VPC. VCF Automation handles who may sign in, Git holds what should run, and ManagedEntities say where it runs.
 

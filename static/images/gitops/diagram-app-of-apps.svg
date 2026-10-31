@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="830" viewBox="0 0 1400 830" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="830" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="700.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">A root Application would need the hosting namespace as a target</text>
+<text x="700.0" y="50" font-size="12" fill="#6b7785" text-anchor="middle">Solid: how it runs today. Dashed: app of apps, in Git but not applied.</text>
+<rect x="44" y="140" width="380" height="580" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="58" y="162" font-size="14" fill="#1d2733" font-weight="bold">Git: vcf-gitops</text>
+<rect x="74" y="250" width="320" height="130" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="86" y="304.0" font-size="13" fill="#1d2733" font-weight="bold">argocd-apps/</text>
+<text x="86" y="320.0" font-size="12" fill="#6b7785">3 Applications</text>
+<text x="86" y="336.0" font-size="12" fill="#6b7785">root.yaml</text>
+<rect x="74" y="570" width="320" height="100" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="86" y="617.0" font-size="13" fill="#1d2733" font-weight="bold">clusters/ · apps/</text>
+<text x="86" y="633.0" font-size="12" fill="#6b7785">cluster, podinfo</text>
+<rect x="590" y="140" width="430" height="580" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="604" y="162" font-size="14" fill="#1d2733" font-weight="bold">Hosting namespace</text>
+<text x="604" y="180" font-size="12" fill="#6b7785">argocd-demo-wqfbg</text>
+<rect x="620" y="250" width="320" height="100" rx="5" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="7 4"/>
+<text x="632" y="297.0" font-size="13" fill="#1d2733" font-weight="bold">Root Application</text>
+<text x="632" y="313.0" font-size="12" fill="#6b7785">root.yaml, not applied</text>
+<rect x="620" y="410" width="320" height="100" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="632" y="457.0" font-size="13" fill="#1d2733" font-weight="bold">Applications</text>
+<text x="632" y="473.0" font-size="12" fill="#6b7785">3, applied with kubectl</text>
+<rect x="620" y="570" width="320" height="100" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="632" y="617.0" font-size="13" fill="#1d2733" font-weight="bold">Argo CD argocd-1</text>
+<text x="632" y="633.0" font-size="12" fill="#6b7785">Supervisor Service 1.2.0</text>
+<text x="1075" y="184" font-size="14" fill="#1d2733" font-weight="bold">Argo CD targets</text>
+<rect x="1075" y="250" width="280" height="100" rx="5" fill="#ffffff" stroke="#b7791f" stroke-width="1.6" stroke-dasharray="7 4"/>
+<text x="1087" y="297.0" font-size="13" fill="#1d2733" font-weight="bold">Own namespace</text>
+<text x="1087" y="313.0" font-size="12" fill="#6b7785">not a target</text>
+<rect x="1075" y="410" width="280" height="100" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="1087" y="457.0" font-size="13" fill="#1d2733" font-weight="bold">Target 1</text>
+<text x="1087" y="473.0" font-size="12" fill="#6b7785">vSphere Namespace</text>
+<rect x="1075" y="570" width="280" height="100" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="1087" y="617.0" font-size="13" fill="#1d2733" font-weight="bold">Target 2</text>
+<text x="1087" y="633.0" font-size="12" fill="#6b7785">VKS cluster</text>
+<path d="M620 300 L394 300" fill="none" stroke="#1f4e9c" stroke-width="1.8" marker-end="url(#arr-1f4e9c)" stroke-dasharray="6 4"/>
+<rect x="473.3" y="277" width="67.4" height="17" fill="#ffffff"/>
+<text x="507" y="288" font-size="12" fill="#1f4e9c" text-anchor="middle">points at</text>
+<path d="M940 300 L1075 300" fill="none" stroke="#1f4e9c" stroke-width="1.8" marker-end="url(#arr-1f4e9c)" stroke-dasharray="6 4"/>
+<rect x="986.5" y="277" width="41.0" height="17" fill="#ffffff"/>
+<text x="1007" y="288" font-size="12" fill="#1f4e9c" text-anchor="middle">needs</text>
+<path d="M780 350 L780 410" fill="none" stroke="#1f4e9c" stroke-width="1.8" marker-end="url(#arr-1f4e9c)" stroke-dasharray="6 4"/>
+<rect x="788" y="374" width="87.2" height="17" fill="#ffffff"/>
+<text x="792" y="385" font-size="12" fill="#1f4e9c">would manage</text>
+<path d="M230 380 L230 460 L620 460" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<rect x="453.1" y="437" width="93.80000000000001" height="17" fill="#ffffff"/>
+<text x="500" y="448" font-size="12" fill="#6b7785" text-anchor="middle">kubectl apply</text>
+<path d="M780 510 L780 570" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<rect x="788" y="534" width="54.2" height="17" fill="#ffffff"/>
+<text x="792" y="545" font-size="12" fill="#6b7785">read by</text>
+<path d="M394 620 L620 620" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<rect x="483.2" y="597" width="47.6" height="17" fill="#ffffff"/>
+<text x="507" y="608" font-size="12" fill="#6b7785" text-anchor="middle">pulled</text>
+<path d="M940 620 L1040 620 L1040 460 L1075 460" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<path d="M1040 620 L1075 620" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<rect x="1048" y="537" width="41.0" height="17" fill="#ffffff"/>
+<text x="1052" y="548" font-size="12" fill="#6b7785">syncs</text>
+<text x="40" y="775" font-size="12" fill="#6b7785">If the root is ever applied: manual sync, prune off. Pruning an Application deletes everything it built.</text>
+</svg>

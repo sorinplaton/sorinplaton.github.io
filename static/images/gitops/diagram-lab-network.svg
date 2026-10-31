@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="960" viewBox="0 0 1400 960" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="960" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="700.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">Two projects, two VLANs, one holorouter that owns both gateways and the DNS</text>
+<text x="700.0" y="50" font-size="12" fill="#6b7785" text-anchor="middle">Addresses are in the table under the drawing.</text>
+<rect x="44" y="100" width="720" height="700" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="58" y="122" font-size="14" fill="#1d2733" font-weight="bold">vSphere Supervisor, NSX VPC networking</text>
+<rect x="74" y="180" width="660" height="260" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="88" y="202" font-size="14" fill="#1d2733" font-weight="bold">NSX project holo-east</text>
+<rect x="104" y="250" width="250" height="160" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="118" y="272" font-size="14" fill="#1d2733" font-weight="bold">vpc-argocd-demo</text>
+<polygon points="159.5,344.5 159.5,355.5 150.0,361.0 140.5,355.5 140.5,344.5 150.0,339.0" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.8"/>
+<polygon points="194.5,344.5 194.5,355.5 185.0,361.0 175.5,355.5 175.5,344.5 185.0,339.0" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.8"/>
+<text x="210" y="355" font-size="12" fill="#6b7785">Argo CD pods</text>
+<path d="M354 350 L650 350" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<circle cx="470" cy="350" r="16" fill="#ffffff" stroke="#1d2733" stroke-width="2"/>
+<line x1="461.2" y1="350" x2="478.8" y2="350" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
+<rect x="452.8" y="305" width="34.400000000000006" height="17" fill="#ffffff"/>
+<text x="470" y="316" font-size="12" fill="#6b7785" text-anchor="middle">SNAT</text>
+<rect x="436.3" y="381" width="67.4" height="17" fill="#ffffff"/>
+<text x="470" y="392" font-size="12" fill="#6b7785" text-anchor="middle">TGW (VNA)</text>
+<rect x="655" y="334" width="10" height="32" rx="2" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<rect x="646.1" y="381" width="27.8" height="17" fill="#ffffff"/>
+<text x="660" y="392" font-size="12" fill="#6b7785" text-anchor="middle">DVC</text>
+<rect x="74" y="470" width="660" height="260" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="88" y="492" font-size="14" fill="#1d2733" font-weight="bold">NSX project default (system)</text>
+<rect x="104" y="540" width="250" height="160" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="118" y="562" font-size="14" fill="#1d2733" font-weight="bold">System VPC</text>
+<polygon points="159.5,634.5 159.5,645.5 150.0,651.0 140.5,645.5 140.5,634.5 150.0,629.0" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.8"/>
+<polygon points="194.5,634.5 194.5,645.5 185.0,651.0 175.5,645.5 175.5,634.5 185.0,629.0" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.8"/>
+<text x="210" y="645" font-size="12" fill="#6b7785">system pods</text>
+<path d="M354 640 L650 640" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<circle cx="470" cy="640" r="16" fill="#ffffff" stroke="#1d2733" stroke-width="2"/>
+<line x1="461.2" y1="640" x2="478.8" y2="640" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
+<rect x="452.8" y="595" width="34.400000000000006" height="17" fill="#ffffff"/>
+<text x="470" y="606" font-size="12" fill="#6b7785" text-anchor="middle">SNAT</text>
+<rect x="436.3" y="671" width="67.4" height="17" fill="#ffffff"/>
+<text x="470" y="682" font-size="12" fill="#6b7785" text-anchor="middle">TGW (VNA)</text>
+<rect x="655" y="624" width="10" height="32" rx="2" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<rect x="646.1" y="671" width="27.8" height="17" fill="#ffffff"/>
+<text x="660" y="682" font-size="12" fill="#6b7785" text-anchor="middle">DVC</text>
+<rect x="840" y="220" width="516" height="520" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="854" y="242" font-size="14" fill="#1d2733" font-weight="bold">Holorouter (Photon OS)</text>
+<circle cx="960" cy="370" r="18" fill="#ffffff" stroke="#1f4e9c" stroke-width="2.2"/>
+<line x1="949.56" y1="366.4" x2="970.44" y2="366.4" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<line x1="970.44" y1="373.6" x2="949.56" y2="373.6" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<line x1="956.4" y1="380.44" x2="956.4" y2="359.56" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<line x1="963.6" y1="359.56" x2="963.6" y2="380.44" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<text x="996" y="364" font-size="12" fill="#1d2733">eth1.200  VLAN 200, added</text>
+<text x="996" y="382" font-size="12" fill="#1d2733">eth1.24    VLAN 24</text>
+<text x="996" y="400" font-size="12" fill="#1d2733">eth1.10    VLAN 10</text>
+<path d="M665 350 L942 350" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<rect x="729.6" y="327" width="60.800000000000004" height="17" fill="#ffffff"/>
+<text x="760" y="338" font-size="12" fill="#6b7785" text-anchor="middle">VLAN 200</text>
+<path d="M665 640 L810 640 L810 385 L942 385" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<rect x="818" y="509" width="54.2" height="17" fill="#ffffff"/>
+<text x="822" y="520" font-size="12" fill="#6b7785">VLAN 24</text>
+<circle cx="1290" cy="150" r="16" fill="#ffffff" stroke="#1d2733" stroke-width="2.2"/>
+<line x1="1280.72" y1="146.8" x2="1299.28" y2="146.8" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
+<line x1="1299.28" y1="153.2" x2="1280.72" y2="153.2" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
+<line x1="1286.8" y1="159.28" x2="1286.8" y2="140.72" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
+<line x1="1293.2" y1="140.72" x2="1293.2" y2="159.28" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
+<text x="1290" y="190" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">VyOS, outer lab</text>
+<text x="1290" y="206" font-size="12" fill="#6b7785" text-anchor="middle">outer gateway</text>
+<path d="M960 352 L960 150 L1274 150" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<rect x="971" y="289" width="80.60000000000001" height="17" fill="#ffffff"/>
+<text x="975" y="300" font-size="12" fill="#6b7785">eth1, outer</text>
+<rect x="945" y="560" width="30" height="38" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<line x1="952" y1="569" x2="968" y2="569" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="952" y1="579" x2="968" y2="579" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="952" y1="589" x2="968" y2="589" stroke="#1d2733" stroke-width="1.4"/>
+<text x="996" y="572" font-size="12" fill="#1d2733" font-weight="bold">Technitium DNS</text>
+<text x="996" y="588" font-size="12" fill="#6b7785">host-network pod on eth1.10</text>
+<text x="996" y="604" font-size="12" fill="#6b7785">UDP only from local VLANs</text>
+<path d="M960 388 L960 560" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<text x="52" y="845" font-size="12" fill="#1d2733" font-weight="bold">SNAT, vpc-argocd-demo</text>
+<text x="352" y="845" font-size="12" fill="#2f3a46">10.200.200.3</text>
+<line x1="44" y1="852" x2="904" y2="852" stroke="#c9d1da" stroke-width="1"/>
+<text x="52" y="867" font-size="12" fill="#1d2733" font-weight="bold">SNAT, System VPC</text>
+<text x="352" y="867" font-size="12" fill="#2f3a46">10.1.8.130</text>
+<line x1="44" y1="874" x2="904" y2="874" stroke="#c9d1da" stroke-width="1"/>
+<text x="52" y="889" font-size="12" fill="#1d2733" font-weight="bold">Holorouter eth1.200 / .24 / .10</text>
+<text x="352" y="889" font-size="12" fill="#2f3a46">10.200.200.1/24 · 10.1.8.129/25 · 10.1.1.1/24</text>
+<line x1="44" y1="896" x2="904" y2="896" stroke="#c9d1da" stroke-width="1"/>
+<text x="52" y="911" font-size="12" fill="#1d2733" font-weight="bold">Technitium DNS / VyOS</text>
+<text x="352" y="911" font-size="12" fill="#2f3a46">10.1.1.1 / 10.0.6.33</text>
+<line x1="44" y1="918" x2="904" y2="918" stroke="#c9d1da" stroke-width="1"/>
+</svg>

@@ -37,27 +37,27 @@ Le gros gain : Argo CD cesse d'être une installation à part avec un mot de pas
 
 **Libre-service pour les tenants.** Un administrateur d'org crée une instance depuis **Build & Deploy → Services → GitOps** ou avec un seul fichier YAML. Aucun ticket à l'équipe vSphere.
 
-![Libre-service : un administrateur d'org crée l'instance Argo CD depuis le portail ou un seul fichier YAML, directement dans le namespace du projet ; aucun ticket à l'équipe vSphere](/images/argocd-tp/why-self-service.webp)
+![Libre-service : un administrateur d'org crée l'instance Argo CD depuis le portail ou un seul fichier YAML, directement dans le namespace du projet ; aucun ticket à l'équipe vSphere](/images/argocd-tp/why-self-service.svg)
 
 **Une seule connexion.** L'instance est enregistrée automatiquement comme client OIDC de VCF Automation (client, URI de redirection, PKCE). Les utilisateurs cliquent sur *Log in via VCF Automation* ; personne ne distribue le mot de passe `admin`.
 
-![Une seule connexion : l'utilisateur ouvre l'interface d'Argo CD, est renvoyé vers VCF Automation pour l'authentification OIDC, et aucun mot de passe admin n'est distribué](/images/argocd-tp/why-one-login.webp)
+![Une seule connexion : l'utilisateur ouvre l'interface d'Argo CD, est renvoyé vers VCF Automation pour l'authentification OIDC, et aucun mot de passe admin n'est distribué](/images/argocd-tp/why-one-login.svg)
 
 **La multilocation est intégrée.** L'instance réside dans un namespace de projet, reçoit son propre compte de service VCF Automation et apparaît dans le portail de l'org à côté des VM et des clusters Kubernetes.
 
-![Multilocation : dans l'org holo-east, le namespace du projet contient côte à côte des VM, des clusters Kubernetes et l'instance Argo CD, avec son propre compte de service](/images/argocd-tp/why-tenancy.webp)
+![Multilocation : dans l'org holo-east, le namespace du projet contient côte à côte des VM, des clusters Kubernetes et l'instance Argo CD, avec son propre compte de service](/images/argocd-tp/why-tenancy.svg)
 
 **Des clusters sans tokens.** Un `ManagedEntity` pointe vers un cluster VKS ou un namespace de Supervisor ; le service écrit le secret de cluster d'Argo CD et tient ses credentials à jour.
 
-![Des clusters sans tokens : un ManagedEntity enregistre la cible, le service écrit le secret de cluster dans l'instance Argo CD et le tient à jour, et Argo CD s'en sert pour déployer sur demo-vks-cluster](/images/argocd-tp/why-clusters-without-tokens.webp)
+![Des clusters sans tokens : un ManagedEntity enregistre la cible, le service écrit le secret de cluster dans l'instance Argo CD et le tient à jour, et Argo CD s'en sert pour déployer sur demo-vks-cluster](/images/argocd-tp/why-clusters-without-tokens.svg)
 
 **Le cycle de vie depuis un seul endroit.** Le fournisseur fait l'upload et l'upgrade du service une seule fois dans VCF Automation ; il arrive sur chaque Supervisor. Les tenants choisissent, par instance, une version d'Argo CD prise en charge (3.4.4 ou 3.3.12 dans ce build).
 
-![Cycle de vie : le fournisseur fait l'upload ou l'upgrade du service une fois dans VCF Automation et il arrive sur chaque Supervisor ; les tenants choisissent la version d'Argo CD par instance](/images/argocd-tp/why-lifecycle.webp)
+![Cycle de vie : le fournisseur fait l'upload ou l'upgrade du service une fois dans VCF Automation et il arrive sur chaque Supervisor ; les tenants choisissent la version d'Argo CD par instance](/images/argocd-tp/why-lifecycle.svg)
 
 **Du GitOps pour la plateforme aussi.** Le même Argo CD peut déployer les applications *et* les clusters VKS sur lesquels elles tournent : un commit peut ajouter un worker node aussi facilement qu'il modifie une application.
 
-![GitOps pour la plateforme : Argo CD récupère les manifestes depuis GitHub, et un seul commit peut modifier podinfo ou l'objet Cluster demo-vks-cluster lui-même](/images/argocd-tp/why-platform-gitops.webp)
+![GitOps pour la plateforme : Argo CD récupère les manifestes depuis GitHub, et un seul commit peut modifier podinfo ou l'objet Cluster demo-vks-cluster lui-même](/images/argocd-tp/why-platform-gitops.svg)
 
 ![Le portail de l'org : Build & Deploy → Services → GitOps liste l'instance avec son projet et son état](/images/argocd-tp/org-portal-gitops.webp)
 
@@ -65,7 +65,7 @@ Le gros gain : Argo CD cesse d'être une installation à part avec un mot de pas
 
 ## Comment les morceaux s'assemblent
 
-![Architecture du labo : vous vous connectez par VCF Automation, Argo CD, dans son propre VPC, récupère le contenu depuis GitHub et déploie sur deux clusters VKS du Supervisor wld01](/images/argocd-tp/diagram-lab-architecture.webp)
+![Architecture du labo : vous vous connectez par VCF Automation, Argo CD, dans son propre VPC, récupère le contenu depuis GitHub et déploie sur deux clusters VKS du Supervisor wld01](/images/argocd-tp/diagram-lab-architecture.svg)
 
 L'instance occupe son propre namespace et son propre VPC. VCF Automation décide qui peut se connecter, Git contient ce qui doit tourner, et les ManagedEntities disent où.
 

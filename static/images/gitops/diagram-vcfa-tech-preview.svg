@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1000" viewBox="0 0 1400 1000" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="1000" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="700.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">Two front doors, one engine: only how you get in changes</text>
+<text x="400" y="112" font-size="16" fill="#1d2733" text-anchor="middle" font-weight="bold">Supervisor Service</text>
+<text x="400" y="132" font-size="12" fill="#6b7785" text-anchor="middle">supported since 9.1, this post</text>
+<text x="1010" y="112" font-size="16" fill="#1d2733" text-anchor="middle" font-weight="bold">VCF Automation service</text>
+<text x="1010" y="132" font-size="12" fill="#6b7785" text-anchor="middle">9.1.1 Tech Preview</text>
+<rect x="160" y="160" width="480" height="560" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
+<rect x="770" y="160" width="480" height="560" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="44" y="227" font-size="12" fill="#6b7785" font-weight="bold">INSTALL</text>
+<rect x="185" y="185" width="430" height="84" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="400.0" y="224.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">vSphere admin, in vCenter</text>
+<text x="400.0" y="240.0" font-size="12" fill="#6b7785" text-anchor="middle">once per Supervisor, from a YAML</text>
+<rect x="795" y="185" width="430" height="84" rx="5" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="1010.0" y="224.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Provider admin, in Service Mgmt</text>
+<text x="1010.0" y="240.0" font-size="12" fill="#6b7785" text-anchor="middle">per region, needs Regional Harbor</text>
+<path d="M400 269 L400 320" fill="none" stroke="#c9d1da" stroke-width="2" marker-end="url(#arr-c9d1da)"/>
+<path d="M1010 269 L1010 320" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<text x="44" y="362" font-size="12" fill="#6b7785" font-weight="bold">INSTANCE</text>
+<rect x="185" y="320" width="430" height="84" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="400.0" y="359.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">kubectl apply an ArgoCD object</text>
+<text x="400.0" y="375.0" font-size="12" fill="#6b7785" text-anchor="middle">edit rights on the hosting namespace</text>
+<rect x="795" y="320" width="430" height="84" rx="5" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="1010.0" y="359.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Org admin, from the org portal</text>
+<text x="1010.0" y="375.0" font-size="12" fill="#6b7785" text-anchor="middle">one instance per hosting namespace</text>
+<path d="M400 404 L400 455" fill="none" stroke="#c9d1da" stroke-width="2" marker-end="url(#arr-c9d1da)"/>
+<path d="M1010 404 L1010 455" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<text x="44" y="497" font-size="12" fill="#6b7785" font-weight="bold">TARGETS</text>
+<rect x="185" y="455" width="430" height="84" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="400.0" y="494.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">vcf argocd cluster add</text>
+<text x="400.0" y="510.0" font-size="12" fill="#6b7785" text-anchor="middle">or the 9.1.1 auto-attach policy</text>
+<rect x="795" y="455" width="430" height="84" rx="5" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="1010.0" y="494.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Attached in the org portal</text>
+<text x="1010.0" y="510.0" font-size="12" fill="#6b7785" text-anchor="middle">namespaces, VKS clusters, one region</text>
+<path d="M400 539 L400 590" fill="none" stroke="#c9d1da" stroke-width="2" marker-end="url(#arr-c9d1da)"/>
+<path d="M1010 539 L1010 590" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<text x="44" y="632" font-size="12" fill="#6b7785" font-weight="bold">LOG IN</text>
+<rect x="185" y="590" width="430" height="84" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="400.0" y="629.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Local account, or OIDC you set up</text>
+<text x="400.0" y="645.0" font-size="12" fill="#6b7785" text-anchor="middle">the lab used admin</text>
+<rect x="795" y="590" width="430" height="84" rx="5" fill="#eef4fb" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="1010.0" y="629.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">VCF Automation credentials</text>
+<text x="1010.0" y="645.0" font-size="12" fill="#6b7785" text-anchor="middle">OIDC configured for you</text>
+<path d="M400 720 L400 770 L700 770 L700 800" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<path d="M1010 720 L1010 770 L700 770" fill="none" stroke="#1f4e9c" stroke-width="2"/>
+<rect x="280" y="800" width="840" height="84" rx="5" fill="#f4f6f8" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="700.0" y="839.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Same Operator, Argo CD service 1.2.0, same build</text>
+<text x="700.0" y="855.0" font-size="12" fill="#6b7785" text-anchor="middle">builds, scales and upgrades VKS clusters from Git exactly as in this post</text>
+<text x="40" y="935" font-size="12" fill="#6b7785">Tech Preview limits: 30 vSphere Namespaces across all instances in a VCF Automation; one instance reaches one region.</text>
+<text x="40" y="956" font-size="12" fill="#6b7785">The Supervisor Service stays the supported path in 9.1.1; the repository and steps carry over unchanged.</text>
+</svg>

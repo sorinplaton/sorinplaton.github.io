@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1200" height="460" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="600.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">Clusters without tokens: a ManagedEntity registers the target, the service keeps the secret current</text>
+<path d="M70 100h18l8 8v24H70z" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><path d="M88 100v8h8M76 116h14M76 123h14" fill="none" stroke="#1d2733" stroke-width="1.4"/>
+<text x="112" y="112" font-size="12" fill="#1d2733" font-weight="bold">ManagedEntity</text>
+<text x="112" y="128" font-size="12" fill="#6b7785">targetRef → VKS cluster</text>
+<text x="112" y="144" font-size="12" fill="#6b7785">or Supervisor namespace</text>
+<circle cx="86" cy="350" r="14" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><circle cx="86" cy="350" r="4" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<line x1="91.0" y1="350.0" x2="97.0" y2="350.0" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="88.5" y1="354.3" x2="91.5" y2="359.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="83.5" y1="354.3" x2="80.5" y2="359.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="81.0" y1="350.0" x2="75.0" y2="350.0" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="83.5" y1="345.7" x2="80.5" y2="340.5" stroke="#1d2733" stroke-width="1.4"/>
+<line x1="88.5" y1="345.7" x2="91.5" y2="340.5" stroke="#1d2733" stroke-width="1.4"/>
+<text x="112" y="344" font-size="12" fill="#1d2733" font-weight="bold">demo-vks-cluster</text>
+<text x="112" y="360" font-size="12" fill="#6b7785">VKS, the target</text>
+<rect x="640" y="70" width="520" height="360" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="654" y="92" font-size="14" fill="#1f4e9c" font-weight="bold">Argo CD instance</text>
+<text x="654" y="110" font-size="12" fill="#6b7785">ns argocd-gitops-9xsrd</text>
+<circle cx="684" cy="200" r="6" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><path d="M690 200h16v6M700 200v5" fill="none" stroke="#1d2733" stroke-width="1.8"/>
+<text x="730" y="194" font-size="12" fill="#1d2733" font-weight="bold">Cluster secret</text>
+<text x="730" y="210" font-size="12" fill="#6b7785">written by the service,</text>
+<text x="730" y="226" font-size="12" fill="#6b7785">credentials kept current</text>
+<text x="670" y="320" font-size="12" fill="#6b7785">Secrets: one per entity, kept current</text>
+<text x="670" y="342" font-size="12" fill="#6b7785">Tokens: none to paste</text>
+<path d="M330 120 L560 120 L560 200 L670 200" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="375.0" y="97" width="140.0" height="17" fill="#ffffff"/>
+<text x="445" y="108" font-size="12" fill="#1f4e9c" text-anchor="middle">registers the target</text>
+<path d="M670 260 L560 260 L560 350 L330 350" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="365.1" y="327" width="159.8" height="17" fill="#ffffff"/>
+<text x="445" y="338" font-size="12" fill="#1f4e9c" text-anchor="middle">deploys with the secret</text>
+</svg>

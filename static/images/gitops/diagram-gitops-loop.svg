@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="980" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrs-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrs-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrs-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arrs-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker><marker id="arrs-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#b7791f"/></marker></defs>
+<text x="700.0" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">Argo CD never stops: pull, compare, apply, watch, and round again</text>
+<rect x="60" y="90" width="400" height="70" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="260.0" y="122.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Dev / platform team</text>
+<text x="260.0" y="138.0" font-size="12" fill="#6b7785" text-anchor="middle">writes YAML, opens a pull request</text>
+<circle cx="552" cy="113" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<circle cx="552" cy="137" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<circle cx="570" cy="123" r="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/>
+<path d="M552 117V133M570 127V129Q570 135 558 135" fill="none" stroke="#1d2733" stroke-width="1.8"/>
+<rect x="590" y="90" width="380" height="70" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="602" y="122.0" font-size="13" fill="#1d2733" font-weight="bold">Git repository</text>
+<text x="602" y="138.0" font-size="12" fill="#6b7785">desired state, reviewed</text>
+<path d="M460 125 L520 125" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<rect x="466.2" y="101" width="47.6" height="17" fill="#ffffff"/>
+<text x="490" y="112" font-size="12" fill="#6b7785" text-anchor="middle">commit</text>
+<path d="M710 160 L710 265" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<rect x="560" y="265" width="300" height="70" rx="5" fill="#f4f6f8" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="710.0" y="297.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">1  Pull Git</text>
+<text x="710.0" y="313.0" font-size="12" fill="#6b7785" text-anchor="middle">every 3 minutes</text>
+<path d="M860 300 L1000 300 L1000 465" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="1008" y="389" width="34.400000000000006" height="17" fill="#ffffff"/>
+<text x="1012" y="400" font-size="12" fill="#1f4e9c">pull</text>
+<rect x="850" y="465" width="300" height="70" rx="5" fill="#f4f6f8" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="1000.0" y="497.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">2  Compare</text>
+<text x="1000.0" y="513.0" font-size="12" fill="#6b7785" text-anchor="middle">desired vs actual</text>
+<path d="M1000 535 L1000 700 L860 700" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="1008" y="619" width="41.0" height="17" fill="#ffffff"/>
+<text x="1012" y="630" font-size="12" fill="#1f4e9c">apply</text>
+<rect x="560" y="665" width="300" height="70" rx="5" fill="#f4f6f8" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="710.0" y="697.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">3  Apply the difference</text>
+<text x="710.0" y="713.0" font-size="12" fill="#6b7785" text-anchor="middle">only what does not match</text>
+<path d="M560 700 L420 700 L420 535" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="357.8" y="619" width="54.2" height="17" fill="#ffffff"/>
+<text x="408" y="630" font-size="12" fill="#1f4e9c" text-anchor="end">observe</text>
+<rect x="270" y="465" width="300" height="70" rx="5" fill="#f4f6f8" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="420.0" y="497.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">4  Watch for drift</text>
+<text x="420.0" y="513.0" font-size="12" fill="#6b7785" text-anchor="middle">a hand change? back to 3</text>
+<path d="M420 465 L420 300 L560 300" fill="none" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<rect x="331.4" y="389" width="80.60000000000001" height="17" fill="#ffffff"/>
+<text x="408" y="400" font-size="12" fill="#1f4e9c" text-anchor="end">drift found</text>
+<circle cx="710" cy="500" r="62" fill="#eef4fb" stroke="#1f4e9c" stroke-width="2.2"/>
+<text x="710" y="497" font-size="16" fill="#1d2733" text-anchor="middle" font-weight="bold">Argo CD</text>
+<text x="710" y="516" font-size="12" fill="#6b7785" text-anchor="middle">one instance</text>
+<path d="M710 735 L710 820" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr-1d2733)"/>
+<rect x="430" y="820" width="560" height="70" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="710.0" y="852.0" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">Running platform (actual state)</text>
+<text x="710.0" y="868.0" font-size="12" fill="#6b7785" text-anchor="middle">VKS cluster VMs, the apps inside them, vSphere Pods</text>
+</svg>

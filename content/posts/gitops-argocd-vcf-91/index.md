@@ -28,7 +28,7 @@ Then a one-line commit takes podinfo from one pod to three in 16 seconds, and wh
 *vSphere Client, namespace `podinfo-demo-vkjhr`: three `demo-vks-cluster-l6l4p-*` control-plane VMs and three `node-pool-1` workers, all Powered On. Every one of them exists because of a single commit.*
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-run-timeline.webp" loading="lazy" alt="the whole run · seven steps with lab timings, from commit to self-heal" />
+<img src="/images/gitops/diagram-run-timeline.svg" loading="lazy" alt="the whole run · seven steps with lab timings, from commit to self-heal" />
 <figcaption aria-hidden="true">the whole run · seven steps with lab timings, from commit to self-heal</figcaption>
 </figure>
 
@@ -72,7 +72,7 @@ You describe what you want, commit it, and Argo CD pulls the repository, compare
 Git is the source of truth and nobody deploys by hand; that working style is **GitOps**.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-gitops-loop.webp" loading="lazy" alt="the GitOps loop · commit, pull, apply, correct drift" />
+<img src="/images/gitops/diagram-gitops-loop.svg" loading="lazy" alt="the GitOps loop · commit, pull, apply, correct drift" />
 <figcaption aria-hidden="true">the GitOps loop · commit, pull, apply, correct drift</figcaption>
 </figure>
 
@@ -105,7 +105,7 @@ Since VCF 9.1.1 the same Argo CD is also delivered through VCF Automation: a pro
 The loop does not change; the 9.1.1 bill of materials lists both forms at the same version, 1.2.0, and the same build number: it is the same Operator.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-vcfa-tech-preview.webp" loading="lazy" alt="for comparison · Argo CD as a VCF Automation service, 9.1.1 Tech Preview" />
+<img src="/images/gitops/diagram-vcfa-tech-preview.svg" loading="lazy" alt="for comparison · Argo CD as a VCF Automation service, 9.1.1 Tech Preview" />
 <figcaption aria-hidden="true">for comparison · Argo CD as a VCF Automation service, 9.1.1 Tech Preview</figcaption>
 </figure>
 
@@ -138,7 +138,7 @@ The whole environment is a nested VCF 9.1.0 Holodeck: management domain, a workl
 Around it sit the two routers Holodeck gives you: the **holorouter** (a Photon OS VM that is the default gateway for every Holodeck VLAN and also hosts the lab DNS as a host-network pod) and a **VyOS** on the outer lab network that routes between Holodeck and the rest of the lab. Every configuration change in this post was made on one of those two VMs, in NSX, or in the Supervisor. Nothing was changed on physical equipment.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-lab-topology.webp" loading="lazy" alt="full lab topology · outer network, holorouter, management and workload domains, Supervisor" />
+<img src="/images/gitops/diagram-lab-topology.svg" loading="lazy" alt="full lab topology · outer network, holorouter, management and workload domains, Supervisor" />
 <figcaption aria-hidden="true">full lab topology · outer network, holorouter, management and workload domains, Supervisor</figcaption>
 </figure>
 
@@ -465,7 +465,7 @@ This post uses both. Target 1 is the namespace `podinfo-demo-vkjhr`: the `demo-v
 Target 2 is `demo-vks-cluster` itself, registered in step 5: the `podinfo-vks` Application deploys podinfo inside it.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-two-targets.webp" loading="lazy" alt="two targets · the namespace builds the VMs, the cluster runs the apps" />
+<img src="/images/gitops/diagram-two-targets.svg" loading="lazy" alt="two targets · the namespace builds the VMs, the cluster runs the apps" />
 <figcaption aria-hidden="true">two targets · the namespace builds the VMs, the cluster runs the apps</figcaption>
 </figure>
 
@@ -793,7 +793,7 @@ The repository reorganisation itself went in as a reviewed pull request, and it 
 The usual next step is an *app of apps*: a root Application pointing at `argocd-apps/`, so that Argo CD manages its own Applications. [`argocd-apps/root.yaml`](https://github.com/sorinplaton/vcf-gitops/blob/blog-part1/argocd-apps/root.yaml) is in the repository but not applied.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-app-of-apps.webp" loading="lazy" alt="app of apps · applied by hand today, root Application blocked on its own namespace" />
+<img src="/images/gitops/diagram-app-of-apps.svg" loading="lazy" alt="app of apps · applied by hand today, root Application blocked on its own namespace" />
 <figcaption aria-hidden="true">app of apps · applied by hand today, root Application blocked on its own namespace</figcaption>
 </figure>
 
@@ -917,7 +917,7 @@ Part 1 built a VKS cluster and an app from one Git repository. This part is for 
 GitOps does not remove access control; it moves it. Once nobody runs `kubectl apply`, the questions become: who can change the desired state, what is Argo CD allowed to do with it, and what can the engine physically reach. Four layers answer those, and each is owned by a different person.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-control-layers.webp" loading="lazy" alt="control layers · Git, Argo CD, target credentials, vSphere" />
+<img src="/images/gitops/diagram-control-layers.svg" loading="lazy" alt="control layers · Git, Argo CD, target credentials, vSphere" />
 <figcaption aria-hidden="true">control layers · Git, Argo CD, target credentials, vSphere</figcaption>
 </figure>
 
@@ -1017,7 +1017,7 @@ The lab cut corners on purpose. Before this pattern carries anything that matter
 Part 1 kept the lab to one drawing. This one zooms into the Supervisor's networking: how a pod in the `holo-east` project gets out through the transit gateway and VLAN 200, side by side with the system namespaces on VLAN 24. It is the background to most of what follows in When it breaks. The same VPC model also runs without an overlay: [VKS on a VLAN-backed VPC without NSX TEPs](/posts/vks-without-teps/) builds a TEP-less workload domain next to this one, and an Argo CD instance set up like this one deploys to it as well.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-lab-network.webp" loading="lazy" alt="lab network · holo-east and default projects, VLAN 200 and VLAN 24, holorouter, VyOS" />
+<img src="/images/gitops/diagram-lab-network.svg" loading="lazy" alt="lab network · holo-east and default projects, VLAN 200 and VLAN 24, holorouter, VyOS" />
 <figcaption aria-hidden="true">lab network · holo-east and default projects, VLAN 200 and VLAN 24, holorouter, VyOS</figcaption>
 </figure>
 

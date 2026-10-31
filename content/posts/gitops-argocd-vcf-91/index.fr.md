@@ -28,7 +28,7 @@ Ensuite, un commit d'une ligne fait passer podinfo d'un pod à trois en 16 secon
 *vSphere Client, namespace `podinfo-demo-vkjhr` : trois VM de control plane `demo-vks-cluster-l6l4p-*` et trois workers `node-pool-1`, toutes Powered On. Chacune d'elles existe grâce à un seul commit.*
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-run-timeline.webp" loading="lazy" alt="l'exécution complète · sept étapes avec les durées mesurées dans le lab, du commit au self-heal" />
+<img src="/images/gitops/diagram-run-timeline.svg" loading="lazy" alt="l'exécution complète · sept étapes avec les durées mesurées dans le lab, du commit au self-heal" />
 <figcaption aria-hidden="true">l'exécution complète · sept étapes avec les durées mesurées dans le lab, du commit au self-heal</figcaption>
 </figure>
 
@@ -72,7 +72,7 @@ Vous décrivez ce que vous voulez, vous en faites le commit, et Argo CD récupè
 Git est la source de vérité et personne ne déploie à la main ; cette façon de travailler, c'est le **GitOps**.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-gitops-loop.webp" loading="lazy" alt="la boucle GitOps · commit, pull, application, correction de la dérive" />
+<img src="/images/gitops/diagram-gitops-loop.svg" loading="lazy" alt="la boucle GitOps · commit, pull, application, correction de la dérive" />
 <figcaption aria-hidden="true">la boucle GitOps · commit, pull, application, correction de la dérive</figcaption>
 </figure>
 
@@ -105,7 +105,7 @@ Depuis VCF 9.1.1, le même Argo CD est aussi livré par VCF Automation : un prov
 La boucle ne change pas ; la nomenclature (bill of materials) 9.1.1 liste les deux formes à la même version, 1.2.0, avec le même numéro de build : c'est le même Operator.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-vcfa-tech-preview.webp" loading="lazy" alt="pour comparaison · Argo CD comme service VCF Automation, Tech Preview 9.1.1" />
+<img src="/images/gitops/diagram-vcfa-tech-preview.svg" loading="lazy" alt="pour comparaison · Argo CD comme service VCF Automation, Tech Preview 9.1.1" />
 <figcaption aria-hidden="true">pour comparaison · Argo CD comme service VCF Automation, Tech Preview 9.1.1</figcaption>
 </figure>
 
@@ -138,7 +138,7 @@ Tout l'environnement est un Holodeck VCF 9.1.0 imbriqué : domaine de gestion, d
 Autour se trouvent les deux routeurs que fournit Holodeck : le **holorouter** (une VM Photon OS qui sert de gateway par défaut pour chaque VLAN Holodeck et héberge aussi le DNS du lab sous forme de pod en réseau hôte) et un **VyOS** sur le réseau externe du lab, qui route entre Holodeck et le reste du lab. Chaque changement de configuration de ce billet a été fait sur l'une de ces deux VM, dans NSX ou dans le Supervisor. Rien n'a été modifié sur l'équipement physique.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-lab-topology.webp" loading="lazy" alt="topologie complète du lab · réseau externe, holorouter, domaines de gestion et de workload, Supervisor" />
+<img src="/images/gitops/diagram-lab-topology.svg" loading="lazy" alt="topologie complète du lab · réseau externe, holorouter, domaines de gestion et de workload, Supervisor" />
 <figcaption aria-hidden="true">topologie complète du lab · réseau externe, holorouter, domaines de gestion et de workload, Supervisor</figcaption>
 </figure>
 
@@ -465,7 +465,7 @@ Ce billet utilise les deux. La cible 1 est le namespace `podinfo-demo-vkjhr` : l
 La cible 2 est `demo-vks-cluster` lui-même, enregistré à l'étape 5 : l'Application `podinfo-vks` y déploie podinfo.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-two-targets.webp" loading="lazy" alt="deux cibles · le namespace construit les VM, le cluster exécute les applications" />
+<img src="/images/gitops/diagram-two-targets.svg" loading="lazy" alt="deux cibles · le namespace construit les VM, le cluster exécute les applications" />
 <figcaption aria-hidden="true">deux cibles · le namespace construit les VM, le cluster exécute les applications</figcaption>
 </figure>
 
@@ -793,7 +793,7 @@ La réorganisation du repo elle-même est passée par une pull request révisée
 L'étape suivante habituelle est un *app of apps* : une Application racine qui pointe vers `argocd-apps/`, afin qu'Argo CD gère ses propres Applications. [`argocd-apps/root.yaml`](https://github.com/sorinplaton/vcf-gitops/blob/blog-part1/argocd-apps/root.yaml) est dans le repo, mais n'est pas appliqué.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-app-of-apps.webp" loading="lazy" alt="app of apps · appliqué à la main aujourd'hui, Application racine bloquée sur son propre namespace" />
+<img src="/images/gitops/diagram-app-of-apps.svg" loading="lazy" alt="app of apps · appliqué à la main aujourd'hui, Application racine bloquée sur son propre namespace" />
 <figcaption aria-hidden="true">app of apps · appliqué à la main aujourd'hui, Application racine bloquée sur son propre namespace</figcaption>
 </figure>
 
@@ -917,7 +917,7 @@ La partie 1 a construit un cluster VKS et une application à partir d'un seul re
 GitOps ne supprime pas le contrôle d'accès ; il le déplace. Une fois que plus personne ne lance `kubectl apply`, les questions deviennent : qui peut modifier l'état désiré, qu'est-ce qu'Argo CD a le droit d'en faire, et que peut atteindre physiquement le moteur ? Quatre couches y répondent, et chacune appartient à une personne différente.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-control-layers.webp" loading="lazy" alt="couches de contrôle · Git, Argo CD, credentials des cibles, vSphere" />
+<img src="/images/gitops/diagram-control-layers.svg" loading="lazy" alt="couches de contrôle · Git, Argo CD, credentials des cibles, vSphere" />
 <figcaption aria-hidden="true">couches de contrôle · Git, Argo CD, credentials des cibles, vSphere</figcaption>
 </figure>
 
@@ -1017,7 +1017,7 @@ Le lab a volontairement pris des raccourcis. Avant que ce modèle porte quoi que
 La partie 1 s'en est tenue à un seul schéma du lab. Celui-ci zoome sur la mise en réseau du Supervisor : comment un pod du projet `holo-east` sort par la transit gateway et le VLAN 200, côte à côte avec les namespaces système sur le VLAN 24. C'est le contexte de la plupart de ce qui suit dans *Quand ça casse*. Le même modèle VPC fonctionne aussi sans overlay : [VKS on a VLAN-backed VPC without NSX TEPs](/fr/posts/vks-without-teps/) construit un domaine de workload sans TEP à côté de celui-ci, et une instance Argo CD configurée comme celle-ci y déploie également.
 
 <figure class="diagram">
-<img src="/images/gitops/diagram-lab-network.webp" loading="lazy" alt="réseau du lab · projets holo-east et default, VLAN 200 et VLAN 24, holorouter, VyOS" />
+<img src="/images/gitops/diagram-lab-network.svg" loading="lazy" alt="réseau du lab · projets holo-east et default, VLAN 200 et VLAN 24, holorouter, VyOS" />
 <figcaption aria-hidden="true">réseau du lab · projets holo-east et default, VLAN 200 et VLAN 24, holorouter, VyOS</figcaption>
 </figure>
 

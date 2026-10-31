@@ -8,6 +8,8 @@ categories: ["Field notes"]
 showToc: true
 tocOpen: false
 images: ["/images/fleet-overlay-dr/fig-02-dr-topology.svg"]
+params:
+  seoDescription: "How to land VCF Operations and VCF Automation on an NSX overlay segment in VCF 9.1, and design fleet DR with SRM and NSX Federation beyond 5 ms RTT."
 ---
 
 Two questions tend to show up together. The first: how do I get VCF Operations and VCF Automation onto an NSX overlay segment in a greenfield VCF 9.1 deployment? The second, usually a few minutes later: and how do I fail them over to the second data centre, given that the sites are further apart than a stretched cluster allows — more than 5 ms RTT, typically 10 ms or more over a regional DCI — and we already own SRM?

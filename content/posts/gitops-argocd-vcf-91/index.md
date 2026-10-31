@@ -7,6 +7,8 @@ tags: ["VCF 9.1", "Argo CD", "GitOps", "VKS", "Supervisor", "VCF Automation", "H
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
+params:
+  seoDescription: "Argo CD as a vSphere Supervisor Service builds a VKS cluster and deploys an app from one Git repo on VCF 9.1: every step and every gotcha, in a Holodeck lab."
 ---
 
 ## The moment

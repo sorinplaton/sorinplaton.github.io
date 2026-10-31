@@ -7,6 +7,8 @@ tags: ["VCF 9.1", "Argo CD", "GitOps", "VKS", "Supervisor", "VCF Automation", "H
 categories: ["Notes"]
 showToc: true
 tocOpen: false
+params:
+  seoDescription: "Argo CD en Supervisor Service construit un cluster VKS et déploie une app depuis un repo Git sur VCF 9.1 : chaque étape et chaque piège, dans un lab Holodeck."
 ---
 
 ## Le moment {#the-moment}

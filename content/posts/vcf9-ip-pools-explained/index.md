@@ -8,6 +8,8 @@ categories: ["Field notes"]
 showToc: true
 tocOpen: false
 images: ["/images/ip-pools/fig-01-pool-map.svg"]
+params:
+  seoDescription: "Network Pool, TEP pools, External IP Block, Transit Gateway block, VPC CIDRs and IP Spaces: what each VCF 9.1 'pool' is and which component consumes it."
 ---
 
 VCF 9.1 asks for addresses in four different places: SDDC Manager wants a *Network Pool*, NSX wants *IP Address Pools* and *IP Address Blocks*, the Supervisor wizard wants *CIDRs*, and VCF Automation wants *IP Spaces*. They all look like "a range of IPs", they are all called a pool at some point, and they all do something different. The confusion is understandable: the same `10.x.0.0/16` typed into the wrong field either never leaves the fabric or gets advertised to your whole data centre.

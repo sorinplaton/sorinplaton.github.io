@@ -7,6 +7,8 @@ tags: ["VCF 9.1", "Offline depot", "ODA", "VCF Installer", "nginx"]
 categories: ["Runbooks"]
 showToc: true
 tocOpen: false
+params:
+  seoDescription: "Runbook : cloner une appliance offline depot VCF 9.1 vers une nouvelle avec scp seulement, puis la servir au VCF Installer en HTTP, sans authentification."
 ---
 
 Runbook étape par étape pour cloner une appliance offline depot (ODA) VCF 9.1 existante vers une nouvelle avec seulement `scp`, puis exposer le nouveau depot au VCF Installer en HTTP simple.

@@ -7,6 +7,8 @@ tags: ["VCF 9.1.1", "VCF Operations", "AI Assistant", "Ollama", "Caddy", "Privat
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
+params:
+  seoDescription: "Run the VCF Operations 9.1.1 AI Assistant on your own LLM: Ollama on a Mac mini behind Caddy for HTTPS, FQDN and bearer token, plus the three things that broke."
 ---
 
 VCF Operations 9.1.1 can send its AI Assistant to a **VCF Private AI** provider: any OpenAI-compatible endpoint you run yourself. Ollama speaks that API already. What it lacks is HTTPS, an FQDN and authentication, which VCF Ops insists on. A small Caddy in front of it adds all three. Here is the build on a Mac mini M4, tested the way VCF Ops calls it, and then wired into the AI Assistant for real, including the three things that broke on the way.

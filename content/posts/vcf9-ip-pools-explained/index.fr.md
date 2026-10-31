@@ -8,6 +8,8 @@ categories: ["Notes"]
 showToc: true
 tocOpen: false
 images: ["/images/ip-pools/fig-01-pool-map.svg"]
+params:
+  seoDescription: "Network Pool, pools TEP, External IP Block, bloc Transit Gateway, CIDR de VPC et IP Spaces : ce qu'est chaque « pool » de VCF 9.1 et quel composant le consomme."
 ---
 
 VCF 9.1 demande des adresses à quatre endroits différents : SDDC Manager veut un *Network Pool*, NSX veut des *IP Address Pools* et des *IP Address Blocks*, l'assistant Supervisor veut des *CIDR*, et VCF Automation veut des *IP Spaces*. Tout cela ressemble à « une plage d'adresses », tout cela s'appelle un pool à un moment ou à un autre, et tout cela fait quelque chose de différent. La confusion se comprend : le même `10.x.0.0/16` tapé dans le mauvais champ, soit ne sort jamais de la fabrique, soit se retrouve annoncé à tout le centre de données.

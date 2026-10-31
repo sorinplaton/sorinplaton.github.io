@@ -8,6 +8,8 @@ categories: ["Notes"]
 showToc: true
 tocOpen: false
 images: ["/images/fleet-overlay-dr/fig-02-dr-topology.svg"]
+params:
+  seoDescription: "Placer VCF Operations et VCF Automation sur un segment overlay NSX en VCF 9.1, puis la reprise du fleet avec SRM et NSX Federation au-delà de 5 ms de RTT."
 ---
 
 Deux questions arrivent souvent ensemble. La première : comment mettre VCF Operations et VCF Automation sur un segment overlay NSX dans un déploiement VCF 9.1 greenfield ? La seconde, quelques minutes plus tard : et comment les basculer vers le second centre de données, sachant que les sites sont plus éloignés que ne le permet un cluster étiré — plus de 5 ms de RTT, typiquement 10 ms ou plus sur un DCI régional — et qu'on possède déjà SRM ?

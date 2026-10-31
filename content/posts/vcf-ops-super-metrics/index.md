@@ -8,6 +8,8 @@ categories: ["Field notes"]
 showToc: true
 tocOpen: false
 images: ["/images/super-metrics/fig-01-one-kpi.svg"]
+params:
+  seoDescription: "VCF Operations super metrics explained: formula syntax, the depth rule, the where clause, sizing cost, and when VCF 9.1 real-time metrics are the better tool."
 ---
 
 The questions I get asked about a cluster are not single metrics. *Which VM waits most for CPU? How many VMs are running hot? How evenly are the hosts loaded?* Every object in VCF Operations reports its own values, and nothing adds them up for you. A **super metric** is the formula that does: it reads related objects, reduces them to one value, and stores that value on the object where the question was asked. From then on it behaves like any built-in metric: dashboards, alerts, reports, the API.

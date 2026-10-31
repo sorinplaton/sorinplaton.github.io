@@ -7,6 +7,8 @@ tags: ["VCF 9.1", "Offline depot", "ODA", "VCF Installer", "nginx"]
 categories: ["Runbooks"]
 showToc: true
 tocOpen: false
+params:
+  seoDescription: "Runbook: clone a VCF 9.1 offline depot appliance to a new one with scp alone, then serve it to the VCF Installer over plain HTTP without authentication."
 ---
 
 Step-by-step runbook to clone an existing VCF 9.1 offline depot appliance (ODA) onto a new one using only `scp`, and expose the new depot to the VCF Installer over plain HTTP.

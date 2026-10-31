@@ -8,6 +8,8 @@ categories: ["Notes"]
 showToc: true
 tocOpen: false
 images: ["/images/super-metrics/fig-01-one-kpi.svg"]
+params:
+  seoDescription: "Super metrics de VCF Operations : syntaxe, règle de profondeur, clause where, coût en dimensionnement, et quand les métriques temps réel de VCF 9.1 font mieux."
 ---
 
 Les questions qu'on me pose sur un cluster ne sont pas des métriques simples. *Quelle VM attend le plus le CPU ? Combien de VM tournent à chaud ? Les hôtes sont-ils chargés uniformément ?* Chaque objet de VCF Operations rapporte ses propres valeurs, et rien ne les additionne pour vous. Une **super metric** est la formule qui le fait : elle lit des objets liés, les réduit à une valeur, et stocke cette valeur sur l'objet où la question a été posée. À partir de là, elle se comporte comme n'importe quelle métrique native : tableaux de bord, alertes, rapports, API.

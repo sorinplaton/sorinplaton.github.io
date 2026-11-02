@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800" viewBox="0 0 1400 800" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="800" fill="#ffffff"/>
+<defs><marker id="arr-1d2733" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arr-1f4e9c" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arr-2e7d32" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arr-6b7785" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arr-b7791f" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7791f"/></marker></defs>
+<text x="700" y="30" font-size="19" fill="#1d2733" text-anchor="middle" font-weight="bold">Lab monitoring: Argo CD on the management domain builds the cluster and the stack</text>
+<text x="700" y="50" font-size="12" fill="#6b7785" text-anchor="middle">Blue: Git pull. Black: sign-in and role. Green: what Argo CD creates. Grey: Prometheus scrapes. Amber: read-only calls to the lab.</text>
+<rect x="60" y="80" width="330" height="82" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="72" y="102" font-size="13" fill="#1d2733" font-weight="bold">GitHub: sorinplaton/vcf-gitops</text>
+<text x="72" y="120" font-size="12" fill="#6b7785">branch mgmt-platform-ops</text>
+<text x="72" y="136" font-size="12" fill="#6b7785">clusters/mon-mgmt, apps/monitoring</text>
+<rect x="535" y="80" width="330" height="82" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="547" y="102" font-size="13" fill="#1d2733" font-weight="bold">VCF Automation</text>
+<text x="547" y="120" font-size="12" fill="#6b7785">org platform-ops, region mgmt-a</text>
+<text x="547" y="136" font-size="12" fill="#6b7785">SSO for Argo CD, service account role</text>
+<rect x="1010" y="80" width="330" height="82" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="1022" y="102" font-size="13" fill="#1d2733" font-weight="bold">You (browser)</text>
+<text x="1022" y="120" font-size="12" fill="#6b7785">Grafana  http://10.204.204.6</text>
+<text x="1022" y="136" font-size="12" fill="#6b7785">Argo CD https://10.204.204.3</text>
+<rect x="40" y="200" width="900" height="560" rx="5" fill="#f7f9fb" stroke="#1d2733" stroke-width="1.6"/>
+<text x="70" y="470" font-size="13" fill="#1d2733" font-weight="bold">Management domain</text>
+<text x="70" y="490" font-size="12" fill="#6b7785">Supervisor supervisor-mgmt-a, rebuilt</text>
+<text x="70" y="506" font-size="12" fill="#6b7785">with NSX VPC networking (vc-mgmt-a,</text>
+<text x="70" y="522" font-size="12" fill="#6b7785">cluster-mgmt-01a)</text>
+<text x="70" y="546" font-size="12" fill="#6b7785">VPC vpc-platform-ops, private 172.24.0.0/23</text>
+<text x="70" y="562" font-size="12" fill="#6b7785">external block 10.204.204.0/24, VLAN 204</text>
+<rect x="70" y="235" width="300" height="165" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="82" y="257" font-size="13" fill="#1d2733" font-weight="bold">Namespace platform-ops-mj3pd</text>
+<text x="82" y="275" font-size="12" fill="#6b7785">ArgoCD argocd-platform (VCF Service)</text>
+<text x="82" y="291" font-size="12" fill="#6b7785">Argo CD 3.4.4, LB 10.204.204.3</text>
+<text x="82" y="307" font-size="12" fill="#6b7785">ManagedEntity: namespace, mon-mgmt</text>
+<text x="82" y="323" font-size="12" fill="#6b7785">Applications:</text>
+<text x="82" y="339" font-size="12" fill="#6b7785">  mon-mgmt-cluster, monitoring-stack,</text>
+<text x="82" y="355" font-size="12" fill="#6b7785">  monitoring-exporters</text>
+<rect x="420" y="235" width="490" height="500" rx="5" fill="#ffffff" stroke="#2e7d32" stroke-width="1.6"/>
+<text x="432" y="257" font-size="13" fill="#1d2733" font-weight="bold">VKS cluster mon-mgmt</text>
+<text x="432" y="275" font-size="12" fill="#6b7785">builtin-generic-v3.7.0, Kubernetes v1.35.6, Photon 5</text>
+<text x="432" y="291" font-size="12" fill="#6b7785">1 control plane + 2 workers</text>
+<rect x="445" y="305" width="270" height="215" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="457" y="327" font-size="13" fill="#1d2733" font-weight="bold">kube-prometheus-stack 92.17.0</text>
+<text x="457" y="345" font-size="12" fill="#6b7785">Helm chart, synced by Argo CD</text>
+<text x="457" y="361" font-size="12" fill="#6b7785">Prometheus 3.15</text>
+<text x="457" y="377" font-size="12" fill="#6b7785">  15 days, 30 GB PVC on vSAN</text>
+<text x="457" y="393" font-size="12" fill="#6b7785">Grafana 13.3, LB 10.204.204.6</text>
+<text x="457" y="409" font-size="12" fill="#6b7785">Alertmanager, kube-state-metrics</text>
+<text x="457" y="425" font-size="12" fill="#6b7785">node-exporter on each node</text>
+<text x="457" y="441" font-size="12" fill="#6b7785">  (TCP 9100, node firewall rule)</text>
+<rect x="735" y="305" width="150" height="100" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="747" y="327" font-size="13" fill="#1d2733" font-weight="bold">vmware-exporter</text>
+<text x="747" y="345" font-size="12" fill="#6b7785">pryorda v0.18.4</text>
+<text x="747" y="361" font-size="12" fill="#6b7785">3 vCenter sections</text>
+<rect x="735" y="420" width="150" height="100" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="747" y="442" font-size="13" fill="#1d2733" font-weight="bold">idrac-exporter</text>
+<text x="747" y="460" font-size="12" fill="#6b7785">mrlhansen 2.6.3</text>
+<text x="747" y="476" font-size="12" fill="#6b7785">Redfish, one</text>
+<text x="747" y="492" font-size="12" fill="#6b7785">?target per iDRAC</text>
+<rect x="445" y="545" width="440" height="80" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6" stroke-dasharray="5,4"/>
+<text x="457" y="567" font-size="13" fill="#1d2733" font-weight="bold">Secrets made once, outside Git</text>
+<text x="457" y="585" font-size="12" fill="#6b7785">vcenter-exporter-env, idrac-exporter-config</text>
+<text x="457" y="601" font-size="12" fill="#6b7785">one user, monitor, read-only on every target</text>
+<rect x="445" y="640" width="440" height="80" rx="5" fill="#ffffff" stroke="#c9d1da" stroke-width="1.6"/>
+<text x="457" y="662" font-size="13" fill="#1d2733" font-weight="bold">Dashboards in Git</text>
+<text x="457" y="680" font-size="12" fill="#6b7785">lab-power-thermal, lab-nested-hosts (ConfigMaps)</text>
+<text x="457" y="696" font-size="12" fill="#6b7785">VMware 18017-18019 from grafana.com</text>
+<rect x="990" y="230" width="370" height="82" rx="5" fill="#ffffff" stroke="#b7791f" stroke-width="1.6"/>
+<text x="1002" y="252" font-size="13" fill="#1d2733" font-weight="bold">vc-mgmt-a + vc-wld01-a</text>
+<text x="1002" y="270" font-size="12" fill="#6b7785">nested vCenters: hosts, VMs, vSAN</text>
+<text x="1002" y="286" font-size="12" fill="#6b7785">role Monitoring Read-Only</text>
+<rect x="990" y="340" width="370" height="82" rx="5" fill="#ffffff" stroke="#b7791f" stroke-width="1.6"/>
+<text x="1002" y="362" font-size="13" fill="#1d2733" font-weight="bold">outer vCenter 10.0.6.21</text>
+<text x="1002" y="380" font-size="12" fill="#6b7785">the physical Dells and the nested ESXi VMs</text>
+<text x="1002" y="396" font-size="12" fill="#6b7785">CPU ready, memory, datastores</text>
+<rect x="990" y="450" width="370" height="82" rx="5" fill="#ffffff" stroke="#b7791f" stroke-width="1.6"/>
+<text x="1002" y="472" font-size="13" fill="#1d2733" font-weight="bold">iDRAC9 10.0.4.41 (R740)</text>
+<text x="1002" y="490" font-size="12" fill="#6b7785">power, PSU, temperatures, fans, SEL</text>
+<text x="1002" y="506" font-size="12" fill="#6b7785">local user monitor, ReadOnly</text>
+<rect x="990" y="560" width="370" height="82" rx="5" fill="#ffffff" stroke="#b7791f" stroke-width="1.6"/>
+<text x="1002" y="582" font-size="13" fill="#1d2733" font-weight="bold">iDRAC8 10.0.7.244 (R730xd)</text>
+<text x="1002" y="600" font-size="12" fill="#6b7785">same metrics, slower Redfish</text>
+<text x="1002" y="616" font-size="12" fill="#6b7785">scrape timeout 90 s</text>
+<polyline points="170,162 170,235" fill="none" stroke="#1f4e9c" stroke-width="1.8" marker-end="url(#arr-1f4e9c)"/>
+<text x="160" y="205" font-size="12" fill="#1f4e9c" text-anchor="end">pull</text>
+<polyline points="700,162 700,185 300,185 300,235" fill="none" stroke="#1d2733" stroke-width="1.8" marker-end="url(#arr-1d2733)"/>
+<text x="500" y="179" font-size="12" fill="#1d2733" text-anchor="middle">SSO + role</text>
+<polyline points="370,300 420,300" fill="none" stroke="#2e7d32" stroke-width="1.8" marker-end="url(#arr-2e7d32)"/>
+<text x="395" y="292" font-size="12" fill="#2e7d32" text-anchor="middle">creates</text>
+<polyline points="715,355 735,355" fill="none" stroke="#6b7785" stroke-width="1.8" marker-end="url(#arr-6b7785)"/>
+<polyline points="715,470 735,470" fill="none" stroke="#6b7785" stroke-width="1.8" marker-end="url(#arr-6b7785)"/>
+<polyline points="885,340 990,271" fill="none" stroke="#b7791f" stroke-width="1.8" marker-end="url(#arr-b7791f)"/>
+<polyline points="885,370 990,381" fill="none" stroke="#b7791f" stroke-width="1.8" marker-end="url(#arr-b7791f)"/>
+<polyline points="885,455 990,491" fill="none" stroke="#b7791f" stroke-width="1.8" marker-end="url(#arr-b7791f)"/>
+<text x="950" y="440" font-size="12" fill="#b7791f" text-anchor="middle">read-only</text>
+<polyline points="885,485 990,601" fill="none" stroke="#b7791f" stroke-width="1.8" marker-end="url(#arr-b7791f)"/>
+</svg>

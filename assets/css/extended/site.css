@@ -234,13 +234,13 @@ details.toc summary { font-family: inherit; font-size: .95rem; font-weight: 600;
 :root:not([data-theme="dark"]) .chroma span { color: #1f2630; }
 :root:not([data-theme="dark"]) .chroma .kp { color: #0b4fa0; }
 :root:not([data-theme="dark"]) .chroma .sa, :root:not([data-theme="dark"]) .chroma .sc, :root:not([data-theme="dark"]) .chroma .sd, :root:not([data-theme="dark"]) .chroma .se, :root:not([data-theme="dark"]) .chroma .sh, :root:not([data-theme="dark"]) .chroma .si, :root:not([data-theme="dark"]) .chroma .sr, :root:not([data-theme="dark"]) .chroma .ss { color: #0a5c3a; }
-:root:not([data-theme="dark"]) .chroma .cs, :root:not([data-theme="dark"]) .chroma .cpf { color: #6b7480; font-style: italic; }
+:root:not([data-theme="dark"]) .chroma .cs, :root:not([data-theme="dark"]) .chroma .cpf { color: #59616c; font-style: italic; }
 :root:not([data-theme="dark"]) .chroma .il, :root:not([data-theme="dark"]) .chroma .mb, :root:not([data-theme="dark"]) .chroma .mo { color: #8a4b00; }
 :root:not([data-theme="dark"]) .chroma .nc, :root:not([data-theme="dark"]) .chroma .nd, :root:not([data-theme="dark"]) .chroma .ne, :root:not([data-theme="dark"]) .chroma .nn, :root:not([data-theme="dark"]) .chroma .no, :root:not([data-theme="dark"]) .chroma .ow { color: #6a3fb0; }
 :root:not([data-theme="dark"]) .chroma .gp, :root:not([data-theme="dark"]) .chroma .go { color: #4a5563; }
 :root:not([data-theme="dark"]) .chroma .k, :root:not([data-theme="dark"]) .chroma .kd, :root:not([data-theme="dark"]) .chroma .kn, :root:not([data-theme="dark"]) .chroma .kt, :root:not([data-theme="dark"]) .chroma .kr, :root:not([data-theme="dark"]) .chroma .kc { color: #0b4fa0; }
 :root:not([data-theme="dark"]) .chroma .s, :root:not([data-theme="dark"]) .chroma .s1, :root:not([data-theme="dark"]) .chroma .s2, :root:not([data-theme="dark"]) .chroma .sb, :root:not([data-theme="dark"]) .chroma .sx, :root:not([data-theme="dark"]) .chroma .dl { color: #0a5c3a; }
-:root:not([data-theme="dark"]) .chroma .c, :root:not([data-theme="dark"]) .chroma .c1, :root:not([data-theme="dark"]) .chroma .cm, :root:not([data-theme="dark"]) .chroma .ch, :root:not([data-theme="dark"]) .chroma .cp { color: #6b7480; font-style: italic; }
+:root:not([data-theme="dark"]) .chroma .c, :root:not([data-theme="dark"]) .chroma .c1, :root:not([data-theme="dark"]) .chroma .cm, :root:not([data-theme="dark"]) .chroma .ch, :root:not([data-theme="dark"]) .chroma .cp { color: #59616c; font-style: italic; }
 :root:not([data-theme="dark"]) .chroma .m, :root:not([data-theme="dark"]) .chroma .mi, :root:not([data-theme="dark"]) .chroma .mf, :root:not([data-theme="dark"]) .chroma .mh, :root:not([data-theme="dark"]) .chroma .l { color: #8a4b00; }
 :root:not([data-theme="dark"]) .chroma .nt, :root:not([data-theme="dark"]) .chroma .nb, :root:not([data-theme="dark"]) .chroma .bp { color: #6a3fb0; }
 :root:not([data-theme="dark"]) .chroma .na, :root:not([data-theme="dark"]) .chroma .nv, :root:not([data-theme="dark"]) .chroma .nf, :root:not([data-theme="dark"]) .chroma .nx, :root:not([data-theme="dark"]) .chroma .n { color: #1f2630; }
@@ -269,3 +269,12 @@ details.toc summary::marker, details.toc summary::-webkit-details-marker { color
 .footer { font-family: "IBM Plex Sans", sans-serif; font-size: .82rem; color: var(--secondary); border-top: 1px solid var(--line); margin-top: 56px; padding: 24px 0 40px; }
 .footer a { color: var(--secondary); box-shadow: none; text-decoration: underline; text-underline-offset: 3px; }
 .footer a:hover { color: var(--blue); }
+
+/* Terminal-style blocks (.term) are dark in both themes: keep the block rule above from painting their <pre> light */
+.post-content .term pre { background: transparent !important; border: 0; }
+/* Day mode: post-specific accents inside code blocks, darkened to at least 4.5:1 on the light block */
+:root:not([data-theme="dark"]) .evpn pre .s { color: #0f6e5c; }
+:root:not([data-theme="dark"]) .evpn pre .v { color: #17734a; }
+:root:not([data-theme="dark"]) .tepless pre { --vlan: #17734a; }
+/* Night mode: comments (and YAML block strings, drawn as comments) brighter than the theme's grey-blue (4.1:1 on the dark block) */
+:root[data-theme="dark"] .chroma :is(.c, .c1, .cm, .ch, .cp, .cs, .cpf, .sd) { color: #9399b2; }

@@ -228,6 +228,16 @@ details.toc summary { font-family: inherit; font-size: .95rem; font-weight: 600;
 .post-content pre, .post-content .highlight pre, .post-content .chroma { background: var(--code-block-bg) !important; border: 1px solid var(--line); }
 .post-content .highlight { background: transparent; }
 :root:not([data-theme="dark"]) .chroma { color: #1f2630; }
+/* PaperMod paints `pre code` #d5d5d6 for its dark blocks: let code take the block's colour, so untokenised text (shell commands, text blocks) stays readable on the light surface */
+.md-content pre code { color: inherit; }
+/* light fallback for every token the rules below do not name (catppuccin pastels are unreadable on the light block) */
+:root:not([data-theme="dark"]) .chroma span { color: #1f2630; }
+:root:not([data-theme="dark"]) .chroma .kp { color: #0b4fa0; }
+:root:not([data-theme="dark"]) .chroma .sa, :root:not([data-theme="dark"]) .chroma .sc, :root:not([data-theme="dark"]) .chroma .sd, :root:not([data-theme="dark"]) .chroma .se, :root:not([data-theme="dark"]) .chroma .sh, :root:not([data-theme="dark"]) .chroma .si, :root:not([data-theme="dark"]) .chroma .sr, :root:not([data-theme="dark"]) .chroma .ss { color: #0a5c3a; }
+:root:not([data-theme="dark"]) .chroma .cs, :root:not([data-theme="dark"]) .chroma .cpf { color: #6b7480; font-style: italic; }
+:root:not([data-theme="dark"]) .chroma .il, :root:not([data-theme="dark"]) .chroma .mb, :root:not([data-theme="dark"]) .chroma .mo { color: #8a4b00; }
+:root:not([data-theme="dark"]) .chroma .nc, :root:not([data-theme="dark"]) .chroma .nd, :root:not([data-theme="dark"]) .chroma .ne, :root:not([data-theme="dark"]) .chroma .nn, :root:not([data-theme="dark"]) .chroma .no, :root:not([data-theme="dark"]) .chroma .ow { color: #6a3fb0; }
+:root:not([data-theme="dark"]) .chroma .gp, :root:not([data-theme="dark"]) .chroma .go { color: #4a5563; }
 :root:not([data-theme="dark"]) .chroma .k, :root:not([data-theme="dark"]) .chroma .kd, :root:not([data-theme="dark"]) .chroma .kn, :root:not([data-theme="dark"]) .chroma .kt, :root:not([data-theme="dark"]) .chroma .kr, :root:not([data-theme="dark"]) .chroma .kc { color: #0b4fa0; }
 :root:not([data-theme="dark"]) .chroma .s, :root:not([data-theme="dark"]) .chroma .s1, :root:not([data-theme="dark"]) .chroma .s2, :root:not([data-theme="dark"]) .chroma .sb, :root:not([data-theme="dark"]) .chroma .sx, :root:not([data-theme="dark"]) .chroma .dl { color: #0a5c3a; }
 :root:not([data-theme="dark"]) .chroma .c, :root:not([data-theme="dark"]) .chroma .c1, :root:not([data-theme="dark"]) .chroma .cm, :root:not([data-theme="dark"]) .chroma .ch, :root:not([data-theme="dark"]) .chroma .cp { color: #6b7480; font-style: italic; }

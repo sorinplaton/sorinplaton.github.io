@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1380" height="450" viewBox="0 0 1380 450" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1380" height="450" fill="#ffffff"/>
+<defs><marker id="ak" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1d2733"/></marker><marker id="ab" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f4e9c"/></marker><marker id="at" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#0b7a75"/></marker><marker id="ap" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b3fa0"/></marker><marker id="ar" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#b3261e"/></marker><marker id="ag" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#6b7785"/></marker></defs>
+<text x="690" y="34" text-anchor="middle" font-size="19" fill="#1d2733" font-weight="bold">The low-impact way: one host at a time, in maintenance mode</text>
+<text x="690" y="56" text-anchor="middle" font-size="12" fill="#6b7785">Method from vcfcore.tech (“EDP Standard with zero impact”), extended with the second hop to Performance. Workloads never sit on a host while its datapath changes.</text>
+<rect x="30" y="110" width="205" height="150" rx="8" fill="#ffffff" stroke="#6b7785" stroke-width="2.2"/>
+<circle cx="54" cy="136" r="14" fill="#6b7785"/>
+<text x="54" y="141" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">0</text>
+<text x="76" y="141" text-anchor="start" font-size="14" fill="#1d2733" font-weight="bold">Prepare once</text>
+<text x="132.5" y="180" text-anchor="middle" font-size="11.5" fill="#1d2733">clone the TNP, target mode</text>
+<text x="132.5" y="200" text-anchor="middle" font-size="11.5" fill="#1d2733">(+ cpu_config for ENS)</text>
+<text x="132.5" y="220" text-anchor="middle" font-size="11.5" fill="#6b7785">allow vMotion between modes</text>
+<line x1="237" y1="185" x2="257" y2="185" stroke="#1d2733" stroke-width="2" marker-end="url(#ak)"/>
+<rect x="259" y="110" width="205" height="150" rx="8" fill="#ffffff" stroke="#1f4e9c" stroke-width="2.2"/>
+<circle cx="283" cy="136" r="14" fill="#1f4e9c"/>
+<text x="283" y="141" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">1</text>
+<text x="305" y="141" text-anchor="start" font-size="14" fill="#1d2733" font-weight="bold">Evacuate</text>
+<text x="361.5" y="180" text-anchor="middle" font-size="11.5" fill="#1d2733">vMotion / DRS moves the</text>
+<text x="361.5" y="200" text-anchor="middle" font-size="11.5" fill="#1d2733">VMs to the other hosts</text>
+<line x1="466" y1="185" x2="486" y2="185" stroke="#1d2733" stroke-width="2" marker-end="url(#ak)"/>
+<rect x="488" y="110" width="205" height="150" rx="8" fill="#ffffff" stroke="#1f4e9c" stroke-width="2.2"/>
+<circle cx="512" cy="136" r="14" fill="#1f4e9c"/>
+<text x="512" y="141" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">2</text>
+<text x="534" y="141" text-anchor="start" font-size="14" fill="#1d2733" font-weight="bold">Enter MM</text>
+<text x="590.5" y="180" text-anchor="middle" font-size="11.5" fill="#1d2733">host is empty;</text>
+<text x="590.5" y="200" text-anchor="middle" font-size="11.5" fill="#1d2733">nothing to disrupt</text>
+<line x1="695" y1="185" x2="715" y2="185" stroke="#1d2733" stroke-width="2" marker-end="url(#ak)"/>
+<rect x="717" y="110" width="205" height="150" rx="8" fill="#ffffff" stroke="#0b7a75" stroke-width="2.2"/>
+<circle cx="741" cy="136" r="14" fill="#0b7a75"/>
+<text x="741" y="141" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">3</text>
+<text x="763" y="141" text-anchor="start" font-size="14" fill="#1d2733" font-weight="bold">Hop 1</text>
+<text x="819.5" y="180" text-anchor="middle" font-size="11.5" fill="#1d2733">STANDARD → ENS_INTERRUPT</text>
+<text x="819.5" y="200" text-anchor="middle" font-size="11.5" fill="#1d2733">(or ENS → ENS_INTERRUPT)</text>
+<text x="819.5" y="220" text-anchor="middle" font-size="11.5" fill="#6b7785">~10 s</text>
+<line x1="924" y1="185" x2="944" y2="185" stroke="#1d2733" stroke-width="2" marker-end="url(#ak)"/>
+<rect x="946" y="110" width="205" height="150" rx="8" fill="#ffffff" stroke="#5b3fa0" stroke-width="2.2"/>
+<circle cx="970" cy="136" r="14" fill="#5b3fa0"/>
+<text x="970" y="141" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">4</text>
+<text x="992" y="141" text-anchor="start" font-size="14" fill="#1d2733" font-weight="bold">Hop 2</text>
+<text x="1048.5" y="180" text-anchor="middle" font-size="11.5" fill="#1d2733">ENS_INTERRUPT → ENS</text>
+<text x="1048.5" y="200" text-anchor="middle" font-size="11.5" fill="#1d2733">(or → STANDARD)</text>
+<text x="1048.5" y="220" text-anchor="middle" font-size="11.5" fill="#6b7785">~10 s</text>
+<line x1="1153" y1="185" x2="1173" y2="185" stroke="#1d2733" stroke-width="2" marker-end="url(#ak)"/>
+<rect x="1175" y="110" width="205" height="150" rx="8" fill="#ffffff" stroke="#1f4e9c" stroke-width="2.2"/>
+<circle cx="1199" cy="136" r="14" fill="#1f4e9c"/>
+<text x="1199" y="141" text-anchor="middle" font-size="13" fill="#ffffff" font-weight="bold">5</text>
+<text x="1221" y="141" text-anchor="start" font-size="14" fill="#1d2733" font-weight="bold">Verify, exit MM</text>
+<text x="1277.5" y="180" text-anchor="middle" font-size="11.5" fill="#1d2733">esxcfg-nics -e, nsxdp-cli</text>
+<text x="1277.5" y="200" text-anchor="middle" font-size="11.5" fill="#1d2733">TN state = success</text>
+<path d="M1277.5,262 L1277.5,310 L361.5,310 L361.5,264" fill="none" stroke="#6b7785" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ag)"/>
+<text x="819.5" y="302" text-anchor="middle" font-size="12.5" fill="#6b7785" font-weight="bold">next host (hosts 2…n)</text>
+<rect x="420" y="332" width="540" height="70" rx="6" fill="#f4f6f8" stroke="#1d2733" stroke-width="1.8"/>
+<text x="690" y="358" text-anchor="middle" font-size="14" fill="#1d2733" font-weight="bold">6  When every host is done: attach the matching TNP to the cluster</text>
+<text x="690" y="380" text-anchor="middle" font-size="12" fill="#6b7785">Hosts already match it, so NSX realizes the cluster with no further change (state SUCCESS).</text>
+<text x="690" y="430" text-anchor="middle" font-size="12" fill="#6b7785" font-style="italic">During the rollout the UI flags changed hosts as “Mismatch” against the cluster profile. That is expected until step 6.</text></svg>

@@ -99,56 +99,83 @@ While you go host by host, the cluster still points to the old profile and NSX m
 
 The UI wizard writes the same object, the policy *host transport node*, so the API path is: read it, change the mode, write it back, wait, and do it a second time.
 
-Find the transport node of the host:
+Set up the session once. It asks for the NSX Manager and its credentials and keeps them in shell variables only:
 
 ```bash
-NSX=nsx-edp.corp.local
+read -rp  "NSX Manager FQDN or IP: " NSX
+read -rp  "NSX user [admin]: " NSX_USER; NSX_USER=${NSX_USER:-admin}
+read -rsp "NSX password: " NSX_PASS; echo
 EP=/policy/api/v1/infra/sites/default/enforcement-points/default
-curl -sk -u admin "https://$NSX$EP/host-transport-nodes" \
-  | jq -r '.results[] | [.id, .display_name, .host_switch_spec.host_switches[0].host_switch_mode] | @tsv'
+nsx() { curl -sk -u "$NSX_USER:$NSX_PASS" -H 'Content-Type: application/json' "$@"; }
+nsx "https://$NSX$EP/host-transport-nodes" \
+  | jq -r '.results[] | [.display_name, .host_switch_spec.host_switches[0].host_switch_mode] | @tsv'
+```
+
+Pick the host and look up its transport node:
+
+```bash
+read -rp "Host to change (name as listed above): " HOST
+TN=$(nsx "https://$NSX$EP/host-transport-nodes" | jq -r --arg h "$HOST" '.results[] | select(.display_name==$h) | .id')
+echo "transport node: $TN"
 ```
 
 Hop 1, `ENS_INTERRUPT`. Keep the whole object, change only the mode, PUT it back (the `_revision` you read has to go back with it):
 
 ```bash
-TN=esx-edp-02-808e47a5-f31f-4824-a52f-83ac9e597257host-16
-curl -sk -u admin "https://$NSX$EP/host-transport-nodes/$TN" > tn.json
-jq '.host_switch_spec.host_switches[].host_switch_mode = "ENS_INTERRUPT"
-  | .host_switch_spec.host_switches[].cpu_config = []' tn.json > tn-hop1.json
-curl -sk -u admin -X PUT -H 'Content-Type: application/json' \
-  "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop1.json
+nsx "https://$NSX$EP/host-transport-nodes/$TN" \
+  | jq '.host_switch_spec.host_switches[].host_switch_mode = "ENS_INTERRUPT"
+      | .host_switch_spec.host_switches[].cpu_config = []' > tn-hop1.json
+nsx -X PUT "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop1.json
 ```
 
 Wait until the node is realized:
 
 ```bash
-curl -sk -u admin "https://$NSX$EP/host-transport-nodes/$TN/state" \
+nsx "https://$NSX$EP/host-transport-nodes/$TN/state" \
   | jq -r '.state, .node_deployment_state.state'      # success / success
 ```
 
-Hop 2, `ENS` with its cores. Read the node again first: the revision moved.
+Hop 2, `ENS` with its cores. It asks for the NUMA node and the number of lcores, then reads the node again, because the revision moved:
 
 ```bash
-curl -sk -u admin "https://$NSX$EP/host-transport-nodes/$TN" \
-  | jq '.host_switch_spec.host_switches[].host_switch_mode = "ENS"
-      | .host_switch_spec.host_switches[].cpu_config = [{"numa_node_index":0,"num_lcores":2}]' > tn-hop2.json
-curl -sk -u admin -X PUT -H 'Content-Type: application/json' \
-  "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop2.json
+read -rp "NUMA node index [0]: " NUMA; NUMA=${NUMA:-0}
+read -rp "lcores per NUMA node [2]: " LCORES; LCORES=${LCORES:-2}
+nsx "https://$NSX$EP/host-transport-nodes/$TN" \
+  | jq --argjson n "$NUMA" --argjson l "$LCORES" \
+       '.host_switch_spec.host_switches[].host_switch_mode = "ENS"
+      | .host_switch_spec.host_switches[].cpu_config = [{"numa_node_index":$n,"num_lcores":$l}]' > tn-hop2.json
+nsx -X PUT "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop2.json
 ```
 
-Maintenance mode is a vCenter job, not an NSX one. `govc host.maintenance.enter esx-edp-02.corp.local` before hop 1, `govc host.maintenance.exit` after hop 2.
-
-When all hosts are done, attach the profile to the cluster by updating the transport node collection:
+Maintenance mode is a vCenter job, not an NSX one. With `govc`, which asks nothing by itself, so set its variables from prompts too:
 
 ```bash
-curl -sk -u admin "https://$NSX$EP/transport-node-collections/edp-cluster-tnc" \
-  | jq '.transport_node_profile_id = "/infra/host-transport-node-profiles/edp-tnp-ens"' > tnc.json
-curl -sk -u admin -X PUT -H 'Content-Type: application/json' \
-  "https://$NSX$EP/transport-node-collections/edp-cluster-tnc" -d @tnc.json
-curl -sk -u admin "https://$NSX$EP/transport-node-collections/edp-cluster-tnc/state" | jq -r .state   # SUCCESS
+read -rp  "vCenter FQDN or IP: " VC
+read -rp  "vCenter user [administrator@vsphere.local]: " VC_USER; VC_USER=${VC_USER:-administrator@vsphere.local}
+read -rsp "vCenter password: " VC_PASS; echo
+export GOVC_URL="https://$VC" GOVC_USERNAME="$VC_USER" GOVC_PASSWORD="$VC_PASS" GOVC_INSECURE=1
+govc host.maintenance.enter "$HOST"     # before hop 1
+govc host.maintenance.exit  "$HOST"     # after hop 2
 ```
 
-I wrapped the whole loop (evacuate, maintenance mode, both hops, wait, exit, next host, attach the profile) in a small Python script that uses pyVmomi for vCenter and the NSX policy API: [edp_per_host.py](/files/edp-perf/edp_per_host.py). It works out the hops by itself and skips hosts that are already in the target mode:
+When all hosts are done, attach the profile to the cluster by updating its transport node collection:
+
+```bash
+nsx "https://$NSX/policy/api/v1/infra/host-transport-node-profiles" | jq -r '.results[] | [.id, .host_switch_spec.host_switches[0].host_switch_mode] | @tsv'
+nsx "https://$NSX$EP/transport-node-collections" | jq -r '.results[] | [.id, .compute_collection_id] | @tsv'
+read -rp "Transport node collection id of the cluster: " TNC
+read -rp "Profile id to attach: " TNP
+nsx "https://$NSX$EP/transport-node-collections/$TNC" \
+  | jq --arg p "/infra/host-transport-node-profiles/$TNP" '.transport_node_profile_id = $p' > tnc.json
+nsx -X PUT "https://$NSX$EP/transport-node-collections/$TNC" -d @tnc.json
+nsx "https://$NSX$EP/transport-node-collections/$TNC/state" | jq -r .state   # SUCCESS
+```
+
+I wrapped the whole loop (evacuate, maintenance mode, both hops, wait, exit, next host, attach the profile) in a small Python script that uses pyVmomi for vCenter and the NSX policy API: [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Run it with no arguments and it asks for everything: vCenter and NSX addresses, user names and passwords (typed hidden, never saved), then the cluster, the target mode, the lcores for Performance and the profile to attach, picked from lists it reads from your environment. It checks the vCenter vMotion setting, shows the plan, and only starts after you type `YES`. It can pause before each host, and `--dry-run` stops after the plan.
+
+![Interactive start of edp_per_host.py: prompts for vCenter and NSX addresses and passwords, picks the cluster from a list, shows each host's current mode, offers the three target modes, asks for NUMA node and lcores, offers the matching Transport Node Profile, and prints the per-host plan.](/images/edp-perf/cli-07-script-prompts.webp)
+
+It works out the hops by itself and skips hosts that are already in the target mode. If DRS is not fully automated, it waits for you to move the VMs off each host. A run looks like this:
 
 ![Script output: esx-edp-01 already ENS and skipped; esx-edp-02 and 03 each get a vMotion, maintenance mode, ENS_INTERRUPT realized in 10 s, ENS realized in 10 s, exit maintenance mode; then the TNP edp-tnp-ens is attached and the cluster state is SUCCESS.](/images/edp-perf/cli-03-api-install.webp)
 
@@ -164,7 +191,7 @@ Pick **Enhanced Datapath – Standard**, Finish. Run Configure NSX again and pic
 
 ![After removal: nsxdp-cli reports No ENS switch configured and esxcfg-nics -e shows every vmnic on nvmxnet3 with ENS Driven False.](/images/edp-perf/cli-04-host-standard-verified.webp)
 
-**From the API**: the same two PUTs with `ENS_INTERRUPT` and then `STANDARD`, `cpu_config` back to `[]`. Or the script with `--mode STANDARD`:
+**From the API**: the same two PUTs with `ENS_INTERRUPT` and then `STANDARD`, `cpu_config` back to `[]`. Or run the script again and pick **Standard** as the target mode:
 
 ![Script output for the removal: esx-edp-01 and esx-edp-03 each evacuated, put in maintenance mode, ENS to ENS_INTERRUPT then to STANDARD in about 10 s per hop, and taken out of maintenance mode; esx-edp-02 skipped because it was already Standard.](/images/edp-perf/cli-05-api-remove.webp)
 

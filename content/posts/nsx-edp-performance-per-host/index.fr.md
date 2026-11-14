@@ -99,56 +99,83 @@ Pendant qu'on avance hôte par hôte, le cluster pointe toujours vers l'ancien p
 
 L'assistant de l'interface écrit le même objet, le *host transport node* de l'API policy. Le chemin API consiste donc à le lire, changer le mode, le réécrire, attendre, et recommencer une seconde fois.
 
-Trouver le transport node de l'hôte :
+On prépare la session une fois. Elle demande le NSX Manager et ses identifiants, gardés uniquement dans des variables du shell :
 
 ```bash
-NSX=nsx-edp.corp.local
+read -rp  "NSX Manager FQDN or IP: " NSX
+read -rp  "NSX user [admin]: " NSX_USER; NSX_USER=${NSX_USER:-admin}
+read -rsp "NSX password: " NSX_PASS; echo
 EP=/policy/api/v1/infra/sites/default/enforcement-points/default
-curl -sk -u admin "https://$NSX$EP/host-transport-nodes" \
-  | jq -r '.results[] | [.id, .display_name, .host_switch_spec.host_switches[0].host_switch_mode] | @tsv'
+nsx() { curl -sk -u "$NSX_USER:$NSX_PASS" -H 'Content-Type: application/json' "$@"; }
+nsx "https://$NSX$EP/host-transport-nodes" \
+  | jq -r '.results[] | [.display_name, .host_switch_spec.host_switches[0].host_switch_mode] | @tsv'
+```
+
+On choisit l'hôte et on récupère son transport node :
+
+```bash
+read -rp "Host to change (name as listed above): " HOST
+TN=$(nsx "https://$NSX$EP/host-transport-nodes" | jq -r --arg h "$HOST" '.results[] | select(.display_name==$h) | .id')
+echo "transport node: $TN"
 ```
 
 Première étape, `ENS_INTERRUPT`. On garde l'objet entier, on ne change que le mode, et on le renvoie par PUT (le `_revision` lu doit repartir avec) :
 
 ```bash
-TN=esx-edp-02-808e47a5-f31f-4824-a52f-83ac9e597257host-16
-curl -sk -u admin "https://$NSX$EP/host-transport-nodes/$TN" > tn.json
-jq '.host_switch_spec.host_switches[].host_switch_mode = "ENS_INTERRUPT"
-  | .host_switch_spec.host_switches[].cpu_config = []' tn.json > tn-hop1.json
-curl -sk -u admin -X PUT -H 'Content-Type: application/json' \
-  "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop1.json
+nsx "https://$NSX$EP/host-transport-nodes/$TN" \
+  | jq '.host_switch_spec.host_switches[].host_switch_mode = "ENS_INTERRUPT"
+      | .host_switch_spec.host_switches[].cpu_config = []' > tn-hop1.json
+nsx -X PUT "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop1.json
 ```
 
 Attendre que le node soit réalisé :
 
 ```bash
-curl -sk -u admin "https://$NSX$EP/host-transport-nodes/$TN/state" \
+nsx "https://$NSX$EP/host-transport-nodes/$TN/state" \
   | jq -r '.state, .node_deployment_state.state'      # success / success
 ```
 
-Deuxième étape, `ENS` avec ses cœurs. Relire le node d'abord : la révision a changé.
+Deuxième étape, `ENS` avec ses cœurs. On demande le nœud NUMA et le nombre de lcores, puis on relit le node, car la révision a changé :
 
 ```bash
-curl -sk -u admin "https://$NSX$EP/host-transport-nodes/$TN" \
-  | jq '.host_switch_spec.host_switches[].host_switch_mode = "ENS"
-      | .host_switch_spec.host_switches[].cpu_config = [{"numa_node_index":0,"num_lcores":2}]' > tn-hop2.json
-curl -sk -u admin -X PUT -H 'Content-Type: application/json' \
-  "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop2.json
+read -rp "NUMA node index [0]: " NUMA; NUMA=${NUMA:-0}
+read -rp "lcores per NUMA node [2]: " LCORES; LCORES=${LCORES:-2}
+nsx "https://$NSX$EP/host-transport-nodes/$TN" \
+  | jq --argjson n "$NUMA" --argjson l "$LCORES" \
+       '.host_switch_spec.host_switches[].host_switch_mode = "ENS"
+      | .host_switch_spec.host_switches[].cpu_config = [{"numa_node_index":$n,"num_lcores":$l}]' > tn-hop2.json
+nsx -X PUT "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop2.json
 ```
 
-Le mode maintenance relève de vCenter, pas de NSX : `govc host.maintenance.enter esx-edp-02.corp.local` avant la première étape, `govc host.maintenance.exit` après la seconde.
-
-Une fois tous les hôtes faits, on attache le profil au cluster en mettant à jour la transport node collection :
+Le mode maintenance relève de vCenter, pas de NSX. `govc` ne demande rien de lui-même, donc on renseigne ses variables par des questions aussi :
 
 ```bash
-curl -sk -u admin "https://$NSX$EP/transport-node-collections/edp-cluster-tnc" \
-  | jq '.transport_node_profile_id = "/infra/host-transport-node-profiles/edp-tnp-ens"' > tnc.json
-curl -sk -u admin -X PUT -H 'Content-Type: application/json' \
-  "https://$NSX$EP/transport-node-collections/edp-cluster-tnc" -d @tnc.json
-curl -sk -u admin "https://$NSX$EP/transport-node-collections/edp-cluster-tnc/state" | jq -r .state   # SUCCESS
+read -rp  "vCenter FQDN or IP: " VC
+read -rp  "vCenter user [administrator@vsphere.local]: " VC_USER; VC_USER=${VC_USER:-administrator@vsphere.local}
+read -rsp "vCenter password: " VC_PASS; echo
+export GOVC_URL="https://$VC" GOVC_USERNAME="$VC_USER" GOVC_PASSWORD="$VC_PASS" GOVC_INSECURE=1
+govc host.maintenance.enter "$HOST"     # before hop 1
+govc host.maintenance.exit  "$HOST"     # after hop 2
 ```
 
-J'ai regroupé toute la boucle (évacuation, mode maintenance, les deux étapes, attente, sortie, hôte suivant, puis attache du profil) dans un petit script Python qui utilise pyVmomi pour vCenter et l'API policy de NSX : [edp_per_host.py](/files/edp-perf/edp_per_host.py). Il calcule lui-même les étapes et ignore les hôtes déjà dans le mode visé :
+Une fois tous les hôtes faits, on attache le profil au cluster en mettant à jour sa transport node collection :
+
+```bash
+nsx "https://$NSX/policy/api/v1/infra/host-transport-node-profiles" | jq -r '.results[] | [.id, .host_switch_spec.host_switches[0].host_switch_mode] | @tsv'
+nsx "https://$NSX$EP/transport-node-collections" | jq -r '.results[] | [.id, .compute_collection_id] | @tsv'
+read -rp "Transport node collection id of the cluster: " TNC
+read -rp "Profile id to attach: " TNP
+nsx "https://$NSX$EP/transport-node-collections/$TNC" \
+  | jq --arg p "/infra/host-transport-node-profiles/$TNP" '.transport_node_profile_id = $p' > tnc.json
+nsx -X PUT "https://$NSX$EP/transport-node-collections/$TNC" -d @tnc.json
+nsx "https://$NSX$EP/transport-node-collections/$TNC/state" | jq -r .state   # SUCCESS
+```
+
+J'ai regroupé toute la boucle (évacuation, mode maintenance, les deux étapes, attente, sortie, hôte suivant, puis attache du profil) dans un petit script Python qui utilise pyVmomi pour vCenter et l'API policy de NSX : [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Lancé sans argument, il demande tout : adresses de vCenter et de NSX, utilisateurs et mots de passe (saisis masqués, jamais enregistrés), puis le cluster, le mode visé, les lcores pour Performance et le profil à attacher, choisis dans des listes lues dans votre environnement. Il vérifie le paramètre vMotion de vCenter, affiche le plan et ne démarre qu'après que vous avez tapé `YES`. Il peut faire une pause avant chaque hôte, et `--dry-run` s'arrête après le plan.
+
+![Démarrage interactif d'edp_per_host.py : questions sur les adresses et mots de passe de vCenter et NSX, choix du cluster dans une liste, mode actuel de chaque hôte, choix parmi les trois modes, nœud NUMA et lcores, Transport Node Profile correspondant proposé, puis plan hôte par hôte.](/images/edp-perf/cli-07-script-prompts.webp)
+
+Il calcule lui-même les étapes et ignore les hôtes déjà dans le mode visé. Si DRS n'est pas entièrement automatisé, il attend que vous ayez déplacé les VM de chaque hôte. Une exécution ressemble à ceci :
 
 ![Sortie du script : esx-edp-01 déjà en ENS, ignoré ; esx-edp-02 et 03 ont chacun un vMotion, le mode maintenance, ENS_INTERRUPT réalisé en 10 s, ENS réalisé en 10 s, la sortie du mode maintenance ; puis le TNP edp-tnp-ens est attaché et l'état du cluster est SUCCESS.](/images/edp-perf/cli-03-api-install.webp)
 
@@ -164,7 +191,7 @@ Choisir **Enhanced Datapath – Standard**, Finish. Relancer Configure NSX et ch
 
 ![Après le retrait : nsxdp-cli indique No ENS switch configured et esxcfg-nics -e montre chaque vmnic sur nvmxnet3 avec ENS Driven False.](/images/edp-perf/cli-04-host-standard-verified.webp)
 
-**Par l'API** : les deux mêmes PUT avec `ENS_INTERRUPT` puis `STANDARD`, `cpu_config` remis à `[]`. Ou le script avec `--mode STANDARD` :
+**Par l'API** : les deux mêmes PUT avec `ENS_INTERRUPT` puis `STANDARD`, `cpu_config` remis à `[]`. Ou relancer le script et choisir **Standard** comme mode visé :
 
 ![Sortie du script pour le retrait : esx-edp-01 et esx-edp-03 sont chacun évacués, mis en mode maintenance, passent de ENS à ENS_INTERRUPT puis à STANDARD en 10 s environ par étape, et sortent du mode maintenance ; esx-edp-02 est ignoré car déjà en Standard.](/images/edp-perf/cli-05-api-remove.webp)
 

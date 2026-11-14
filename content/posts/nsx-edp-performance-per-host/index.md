@@ -28,6 +28,16 @@ Gabe Rosas describes a much gentler way on [vcfcore.tech](https://vcfcore.tech/2
 
 ![The three NSX host switch modes. STANDARD to ENS_INTERRUPT and back is accepted; ENS_INTERRUPT to ENS and back is accepted; STANDARD to ENS directly, in either direction, is rejected with error 9544.](/images/edp-perf/fig-01-mode-transitions.svg)
 
+## The quick flow
+
+This is the whole exercise on one page. It's the same three steps for turning EDP Performance on and for turning it off. The direction of the hops and the profile you attach at the end are the only differences.
+
+1. **Prepare once.** Clone the cluster's Transport Node Profile and set the target mode on the copy (`edp-tnp-ens`, EDP Performance with 2 lcores on NUMA 0). In vCenter, allow vMotion between hosts in different modes. For the way back you need nothing new, since the Standard profile `edp-tnp` is still there.
+2. **One host at a time.** vMotion the VMs off the host and put it in maintenance mode. Change its host switch in two hops, `STANDARD → ENS_INTERRUPT → ENS` (or the reverse), about 10 seconds each. Check the host, exit maintenance mode, and move on to the next one.
+3. **Finish at cluster level.** Attach the matching profile to the cluster. Every host already matches it, so NSX goes straight to `SUCCESS`.
+
+![End-to-end flow. Enable: start with all hosts STANDARD on edp-tnp, prepare edp-tnp-ens once, then for each host empty it, enter maintenance mode, hop STANDARD to ENS_INTERRUPT to ENS, exit maintenance mode; finish by attaching edp-tnp-ens to the cluster. Remove: the same loop with ENS to ENS_INTERRUPT to STANDARD, then attach edp-tnp. Ping loss 4 of 2,880 on the way in and 8 of 2,305 on the way out, all during vMotions.](/images/edp-perf/fig-04-quick-flow.svg)
+
 ## The lab
 
 Three nested ESX 8.0 U3i hosts on a Dell R730xd, a dedicated vCenter, one NSX Manager, and two small Ubuntu VMs on an overlay segment that ping each other five times a second the whole time. A nested lab tells you nothing about EDP throughput. I wanted to know what each step of the change costs, and it shows that exactly.

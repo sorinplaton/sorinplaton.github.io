@@ -28,6 +28,16 @@ Gabe Rosas décrit une manière beaucoup plus douce sur [vcfcore.tech](https://v
 
 ![Les trois modes de host switch NSX. STANDARD vers ENS_INTERRUPT et retour : accepté ; ENS_INTERRUPT vers ENS et retour : accepté ; STANDARD vers ENS en direct, dans un sens comme dans l'autre : refusé avec l'erreur 9544.](/images/edp-perf/fig-01-mode-transitions.svg)
 
+## Le déroulé en un coup d'œil
+
+Tout l'exercice tient sur une page. L'activation et le retrait d'EDP Performance suivent les mêmes trois étapes. Seuls changent le sens des étapes de mode et le profil qu'on attache à la fin.
+
+1. **Préparer une fois.** Cloner le Transport Node Profile du cluster et régler le mode cible sur la copie (`edp-tnp-ens`, EDP Performance avec 2 lcores sur le NUMA 0). Dans vCenter, autoriser le vMotion entre hôtes de modes différents. Pour le retour, rien à préparer : le profil Standard `edp-tnp` existe toujours.
+2. **Un hôte à la fois.** Migrer les VM hors de l'hôte par vMotion et le passer en mode maintenance. Changer son host switch en deux étapes, `STANDARD → ENS_INTERRUPT → ENS` (ou l'inverse), environ 10 secondes chacune. Vérifier l'hôte, sortir du mode maintenance, passer au suivant.
+3. **Terminer au niveau du cluster.** Attacher le profil correspondant au cluster. Tous les hôtes y sont déjà conformes, donc NSX passe directement à `SUCCESS`.
+
+![Déroulé complet. Activation : tous les hôtes en STANDARD sur edp-tnp, préparation unique d'edp-tnp-ens, puis pour chaque hôte évacuation, mode maintenance, passage STANDARD vers ENS_INTERRUPT vers ENS, sortie du mode maintenance ; on termine en attachant edp-tnp-ens au cluster. Retrait : même boucle avec ENS vers ENS_INTERRUPT vers STANDARD, puis on attache edp-tnp. Pertes de ping : 4 sur 2 880 à l'aller et 8 sur 2 305 au retour, toutes pendant des vMotion.](/images/edp-perf/fig-04-quick-flow.svg)
+
 ## Le lab
 
 Trois hôtes ESX 8.0 U3i imbriqués sur un Dell R730xd, un vCenter dédié, un NSX Manager, et deux petites VM Ubuntu sur un segment overlay qui se pinguent cinq fois par seconde pendant tout le test. Un lab imbriqué ne dit rien du débit d'EDP. Je voulais savoir ce que coûte chaque étape du changement, et il le montre précisément.

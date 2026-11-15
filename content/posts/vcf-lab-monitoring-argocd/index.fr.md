@@ -1,7 +1,7 @@
 ---
 title: "Grafana et Prometheus pour un labo VCF, construits par Argo CD sur le management domain"
 date: 2026-11-02
-description: "Un seul Grafana pour tout le labo Holodeck : les deux serveurs Dell par leurs iDRAC, trois vCenter, les hôtes ESXi imbriqués et le cluster VKS lui-même. Argo CD, le service en tech preview de VCF 9.1.1, construit le cluster et la pile de supervision depuis Git sur le management domain. Les étapes, le YAML, et les onze choses qui m'ont fait perdre du temps."
+description: "Un seul Grafana pour tout le labo Holodeck : les deux serveurs Dell par leurs iDRAC, trois vCenter, les hôtes ESXi imbriqués et le cluster VKS lui-même. Argo CD, le service en tech preview de VCF 9.1.1, construit le cluster et la pile de supervision depuis Git sur le management domain. Les étapes, le YAML, et les onze choses qui ont fait perdre du temps."
 summary: "Argo CD comme VCF Service sur le management domain crée un cluster VKS depuis Git et y installe kube-prometheus-stack, un exporter vCenter et un exporter iDRAC. Un seul Grafana montre la consommation et la température CPU des Dell, le CPU ready des VM ESXi imbriquées, trois vCenter et le cluster. Ce qu'il a fallu, de la reconstruction du Supervisor au firewall des nodes VKS."
 tags: ["VCF 9.1.1", "Argo CD", "GitOps", "Grafana", "Prometheus", "VKS", "Supervisor", "Tech preview", "Holodeck", "Dell iDRAC"]
 categories: ["Notes"]
@@ -11,13 +11,13 @@ params:
   seoDescription: "Argo CD (tech preview VCF 9.1.1) construit un cluster VKS et Grafana/Prometheus depuis Git pour un labo VCF : Dell, trois vCenter, VKS. Étapes et pièges."
 ---
 
-Mon labo Holodeck tourne sur deux serveurs Dell. Jusqu'ici, savoir si le labo allait bien voulait dire ouvrir quatre onglets : deux iDRAC, le vCenter extérieur et le vCenter imbriqué. Ce billet regroupe tout dans un seul Grafana : consommation et température CPU des Dell, CPU ready des VM ESXi imbriquées, les trois vCenter et le cluster Kubernetes qui héberge les tableaux de bord.
+Le labo Holodeck tourne sur deux serveurs Dell. Jusqu'ici, savoir si le labo allait bien voulait dire ouvrir quatre onglets : deux iDRAC, le vCenter extérieur et le vCenter imbriqué. Ce billet regroupe tout dans un seul Grafana : consommation et température CPU des Dell, CPU ready des VM ESXi imbriquées, les trois vCenter et le cluster Kubernetes qui héberge les tableaux de bord.
 
 Rien n'est installé à la main. Le VCF Service Argo CD (la tech preview de VCF 9.1.1 décrite dans [le billet précédent](/fr/posts/argocd-vcf-service-tech-preview/)) tourne cette fois sur le **management domain**. Il crée le cluster VKS depuis Git, puis y installe Prometheus, Grafana et deux exporters depuis le même repo.
 
 ![Grafana, Lab: Dell power and thermal. Consommation, CPU le plus chaud, température d'entrée d'air et état des deux Dell, puis les séries temporelles de leurs iDRAC](/images/lab-monitoring/grafana-power-thermal.webp)
 
-*Le tableau de bord que j'ouvre en premier : consommation, température CPU, entrée d'air et ventilateurs des deux Dell, lus sur leurs iDRAC toutes les minutes.*
+*Le tableau de bord à ouvrir en premier : consommation, température CPU, entrée d'air et ventilateurs des deux Dell, lus sur leurs iDRAC toutes les minutes.*
 
 ## Ce qui est surveillé
 
@@ -50,7 +50,7 @@ Le repo est [github.com/sorinplaton/vcf-gitops](https://github.com/sorinplaton/v
 
 ### 1. Un Supervisor de management utilisable par VCF Automation
 
-Les régions VCF Automation demandent un Supervisor en réseau NSX VPC, et le service Argo CD a besoin des vSphere Pods et d'un load balancer. Le Supervisor que Holodeck avait déployé sur le cluster de management utilisait le réseau VDS : je l'ai désactivé puis réactivé en NSX VPC (`platform/mgmt-supervisor/rebuild.sh`, une trentaine de minutes).
+Les régions VCF Automation demandent un Supervisor en réseau NSX VPC, et le service Argo CD a besoin des vSphere Pods et d'un load balancer. Le Supervisor que Holodeck avait déployé sur le cluster de management utilisait le réseau VDS : il a été désactivé puis réactivé en NSX VPC (`platform/mgmt-supervisor/rebuild.sh`, une trentaine de minutes).
 
 Il est ensuite resté des heures sur « No node accepting vSphere Pods ». vLCM refuse d'installer le spherelet sur les hôtes tant que le test de santé vSAN *Can vSAN cluster receive a host* n'est pas vert, et le vSAN de management imbriqué était jaune. Les causes : l'espace disque, un ancien format sur disque, et un contrôleur absent de la HCL parce qu'il est virtuel. Un disque de 450 Go de plus par hôte imbriqué, et la mise en sourdine des tests qui ne peuvent jamais passer dans un labo imbriqué, ont réglé le problème. `vsan-health.py`, dans le même dossier, montre quel test bloque.
 
@@ -148,11 +148,11 @@ Ce que la première heure a montré :
 - Le CPU 1 du R740 oscille entre 75 et 95 °C pendant que le serveur consomme de 400 à 530 W. Son journal Lifecycle iDRAC aligne les événements « CPU 1 temperature is greater than the upper critical threshold », maintenant visibles sur le tableau de bord.
 - Le CPU ready des VM ESXi imbriquées culmine à 4 à 5 % par vCPU, un peu plus sur le R740 que sur le R730xd.
 
-J'en connaissais l'essentiel, mais il y a maintenant un historique au lieu d'une impression, et cet historique a tranché une question matérielle. Le R730xd est le plus chargé, mais ses VM n'attendent presque pas le CPU : de nouveaux CPU n'y apporteraient pas grand-chose. C'est le R740 qui demande de l'attention, et pour le refroidissement, pas pour des cœurs.
+Rien de tout cela n'était vraiment une surprise, mais il y a maintenant un historique au lieu d'une impression, et cet historique a tranché une question matérielle. Le R730xd est le plus chargé, mais ses VM n'attendent presque pas le CPU : de nouveaux CPU n'y apporteraient pas grand-chose. C'est le R740 qui demande de l'attention, et pour le refroidissement, pas pour des cœurs.
 
-## Ce qui m'a fait trébucher
+## Les pièges rencontrés
 
-Onze choses m'ont coûté du temps. La plupart viennent du labo imbriqué ou de la tech preview, et chacune se corrige en une ligne une fois qu'on la connaît.
+Onze choses ont coûté du temps. La plupart viennent du labo imbriqué ou de la tech preview, et chacune se corrige en une ligne une fois qu'on la connaît.
 
 | Symptôme | Cause | Correction |
 | --- | --- | --- |

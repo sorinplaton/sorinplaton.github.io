@@ -11,13 +11,13 @@ params:
   seoDescription: "Argo CD (VCF 9.1.1 tech preview) builds a VKS cluster and Grafana/Prometheus from Git to watch a VCF lab: Dells, three vCenters, VKS. Steps and pitfalls."
 ---
 
-My Holodeck lab runs on two Dell servers, and until now "is the lab healthy?" meant four browser tabs: two iDRACs, the outer vCenter and the nested one. This post puts it all in one Grafana: power and CPU temperature of the Dells, CPU ready of the nested ESXi VMs, the three vCenters and the Kubernetes cluster the dashboards run on.
+The Holodeck lab runs on two Dell servers, and until now "is the lab healthy?" meant four browser tabs: two iDRACs, the outer vCenter and the nested one. This post puts it all in one Grafana: power and CPU temperature of the Dells, CPU ready of the nested ESXi VMs, the three vCenters and the Kubernetes cluster the dashboards run on.
 
 Nothing is installed by hand. The Argo CD VCF Service (the VCF 9.1.1 tech preview from [the previous post](/posts/argocd-vcf-service-tech-preview/)) runs on the **management domain** this time. It creates the VKS cluster from Git, then installs Prometheus, Grafana and two exporters on it from the same repo.
 
 ![Grafana, Lab: Dell power and thermal. Power draw, hottest CPU, inlet temperature and health of both Dells, then the time series from their iDRACs](/images/lab-monitoring/grafana-power-thermal.webp)
 
-*The dashboard I open first: power, CPU temperature, inlet and fans of both Dells, read from their iDRACs every minute.*
+*The dashboard to open first: power, CPU temperature, inlet and fans of both Dells, read from their iDRACs every minute.*
 
 ## What it watches
 
@@ -50,7 +50,7 @@ The repo is [github.com/sorinplaton/vcf-gitops](https://github.com/sorinplaton/v
 
 ### 1. A management Supervisor that VCF Automation can use
 
-VCF Automation regions need a Supervisor with NSX VPC networking, and the Argo CD service needs vSphere Pods and a load balancer. The Supervisor Holodeck had deployed on the management cluster used VDS networking, so I disabled it and enabled it again with NSX VPC networking (`platform/mgmt-supervisor/rebuild.sh`, about 30 minutes).
+VCF Automation regions need a Supervisor with NSX VPC networking, and the Argo CD service needs vSphere Pods and a load balancer. The Supervisor Holodeck had deployed on the management cluster used VDS networking, so it was disabled and enabled again with NSX VPC networking (`platform/mgmt-supervisor/rebuild.sh`, about 30 minutes).
 
 It then sat at "No node accepting vSphere Pods" for hours. vLCM refuses to install the spherelet on the hosts while the vSAN health check *Can vSAN cluster receive a host* is not green, and the nested management vSAN was yellow. The causes were space, an old on-disk format, and a controller that is not on the HCL because it is virtual. A 450 GB disk more per nested host, plus silencing the checks that can never pass in a nested lab, cleared it. `vsan-health.py` in the same folder shows which test is blocking.
 
@@ -148,9 +148,9 @@ What the first hour showed:
 - The R740's CPU 1 swings between 75 and 95 °C while the server draws 400 to 530 W. Its iDRAC lifecycle log has a row of "CPU 1 temperature is greater than the upper critical threshold" events, now on the dashboard.
 - CPU ready of the nested ESXi VMs peaks at 4 to 5 % per vCPU, a little higher on the R740 than on the R730xd.
 
-I knew most of it, but now there is a history instead of a feeling, and the history settled a hardware question. The R730xd is the busy one, but its VMs barely wait for CPU, so new CPUs there would buy little. The R740 is the one that needs attention, and for cooling, not cores.
+None of it was a big surprise, but now there is a history instead of a feeling, and the history settled a hardware question. The R730xd is the busy one, but its VMs barely wait for CPU, so new CPUs there would buy little. The R740 is the one that needs attention, and for cooling, not cores.
 
-## What tripped me up
+## Pitfalls
 
 Eleven things cost time. Most come from the nested lab or the tech preview, and each one has a one-line fix once you know it.
 

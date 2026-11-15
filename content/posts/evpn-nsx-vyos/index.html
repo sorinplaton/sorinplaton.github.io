@@ -77,7 +77,7 @@ params:
   <thead><tr><th>Type</th><th>Name</th><th>What it carries</th><th>Role in this design</th></tr></thead>
   <tbody>
     <tr><td class="mono">1</td><td>Ethernet Auto-Discovery</td><td>Per-ES / per-EVI reachability for a multihomed segment</td><td>Fast convergence &amp; aliasing across multihomed PEs. Not used in this single-homed lab.</td></tr>
-    <tr><td class="mono">2</td><td>MAC / IP Advertisement</td><td>Host MAC, optionally MAC + IP, per L2VNI</td><td>The L2 workhorse: bridging &amp; ARP/ND suppression. Present, but not our focus.</td></tr>
+    <tr><td class="mono">2</td><td>MAC / IP Advertisement</td><td>Host MAC, optionally MAC + IP, per L2VNI</td><td>The L2 workhorse: bridging &amp; ARP/ND suppression. Present, but not the focus here.</td></tr>
     <tr><td class="mono">3</td><td>Inclusive Multicast (IMET)</td><td>Per-VNI flood list for BUM (ingress replication)</td><td>Builds the flood tree for any L2VNI you extend.</td></tr>
     <tr><td class="mono">4</td><td>Ethernet Segment</td><td>ES discovery + Designated-Forwarder election</td><td>Multihoming only. Not used here.</td></tr>
     <tr><td class="mono" style="color:var(--coral);font-weight:600">5</td><td><strong>IP Prefix</strong></td><td><strong>IP prefixes decoupled from MAC: the IP-VRF / L3VNI route</strong></td><td><strong>The whole point of this build.</strong> NSX and VyOS trade tenant subnets as Type-5.</td></tr>

@@ -212,7 +212,7 @@ Aucune route n'a été nécessaire : le holorouter masquerade le trafic du labo 
 
 ## Étape 4 · Tester comme VCF Operations le fera
 
-Un court script fait ce que fait VCF Operations : lister les modèles avec et sans le token, puis envoyer une requête de chat avec un outil et vérifier qu'un `tool_call` revient. Je l'ai lancé depuis une machine sur le même subnet et la même gateway que VCF Operations.
+Un court script fait ce que fait VCF Operations : lister les modèles avec et sans le token, puis envoyer une requête de chat avec un outil et vérifier qu'un `tool_call` revient. Il a tourné depuis une machine sur le même subnet et la même gateway que VCF Operations.
 
 **Test du fournisseur · Mac mini**
 
@@ -239,8 +239,8 @@ Puis le cas réaliste : 25 définitions d'outils dans une seule requête, comme 
 
 Dans VCF Operations 9.1.1, les réglages du fournisseur se trouvent dans une extension à part et, sur une appliance fraîchement installée, c'est une chaîne de prérequis :
 
-1. **Installer l'extension Advanced Configuration** (Extensions → Extensions Management → Install). Elle était seulement *Available* chez moi ; l'installation elle-même prend quelques secondes.
-2. **Installer Log Management 9.1.1 ou plus récent** (VCF Operations for Logs). La page « Configure your LLM » n'activera pas ses services sans lui. Dans mon labo, c'était une tâche Build → Lifecycle → VCF Management → Add Component de 1 h 22 min, qui a ajouté un quatrième worker au runtime des services VCF.
+1. **Installer l'extension Advanced Configuration** (Extensions → Extensions Management → Install). Elle était seulement *Available* dans le labo ; l'installation elle-même prend quelques secondes.
+2. **Installer Log Management 9.1.1 ou plus récent** (VCF Operations for Logs). La page « Configure your LLM » n'activera pas ses services sans lui. Dans le labo, c'était une tâche Build → Lifecycle → VCF Management → Add Component de 1 h 22 min, qui a ajouté un quatrième worker au runtime des services VCF.
 3. **Enable Services**, puis brancher le fournisseur sous LLM Providers et choisir le modèle sous Models.
 
 ![VCF Operations, Extensions Management : Advanced Configuration à l'état Available avec un bouton Install ; Content Builder, Platform Observability et VMware Intelligent Assist installés](/images/vcf-ops-llm/o1-extensions.webp)
@@ -261,7 +261,7 @@ Dans VCF Operations 9.1.1, les réglages du fournisseur se trouvent dans une ext
 
 *Le formulaire **VCF Private AI** a deux champs. La note parle de Private AI Services (PAIS), mais n'importe quel endpoint compatible OpenAI derrière du HTTPS et un token passe.*
 
-**Ne mettez pas `/v1` dans l'endpoint.** Ma première tentative utilisait `https://llm-mac.site-a.vcf.lab/v1` et VCF Operations a répondu « The provider endpoint is unreachable or returned an unexpected error ». L'access log de Caddy a montré pourquoi : il ajoute lui-même `/v1/models`, donc il a demandé `/v1/v1/models` et reçu un 404.
+**Ne mettez pas `/v1` dans l'endpoint.** La première tentative utilisait `https://llm-mac.site-a.vcf.lab/v1` et VCF Operations a répondu « The provider endpoint is unreachable or returned an unexpected error ». L'access log de Caddy a montré pourquoi : il ajoute lui-même `/v1/models`, donc il a demandé `/v1/v1/models` et reçu un 404.
 
 ![Review and Accept Certificate : le certificat est inconnu, empreinte SHA-256 49f6fab9…, émis pour et par CN=llm-mac.site-a.vcf.lab, expire le 23 octobre 2036](/images/vcf-ops-llm/o5-certificate.webp)
 
@@ -279,7 +279,7 @@ L'onglet **Models** liste ensuite tout ce que renvoie le `/v1/models` de l'endpo
 
 ## Étape 6 · Lui poser une question et réparer ce qui casse
 
-Mon premier choix était `qwen3:8b-16k`, le modèle qui avait réussi le test à 25 outils. Dans l'assistant, chaque question finissait de la même façon :
+Le premier choix était `qwen3:8b-16k`, le modèle qui avait réussi le test à 25 outils. Dans l'assistant, chaque question finissait de la même façon :
 
 ![VMware Intelligent Assist : question List my vCenters, réponse Error: LLM gateway returned status 504](/images/vcf-ops-llm/o8-error-504.webp)
 

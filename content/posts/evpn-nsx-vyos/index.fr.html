@@ -77,7 +77,7 @@ params:
   <thead><tr><th>Type</th><th>Nom</th><th>Ce qu'il transporte</th><th>Rôle dans cette architecture</th></tr></thead>
   <tbody>
     <tr><td class="mono">1</td><td>Ethernet Auto-Discovery</td><td>Joignabilité par ES / par EVI pour un segment multihomé</td><td>Convergence rapide et aliasing entre PE multihomés. Non utilisé dans ce lab en single-homing.</td></tr>
-    <tr><td class="mono">2</td><td>MAC / IP Advertisement</td><td>MAC d'hôte, éventuellement MAC + IP, par L2VNI</td><td>La bête de somme du L2 : bridging et suppression ARP/ND. Présent, mais pas notre sujet.</td></tr>
+    <tr><td class="mono">2</td><td>MAC / IP Advertisement</td><td>MAC d'hôte, éventuellement MAC + IP, par L2VNI</td><td>La bête de somme du L2 : bridging et suppression ARP/ND. Présent, mais pas le sujet ici.</td></tr>
     <tr><td class="mono">3</td><td>Inclusive Multicast (IMET)</td><td>Liste de flooding par VNI pour le BUM (ingress replication)</td><td>Construit l'arbre de flooding pour tout L2VNI que vous étendez.</td></tr>
     <tr><td class="mono">4</td><td>Ethernet Segment</td><td>Découverte des ES + élection du Designated Forwarder</td><td>Multihoming uniquement. Non utilisé ici.</td></tr>
     <tr><td class="mono" style="color:var(--coral);font-weight:600">5</td><td><strong>IP Prefix</strong></td><td><strong>Préfixes IP découplés de la MAC : la route IP-VRF / L3VNI</strong></td><td><strong>Toute la raison d'être de ce déploiement.</strong> NSX et VyOS s'échangent les subnets des tenants en Type-5.</td></tr>

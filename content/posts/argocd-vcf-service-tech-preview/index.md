@@ -2,7 +2,7 @@
 title: "Argo CD as a VCF Service: hands-on with the VCF 9.1.1 tech preview"
 date: 2026-10-22
 description: "VCF 9.1.1 ships Argo CD as a VCF Service: a tenant orders an instance from VCF Automation and logs in with SSO. Replacing the vCenter-installed Supervisor Service with it on a Holodeck lab, adopting the running apps, and the six things that cost time."
-summary: "In VCF 9.1.1 Argo CD becomes a VCF Service (tech preview): installed once from VCF Automation, ordered by the tenant like a namespace or a VM, with VCF Automation SSO instead of a shared admin password and ManagedEntity objects instead of cluster tokens. The migration from the old Supervisor Service, the YAML, the demo, and what tripped me up."
+summary: "In VCF 9.1.1 Argo CD becomes a VCF Service (tech preview): installed once from VCF Automation, ordered by the tenant like a namespace or a VM, with VCF Automation SSO instead of a shared admin password and ManagedEntity objects instead of cluster tokens. The migration from the old Supervisor Service, the YAML, the demo, and the pitfalls."
 tags: ["VCF 9.1.1", "Argo CD", "GitOps", "VCF Automation", "VKS", "Supervisor", "Tech preview", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
@@ -11,7 +11,7 @@ params:
   seoDescription: "Argo CD as a VCF Service in VCF 9.1.1: ordered from VCF Automation with SSO, migrated from the Supervisor Service, plus six things that cost time."
 ---
 
-VCF 9.1.1 ships Argo CD as a **VCF Service** (tech preview): a tenant orders an Argo CD instance from VCF Automation the same way it orders a namespace or a VM, and logs in with its VCF Automation account. I replaced the vCenter-installed Argo CD on my first workload domain with it in one day, and adopted the running apps without redeploying them.
+VCF 9.1.1 ships Argo CD as a **VCF Service** (tech preview): a tenant orders an Argo CD instance from VCF Automation the same way it orders a namespace or a VM, and logs in with its VCF Automation account. In the lab, it replaced the vCenter-installed Argo CD on the first workload domain in one day, and the running apps were adopted without redeploying them.
 
 If you want the starting point, the vCenter-installed version is the one in [GitOps on VCF 9.1: what the Argo CD Supervisor Service really takes](/posts/gitops-argocd-vcf-91/). This post is what changes when the same package comes through VCF Automation instead.
 
@@ -149,7 +149,7 @@ The demo shows one idea three ways: what is in Git is what runs, and nothing els
 3. **Scale through Git.** Change `replicas: 3` to `6` and commit; the resource tree grows three pods.
 4. **The platform from Git.** The `demo-vks-cluster` Application manages the VKS cluster itself from `clusters/demo-vks-cluster/cluster.yaml`. Raise the worker count, commit, and VCF builds a new worker node.
 
-## What tripped me up
+## Pitfalls
 
 It is a tech preview, and six things cost time. None of them blocks the install once you know it.
 

@@ -12,11 +12,11 @@ params:
   seoDescription: "Activer puis retirer NSX Enhanced Datapath – Performance hôte par hôte, via EDP Standard, en mode maintenance. Interface et API."
 ---
 
-Je voulais tester Enhanced Datapath – Performance (EDP Performance, l'ancien mode « ENS ») sur un cluster qui tourne déjà avec NSX en mode standard, puis le retirer. Sur le papier, c'est une liste déroulante dans le Transport Node Profile. En pratique, NSX 4.2.4 refuse le changement et vous demande de supprimer le host switch, ce qui, sur un cluster en production, revient à retirer l'overlay sous chaque VM.
+Le but était de tester Enhanced Datapath – Performance (EDP Performance, l'ancien mode « ENS ») sur un cluster qui tourne déjà avec NSX en mode standard, puis le retirer. Sur le papier, c'est une liste déroulante dans le Transport Node Profile. En pratique, NSX 4.2.4 refuse le changement et vous demande de supprimer le host switch, ce qui, sur un cluster en production, revient à retirer l'overlay sous chaque VM.
 
 Gabe Rosas décrit une manière beaucoup plus douce sur [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) pour EDP Standard : on change un hôte à la fois pendant qu'il est en mode maintenance, et on n'attache le nouveau profil au cluster qu'à la fin. La même méthode permet d'aller jusqu'à Performance et d'en revenir, à condition d'ajouter une étape. Ce billet décrit cette procédure, dans l'interface et par l'API.
 
-*Novembre 2026 · NSX 4.2.4.1 · vCenter 8.0 U3 · ESX 8.0 U3i · les noms des exemples viennent de mon lab*
+*Novembre 2026 · NSX 4.2.4.1 · vCenter 8.0 U3 · ESX 8.0 U3i · les noms des exemples viennent du lab*
 
 ## En bref
 
@@ -171,7 +171,7 @@ nsx -X PUT "https://$NSX$EP/transport-node-collections/$TNC" -d @tnc.json
 nsx "https://$NSX$EP/transport-node-collections/$TNC/state" | jq -r .state   # SUCCESS
 ```
 
-J'ai regroupé toute la boucle (évacuation, mode maintenance, les deux étapes, attente, sortie, hôte suivant, puis attache du profil) dans un petit script Python qui utilise pyVmomi pour vCenter et l'API policy de NSX : [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Lancé sans argument, il demande tout : adresses de vCenter et de NSX, utilisateurs et mots de passe (saisis masqués, jamais enregistrés), puis le cluster, le mode visé, les lcores pour Performance et le profil à attacher, choisis dans des listes lues dans votre environnement. Il vérifie le paramètre vMotion de vCenter, affiche le plan et ne démarre qu'après que vous avez tapé `YES`. Il peut faire une pause avant chaque hôte, et `--dry-run` s'arrête après le plan.
+Toute la boucle (évacuation, mode maintenance, les deux étapes, attente, sortie, hôte suivant, puis attache du profil) est regroupée dans un petit script Python qui utilise pyVmomi pour vCenter et l'API policy de NSX : [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Lancé sans argument, il demande tout : adresses de vCenter et de NSX, utilisateurs et mots de passe (saisis masqués, jamais enregistrés), puis le cluster, le mode visé, les lcores pour Performance et le profil à attacher, choisis dans des listes lues dans votre environnement. Il vérifie le paramètre vMotion de vCenter, affiche le plan et ne démarre qu'après que vous avez tapé `YES`. Il peut faire une pause avant chaque hôte, et `--dry-run` s'arrête après le plan.
 
 ![Démarrage interactif d'edp_per_host.py : questions sur les adresses et mots de passe de vCenter et NSX, choix du cluster dans une liste, mode actuel de chaque hôte, choix parmi les trois modes, nœud NUMA et lcores, Transport Node Profile correspondant proposé, puis plan hôte par hôte.](/images/edp-perf/cli-07-script-prompts.webp)
 
@@ -201,7 +201,7 @@ Choisir **Enhanced Datapath – Standard**, Finish. Relancer Configure NSX et ch
 
 ![edp-cluster revenu sur Applied Profile edp-tnp, NSX Configuration Success sur chaque hôte.](/images/edp-perf/gui-11-cluster-back-to-standard.webp)
 
-Un de mes hôtes est apparu *Degraded* juste après le retrait : NSX voyait `uplink2` down alors qu'ESX voyait les deux liens up. C'était un état pNIC en cache, resté du changement de driver : l'état en temps réel (`GET /api/v1/transport-nodes/<id>/status?source=realtime`) répondait `UP`, et l'interface a suivi peu après. Vérifiez-le avant d'ouvrir un ticket.
+Un des hôtes du lab est apparu *Degraded* juste après le retrait : NSX voyait `uplink2` down alors qu'ESX voyait les deux liens up. C'était un état pNIC en cache, resté du changement de driver : l'état en temps réel (`GET /api/v1/transport-nodes/<id>/status?source=realtime`) répondait `UP`, et l'interface a suivi peu après. Vérifiez-le avant d'ouvrir un ticket.
 
 ## À garder en tête
 
@@ -209,4 +209,4 @@ Clonez le Transport Node Profile au lieu de modifier celui qui est attaché au c
 
 Les lcores du mode Performance sont de vrais cœurs : `cpu_config` retire des cœurs logiques aux VM sur chaque nœud NUMA listé : dimensionnez-le selon le trafic que vous attendez vraiment. Mesurez ce qu'EDP Performance vous apporte sur le matériel et les drivers sur lesquels il tournera.
 
-La méthode par hôte en mode maintenance vient du billet de Gabe Rosas [How to Enable EDP Standard with Zero Impact in VCF 5.2](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) et de sa [suite sur enable_uens.py](https://vcfcore.tech/2026/02/25/using-enable_uens-py-for-edp-transitions-in-vcf-5-2/). Je n'ai ajouté que la seconde étape vers Performance et le chemin du retour.
+La méthode par hôte en mode maintenance vient du billet de Gabe Rosas [How to Enable EDP Standard with Zero Impact in VCF 5.2](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) et de sa [suite sur enable_uens.py](https://vcfcore.tech/2026/02/25/using-enable_uens-py-for-edp-transitions-in-vcf-5-2/). Ce billet n'ajoute que la seconde étape vers Performance et le chemin du retour.

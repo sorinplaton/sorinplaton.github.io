@@ -50,7 +50,7 @@ Voici maintenant la raison de tout ça. Le modèle *Dedicated VLAN and NSX Stret
 
 ### Ce que la latence entre les sites décide pour vous
 
-Avant la topologie, le chiffre. Le temps aller-retour entre les sites classe chaque option en « étiré » ou « deux instances séparées », et tout ce qui dépasse 5 ms de RTT (la limite du cluster vSAN étiré, que le cluster VCF Operations partage justement) vous met dans le second groupe. La suite du billet part de là : un DCI régional de l'ordre de 10 ms ou plus, avec une exception intéressante entre 5 et 10 ms sur laquelle je reviens.
+Avant la topologie, le chiffre. Le temps aller-retour entre les sites classe chaque option en « étiré » ou « deux instances séparées », et tout ce qui dépasse 5 ms de RTT (la limite du cluster vSAN étiré, que le cluster VCF Operations partage justement) vous met dans le second groupe. La suite du billet part de là : un DCI régional de l'ordre de 10 ms ou plus, avec une exception intéressante entre 5 et 10 ms sur laquelle on revient plus loin.
 
 ![Une droite de temps aller-retour entre sites en échelle logarithmique, avec une bande ombrée à partir de 5 ms marquant la latence au-delà de la limite d'un cluster étiré. Plafonds rouges à gauche : cluster vSAN étiré 5 ms, nœuds du cluster VCF Operations moins de 5 ms, multisite NSX à manager unique avec reprise automatique du plan de gestion 10 ms. Une fenêtre sarcelle de 5 à 10 ms marque la Continuous Availability de VCF Operations entre fault domains, avec le plafond du witness à 30 ms. Plafonds verts à droite : nœuds Operations vers les endpoints moins de 50 ms, réseaux étirés NSX Federation 150 ms, nœuds Operations vers cloud proxy moins de 300 ms.](/images/fleet-overlay-dr/fig-04-latency-ladder.svg)
 
@@ -65,7 +65,7 @@ Avant la topologie, le chiffre. Le temps aller-retour entre les sites classe cha
 | Nœuds VCF Operations → cloud proxies / collecteurs | < 300 ms RTT | sizing VCF Operations 9.x, KB 417347 | Correct. |
 | vSphere Replication | pas de plafond de RTT ; asynchrone | Protection and Recovery 9.1 | Correct. Le RPO dépend de la bande passante et du taux de changement, pas de la latence ; le blueprint dit 15 minutes. |
 
-C'est donc de la reprise après sinistre, pas de la haute disponibilité, avec l'exception que j'ai mentionnée : si le DCI reste sous 10 ms, VCF Operations lui-même peut fonctionner en Continuous Availability entre les deux instances. Le design de base, ce sont deux instances VCF, chacune avec son domaine de gestion, son SDDC Manager, son vCenter et son cluster NSX Manager, dans un seul fleet ; les composants du fleet vivent au site A et sont récupérés au site B. C'est exactement ce que décrit le blueprint *VCF Fleet Disaster Recovery* de 9.1, qui place le site de reprise « typiquement hors du rayon métro ».
+C'est donc de la reprise après sinistre, pas de la haute disponibilité, avec l'exception mentionnée plus haut : si le DCI reste sous 10 ms, VCF Operations lui-même peut fonctionner en Continuous Availability entre les deux instances. Le design de base, ce sont deux instances VCF, chacune avec son domaine de gestion, son SDDC Manager, son vCenter et son cluster NSX Manager, dans un seul fleet ; les composants du fleet vivent au site A et sont récupérés au site B. C'est exactement ce que décrit le blueprint *VCF Fleet Disaster Recovery* de 9.1, qui place le site de reprise « typiquement hors du rayon métro ».
 
 ### La topologie
 
@@ -83,7 +83,7 @@ C'est donc de la reprise après sinistre, pas de la haute disponibilité, avec l
 | NSX Global Manager | VLAN de gestion des VM ; actif en A, standby en B | C'est vous qui promouvez le standby | Non |
 | Appliance Protection and Recovery | VLAN de gestion des VM, une par instance, déploiement Light, domaine de gestion | Appairée A ↔ B | Non |
 
-La ligne qui surprend le plus de monde, c'est Automation. Dans le blueprint 9.1, VCF Automation n'est *pas* protégé par SRM. On déploie une nouvelle instance sur le site de reprise et on y restaure une sauvegarde, et le blueprint dit en toutes lettres que cela ne demande aucune mobilité IP. Même chose pour Identity Broker et le reste des management services. Le segment étiré est là pour VCF Operations et Ops for Networks. Je mettrais quand même Automation dessus : la nouvelle instance peut remonter avec le même FQDN et, si vous gardez les adresses libres au site B, les mêmes IP, ce qui vous épargne un changement DNS et un certificat. Mais c'est une commodité, pas ce qui fait marcher la reprise.
+La ligne qui surprend le plus de monde, c'est Automation. Dans le blueprint 9.1, VCF Automation n'est *pas* protégé par SRM. On déploie une nouvelle instance sur le site de reprise et on y restaure une sauvegarde, et le blueprint dit en toutes lettres que cela ne demande aucune mobilité IP. Même chose pour Identity Broker et le reste des management services. Le segment étiré est là pour VCF Operations et Ops for Networks. Il reste judicieux d'y mettre aussi Automation : la nouvelle instance peut remonter avec le même FQDN et, si vous gardez les adresses libres au site B, les mêmes IP, ce qui vous épargne un changement DNS et un certificat. Mais c'est une commodité, pas ce qui fait marcher la reprise.
 
 ### Le côté NSX, concrètement
 
@@ -205,7 +205,7 @@ Le choix entre les deux modèles est donc d'abord une question de latence, ensui
 - **Les collecteurs Ops for Networks et les cloud proxies** tolèrent des centaines de millisecondes ; rien à faire.
 - **Les restaurations (étapes 7–8)** lisent la cible SFTP. Au site B, ou en A et répliquée : c'est local. En A et non répliquée : vous vous êtes arrêté à l'étape 7.
 
-## Ce que j'écrirais dans le document de design
+## Ce qu'il faut écrire dans le document de design
 
 1. **Différer Operations et Automation au bring-up** et les poser sur le segment overlay depuis l'Installer. La page Lifecycle d'Operations ne sait pas mettre Automation sur un segment.
 2. **Un seul segment overlay étiré, NSX Federation, un Tier-1 DR-only, un Tier-0 actif/actif avec A primaire.** Écrire le workflow Network Recovery comme étape zéro du plan de reprise et le répéter ; les passerelles ne bougeront pas toutes seules.

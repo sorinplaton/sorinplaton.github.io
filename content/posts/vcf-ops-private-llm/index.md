@@ -212,7 +212,7 @@ No routes were needed: the holorouter masquerades lab traffic onto the home netw
 
 ## Step 4 · Test it the way VCF Operations will
 
-A short script does what VCF Operations does: list the models with and without the token, then send a chat request with one tool and check that a `tool_call` comes back. I ran it from a machine on the same subnet and gateway as VCF Operations.
+A short script does what VCF Operations does: list the models with and without the token, then send a chat request with one tool and check that a `tool_call` comes back. It ran from a machine on the same subnet and gateway as VCF Operations.
 
 **Provider test · Mac mini**
 
@@ -239,8 +239,8 @@ Then the realistic case: 25 tool definitions in one request, like the AI Assista
 
 In VCF Operations 9.1.1 the provider settings live in an extension of their own, and on a fresh appliance it is a chain of prerequisites:
 
-1. **Install the Advanced Configuration extension** (Extensions → Extensions Management → Install). It was only *Available* on mine; the install itself takes seconds.
-2. **Install Log Management 9.1.1 or later** (VCF Operations for Logs). The "Configure your LLM" page will not enable its services without it. In my lab that was a Build → Lifecycle → VCF Management → Add Component job of 1 h 22 min, and it added a fourth worker to the VCF services runtime.
+1. **Install the Advanced Configuration extension** (Extensions → Extensions Management → Install). It was only *Available* in the lab; the install itself takes seconds.
+2. **Install Log Management 9.1.1 or later** (VCF Operations for Logs). The "Configure your LLM" page will not enable its services without it. In the lab that was a Build → Lifecycle → VCF Management → Add Component job of 1 h 22 min, and it added a fourth worker to the VCF services runtime.
 3. **Enable Services**, then connect the provider under LLM Providers and pick the model under Models.
 
 ![VCF Operations Extensions Management: Advanced Configuration Available with an Install button; Content Builder, Platform Observability and VMware Intelligent Assist installed](/images/vcf-ops-llm/o1-extensions.webp)
@@ -261,7 +261,7 @@ In VCF Operations 9.1.1 the provider settings live in an extension of their own,
 
 *The **VCF Private AI** form has two fields. The note talks about Private AI Services (PAIS), but any OpenAI-compatible endpoint behind HTTPS and a token passes.*
 
-**Leave `/v1` off the endpoint.** My first attempt used `https://llm-mac.site-a.vcf.lab/v1` and VCF Operations answered "The provider endpoint is unreachable or returned an unexpected error". The Caddy access log showed why: it appends `/v1/models` itself, so it asked for `/v1/v1/models` and got a 404.
+**Leave `/v1` off the endpoint.** The first attempt used `https://llm-mac.site-a.vcf.lab/v1` and VCF Operations answered "The provider endpoint is unreachable or returned an unexpected error". The Caddy access log showed why: it appends `/v1/models` itself, so it asked for `/v1/v1/models` and got a 404.
 
 ![Review and Accept Certificate: certificate is unknown, SHA-256 thumbprint 49f6fab9…, issued to and by CN=llm-mac.site-a.vcf.lab, expires October 23, 2036](/images/vcf-ops-llm/o5-certificate.webp)
 
@@ -279,7 +279,7 @@ The **Models** tab then lists everything the endpoint's `/v1/models` returns. Th
 
 ## Step 6 · Ask it something, and fix what breaks
 
-My first choice was `qwen3:8b-16k`, the model that passed the 25-tool test. In the assistant every question ended the same way:
+The first choice was `qwen3:8b-16k`, the model that passed the 25-tool test. In the assistant every question ended the same way:
 
 ![VMware Intelligent Assist: question List my vCenters, answer Error: LLM gateway returned status 504](/images/vcf-ops-llm/o8-error-504.webp)
 

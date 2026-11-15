@@ -12,11 +12,11 @@ params:
   seoDescription: "Enable and remove NSX Enhanced Datapath – Performance per host, through EDP Standard, in maintenance mode. GUI and API steps."
 ---
 
-I wanted to test Enhanced Datapath – Performance (EDP Performance, the old "ENS" mode) on a cluster that already runs NSX in standard mode, and then take it back off. On paper it is one dropdown in the Transport Node Profile. In practice NSX 4.2.4 refuses the change and tells you to delete the host switch, which on a live cluster means pulling the overlay out from under every VM.
+The goal was to test Enhanced Datapath – Performance (EDP Performance, the old "ENS" mode) on a cluster that already runs NSX in standard mode, and then take it back off. On paper it is one dropdown in the Transport Node Profile. In practice NSX 4.2.4 refuses the change and tells you to delete the host switch, which on a live cluster means pulling the overlay out from under every VM.
 
 Gabe Rosas describes a much gentler way on [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) for EDP Standard: change one host at a time while it sits in maintenance mode, and only attach the new profile to the cluster at the end. The same method gets you to Performance and back if you add one hop. This post is that procedure, in the UI and with the API.
 
-*November 2026 · NSX 4.2.4.1 · vCenter 8.0 U3 · ESX 8.0 U3i · names in the examples are from my lab*
+*November 2026 · NSX 4.2.4.1 · vCenter 8.0 U3 · ESX 8.0 U3i · names in the examples are from the lab*
 
 ## The short version
 
@@ -171,7 +171,7 @@ nsx -X PUT "https://$NSX$EP/transport-node-collections/$TNC" -d @tnc.json
 nsx "https://$NSX$EP/transport-node-collections/$TNC/state" | jq -r .state   # SUCCESS
 ```
 
-I wrapped the whole loop (evacuate, maintenance mode, both hops, wait, exit, next host, attach the profile) in a small Python script that uses pyVmomi for vCenter and the NSX policy API: [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Run it with no arguments and it asks for everything: vCenter and NSX addresses, user names and passwords (typed hidden, never saved), then the cluster, the target mode, the lcores for Performance and the profile to attach, picked from lists it reads from your environment. It checks the vCenter vMotion setting, shows the plan, and only starts after you type `YES`. It can pause before each host, and `--dry-run` stops after the plan.
+The whole loop (evacuate, maintenance mode, both hops, wait, exit, next host, attach the profile) is wrapped in a small Python script that uses pyVmomi for vCenter and the NSX policy API: [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Run it with no arguments and it asks for everything: vCenter and NSX addresses, user names and passwords (typed hidden, never saved), then the cluster, the target mode, the lcores for Performance and the profile to attach, picked from lists it reads from your environment. It checks the vCenter vMotion setting, shows the plan, and only starts after you type `YES`. It can pause before each host, and `--dry-run` stops after the plan.
 
 ![Interactive start of edp_per_host.py: prompts for vCenter and NSX addresses and passwords, picks the cluster from a list, shows each host's current mode, offers the three target modes, asks for NUMA node and lcores, offers the matching Transport Node Profile, and prints the per-host plan.](/images/edp-perf/cli-07-script-prompts.webp)
 
@@ -201,7 +201,7 @@ Pick **Enhanced Datapath – Standard**, Finish. Run Configure NSX again and pic
 
 ![edp-cluster back on Applied Profile edp-tnp with every host's NSX Configuration Success.](/images/edp-perf/gui-11-cluster-back-to-standard.webp)
 
-One of my hosts showed *Degraded* right after the removal, with NSX reporting `uplink2` down while ESX reported both links up. That was a cached pNIC status left over from the driver swap: asking for the real-time status (`GET /api/v1/transport-nodes/<id>/status?source=realtime`) came back `UP`, and the UI caught up a moment later. Check that before you open a ticket.
+One of the lab hosts showed *Degraded* right after the removal, with NSX reporting `uplink2` down while ESX reported both links up. That was a cached pNIC status left over from the driver swap: asking for the real-time status (`GET /api/v1/transport-nodes/<id>/status?source=realtime`) came back `UP`, and the UI caught up a moment later. Check that before you open a ticket.
 
 ## Things to keep in mind
 
@@ -209,4 +209,4 @@ Clone the Transport Node Profile instead of editing the one attached to the clus
 
 Performance mode's lcores are real cores: `cpu_config` takes logical cores away from VMs on every NUMA node you list, so size it against the traffic you actually expect. Measure what EDP Performance buys you on the hardware and drivers you will run it on.
 
-Credit where it is due: the per-host, maintenance-mode method comes from Gabe Rosas' [How to Enable EDP Standard with Zero Impact in VCF 5.2](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) and the [enable_uens.py follow-up](https://vcfcore.tech/2026/02/25/using-enable_uens-py-for-edp-transitions-in-vcf-5-2/). All I added was the second hop to Performance and the way back.
+Credit where it is due: the per-host, maintenance-mode method comes from Gabe Rosas' [How to Enable EDP Standard with Zero Impact in VCF 5.2](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) and the [enable_uens.py follow-up](https://vcfcore.tech/2026/02/25/using-enable_uens-py-for-edp-transitions-in-vcf-5-2/). This post only adds the second hop to Performance and the way back.

@@ -12,9 +12,9 @@ params:
   seoDescription: "VCF Operations super metrics explained: formula syntax, the depth rule, the where clause, sizing cost, and when VCF 9.1 real-time metrics are the better tool."
 ---
 
-The questions I get asked about a cluster are not single metrics. *Which VM waits most for CPU? How many VMs are running hot? How evenly are the hosts loaded?* Every object in VCF Operations reports its own values, and nothing adds them up for you. A **super metric** is the formula that does: it reads related objects, reduces them to one value, and stores that value on the object where the question was asked. From then on it behaves like any built-in metric: dashboards, alerts, reports, the API.
+The questions people ask about a cluster are not single metrics. *Which VM waits most for CPU? How many VMs are running hot? How evenly are the hosts loaded?* Every object in VCF Operations reports its own values, and nothing adds them up for you. A **super metric** is the formula that does: it reads related objects, reduces them to one value, and stores that value on the object where the question was asked. From then on it behaves like any built-in metric: dashboards, alerts, reports, the API.
 
-Most teams under-use them, usually because the first attempt showed no data and nobody knew why. This post is the version I wish I had read first: the formula language, the depth rule, the `where` clause, what super metrics cost the cluster, and when VCF 9.1's new real-time metrics are the better tool.
+Most teams under-use them, usually because the first attempt showed no data and nobody knew why. This post is the version worth reading first: the formula language, the depth rule, the `where` clause, what super metrics cost the cluster, and when VCF 9.1's new real-time metrics are the better tool.
 
 *October 2026 · VCF Operations 9.0 / 9.1 · syntax and menu paths from the 9.0 and 9.1 Infrastructure Operations guides on Broadcom TechDocs*
 
@@ -56,7 +56,7 @@ Read aloud: *the average CPU usage of virtual machines from the vCenter adapter,
 | `where` | Filters which values are used | Same object only · numeric right operand |
 | `as alias` | Names the entry for reuse | Case-insensitive · each name defined once |
 
-In the editor you rarely type keys by hand: enter a few letters and press *ctrl+space*; it completes object types, metrics and properties. Do that rather than copying metric keys from a blog post, mine included. The keys in this post are the ones the documentation uses, but pick them from the list so they match your version.
+In the editor you rarely type keys by hand: enter a few letters and press *ctrl+space*; it completes object types, metrics and properties. Do that rather than copying metric keys from a blog post, this one included. The keys in this post are the ones the documentation uses, but pick them from the list so they match your version.
 
 ### Functions and operators, briefly
 
@@ -114,7 +114,7 @@ Three features for longer formulas. An **alias** lets you write a resource entry
       depth=5, where=($value>=0)} as cpuload) + 0.0001) / (max(cpuload) + 0.0001)
 ```
 
-Alias names are case-insensitive, cannot start with a digit or contain operators, each name is defined once, and one entry can carry several (`as a1 as a2`). The **ternary guard** we saw above protects divisions. And **`objecttype=*`** aggregates across every object type of an adapter without listing them. The adapter type stays mandatory:
+Alias names are case-insensitive, cannot start with a digit or contain operators, each name is defined once, and one entry can carry several (`as a1 as a2`). The **ternary guard** shown above protects divisions. And **`objecttype=*`** aggregates across every object type of an adapter without listing them. The adapter type stays mandatory:
 
 ```text
 count(${adaptertype=VMWARE, objecttype=*, attribute=badge|health, depth=1})
@@ -124,7 +124,7 @@ count(${adaptertype=VMWARE, objecttype=*, attribute=badge|health, depth=1})
 
 The wizard lives under **Infrastructure Operations → Configuration → Super Metrics** (9.0; *Operate → Administration → Configurations* in 9.1): *Add*, name and description, the object type that holds the result, the formula, the unit, *Validate* and *Preview* on a real object, and finally the policy page, where you select the policy for the target objects and *Update*. Then check it where it lives: open an object of that type and look under *All Metrics → Super Metric*. The super metrics list shows each one's object types, formula and the policies it is activated in; use it to confirm step 3 before building dashboards on top.
 
-Once stored, a super metric feeds any widget that takes a metric, list and trend views, scheduled reports, and the chain I use most: a **symptom** on the super metric with a threshold → an **alert definition** → a notification or action. It can be flagged as a KPI in the policy, and it appears in the system audit report, which is a quick way to inventory them.
+Once stored, a super metric feeds any widget that takes a metric, list and trend views, scheduled reports, and the most useful chain: a **symptom** on the super metric with a threshold → an **alert definition** → a notification or action. It can be flagged as a KPI in the policy, and it appears in the system audit report, which is a quick way to inventory them.
 
 Treat them as code. *Export* and *Import* on the toolbar move definitions between instances (re-check object type and policy after importing); the OPS CLI scripts the same; and the REST API manages definitions directly:
 
@@ -167,7 +167,7 @@ What they cost is metric series. Each activated super metric yields one stored v
 | Large | 16 | 48 | 44,000 | 8,000,000 |
 | Extra large | 24 | 128 | 100,000 | 20,000,000 |
 
-A rule of thumb, mine rather than Broadcom's: multiply super metrics by objects in scope. Ten super metrics on a hundred clusters add a thousand series, noise. The same ten on 2,000 hosts add 20,000, about 1.3 % of a Small node. On 50,000 VMs they add 500,000, a third of a Small node. That is why super metrics belong on clusters and hosts, not on every VM, and why the Aria Operations best-practices guide says to apply them only to relevant objects and avoid heavy calculations on world-level objects.
+A rule of thumb, the author's rather than Broadcom's: multiply super metrics by objects in scope. Ten super metrics on a hundred clusters add a thousand series, noise. The same ten on 2,000 hosts add 20,000, about 1.3 % of a Small node. On 50,000 VMs they add 500,000, a third of a Small node. That is why super metrics belong on clusters and hosts, not on every VM, and why the Aria Operations best-practices guide says to apply them only to relevant objects and avoid heavy calculations on world-level objects.
 
 Three habits keep them cheap:
 
@@ -209,7 +209,7 @@ The query field has no autocomplete, so use the *Metrics* help tab to find exact
 
 **What they require.** VCF 9.1, ideally the latest 9.1.1 binaries. Two components, *Real-time metrics* and *Real-time metrics store*, added under **Build → Lifecycle → VCF Management → Add Component**, on every VCF instance you want to analyse (the fleet lifecycle API does the same with component type `OPS_DATA_PLATFORM`). The Large size if you want the Standard tier. And the policy tiers, which only appear in a policy once the components are deployed: **Operate → Administration → Configurations → Policy Definition**, *Real time metrics* tile, Standard on the vCenter object type, ESX Top on Host System. Collection starts after one cycle.
 
-For Grafana, the community has documented the connection: a Prometheus data source pointed at the real-time metrics FQDN with an `Authorization: Bearer` header and the vCenter UUID as `sourceId`, with a token that expires after 35 minutes, so [GrafanaRTMsync](https://github.com/makolos2/GrafanaRTMsync) refreshes it from cron. That part is not in Broadcom's documentation; treat it as a working recipe, not a supported interface. And check CPU, memory and storage for the Large size on the *Deploy Real-Time Metrics* page before scaling; I could not find published figures anywhere else.
+For Grafana, the community has documented the connection: a Prometheus data source pointed at the real-time metrics FQDN with an `Authorization: Bearer` header and the vCenter UUID as `sourceId`, with a token that expires after 35 minutes, so [GrafanaRTMsync](https://github.com/makolos2/GrafanaRTMsync) refreshes it from cron. That part is not in Broadcom's documentation; treat it as a working recipe, not a supported interface. And check CPU, memory and storage for the Large size on the *Deploy Real-Time Metrics* page before scaling; published figures could not be found anywhere else.
 
 ## Five rules
 

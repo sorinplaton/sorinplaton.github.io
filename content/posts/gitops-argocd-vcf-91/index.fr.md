@@ -487,7 +487,7 @@ C'est cette URL que vous passerez désormais à `--dest-server`.
 
 ### Avant le premier commit : trois choses dont le Supervisor a besoin {#before-the-first-commit-three-things-the-supervisor-needs}
 
-Argo CD appliquera sans broncher un objet Cluster que le Supervisor est incapable de construire. Rien de ce qui suit n'est vérifié au moment du sync, et chacun de ces points a coûté une heure ou plus à ce lab (ne me demandez pas comment je le sais) ; vérifiez-les donc en premier.
+Argo CD appliquera sans broncher un objet Cluster que le Supervisor est incapable de construire. Rien de ce qui suit n'est vérifié au moment du sync, et chacun de ces points a coûté une heure ou plus à ce lab ; vérifiez-les donc en premier.
 
 **Les versions de Kubernetes.** Le Supervisor ne construit des VM de nodes qu'à partir d'une version qu'il connaît. Sur un Supervisor neuf, `kubectl get kr` peut renvoyer `No resources found` même avec une bibliothèque abonnée rattachée, parce qu'ajouter une bibliothèque aux bibliothèques de contenu générales du Supervisor ne suffit pas.
 

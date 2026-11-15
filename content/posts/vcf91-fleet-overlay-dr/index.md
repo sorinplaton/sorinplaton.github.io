@@ -12,7 +12,7 @@ params:
   seoDescription: "How to land VCF Operations and VCF Automation on an NSX overlay segment in VCF 9.1, and design fleet DR with SRM and NSX Federation beyond 5 ms RTT."
 ---
 
-Two questions tend to show up together. The first: how do I get VCF Operations and VCF Automation onto an NSX overlay segment in a greenfield VCF 9.1 deployment? The second, usually a few minutes later: and how do I fail them over to the second data centre, given that the sites are further apart than a stretched cluster allows (more than 5 ms RTT, typically 10 ms or more over a regional DCI), and we already own SRM?
+Two questions tend to show up together. The first: how do you get VCF Operations and VCF Automation onto an NSX overlay segment in a greenfield VCF 9.1 deployment? The second, usually a few minutes later: and how do you fail them over to the second data centre, given that the sites are further apart than a stretched cluster allows (more than 5 ms RTT, typically 10 ms or more over a regional DCI), and you already own SRM?
 
 They are really one question. An overlay segment for the fleet components only earns its extra edge cluster if you intend to stretch it, and you stretch it for one reason: IP mobility for disaster recovery. So this post takes both halves in order: the greenfield sequence first, then the DR design it sets up: what gets replicated, what gets rebuilt from backup, where the inter-site latency constrains you and where it doesn't, and the order of operations on the day.
 
@@ -42,7 +42,7 @@ Here is the trap. If you skip Automation at bring-up and add it later from VCF O
 
 ![A decision diagram: VCF Automation skipped at bring-up branches into two paths. Path A, the VCF Installer's Deploy deferred components, asks for a vDS port group or NSX segment and lands the Automation service runtime on the overlay segment, next to VCF Operations, with IP mobility for DR. Path B, VCF Operations Build › Lifecycle › VCF Management Components, offers no network choice and lands it on the per-site VM management VLAN. A footer notes the cloud proxy stays on the management VLAN in both cases and that brownfield VLAN-backed segments remain supported after an upgrade.](/images/fleet-overlay-dr/fig-06-placement-paths.svg)
 
-Two more things while we're here. The cloud proxy stays on the VM management VLAN whatever you do. It's site-specific and collects locally, which is exactly what you want. And brownfield is a different story: KB 443842 confirms that Operations, Automation and the management runtime cluster on NSX *VLAN-backed* segments stay fully supported after an upgrade to 9.1, and nobody is asking you to migrate them. Greenfield is where the overlay model is prescribed.
+Two more things while on the subject. The cloud proxy stays on the VM management VLAN whatever you do. It's site-specific and collects locally, which is exactly what you want. And brownfield is a different story: KB 443842 confirms that Operations, Automation and the management runtime cluster on NSX *VLAN-backed* segments stay fully supported after an upgrade to 9.1, and nobody is asking you to migrate them. Greenfield is where the overlay model is prescribed.
 
 ## Part 2. Why the segment: fleet DR between two instances
 
@@ -50,7 +50,7 @@ Now the reason you built all that. The design library's *Dedicated VLAN and NSX 
 
 ### What the inter-site latency decides for you
 
-Before the topology, the number. The round-trip time between the sites sorts every option into "stretched" or "two separate instances", and anything above 5 ms RTT (the vSAN stretched-cluster limit, which the VCF Operations cluster happens to share) puts you in the second group. The rest of this post assumes that: a regional DCI in the 10 ms range or more, with one interesting exception between 5 and 10 ms that I'll come to.
+Before the topology, the number. The round-trip time between the sites sorts every option into "stretched" or "two separate instances", and anything above 5 ms RTT (the vSAN stretched-cluster limit, which the VCF Operations cluster happens to share) puts you in the second group. The rest of this post assumes that: a regional DCI in the 10 ms range or more, with one interesting exception between 5 and 10 ms covered further down.
 
 ![A log-scale number line of round-trip time between sites, with a shaded band from 5 ms upward marking latency beyond the stretched-cluster limit. Red ceilings to the left: vSAN stretched cluster 5 ms, VCF Operations cluster nodes under 5 ms, NSX single-manager multisite with automatic management-plane recovery 10 ms. A teal window from 5 to 10 ms marks VCF Operations Continuous Availability between fault domains, with the witness ceiling at 30 ms. Green ceilings to the right: Operations nodes to endpoints under 50 ms, NSX Federation stretched networks 150 ms, Operations nodes to cloud proxy under 300 ms.](/images/fleet-overlay-dr/fig-04-latency-ladder.svg)
 
@@ -65,7 +65,7 @@ Before the topology, the number. The round-trip time between the sites sorts eve
 | VCF Operations nodes → cloud proxies / collectors | < 300 ms RTT | VCF Operations 9.x sizing, KB 417347 | Fine. |
 | vSphere Replication | no RTT ceiling; asynchronous | Protection and Recovery 9.1 | Fine. The RPO depends on bandwidth and change rate, not latency; the blueprint says 15 minutes. |
 
-So this is disaster recovery, not high availability, with the one exception I mentioned: if the DCI stays under 10 ms, VCF Operations itself can run in Continuous Availability across the two instances. The base design is two VCF instances, each with its own management domain, SDDC Manager, vCenter and NSX Manager cluster, in one fleet; the fleet components live at site A and are recovered at site B. That is exactly what the 9.1 *VCF Fleet Disaster Recovery* blueprint describes, and it places the recovery site "typically outside the metro radius".
+So this is disaster recovery, not high availability, with the one exception mentioned above: if the DCI stays under 10 ms, VCF Operations itself can run in Continuous Availability across the two instances. The base design is two VCF instances, each with its own management domain, SDDC Manager, vCenter and NSX Manager cluster, in one fleet; the fleet components live at site A and are recovered at site B. That is exactly what the 9.1 *VCF Fleet Disaster Recovery* blueprint describes, and it places the recovery site "typically outside the metro radius".
 
 ### The topology
 
@@ -83,7 +83,7 @@ So this is disaster recovery, not high availability, with the one exception I me
 | NSX Global Manager | VM management VLAN; active at A, standby at B | You promote the standby | No |
 | Protection and Recovery appliance | VM management VLAN, one per instance, Light deployment, management domain | Site-paired A ↔ B | No |
 
-The row that surprises most people is Automation. In the 9.1 blueprint, VCF Automation is *not* protected by SRM. You deploy a new instance at the recovery site and restore a backup into it, and the blueprint says in so many words that this needs no IP mobility. Same for Identity Broker and the rest of the management services. The stretched segment is there for VCF Operations and Ops for Networks. I'd still put Automation on it: the new instance can come up with the same FQDN and, if you keep the addresses free at site B, the same IPs, which saves you a DNS change and a certificate. But that's a convenience, not what makes the recovery work.
+The row that surprises most people is Automation. In the 9.1 blueprint, VCF Automation is *not* protected by SRM. You deploy a new instance at the recovery site and restore a backup into it, and the blueprint says in so many words that this needs no IP mobility. Same for Identity Broker and the rest of the management services. The stretched segment is there for VCF Operations and Ops for Networks. Putting Automation on it still makes sense: the new instance can come up with the same FQDN and, if you keep the addresses free at site B, the same IPs, which saves you a DNS change and a certificate. But that's a convenience, not what makes the recovery work.
 
 ### The NSX side, concretely
 
@@ -205,7 +205,7 @@ So the choice between the two models is a latency question first and a budget qu
 - **Ops for Networks collectors and cloud proxies** tolerate hundreds of milliseconds; nothing to do.
 - **Restores (steps 7–8)** read from the SFTP target. At site B, or at A and replicated: local. At A and not replicated: you stopped at step 7.
 
-## What I'd write into the design document
+## What to write into the design document
 
 1. **Defer Operations and Automation at bring-up** and land them on the overlay segment from the Installer. The Lifecycle page in Operations can't put Automation on a segment.
 2. **One stretched overlay segment, NSX Federation, a DR-only Tier-1, an active/active Tier-0 with A primary.** Write the Network Recovery workflow down as step zero of the DR plan and rehearse it; the gateways will not move themselves.
@@ -214,7 +214,7 @@ So the choice between the two models is a latency question first and a budget qu
 5. **DNS and NTP from both sites on every protected component,** before the first test.
 6. **Test with an isolated test network, then with a planned migration,** and include the Automation redeploy-and-restore in the test. It is the slowest step and the one with the most preconditions.
 
-None of this is exotic. It's the two-site SRM design we've been building for years, with two differences that are easy to miss: the stretched segment is a Federation object that a human has to move, and half of the fleet is restored rather than replicated.
+None of this is exotic. It's the two-site SRM design that has been built for years, with two differences that are easy to miss: the stretched segment is a Federation object that a human has to move, and half of the fleet is restored rather than replicated.
 
 ## Sources
 

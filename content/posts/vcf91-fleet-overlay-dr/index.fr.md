@@ -50,7 +50,7 @@ Voici maintenant la raison de tout ça. Le modèle *Dedicated VLAN and NSX Stret
 
 ### Ce que la latence entre les sites décide pour vous
 
-Avant la topologie, le chiffre. Le temps aller-retour entre les sites classe chaque option en « étiré » ou « deux instances séparées », et tout ce qui dépasse 5 ms de RTT (la limite du cluster vSAN étiré, que le cluster VCF Operations partage justement) vous met dans le second groupe. La suite du billet part de là : un DCI régional de l'ordre de 10 ms ou plus, avec une exception intéressante entre 5 et 10 ms sur laquelle on revient plus loin.
+Avant la topologie, le chiffre. Le temps aller-retour entre les sites classe chaque option en « étiré » ou « deux instances séparées », et tout ce qui dépasse 5 ms de RTT (la limite du cluster vSAN étiré, que le cluster VCF Operations partage justement) vous met dans le second groupe. La suite du billet part de là : un DCI régional de l'ordre de 10 ms ou plus, avec une exception intéressante entre 5 et 10 ms sur laquelle le billet revient plus loin.
 
 ![Une droite de temps aller-retour entre sites en échelle logarithmique, avec une bande ombrée à partir de 5 ms marquant la latence au-delà de la limite d'un cluster étiré. Plafonds rouges à gauche : cluster vSAN étiré 5 ms, nœuds du cluster VCF Operations moins de 5 ms, multisite NSX à manager unique avec reprise automatique du plan de gestion 10 ms. Une fenêtre sarcelle de 5 à 10 ms marque la Continuous Availability de VCF Operations entre fault domains, avec le plafond du witness à 30 ms. Plafonds verts à droite : nœuds Operations vers les endpoints moins de 50 ms, réseaux étirés NSX Federation 150 ms, nœuds Operations vers cloud proxy moins de 300 ms.](/images/fleet-overlay-dr/fig-04-latency-ladder.svg)
 
@@ -83,7 +83,7 @@ C'est donc de la reprise après sinistre, pas de la haute disponibilité, avec l
 | NSX Global Manager | VLAN de gestion des VM ; actif en A, standby en B | C'est vous qui promouvez le standby | Non |
 | Appliance Protection and Recovery | VLAN de gestion des VM, une par instance, déploiement Light, domaine de gestion | Appairée A ↔ B | Non |
 
-La ligne qui surprend le plus de monde, c'est Automation. Dans le blueprint 9.1, VCF Automation n'est *pas* protégé par SRM. On déploie une nouvelle instance sur le site de reprise et on y restaure une sauvegarde, et le blueprint dit en toutes lettres que cela ne demande aucune mobilité IP. Même chose pour Identity Broker et le reste des management services. Le segment étiré est là pour VCF Operations et Ops for Networks. Il reste judicieux d'y mettre aussi Automation : la nouvelle instance peut remonter avec le même FQDN et, si vous gardez les adresses libres au site B, les mêmes IP, ce qui vous épargne un changement DNS et un certificat. Mais c'est une commodité, pas ce qui fait marcher la reprise.
+La ligne qui surprend le plus de monde, c'est Automation. Dans le blueprint 9.1, VCF Automation n'est *pas* protégé par SRM. On déploie une nouvelle instance sur le site de reprise et on y restaure une sauvegarde, et le blueprint dit en toutes lettres que cela ne demande aucune mobilité IP. Même chose pour Identity Broker et le reste des management services. Le segment étiré est là pour VCF Operations et Ops for Networks. Mettez-y quand même Automation : la nouvelle instance peut remonter avec le même FQDN et, si vous gardez les adresses libres au site B, les mêmes IP, ce qui vous épargne un changement DNS et un certificat. Mais c'est une commodité, pas ce qui fait marcher la reprise.
 
 ### Le côté NSX, concrètement
 

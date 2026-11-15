@@ -14,7 +14,7 @@ params:
 
 VCF 9.1 demande des adresses à quatre endroits différents : SDDC Manager veut un *Network Pool*, NSX veut des *IP Address Pools* et des *IP Address Blocks*, l'assistant Supervisor veut des *CIDR*, et VCF Automation veut des *IP Spaces*. Tout cela ressemble à « une plage d'adresses », chacun finit par s'appeler un pool à un moment ou à un autre, et aucun ne fait le même travail. Tapez le même `10.x.0.0/16` dans le mauvais champ et il ne sort jamais de la fabrique, ou bien il se retrouve annoncé à tout le centre de données.
 
-Ce billet est la carte qui manquait au départ. Pour chaque pool : ce que c'est, où on le définit, quel composant réseau le consomme, et s'il est un jour visible au nord du Tier-0.
+Ce billet est la carte à avoir avant de commencer. Pour chaque pool : ce que c'est, où on le définit, quel composant réseau le consomme, et s'il est un jour visible au nord du Tier-0.
 
 *Octobre 2026 · lab Holodeck VCF 9.1.1 · Transit Gateway centralisé sauf mention contraire · les adresses d'exemple sont celles du lab*
 

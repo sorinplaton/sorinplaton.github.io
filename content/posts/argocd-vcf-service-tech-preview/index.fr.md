@@ -11,7 +11,7 @@ params:
   seoDescription: "Argo CD comme VCF Service dans VCF 9.1.1 : commandé depuis VCF Automation avec SSO, migré depuis le Supervisor Service, et six pièges qui ont coûté du temps."
 ---
 
-VCF 9.1.1 livre Argo CD comme **VCF Service** (tech preview) : un tenant commande une instance Argo CD dans VCF Automation de la même façon qu'il commande un namespace ou une VM, et s'y connecte avec son compte VCF Automation. Dans le lab, ce service a remplacé en une journée l'Argo CD installé depuis vCenter sur le premier workload domain, et les applications en cours d'exécution ont été reprises sans les redéployer.
+VCF 9.1.1 livre Argo CD comme **VCF Service** (tech preview) : un tenant commande une instance Argo CD dans VCF Automation de la même façon qu'il commande un namespace ou une VM, et s'y connecte avec son compte VCF Automation. Sur le premier workload domain du lab, ce service a remplacé en une journée l'Argo CD installé depuis vCenter, et il a repris les applications en cours d'exécution sans les redéployer.
 
 Pour le point de départ, la version installée depuis vCenter est celle décrite dans [GitOps sur VCF 9.1 : ce que demande vraiment l'Argo CD Supervisor Service](/fr/posts/gitops-argocd-vcf-91/). Ce billet décrit ce qui change quand le même package passe plutôt par VCF Automation.
 

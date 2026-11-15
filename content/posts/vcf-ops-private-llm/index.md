@@ -212,7 +212,7 @@ No routes were needed: the holorouter masquerades lab traffic onto the home netw
 
 ## Step 4 · Test it the way VCF Operations will
 
-A short script does what VCF Operations does: list the models with and without the token, then send a chat request with one tool and check that a `tool_call` comes back. It ran from a machine on the same subnet and gateway as VCF Operations.
+A short script does what VCF Operations does: list the models with and without the token, then send a chat request with one tool and check that a `tool_call` comes back. The test machine sat on the same subnet and gateway as VCF Operations.
 
 **Provider test · Mac mini**
 

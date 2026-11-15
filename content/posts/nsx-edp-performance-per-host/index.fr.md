@@ -12,7 +12,7 @@ params:
   seoDescription: "Activer puis retirer NSX Enhanced Datapath – Performance hôte par hôte, via EDP Standard, en mode maintenance. Interface et API."
 ---
 
-Le but était de tester Enhanced Datapath – Performance (EDP Performance, l'ancien mode « ENS ») sur un cluster qui tourne déjà avec NSX en mode standard, puis le retirer. Sur le papier, c'est une liste déroulante dans le Transport Node Profile. En pratique, NSX 4.2.4 refuse le changement et vous demande de supprimer le host switch, ce qui, sur un cluster en production, revient à retirer l'overlay sous chaque VM.
+Ce test active Enhanced Datapath – Performance (EDP Performance, l'ancien mode « ENS ») sur un cluster qui tourne déjà avec NSX en mode standard, puis le retire. Sur le papier, c'est une liste déroulante dans le Transport Node Profile. En pratique, NSX 4.2.4 refuse le changement et vous demande de supprimer le host switch, ce qui, sur un cluster en production, revient à retirer l'overlay sous chaque VM.
 
 Gabe Rosas décrit une manière beaucoup plus douce sur [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) pour EDP Standard : on change un hôte à la fois pendant qu'il est en mode maintenance, et on n'attache le nouveau profil au cluster qu'à la fin. La même méthode permet d'aller jusqu'à Performance et d'en revenir, à condition d'ajouter une étape. Ce billet décrit cette procédure, dans l'interface et par l'API.
 
@@ -171,7 +171,7 @@ nsx -X PUT "https://$NSX$EP/transport-node-collections/$TNC" -d @tnc.json
 nsx "https://$NSX$EP/transport-node-collections/$TNC/state" | jq -r .state   # SUCCESS
 ```
 
-Toute la boucle (évacuation, mode maintenance, les deux étapes, attente, sortie, hôte suivant, puis attache du profil) est regroupée dans un petit script Python qui utilise pyVmomi pour vCenter et l'API policy de NSX : [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Lancé sans argument, il demande tout : adresses de vCenter et de NSX, utilisateurs et mots de passe (saisis masqués, jamais enregistrés), puis le cluster, le mode visé, les lcores pour Performance et le profil à attacher, choisis dans des listes lues dans votre environnement. Il vérifie le paramètre vMotion de vCenter, affiche le plan et ne démarre qu'après que vous avez tapé `YES`. Il peut faire une pause avant chaque hôte, et `--dry-run` s'arrête après le plan.
+Un petit script Python enchaîne toute la boucle (évacuation, mode maintenance, les deux étapes, attente, sortie, hôte suivant, puis attache du profil), avec pyVmomi pour vCenter et l'API policy de NSX : [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Lancé sans argument, il demande tout : adresses de vCenter et de NSX, utilisateurs et mots de passe (saisis masqués, jamais enregistrés), puis le cluster, le mode visé, les lcores pour Performance et le profil à attacher, choisis dans des listes lues dans votre environnement. Il vérifie le paramètre vMotion de vCenter, affiche le plan et ne démarre qu'après que vous avez tapé `YES`. Il peut faire une pause avant chaque hôte, et `--dry-run` s'arrête après le plan.
 
 ![Démarrage interactif d'edp_per_host.py : questions sur les adresses et mots de passe de vCenter et NSX, choix du cluster dans une liste, mode actuel de chaque hôte, choix parmi les trois modes, nœud NUMA et lcores, Transport Node Profile correspondant proposé, puis plan hôte par hôte.](/images/edp-perf/cli-07-script-prompts.webp)
 

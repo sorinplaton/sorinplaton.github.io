@@ -50,7 +50,7 @@ The repo is [github.com/sorinplaton/vcf-gitops](https://github.com/sorinplaton/v
 
 ### 1. A management Supervisor that VCF Automation can use
 
-VCF Automation regions need a Supervisor with NSX VPC networking, and the Argo CD service needs vSphere Pods and a load balancer. The Supervisor Holodeck had deployed on the management cluster used VDS networking, so it was disabled and enabled again with NSX VPC networking (`platform/mgmt-supervisor/rebuild.sh`, about 30 minutes).
+VCF Automation regions need a Supervisor with NSX VPC networking, and the Argo CD service needs vSphere Pods and a load balancer. The Supervisor Holodeck had deployed on the management cluster used VDS networking, so a script disabled it and enabled it again with NSX VPC networking (`platform/mgmt-supervisor/rebuild.sh`, about 30 minutes).
 
 It then sat at "No node accepting vSphere Pods" for hours. vLCM refuses to install the spherelet on the hosts while the vSAN health check *Can vSAN cluster receive a host* is not green, and the nested management vSAN was yellow. The causes were space, an old on-disk format, and a controller that is not on the HCL because it is virtual. A 450 GB disk more per nested host, plus silencing the checks that can never pass in a nested lab, cleared it. `vsan-health.py` in the same folder shows which test is blocking.
 
@@ -148,7 +148,7 @@ What the first hour showed:
 - The R740's CPU 1 swings between 75 and 95 °C while the server draws 400 to 530 W. Its iDRAC lifecycle log has a row of "CPU 1 temperature is greater than the upper critical threshold" events, now on the dashboard.
 - CPU ready of the nested ESXi VMs peaks at 4 to 5 % per vCPU, a little higher on the R740 than on the R730xd.
 
-None of it was a big surprise, but now there is a history instead of a feeling, and the history settled a hardware question. The R730xd is the busy one, but its VMs barely wait for CPU, so new CPUs there would buy little. The R740 is the one that needs attention, and for cooling, not cores.
+Most of this matched what the lab already suggested, but now there is a history instead of a feeling, and the history settled a hardware question. The R730xd is the busy one, but its VMs barely wait for CPU, so new CPUs there would buy little. The R740 is the one that needs attention, and for cooling, not cores.
 
 ## Pitfalls
 

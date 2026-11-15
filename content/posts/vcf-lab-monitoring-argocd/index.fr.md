@@ -50,7 +50,7 @@ Le repo est [github.com/sorinplaton/vcf-gitops](https://github.com/sorinplaton/v
 
 ### 1. Un Supervisor de management utilisable par VCF Automation
 
-Les régions VCF Automation demandent un Supervisor en réseau NSX VPC, et le service Argo CD a besoin des vSphere Pods et d'un load balancer. Le Supervisor que Holodeck avait déployé sur le cluster de management utilisait le réseau VDS : il a été désactivé puis réactivé en NSX VPC (`platform/mgmt-supervisor/rebuild.sh`, une trentaine de minutes).
+Les régions VCF Automation demandent un Supervisor en réseau NSX VPC, et le service Argo CD a besoin des vSphere Pods et d'un load balancer. Le Supervisor que Holodeck avait déployé sur le cluster de management utilisait le réseau VDS : un script l'a désactivé puis réactivé en NSX VPC (`platform/mgmt-supervisor/rebuild.sh`, une trentaine de minutes).
 
 Il est ensuite resté des heures sur « No node accepting vSphere Pods ». vLCM refuse d'installer le spherelet sur les hôtes tant que le test de santé vSAN *Can vSAN cluster receive a host* n'est pas vert, et le vSAN de management imbriqué était jaune. Les causes : l'espace disque, un ancien format sur disque, et un contrôleur absent de la HCL parce qu'il est virtuel. Un disque de 450 Go de plus par hôte imbriqué, et la mise en sourdine des tests qui ne peuvent jamais passer dans un labo imbriqué, ont réglé le problème. `vsan-health.py`, dans le même dossier, montre quel test bloque.
 
@@ -148,7 +148,7 @@ Ce que la première heure a montré :
 - Le CPU 1 du R740 oscille entre 75 et 95 °C pendant que le serveur consomme de 400 à 530 W. Son journal Lifecycle iDRAC aligne les événements « CPU 1 temperature is greater than the upper critical threshold », maintenant visibles sur le tableau de bord.
 - Le CPU ready des VM ESXi imbriquées culmine à 4 à 5 % par vCPU, un peu plus sur le R740 que sur le R730xd.
 
-Rien de tout cela n'était vraiment une surprise, mais il y a maintenant un historique au lieu d'une impression, et cet historique a tranché une question matérielle. Le R730xd est le plus chargé, mais ses VM n'attendent presque pas le CPU : de nouveaux CPU n'y apporteraient pas grand-chose. C'est le R740 qui demande de l'attention, et pour le refroidissement, pas pour des cœurs.
+L'essentiel confirmait ce que le labo laissait deviner, mais il y a maintenant un historique au lieu d'une impression, et cet historique a tranché une question matérielle. Le R730xd est le plus chargé, mais ses VM n'attendent presque pas le CPU : de nouveaux CPU n'y apporteraient pas grand-chose. C'est le R740 qui demande de l'attention, et pour le refroidissement, pas pour des cœurs.
 
 ## Les pièges rencontrés
 

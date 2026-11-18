@@ -149,7 +149,7 @@ A check two minutes after the first cycle shows objects with no metrics, which l
 
 ## What the pack captures
 
-65 objects of 14 types, 312 metrics per cycle. Part 1 planned 12 types. The review added the federation itself, the sync channel and the realization of an object at a location, and rules became opt-in.
+65 objects of 14 types, 312 metrics per cycle. Part 1 planned 12 types. The enterprise-scale check added the federation itself, the sync channel and the realization of an object at a location, and rules became opt-in.
 
 | Object type | Count in the lab | Examples of what is collected |
 | --- | --- | --- |

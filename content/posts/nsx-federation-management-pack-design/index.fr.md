@@ -1,15 +1,15 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 1 : concevoir le management pack"
 date: 2026-11-17
-description: "VCF Operations 9.1.1 supervise chaque Local Manager NSX mais n'a aucune vue d'une NSX Federation : ni Global Manager, ni synchronisation entre locations, ni tunnels RTEP, ni objets étendus. Ce billet documente la conception d'un management pack sur mesure dans un lab Holodeck : ce que couvre l'intégration native, quels appels d'API NSX portent l'état de la fédération, le modèle d'objets, les alertes, et ce qu'une revue indépendante a changé."
-summary: "Une NSX Federation 9.1 à deux locations tourne dans le lab et VCF Operations n'en montre rien. Partie 1 de la construction du management pack : vérification de l'intégration NSX native, exploration des API du Global Manager et des Local Managers, un modèle de 12 types d'objets, la liste des métriques et des alertes, et les huit changements imposés par une revue indépendante avant la première ligne de code."
+description: "VCF Operations 9.1.1 supervise chaque Local Manager NSX mais n'a aucune vue d'une NSX Federation : ni Global Manager, ni synchronisation entre locations, ni tunnels RTEP, ni objets étendus. Ce billet documente la conception d'un management pack sur mesure dans un lab Holodeck : ce que couvre l'intégration native, quels appels d'API NSX portent l'état de la fédération, le modèle d'objets, les alertes, et ce qu'une vérification à l'échelle d'une grande entreprise a changé."
+summary: "Une NSX Federation 9.1 à deux locations tourne dans le lab et VCF Operations n'en montre rien. Partie 1 de la construction du management pack : vérification de l'intégration NSX native, exploration des API du Global Manager et des Local Managers, un modèle de 12 types d'objets, la liste des métriques et des alertes, et les huit changements imposés par une vérification à l'échelle d'une grande entreprise avant la première ligne de code."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Notes"]
 showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/object-model.svg"]
 params:
-  seoDescription: "Concevoir un management pack VCF Operations pour NSX 9.1 Federation : appels d'API, modèle d'objets, alertes et changements imposés par une revue indépendante."
+  seoDescription: "Concevoir un management pack VCF Operations pour NSX 9.1 Federation : appels d'API, modèle d'objets, alertes et changements imposés par une vérification à l'échelle entreprise."
 ---
 
 VCF Operations 9.1.1 supervise chaque Local Manager NSX du lab et ne montre rien de la fédération qui les relie. Le Global Manager, l'état de synchronisation entre les locations, les tunnels RTEP et les gateways étendues n'ont ni objet, ni métrique, ni alerte. Ce billet documente la conception d'un management pack qui les ajoute. Aucun code d'adaptateur n'existe encore. La partie 1 s'arrête là où la construction commence.
@@ -135,9 +135,9 @@ Chaque type d'objet reçoit une liste courte. Les métriques sont des nombres co
 
 La première version garde une liste d'alertes courte : une location a perdu son Global Manager, deux locations se sont perdues entre elles, une session BGP inter-site ou un tunnel RTEP est tombé, un objet étendu n'est pas réalisé quelque part dans son span, la synchronisation a échoué, un voisin BGP d'uplink est tombé, la sauvegarde du Global Manager est absente ou ancienne. Trois se déclencheraient dans le lab dès le premier jour : pas de sauvegarde, pas de Global Manager standby, et un écart de build entre le Global Manager (9.1.1.0100) et les locations (9.1.1.0).
 
-## Étape 5 : une revue indépendante
+## Étape 5 : vérifier la conception à l'échelle d'une grande entreprise
 
-Le lab a deux locations et un seul nœud Global Manager. La cible est un pack qu'une grande entreprise pourrait exploiter : des clusters Global Manager à trois nœuds, un actif et un standby sur des sites différents, de nombreuses locations, des milliers d'objets étendus, plusieurs équipes. Un second relecteur, un agent d'IA qui n'a reçu que le plan et rien du raisonnement qui y a mené, a été chargé d'attaquer la conception sur cette base. Huit points ont modifié le plan.
+Le lab a deux locations et un seul nœud Global Manager. La cible est un pack qu'une grande entreprise pourrait exploiter : des clusters Global Manager à trois nœuds, un actif et un standby sur des sites différents, de nombreuses locations, des milliers d'objets étendus, plusieurs équipes. La conception a été vérifiée à nouveau sur cette base. Huit points ont modifié le plan.
 
 1. **Une seule adresse de Global Manager est un défaut de conception.** Après un switchover, l'adaptateur pointerait vers un manager rétrogradé ou mort au moment où il est nécessaire. Il lui faut l'adresse de l'actif et celle du standby, il doit détecter l'actif à chaque cycle, et il doit continuer à collecter sur les Local Managers quand aucun Global Manager ne répond. Deux managers qui revendiquent tous deux le rôle actif deviennent une alerte critique.
 2. **L'état de préparation du standby passe dans la première version.** Pour une équipe qui a un runbook de reprise, « le standby est-il synchronisé et un switchover peut-il démarrer » est la première question. Le premier jet la plaçait en dernier.
@@ -148,9 +148,9 @@ Le lab a deux locations et un seul nœud Global Manager. La cible est un pack qu
 7. **« Secondes depuis le dernier full sync » est le mauvais signal.** Une fédération saine fonctionne en delta sync, et un full sync est l'exception. Les signaux utiles sont l'état de synchronisation, l'occupation des files et les échecs de full sync.
 8. **Le pack doit se superviser lui-même.** Durée de collecte, nombre d'appels d'API et dernier succès par location, pour que « pas de données » ne soit jamais lu comme « sain ».
 
-La revue a aussi contredit un constat de l'étape 2, et la capture d'écran tranche : NSX mesure bien la latence entre managers. Le produit possède ce chiffre, et l'exploration n'a pas trouvé l'API qui le renvoie.
+Cette vérification a aussi contredit un constat de l'étape 2, et la capture d'écran tranche : NSX mesure bien la latence entre managers. Le produit possède ce chiffre, et l'exploration n'a pas trouvé l'API qui le renvoie.
 
-Une mise en garde est revenue avec elle : vingt locations, c'est peut-être plus que ce que NSX 9.1 Federation supporte. Ce point doit être vérifié dans les maximums de configuration avant de fixer les objectifs d'échelle.
+Une mise en garde demeure : vingt locations, c'est peut-être plus que ce que NSX 9.1 Federation supporte. Ce point doit être vérifié dans les maximums de configuration avant de fixer les objectifs d'échelle.
 
 ## Étape 6 : la voie de construction
 

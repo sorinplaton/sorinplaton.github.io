@@ -149,7 +149,7 @@ Une vérification deux minutes après le premier cycle montre des objets sans m�
 
 ## Ce que le pack remonte
 
-65 objets de 14 types, 312 métriques par cycle. La partie 1 prévoyait 12 types. La revue a ajouté la fédération elle-même, le canal de synchronisation et la réalisation d'un objet dans une location, et les règles sont devenues optionnelles.
+65 objets de 14 types, 312 métriques par cycle. La partie 1 prévoyait 12 types. Cette vérification à l'échelle entreprise a ajouté la fédération elle-même, le canal de synchronisation et la réalisation d'un objet dans une location, et les règles sont devenues optionnelles.
 
 | Type d'objet | Nombre dans le lab | Exemples de données collectées |
 | --- | --- | --- |

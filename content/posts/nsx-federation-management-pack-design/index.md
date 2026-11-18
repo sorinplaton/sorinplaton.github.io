@@ -1,15 +1,15 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 1: designing the management pack"
 date: 2026-11-17
-description: "VCF Operations 9.1.1 monitors each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a Holodeck lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the alerts, and what an independent review changed."
-summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a 12-kind object model, the metric and alert list, and the eight changes an independent review forced before any code was written."
+description: "VCF Operations 9.1.1 monitors each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a Holodeck lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the alerts, and what a check at enterprise scale changed."
+summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a 12-kind object model, the metric and alert list, and the eight changes a check at enterprise scale forced before any code was written."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/object-model.svg"]
 params:
-  seoDescription: "Designing a VCF Operations management pack for NSX 9.1 Federation: API calls, object model, alerts and the changes an independent review forced."
+  seoDescription: "Designing a VCF Operations management pack for NSX 9.1 Federation: API calls, object model, alerts and the changes a check at enterprise scale forced."
 ---
 
 VCF Operations 9.1.1 monitors every NSX Local Manager in the lab and shows nothing of the federation that links them. The Global Manager, the sync state between locations, the RTEP tunnels and the stretched gateways have no object, no metric and no alert. This post documents the design of a management pack that adds them. No adapter code exists yet. Part 1 stops where the build starts.
@@ -135,9 +135,9 @@ Each object kind gets a short list. Metrics are numbers kept over time; properti
 
 The first release keeps the alert list short: a location lost its Global Manager, two locations lost each other, an inter-site BGP session or RTEP tunnel is down, a stretched object is not realized somewhere in its span, the sync failed, an uplink BGP neighbor is down, the Global Manager backup is missing or old. Three would fire in the lab on day one: no backup, no standby Global Manager, and a build mismatch between the Global Manager (9.1.1.0100) and the locations (9.1.1.0).
 
-## Step 5: an independent review
+## Step 5: checking the design at enterprise scale
 
-The lab has two locations and one Global Manager node. The target is a pack a large enterprise could run: three-node Global Manager clusters, an active and a standby in different sites, many locations, thousands of stretched objects, several teams. A second reviewer, an AI agent given only the plan and none of the reasoning behind it, was asked to attack the design on that basis. Eight points changed the plan.
+The lab has two locations and one Global Manager node. The target is a pack a large enterprise could run: three-node Global Manager clusters, an active and a standby in different sites, many locations, thousands of stretched objects, several teams. The design was checked again on that basis. Eight points changed the plan.
 
 1. **One Global Manager address is a design fault.** After a switchover the adapter would point at a demoted or dead manager at the moment it is needed. It needs the active and the standby address, has to detect the active one on every cycle, and has to keep collecting from the Local Managers when no Global Manager answers. Two managers both claiming the active role becomes a critical alert.
 2. **Standby readiness moves to the first release.** For a team with a DR runbook, "is the standby in sync and can a switchover start" is the first question. The draft had it last.
@@ -148,9 +148,9 @@ The lab has two locations and one Global Manager node. The target is a pack a la
 7. **"Seconds since the last full sync" is the wrong signal.** A healthy federation runs on delta sync, and a full sync is the exception. The useful signals are sync status, queue occupancy and full-sync failures.
 8. **The pack has to monitor itself.** Collection time, API call count and last success per location, so that "no data" is never read as "healthy".
 
-The review also contradicted one finding of step 2, and the screenshot settles it: NSX does measure latency between managers. The product has the number, and the probe failed to find the API that returns it.
+The check also contradicted one finding of step 2, and the screenshot settles it: NSX does measure latency between managers. The product has the number, and the probe failed to find the API that returns it.
 
-One caution came back with it: twenty locations may be more than NSX 9.1 Federation supports. That has to be checked against the configuration maximums before the scale targets are written down.
+One caution remains: twenty locations may be more than NSX 9.1 Federation supports. That has to be checked against the configuration maximums before the scale targets are written down.
 
 ## Step 6: the build route
 

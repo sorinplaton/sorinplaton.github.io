@@ -1,0 +1,176 @@
+---
+title: "Monitoring NSX Federation in VCF Operations, part 1: designing the management pack"
+date: 2026-11-17
+description: "VCF Operations 9.1.1 monitors each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a Holodeck lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the alerts, and what an independent review changed."
+summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a 12-kind object model, the metric and alert list, and the eight changes an independent review forced before any code was written."
+tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
+categories: ["Field notes"]
+showToc: true
+tocOpen: false
+images: ["/images/nsx-federation-mp/object-model.svg"]
+params:
+  seoDescription: "Designing a VCF Operations management pack for NSX 9.1 Federation: API calls, object model, alerts and the changes an independent review forced."
+---
+
+VCF Operations 9.1.1 monitors every NSX Local Manager in the lab and shows nothing of the federation that links them. The Global Manager, the sync state between locations, the RTEP tunnels and the stretched gateways have no object, no metric and no alert. This post documents the design of a management pack that adds them. No adapter code exists yet. Part 1 stops where the build starts.
+
+## The lab
+
+The federation runs on a nested VCF 9.1.1 Holodeck: one Global Manager, `nsx-gm-01a` (10.1.1.37, single active node, no standby, NSX 9.1.1.0100), and two locations on NSX 9.1.1.0, `site-a-wld01` (Local Manager 10.1.1.24) and `site-a-wld03` (Local Manager 10.1.1.80), each with a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`. Both locations sit inside one VCF instance. That is a lab shortcut and should not be read as a reference design.
+
+![The Global Manager's Location Manager page: one active Global Manager, no standby, two locations with latency and sync status, and a banner saying backups are not configured](/images/nsx-federation-mp/gm-location-manager.webp)
+
+The NSX page above already answers the questions an operator asks: is the Global Manager up, are the locations in sync, how far apart are they. The pack has to give the same answers, with history and alerts, in the tool that monitors the rest of the platform.
+
+## Step 1: check what VCF Operations already collects
+
+A pack that copies the built-in NSX integration doubles the object count and raises two alerts for one fault. The first step is an inventory of what is already there, through the VCF Operations API.
+
+```bash
+OPS=ops-a.site-a.vcf.lab
+TOKEN=$(curl -sk https://$OPS/suite-api/api/auth/token/acquire \
+  -H 'Content-Type: application/json' -H 'Accept: application/json' \
+  -d '{"username":"admin","password":"'"$OPS_PW"'","authSource":"local"}' | jq -r .token)
+
+# version, collectors, NSX adapter instances
+curl -sk -H "Authorization: OpsToken $TOKEN" -H 'Accept: application/json' \
+  https://$OPS/suite-api/api/versions/current
+curl -sk -H "Authorization: OpsToken $TOKEN" -H 'Accept: application/json' \
+  https://$OPS/suite-api/api/collectors
+curl -sk -H "Authorization: OpsToken $TOKEN" -H 'Accept: application/json' \
+  "https://$OPS/suite-api/api/adapters?adapterKindKey=NSXTAdapter"
+```
+
+What came back:
+
+- **Version**: VCF Operations 9.1.1.0, build 25795063.
+- **Collector**: `opscollector-01a`, type `UNIFIED_CLOUD_PROXY`, state `UP`. This matters for the build, because adapters written with the Integration SDK run as containers on a collector and never on the analytics node.
+- **NSX integration**: adapter kind `NSXTAdapter` with 50 object kinds and four instances, one per NSX Local Manager in the lab, federated or not. None of the 50 kinds is a Global Manager, a location or an RTEP tunnel, and no instance points at the Global Manager.
+- **Federation objects**: the instance for `nsx-wld01` lists the edge cluster `fed-ec-a` and the RTEP IP pool, because those are local objects. A search of its inventory for the global objects (`fed-t0`, `fed-stretched`) returned nothing.
+- **A side finding**: the instance for `nsx-shared-a`, the Local Manager of location `site-a-wld03`, exists but holds one object, itself. It is not collecting yet.
+
+The built-in integration covers the per-location plumbing and stops at the federation boundary. The pack has to own the federation layer and link to the rest.
+
+## Step 2: find the API calls that carry federation state
+
+Every call below is a GET and was run against the live managers. The Global Manager serves its policy tree under `/global-manager/api/v1/global-infra`; a Local Manager exposes the objects it received under `/policy/api/v1/global-infra`.
+
+**Is the federation connected?** Asked on the Global Manager:
+
+```bash
+curl -sk -u "$NSX_USER:$NSX_PW" https://nsx-gm-01a.site-a.vcf.lab/api/v1/sites/status
+```
+
+```json
+{"remote_connections": [
+  {"site_name": "site-a-wld01", "stubs": [{"address": "10.1.1.25", "connection_up": true}]},
+  {"site_name": "site-a-wld03", "stubs": [{"address": "10.1.1.81", "connection_up": true}]}],
+ "active_standby_sync_statuses": []}
+```
+
+The same call on a Local Manager returns its view of the Global Manager and of the other location. Collected from every manager, it tells "the Global Manager lost a location" apart from "two locations lost each other".
+
+**Is a stretched object realized everywhere?** One call per object, on the Global Manager:
+
+```bash
+curl -sk -u "$NSX_USER:$NSX_PW" \
+ "https://nsx-gm-01a.site-a.vcf.lab/global-manager/api/v1/global-infra/realized-state/status?intent_path=/global-infra/segments/fed-stretched"
+```
+
+The answer carries a consolidated status and one status per location (`SUCCESS` for both here). The companion call `/global-infra/span?intent_path=...` lists the locations the object is supposed to reach.
+
+**Are the cross-location tunnels up?** This lives on the Local Managers, per edge cluster and per edge node:
+
+```bash
+curl -sk -u "$NSX_USER:$NSX_PW" \
+ https://nsx-wld01.site-a.vcf.lab/api/v1/edge-clusters/<edge-cluster-id>/inter-site/status
+curl -sk -u "$NSX_USER:$NSX_PW" \
+ https://nsx-wld01.site-a.vcf.lab/api/v1/transport-nodes/<edge-node-id>/inter-site/statistics
+```
+
+The first returns the inter-site BGP sessions of each edge node (2 total, 2 established on `edge-wld01-01a`) with source and neighbor RTEP addresses. The second returns bytes, packets, dropped and blocked packets per tunnel.
+
+The full map, as verified:
+
+| Question | Manager | API path |
+| --- | --- | --- |
+| Global Manager role and cluster | Global | `/api/v1/cluster/status`, `/global-infra/global-managers` |
+| Location list, versions, RTEP addresses | Global | `/api/v1/sites`, `/global-infra/sites`, `/global-infra/federation-config` |
+| Connection between managers | Both | `/api/v1/sites/status` |
+| Full sync state | Local | `/policy/api/v1/infra/full-sync-states` |
+| Span and realization of a stretched object | Global | `/global-infra/span`, `/global-infra/realized-state/status` |
+| Inter-site BGP and RTEP tunnel statistics | Local | `/api/v1/edge-clusters/{id}/inter-site/status`, `/api/v1/transport-nodes/{id}/inter-site/bgp/summary`, `.../inter-site/statistics` |
+| Tier-0 uplink BGP neighbors | Local | `/policy/api/v1/global-infra/tier-0s/{id}/locale-services/{location}/bgp/neighbors/status` |
+| Rule statistics of a global policy | Local | `/policy/api/v1/global-infra/domains/default/security-policies/{id}/statistics` |
+| Backup, certificates, alarms | Both | `/api/v1/cluster/backups/overview`, `/api/v1/trust-management/certificates`, `/api/v1/alarms` |
+
+Two values did not turn up:
+
+- **Latency between managers.** The Location Manager page shows it (3 ms and 2 ms in the screenshot above), so NSX measures it. None of the fourteen paths tried returned it. The next attempt is to capture the call the page itself makes.
+- **Firewall enforced on the host.** The lab has a live case: the rule in `fed-demo` is reported as realized on both Local Managers, while the hosts answer `firewall: disabled` to `nsxcli -c get firewall status` and no VM port has a filter. No manager API found so far exposes that host state.
+
+The probe also showed two facts about the lab itself: the Global Manager has no backup configured, and it runs alone with no standby. Both become alerts.
+
+## Step 3: the object model
+
+A management pack starts with an object model: which things exist, what identifies them, and which object is the parent of which. The first draft has 12 kinds in four chains.
+
+![Object model: Global Manager to Manager node; Location to Edge cluster to Edge node to RTEP tunnel; Tier-0 gateway to Tier-1 gateway to Segment, with BGP neighbor under Tier-0; Global policy to Rule](/images/nsx-federation-mp/object-model.svg)
+
+Identifiers come from NSX, never from an address: the federation id and site id for managers and locations, the transport node id for edges, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over.
+
+## Step 4: metrics and alerts
+
+Each object kind gets a short list. Metrics are numbers kept over time; properties are state and configuration.
+
+| Object kind | Metrics | Properties |
+| --- | --- | --- |
+| Global Manager | nodes online and offline, open alarms, hours since last backup, days to certificate expiry | mode (active or standby), cluster status, version |
+| Location | connection up from each peer, version gap to the Global Manager | Local Manager address, RTEP addresses, full-sync stage |
+| Edge cluster, Edge node | inter-site BGP sessions total and established | inter-site status, RTEP address and VLAN |
+| RTEP tunnel | bytes and packets in and out, dropped, blocked | local and remote RTEP, remote location |
+| Tier-0, Tier-1, Segment | locations in span, realized, in error | status per location, HA mode, subnets |
+| BGP neighbor | prefixes in and out, seconds established, connection drops | state, remote AS |
+| Global policy, Rule | rule count, hit, packet and byte counts per location | action, enabled, status |
+
+The first release keeps the alert list short: a location lost its Global Manager, two locations lost each other, an inter-site BGP session or RTEP tunnel is down, a stretched object is not realized somewhere in its span, the sync failed, an uplink BGP neighbor is down, the Global Manager backup is missing or old. Three would fire in the lab on day one: no backup, no standby Global Manager, and a build mismatch between the Global Manager (9.1.1.0100) and the locations (9.1.1.0).
+
+## Step 5: an independent review
+
+The lab has two locations and one Global Manager node. The target is a pack a large enterprise could run: three-node Global Manager clusters, an active and a standby in different sites, many locations, thousands of stretched objects, several teams. A second reviewer, an AI agent given only the plan and none of the reasoning behind it, was asked to attack the design on that basis. Eight points changed the plan.
+
+1. **One Global Manager address is a design fault.** After a switchover the adapter would point at a demoted or dead manager at the moment it is needed. It needs the active and the standby address, has to detect the active one on every cycle, and has to keep collecting from the Local Managers when no Global Manager answers. Two managers both claiming the active role becomes a critical alert.
+2. **Standby readiness moves to the first release.** For a team with a DR runbook, "is the standby in sync and can a switchover start" is the first question. The draft had it last.
+3. **Stop duplicating the built-in integration.** Edge nodes, gateways and segments already exist per Local Manager. The pack should attach its metrics and relationships to those objects where it can, and own only the federation kinds.
+4. **Rules as objects do not scale.** Thousands of rules with four counters each, across twenty locations, give mostly zeros. The pack reports policy-level totals by default and creates rule objects only on request.
+5. **Budget the API calls.** One realization call per stretched object does not fit a 5-minute cycle at scale, and NSX limits each client (100 requests per second and 40 concurrent by default). Collection has to run per Local Manager in parallel, with slower cycles for inventory than for status.
+6. **Design against alert storms.** One lost location would raise the location alert, every tunnel, every BGP session and every stretched object. The alerts need a root-cause order and an awareness of maintenance windows.
+7. **"Seconds since the last full sync" is the wrong signal.** A healthy federation runs on delta sync, and a full sync is the exception. The useful signals are sync status, queue occupancy and full-sync failures.
+8. **The pack has to monitor itself.** Collection time, API call count and last success per location, so that "no data" is never read as "healthy".
+
+The review also contradicted one finding of step 2, and the screenshot settles it: NSX does measure latency between managers. The product has the number, and the probe failed to find the API that returns it.
+
+One caution came back with it: twenty locations may be more than NSX 9.1 Federation supports. That has to be checked against the configuration maximums before the scale targets are written down.
+
+## Step 6: the build route
+
+VCF Operations offers two ways to build a pack: the no-code Management Pack Builder and the Integration SDK. The SDK was chosen for three reasons, all taken from the steps above. One adapter instance has to query several managers and discover the Local Managers from the Global Manager. It has to follow a Global Manager failover. And the derived values, such as a version gap or a storm-safe location state, need code.
+
+The cost is on the build side. An SDK adapter is a container image, so the build needs Python tooling and Docker, and the collector pulls the image from a container registry it can reach.
+
+## What comes next
+
+- Install the SDK tooling and pick the registry.
+- Decide how far the pack extends the built-in NSX objects.
+- Build the collector core against the lab, with a mock for the cases the lab cannot show: a standby Global Manager, a switchover, twenty locations.
+- Find the latency API and a way to read the host firewall state.
+
+[Part 2](/posts/nsx-federation-management-pack-install/) covers the build, the install and the first objects in VCF Operations.
+
+## Sources
+
+- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. All API calls in this post were run on 17 November 2026.
+- [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
+- Broadcom KB [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html): split-brain after a Global Manager switchover
+- Broadcom KB [378126](https://knowledge.broadcom.com/external/article/378126/nsx-apis-throws-error-message-client-ex.html): NSX API client rate limits
+- Broadcom KB [345822](https://knowledge.broadcom.com/external/article/345822/gm-to-lm-network-latency-threshold-excee.html): Global Manager to Local Manager latency alarm

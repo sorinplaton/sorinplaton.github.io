@@ -1,8 +1,8 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 2: building, installing and what the pack captures"
 date: 2026-11-18
-description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the three obstacles between a .pak file and a running collector (unsigned pack, HTTPS-only registry, untrusted certificate), the 65 objects, 312 metrics and four alerts the pack produces on a two-location lab federation, and the 22 alert definitions and three dashboards added in version 1.1."
-summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Getting it to run inside VCF Operations 9.1.1 took three fixes: allowing an unsigned pack, serving the image registry over HTTPS, and making the cloud proxy trust the registry certificate. This post documents each step, lists what the pack captures, and covers the alert definitions and dashboards of version 1.1."
+description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the three obstacles between a .pak file and a running collector (unsigned pack, HTTPS-only registry, untrusted certificate), the 65 objects, 312 metrics and four alerts the pack produces on a two-location lab federation, and the 22 alert definitions and three dashboards added in versions 1.1.0 and 1.1.1."
+summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Getting it to run inside VCF Operations 9.1.1 took three fixes: allowing an unsigned pack, serving the image registry over HTTPS, and making the cloud proxy trust the registry certificate. This post documents each step, lists what the pack captures, and covers the alert definitions and dashboards added in version 1.1.0 and corrected in 1.1.1."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
@@ -101,7 +101,7 @@ Step 2 has to come after step 1, because the login to the admin console logs the
 
 These calls are internal to the UI. They are unsupported and can change with any release. The switch applies to the whole instance. In the lab it was on only for the duration of the upload.
 
-After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` appear in VCF Operations. The pack shows under Administration, Integrations, Repository with its version. The screenshot dates from after the last upgrade in this post, to 1.1.1.
+The first version installed was 1.0.0. After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` appear in VCF Operations. The pack shows under Administration, Integrations, Repository with its version. The screenshot dates from after the last upgrade in this post, to 1.1.1.
 
 ![Administration, Integrations, Repository filtered on "Federation": the NSX Federation pack, version 1.1.1, with one account](/images/nsx-federation-mp/ops-repository-pack.webp)
 
@@ -137,7 +137,7 @@ The cloud proxy runs Docker, and Docker trusts a private registry when its certi
 /etc/docker/certs.d/10.0.6.27:5000/ca.crt
 ```
 
-SSH is disabled on the cloud proxy and stayed disabled. The file was written through vCenter guest operations (`govc guest.run` with the appliance root account). On the next start the cloud proxy pulled the image and the instance reached `STARTED`, then `DATA_RECEIVING`. The Accounts tab shows the instance as "Collecting".
+SSH is disabled on the cloud proxy and stayed disabled. The file was written through vCenter guest operations (`govc guest.run` with the appliance root account). On the next start the cloud proxy pulled the image and the instance reached `STARTED`, then `DATA_RECEIVING`. The Accounts tab shows the instance as "Collecting". This screenshot also dates from version 1.1.1; the page looked the same with 1.0.0.
 
 ![Administration, Integrations, Accounts: the account "NSX Federation - nsx-gm-01a" with the status Collecting, on the cloud proxy opscollector-01a](/images/nsx-federation-mp/ops-account-collecting.webp)
 
@@ -157,7 +157,7 @@ A check two minutes after the first cycle shows objects with no metrics, which l
 
 ## What the pack captures
 
-65 objects of 14 types, 312 metrics per cycle. Part 1 planned 12 types. The enterprise-scale check added the federation itself, the sync channel and the realization of an object at a location, and rules became opt-in.
+65 objects of 14 types, 312 metrics per cycle with versions 1.0.0 and 1.0.1. Part 1 planned 12 types. The enterprise-scale check added the federation itself, the sync channel and the realization of an object at a location, and rules became opt-in.
 
 | Object type | Count in the lab | Examples of what is collected |
 | --- | --- | --- |
@@ -235,7 +235,7 @@ The content is one XML file in `content/alertdefs` with 33 symptoms, 22 alert de
 
 Three changes in the adapter go with the definitions:
 
-- Three derived metrics, because a symptom compares a metric with a fixed value and cannot subtract two metrics: Global Managers not reachable, inter-site BGP sessions not established, locations not realized.
+- Three derived metrics, because a symptom compares a metric with a fixed value and cannot subtract two metrics: Global Managers not reachable, inter-site BGP sessions not established, locations not realized. With them the pack sends 331 metrics per cycle in the lab.
 - A condition that has an alert definition no longer sends an event. Without that change the same condition would show twice, once as the alert and once as a "Notification event".
 - Conditions without a definition stay events: the forwarded NSX alarms and the sync status of a standby Global Manager, which the lab cannot test.
 

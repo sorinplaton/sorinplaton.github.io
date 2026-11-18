@@ -1,8 +1,8 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 2 : construction, installation et ce que le pack remonte"
 date: 2026-11-18
-description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, les trois obstacles entre un fichier .pak et un collecteur qui tourne (pack non signé, registre en HTTPS uniquement, certificat non approuvé), les 65 objets, 312 métriques et quatre alertes que le pack produit sur une fédération de lab à deux locations, et les 22 définitions d'alertes et trois tableaux de bord ajoutés en version 1.1."
-summary: "L'adaptateur collecte une NSX Federation 9.1 à deux locations en 12 secondes et 60 appels d'API. Le faire tourner dans VCF Operations 9.1.1 a demandé trois corrections : autoriser un pack non signé, servir le registre d'images en HTTPS, et faire approuver le certificat du registre par le cloud proxy. Ce billet documente chaque étape, liste ce que le pack remonte, et couvre les définitions d'alertes et les tableaux de bord de la version 1.1."
+description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, les trois obstacles entre un fichier .pak et un collecteur qui tourne (pack non signé, registre en HTTPS uniquement, certificat non approuvé), les 65 objets, 312 métriques et quatre alertes que le pack produit sur une fédération de lab à deux locations, et les 22 définitions d'alertes et trois tableaux de bord ajoutés dans les versions 1.1.0 et 1.1.1."
+summary: "L'adaptateur collecte une NSX Federation 9.1 à deux locations en 12 secondes et 60 appels d'API. Le faire tourner dans VCF Operations 9.1.1 a demandé trois corrections : autoriser un pack non signé, servir le registre d'images en HTTPS, et faire approuver le certificat du registre par le cloud proxy. Ce billet documente chaque étape, liste ce que le pack remonte, et couvre les définitions d'alertes et les tableaux de bord ajoutés en version 1.1.0 et corrigés en 1.1.1."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Notes"]
 showToc: true
@@ -101,7 +101,7 @@ L'étape 2 doit venir après l'étape 1, car la connexion à la console d'admini
 
 Ces appels sont internes à l'interface. Ils ne sont pas supportés et peuvent changer à chaque version. L'interrupteur s'applique à toute l'instance. Dans le lab, il n'est resté activé que le temps du téléversement.
 
-Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK_NSXFederation` apparaissent dans VCF Operations. Le pack s'affiche sous Administration, Integrations, Repository avec sa version. La capture date d'après la dernière mise à niveau de ce billet, vers la 1.1.1.
+La première version installée était la 1.0.0. Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK_NSXFederation` apparaissent dans VCF Operations. Le pack s'affiche sous Administration, Integrations, Repository avec sa version. La capture date d'après la dernière mise à niveau de ce billet, vers la 1.1.1.
 
 ![Administration, Integrations, Repository filtré sur « Federation » : le pack NSX Federation, version 1.1.1, avec un compte](/images/nsx-federation-mp/ops-repository-pack.webp)
 
@@ -137,7 +137,7 @@ Le cloud proxy fait tourner Docker, et Docker fait confiance à un registre priv
 /etc/docker/certs.d/10.0.6.27:5000/ca.crt
 ```
 
-SSH est désactivé sur le cloud proxy et l'est resté. Le fichier a été écrit par les guest operations de vCenter (`govc guest.run` avec le compte root de l'appliance). Au démarrage suivant, le cloud proxy a tiré l'image et l'instance a atteint `STARTED`, puis `DATA_RECEIVING`. L'onglet Accounts affiche l'instance à l'état « Collecting ».
+SSH est désactivé sur le cloud proxy et l'est resté. Le fichier a été écrit par les guest operations de vCenter (`govc guest.run` avec le compte root de l'appliance). Au démarrage suivant, le cloud proxy a tiré l'image et l'instance a atteint `STARTED`, puis `DATA_RECEIVING`. L'onglet Accounts affiche l'instance à l'état « Collecting ». Cette capture date elle aussi de la version 1.1.1 ; la page était identique avec la 1.0.0.
 
 ![Administration, Integrations, Accounts : le compte « NSX Federation - nsx-gm-01a » à l'état Collecting, sur le cloud proxy opscollector-01a](/images/nsx-federation-mp/ops-account-collecting.webp)
 
@@ -157,7 +157,7 @@ Une vérification deux minutes après le premier cycle montre des objets sans m�
 
 ## Ce que le pack remonte
 
-65 objets de 14 types, 312 métriques par cycle. La partie 1 prévoyait 12 types. Cette vérification à l'échelle entreprise a ajouté la fédération elle-même, le canal de synchronisation et la réalisation d'un objet dans une location, et les règles sont devenues optionnelles.
+65 objets de 14 types, 312 métriques par cycle avec les versions 1.0.0 et 1.0.1. La partie 1 prévoyait 12 types. Cette vérification à l'échelle entreprise a ajouté la fédération elle-même, le canal de synchronisation et la réalisation d'un objet dans une location, et les règles sont devenues optionnelles.
 
 | Type d'objet | Nombre dans le lab | Exemples de données collectées |
 | --- | --- | --- |
@@ -235,7 +235,7 @@ Le contenu tient dans un seul fichier XML de `content/alertdefs`, avec 33 sympt�
 
 Trois changements dans l'adaptateur accompagnent les définitions :
 
-- Trois métriques dérivées, car un symptôme compare une métrique à une valeur fixe et ne peut pas soustraire deux métriques : Global Managers injoignables, sessions BGP inter-site non établies, locations non réalisées.
+- Trois métriques dérivées, car un symptôme compare une métrique à une valeur fixe et ne peut pas soustraire deux métriques : Global Managers injoignables, sessions BGP inter-site non établies, locations non réalisées. Avec elles, le pack envoie 331 métriques par cycle dans le lab.
 - Une condition qui a une définition d'alerte n'envoie plus d'événement. Sans ce changement, la même condition apparaîtrait deux fois, une fois comme alerte et une fois comme « Notification event ».
 - Les conditions sans définition restent des événements : les alarmes NSX relayées et l'état de synchronisation d'un Global Manager standby, que le lab ne peut pas tester.
 

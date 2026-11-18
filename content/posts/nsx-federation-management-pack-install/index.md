@@ -1,8 +1,8 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 2: building, installing and what the pack captures"
 date: 2026-11-18
-description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the three obstacles between a .pak file and a running collector (unsigned pack, HTTPS-only registry, untrusted certificate), the 65 objects, 312 metrics and four alerts the pack produces on a two-location lab federation, the 22 alert definitions and three dashboards added in version 1.1, and the steps to send the alerts by email."
-summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Getting it to run inside VCF Operations 9.1.1 took three fixes: allowing an unsigned pack, serving the image registry over HTTPS, and making the cloud proxy trust the registry certificate. This post documents each step and lists what the pack captures. It also covers the alert definitions and dashboards of version 1.1 and how to send the alerts by email."
+description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the three obstacles between a .pak file and a running collector (unsigned pack, HTTPS-only registry, untrusted certificate), the 65 objects, 312 metrics and four alerts the pack produces on a two-location lab federation, the alert definitions, dashboards and views added in versions 1.1 and 1.2, and the steps to send the alerts by email."
+summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Getting it to run inside VCF Operations 9.1.1 took three fixes: allowing an unsigned pack, serving the image registry over HTTPS, and making the cloud proxy trust the registry certificate. This post documents each step and lists what the pack captures. It also covers the alert definitions, dashboards and views of versions 1.1 and 1.2, and how to send the alerts by email."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
@@ -263,7 +263,7 @@ Every dashboard works the same way: a list drives a scoreboard, and a click on a
 
 ![The Federation Overview dashboard: the four open alerts grouped under three definitions, the list of federation objects with gm-site-a selected, its key values, related objects and properties](/images/nsx-federation-mp/ops-dashboard-overview.webp)
 
-![The Inter-site Connectivity dashboard: sync channels and edge nodes, RTEP tunnels, Tier-0 BGP neighbors and the key values of the selected edge node](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
+![The Inter-site Connectivity dashboard: sync channels and edge nodes, RTEP tunnels, Tier-0 BGP neighbors and, with version 1.2.0, the rates of the selected RTEP tunnel](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
 
 ![The Stretched Objects dashboard: the stretched gateways, segments and policies, the realization per location, and the key values, properties and related objects of segment fed-stretched](/images/nsx-federation-mp/ops-dashboard-stretched.webp)
 
@@ -276,7 +276,35 @@ Two behaviours cost time:
 
 ### Coverage by object type
 
-Each object type of the pack was compared with the built-in NSX integration (50 object types, 423 alert definitions). The result per type:
+Each object type of the pack was compared with the built-in NSX integration (50 object types, 423 alert definitions). With version 1.1.1 the review found these gaps:
+
+- **RTEP tunnel.** A tunnel whose BGP session is down raised the alert of its edge node. The tunnel itself had no alert, and neither did dropped or blocked packets.
+- **Counters are totals.** Packets, bytes, drops and rule hits were the running totals NSX returns. Without a rate, a threshold on drops per minute was not possible.
+- **Edge cluster.** The inter-site status of the cluster was a property with no alert.
+- **Stretched objects in error.** The "locations in error" metric had no alert.
+- **Global Manager alarms.** The pack counted the open alarms of the Global Manager and forwarded only those of the Local Managers as events.
+- **Units.** No metric declared a unit.
+- **Views, reports and an inventory tree.** The pack shipped none.
+
+## Version 1.2: closing the gaps
+
+Version 1.2.0 addresses that list. It was installed the same way as the earlier versions.
+
+| Gap | What version 1.2.0 does |
+| --- | --- |
+| Counters are totals | The adapter keeps the counters of the previous cycle and adds rates: packets, drops and blocked packets per minute and bytes per second on RTEP tunnels, rule hits per minute on policies, realizations and rules |
+| RTEP tunnel | Two alerts: inter-site BGP session down on the tunnel, and more than 60 dropped packets per minute in one direction |
+| Edge cluster | An alert when the inter-site status is not UP |
+| Stretched objects in error | One alert each for Tier-0, Tier-1, segment and global security policy |
+| Global Manager alarms | The federation alarms and every critical alarm of the Global Manager arrive as events |
+| Units | Hours, days, seconds, bytes, packets and per-minute rates are declared |
+| Views and reports | Five list views and one report |
+| Replaced objects | An edge node and its tunnels are identified by location and node name, so a redeployed edge keeps its object and its history |
+| Links to the NSX integration | An option on the adapter instance, off by default, links each edge node and edge cluster to the object of the built-in NSX integration |
+
+Two existing alerts changed in the same version. The edge node alert now fires only when the node has lost all its inter-site sessions, because a single session raises the tunnel alert. "Stretched object is not realized at a location" went from Immediate to Warning, because the new error alerts on the object are Immediate.
+
+The pack now has 29 alert definitions, 42 symptoms and 20 recommendations, and sends 398 metrics per cycle in the lab once the rates are available. Rates need two cycles, so they appear one cycle after the other metrics.
 
 | Object type | Metrics | Alert definitions | Dashboard |
 | --- | --- | --- | --- |
@@ -285,24 +313,28 @@ Each object type of the pack was compared with the built-in NSX integration (50 
 | Global Manager node | 1 | None, covered by the cluster alert of the Global Manager | Related objects only |
 | Location | 14 | 9 | Federation Overview |
 | Sync channel | 1 | 1 | Inter-site Connectivity |
-| Edge cluster | 4 | None | Inter-site Connectivity |
+| Edge cluster | 4 | 1 | Inter-site Connectivity |
 | Edge node | 4 | 1 | Inter-site Connectivity |
-| RTEP tunnel | 9 | None | Inter-site Connectivity |
+| RTEP tunnel | 17 | 2 | Inter-site Connectivity |
 | Tier-0 BGP neighbor | 7 | 2 | Inter-site Connectivity |
-| Stretched Tier-0, Tier-1, segment | 4 each | None, covered by the realization alert | Stretched Objects |
-| Global security policy | 7 | None, covered by the realization alert | Stretched Objects |
-| Stretched object at a location | 5 | 1 | Stretched Objects |
-| Global firewall rule (opt-in) | 4 | None | None |
+| Stretched Tier-0, Tier-1, segment | 4 each | 1 each | Stretched Objects |
+| Global security policy | 8 | 1 | Stretched Objects |
+| Stretched object at a location | 6 | 1 | Stretched Objects |
+| Global firewall rule (opt-in) | 5 | None | None |
 
-The review found these gaps:
+After the install the adapter collected the same 65 objects and the same four alerts fired. None of the seven new alerts fired. That is correct for a healthy lab, and it leaves them untested.
 
-- **RTEP tunnel.** A tunnel whose BGP session is down raises the alert of its edge node. The tunnel itself has no alert, and neither do dropped or blocked packets.
-- **Counters are totals.** Packets, bytes, drops and rule hits are the running totals NSX returns. The pack computes no rate, so a threshold on drops per minute is not possible yet.
-- **Edge cluster.** The inter-site status of the cluster is a property with no alert.
-- **Stretched objects in error.** The "locations in error" metric has no alert. An object that fails at a location only raises the alert of that realization.
-- **Global Manager alarms.** The pack counts the open alarms of the Global Manager and forwards only those of the Local Managers as events.
-- **Units.** No metric declares a unit, so hours, days, bytes and packets show as plain numbers.
-- **Views, reports and super metrics.** The pack ships none.
+### Views and a report
+
+The five list views cover locations, sync channels, RTEP tunnels, Tier-0 BGP neighbors and the realization of stretched objects per location. A report, "NSX Federation - Health report", puts them in one PDF. A view is an XML file. A script generates it, as for the alerts and the dashboards, and the suite API can import it for a test before a pack build.
+
+![The list view "NSX Federation - Locations": both locations with version, connection to the Global Manager, collector reachability, inter-site BGP sessions and full sync failures](/images/nsx-federation-mp/ops-view-locations.webp)
+
+### What the upgrade to 1.2.0 showed
+
+- **The new identity created new objects.** After the change of identity, VCF Operations created the four edge nodes and eight tunnels again. The twelve old objects stay in the inventory without data, like the 26 left by the edge replacement, until they are deleted.
+- **The inventory tree did not load.** The pack ships a traversal specification rooted at the federation object. The install logged `Traversal specs root tag should be "AdapterKind"` for that content. The file validates against the SDK schema and has that root tag. The cause is not known, and the tree has not been confirmed in the UI.
+- **The unsigned-pack switch cannot be turned off during the install.** The admin console answered `Cluster is in PAK installing state` until the install had finished. A script has to retry.
 
 ## Sending the alerts by email
 
@@ -336,20 +368,19 @@ A rule on the pack's object types, limited to Immediate and Critical, sends the 
 
 ## What is not there yet
 
-- An inventory tree (traversal specification).
-- The gaps listed under coverage: alerts for RTEP tunnels, edge clusters, stretched objects in error and Global Manager alarms, rates for the counters, and units on the metrics.
+- A working inventory tree. The traversal specification of version 1.2.0 did not load.
+- Super metrics.
 - A test of the email notification, which needs a mail server the lab does not have.
-- Tests for 18 of the 22 alert definitions, which need faults the lab does not have.
-- Clean-up of replaced objects. An edge node that is redeployed gets a new ID in NSX and becomes a new object. After the edge replacement, 26 old edge node and tunnel objects stayed in the inventory without data, next to the 65 live ones.
+- Tests for 25 of the 29 alert definitions, which need faults the lab does not have. The report and the option that links to the NSX integration are untested too.
+- Removal of the 38 old objects left by the edge replacement and by the change of identity in version 1.2.0.
 - Latency between managers. NSX measures it and shows it in its UI; the API that carries it was not found.
 - The firewall state of the hosts, the second open item from part 1.
-- Links to the objects of the built-in NSX integration.
 - Tests for a standby Global Manager, a switchover and split-brain. The lab has a single Global Manager.
 - A signed pack. Every new version needs the unsigned-pack switch.
 
 ## Sources
 
-- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1, 1.1.0 and 1.1.1 on 18 November.
+- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1, 1.1.0, 1.1.1 and 1.2.0 on 18 November.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack
 - [Docker: verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

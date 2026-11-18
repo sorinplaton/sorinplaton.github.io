@@ -1,8 +1,8 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 2 : construction, installation et données collectées par le pack"
 date: 2026-11-18
-description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, les trois obstacles qui séparent un fichier .pak d'un collecteur opérationnel (pack non signé, registre à servir en HTTPS, certificat non approuvé), les 65 objets, 312 métriques et quatre alertes que le pack produit sur une fédération de lab à deux emplacements, les 22 définitions d'alerte et les trois tableaux de bord ajoutés en version 1.1, et la marche à suivre pour envoyer les alertes par e-mail."
-summary: "L'adaptateur collecte une NSX Federation 9.1 à deux emplacements en 12 secondes et 60 appels d'API. Pour le faire fonctionner dans VCF Operations 9.1.1, il a fallu trois corrections : autoriser un pack non signé, servir le registre d'images en HTTPS et faire approuver le certificat du registre par le proxy cloud. Cet article détaille chaque étape et liste ce que le pack collecte. Il présente aussi les définitions d'alerte et les tableaux de bord de la version 1.1, ainsi que l'envoi des alertes par e-mail."
+description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, les trois obstacles qui séparent un fichier .pak d'un collecteur opérationnel (pack non signé, registre à servir en HTTPS, certificat non approuvé), les 65 objets, 312 métriques et quatre alertes que le pack produit sur une fédération de lab à deux emplacements, les définitions d'alerte, les tableaux de bord et les vues ajoutés dans les versions 1.1 et 1.2, et la marche à suivre pour envoyer les alertes par e-mail."
+summary: "L'adaptateur collecte une NSX Federation 9.1 à deux emplacements en 12 secondes et 60 appels d'API. Pour le faire fonctionner dans VCF Operations 9.1.1, il a fallu trois corrections : autoriser un pack non signé, servir le registre d'images en HTTPS et faire approuver le certificat du registre par le proxy cloud. Cet article détaille chaque étape et liste ce que le pack collecte. Il présente aussi les définitions d'alerte, les tableaux de bord et les vues des versions 1.1 et 1.2, ainsi que l'envoi des alertes par e-mail."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Notes"]
 showToc: true
@@ -263,7 +263,7 @@ Tous fonctionnent sur le même principe : une liste alimente un widget « Scor
 
 ![Le tableau de bord Federation Overview : les quatre alertes ouvertes, regroupées sous trois définitions, la liste des objets de la fédération avec gm-site-a sélectionné, ses valeurs clés, ses objets associés et ses propriétés](/images/nsx-federation-mp/ops-dashboard-overview.webp)
 
-![Le tableau de bord Inter-site Connectivity : canaux de synchronisation et nœuds Edge, tunnels RTEP, voisins BGP du Tier-0 et valeurs clés du nœud Edge sélectionné](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
+![Le tableau de bord Inter-site Connectivity : canaux de synchronisation et nœuds Edge, tunnels RTEP, voisins BGP du Tier-0 et, à partir de la version 1.2.0, les taux du tunnel RTEP sélectionné](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
 
 ![Le tableau de bord Stretched Objects : les passerelles, segments et stratégies étendus, la réalisation par emplacement, ainsi que les valeurs clés, les propriétés et les objets associés du segment fed-stretched](/images/nsx-federation-mp/ops-dashboard-stretched.webp)
 
@@ -276,7 +276,35 @@ Deux comportements ont fait perdre du temps :
 
 ### Couverture par type d'objet
 
-Chaque type d'objet du pack a été comparé à l'intégration NSX native (50 types d'objets, 423 définitions d'alerte). Le résultat, type par type :
+Chaque type d'objet du pack a été comparé à l'intégration NSX native (50 types d'objets, 423 définitions d'alerte). Avec la version 1.1.1, cette comparaison a fait apparaître les lacunes suivantes :
+
+- **Tunnel RTEP.** Un tunnel dont la session BGP était tombée déclenchait l'alerte de son nœud Edge. Le tunnel lui-même n'avait pas d'alerte, pas plus que les paquets rejetés ou bloqués.
+- **Les compteurs sont des cumuls.** Paquets, octets, rejets et correspondances de règles étaient les totaux cumulés que renvoie NSX. Sans taux, aucun seuil ne pouvait porter sur les rejets par minute.
+- **Cluster Edge.** L'état intersite du cluster était une propriété sans alerte.
+- **Objets étendus en erreur.** La métrique « emplacements en erreur » n'avait pas d'alerte.
+- **Alarmes du Global Manager.** Le pack comptait les alarmes ouvertes du Global Manager et ne relayait sous forme d'événements que celles des Local Managers.
+- **Unités.** Aucune métrique ne déclarait d'unité.
+- **Vues, rapports et arborescence d'inventaire.** Le pack n'en contenait aucun.
+
+## Version 1.2 : combler les lacunes
+
+La version 1.2.0 reprend chacun de ces points. Elle s'est installée de la même façon que les versions précédentes.
+
+| Lacune | Apport de la version 1.2.0 |
+| --- | --- |
+| Les compteurs sont des cumuls | L'adaptateur conserve les compteurs du cycle précédent et ajoute des taux : paquets, rejets et paquets bloqués par minute et octets par seconde sur les tunnels RTEP, correspondances de règles par minute sur les stratégies, les réalisations et les règles |
+| Tunnel RTEP | Deux alertes : session BGP intersite tombée sur le tunnel, et plus de 60 paquets rejetés par minute dans un sens |
+| Cluster Edge | Une alerte lorsque l'état intersite n'est pas UP |
+| Objets étendus en erreur | Une alerte pour chacun des types Tier-0, Tier-1, segment et stratégie de sécurité globale |
+| Alarmes du Global Manager | Les alarmes de fédération et toutes les alarmes critiques du Global Manager arrivent sous forme d'événements |
+| Unités | Heures, jours, secondes, octets, paquets et taux par minute sont déclarés |
+| Vues et rapports | Cinq vues de type liste et un rapport |
+| Objets remplacés | Un nœud Edge et ses tunnels sont identifiés par l'emplacement et le nom du nœud : un nœud Edge redéployé conserve ainsi son objet et son historique |
+| Liens vers l'intégration NSX | Une option de l'instance d'adaptateur, désactivée par défaut, relie chaque nœud Edge et chaque cluster Edge à l'objet correspondant de l'intégration NSX native |
+
+Deux alertes existantes ont changé dans la même version. L'alerte du nœud Edge ne se déclenche plus que lorsque le nœud a perdu toutes ses sessions intersites, car la perte d'une seule session déclenche l'alerte du tunnel. L'alerte « Stretched object is not realized at a location » est passée d'Immediate à Warning, puisque les nouvelles alertes d'erreur sur l'objet sont de niveau Immediate.
+
+Le pack compte désormais 29 définitions d'alerte, 42 symptômes et 20 recommandations, et envoie 398 métriques par cycle dans le lab une fois les taux disponibles. Un taux se calcule sur deux cycles et apparaît donc un cycle après les autres métriques.
 
 | Type d'objet | Métriques | Définitions d'alerte | Tableau de bord |
 | --- | --- | --- | --- |
@@ -285,24 +313,28 @@ Chaque type d'objet du pack a été comparé à l'intégration NSX native (50 ty
 | Nœud de Global Manager | 1 | Aucune, le nœud est couvert par l'alerte de cluster du Global Manager | Objets associés uniquement |
 | Emplacement | 14 | 9 | Federation Overview |
 | Canal de synchronisation | 1 | 1 | Inter-site Connectivity |
-| Cluster Edge | 4 | Aucune | Inter-site Connectivity |
+| Cluster Edge | 4 | 1 | Inter-site Connectivity |
 | Nœud Edge | 4 | 1 | Inter-site Connectivity |
-| Tunnel RTEP | 9 | Aucune | Inter-site Connectivity |
+| Tunnel RTEP | 17 | 2 | Inter-site Connectivity |
 | Voisin BGP du Tier-0 | 7 | 2 | Inter-site Connectivity |
-| Tier-0, Tier-1 et segment étendus | 4 chacun | Aucune, ces objets sont couverts par l'alerte de réalisation | Stretched Objects |
-| Stratégie de sécurité globale | 7 | Aucune, la stratégie est couverte par l'alerte de réalisation | Stretched Objects |
-| Objet étendu sur un emplacement | 5 | 1 | Stretched Objects |
-| Règle de pare-feu globale (optionnelle) | 4 | Aucune | Aucun |
+| Tier-0, Tier-1 et segment étendus | 4 chacun | 1 chacun | Stretched Objects |
+| Stratégie de sécurité globale | 8 | 1 | Stretched Objects |
+| Objet étendu sur un emplacement | 6 | 1 | Stretched Objects |
+| Règle de pare-feu globale (optionnelle) | 5 | Aucune | Aucun |
 
-Cette comparaison a fait apparaître les lacunes suivantes :
+Après l'installation, l'adaptateur a collecté les mêmes 65 objets et les quatre mêmes alertes se sont déclenchées. Aucune des sept nouvelles alertes ne s'est déclenchée. C'est le comportement attendu dans un lab sain, ce qui les laisse non testées.
 
-- **Tunnel RTEP.** Un tunnel dont la session BGP est tombée déclenche l'alerte de son nœud Edge. Le tunnel lui-même n'a pas d'alerte, pas plus que les paquets rejetés ou bloqués.
-- **Les compteurs sont des cumuls.** Paquets, octets, rejets et correspondances de règles sont les totaux cumulés que renvoie NSX. Le pack ne calcule aucun taux : un seuil sur les rejets par minute n'est donc pas encore possible.
-- **Cluster Edge.** L'état intersite du cluster est une propriété sans alerte.
-- **Objets étendus en erreur.** La métrique « emplacements en erreur » n'a pas d'alerte. Un objet en échec sur un emplacement ne déclenche que l'alerte de la réalisation concernée.
-- **Alarmes du Global Manager.** Le pack compte les alarmes ouvertes du Global Manager, et ne relaie sous forme d'événements que celles des Local Managers.
-- **Unités.** Aucune métrique ne déclare d'unité : heures, jours, octets et paquets s'affichent comme de simples nombres.
-- **Vues, rapports et super métriques.** Le pack n'en contient aucun.
+### Vues et rapport
+
+Les cinq vues de type liste couvrent les emplacements, les canaux de synchronisation, les tunnels RTEP, les voisins BGP du Tier-0 et la réalisation des objets étendus par emplacement. Un rapport, « NSX Federation - Health report », les réunit dans un même PDF. Une vue est un fichier XML. Un script le génère, comme pour les alertes et les tableaux de bord, et l'API Suite peut l'importer pour un essai avant de construire le pack.
+
+![La vue de type liste « NSX Federation - Locations » : les deux emplacements avec leur version, la connexion au Global Manager, la joignabilité depuis le collecteur, les sessions BGP intersites et les échecs de synchronisation complète](/images/nsx-federation-mp/ops-view-locations.webp)
+
+### Ce qu'a montré la mise à niveau vers la version 1.2.0
+
+- **La nouvelle identité a créé de nouveaux objets.** Après le changement d'identité, VCF Operations a recréé les quatre nœuds Edge et les huit tunnels. Les douze anciens objets restent dans l'inventaire, sans données, jusqu'à leur suppression, comme les 26 laissés par le remplacement des nœuds Edge.
+- **L'arborescence d'inventaire ne s'est pas chargée.** Le pack contient une traversal specification dont la racine est l'objet fédération. Pour ce contenu, le journal d'installation indique `Traversal specs root tag should be "AdapterKind"`. Le fichier est valide au regard du schéma du SDK et porte bien cette balise racine. La cause reste inconnue, et la présence de l'arborescence dans l'interface n'a pas été confirmée.
+- **L'option des packs non signés ne peut pas être désactivée pendant l'installation.** La console d'administration a répondu `Cluster is in PAK installing state` jusqu'à la fin de l'installation. Un script doit donc réessayer.
 
 ## Envoyer les alertes par e-mail
 
@@ -336,20 +368,19 @@ Une règle portant sur les types d'objets du pack et limitée à Immediate et Cr
 
 ## Ce qui manque encore
 
-- Une arborescence d'inventaire (traversal specification).
-- Les lacunes relevées dans la couverture : des alertes pour les tunnels RTEP, les clusters Edge, les objets étendus en erreur et les alarmes du Global Manager, des taux pour les compteurs, et des unités sur les métriques.
+- Une arborescence d'inventaire fonctionnelle. La traversal specification de la version 1.2.0 ne s'est pas chargée.
+- Des super métriques.
 - Un test de la notification par e-mail, qui exige un serveur de messagerie absent du lab.
-- Les tests de 18 des 22 définitions d'alerte, qui exigent des pannes que le lab ne présente pas.
-- Le nettoyage des objets remplacés. Un nœud Edge redéployé reçoit un nouvel identifiant dans NSX et devient un nouvel objet. Après le remplacement des nœuds Edge, 26 anciens objets (nœuds Edge et tunnels) sont restés dans l'inventaire, sans données, à côté des 65 objets actifs.
+- Les tests de 25 des 29 définitions d'alerte, qui exigent des pannes que le lab ne présente pas. Le rapport et l'option des liens vers l'intégration NSX ne sont pas testés non plus.
+- La suppression des 38 anciens objets laissés par le remplacement des nœuds Edge et par le changement d'identité de la version 1.2.0.
 - La latence entre managers. NSX la mesure et l'affiche dans son interface ; l'API qui la fournit n'a pas été trouvée.
 - L'état du pare-feu sur les hôtes, second point resté ouvert dans la partie 1.
-- Les liens vers les objets de l'intégration NSX native.
 - Les tests d'un Global Manager de secours, d'un basculement et d'un split-brain. Le lab n'a qu'un seul Global Manager.
 - Un pack signé. Chaque nouvelle version impose d'activer l'option des packs non signés.
 
 ## Sources
 
-- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026 ; versions 1.0.1, 1.1.0 et 1.1.1 le 18 novembre.
+- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026 ; versions 1.0.1, 1.1.0, 1.1.1 et 1.2.0 le 18 novembre.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html) : « No signature found on PAK file » lors de l'installation d'un management pack
 - [Docker : verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

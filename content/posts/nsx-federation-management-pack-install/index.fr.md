@@ -1,18 +1,18 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 2 : construction, installation et données collectées par le pack"
 date: 2026-11-18
-description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, l'installation pas à pas avec captures d'écran (registre en HTTPS, approbation du certificat sur le proxy cloud, pack non signé, compte), et ce que la version 1.2.0 supervise sur une fédération de lab à deux emplacements : 65 objets, 398 métriques, 29 définitions d'alerte, 3 tableaux de bord, 5 vues et un rapport. L'article explique aussi comment envoyer les alertes par e-mail."
-summary: "L'adaptateur collecte les données d'une fédération NSX 9.1 à deux emplacements en 12 secondes et 60 appels d'API. Pour qu'il fonctionne dans VCF Operations 9.1.1, il faut un registre d'images servi en HTTPS, un proxy cloud qui approuve le certificat du registre et le réglage qui autorise un pack non signé. Cet article détaille chaque étape de l'installation avec des captures d'écran, liste ce que supervise la version 1.2.0 du pack (objets, métriques, alertes, tableaux de bord, vues) et montre comment envoyer les alertes par e-mail."
+description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, l'installation pas à pas avec captures d'écran (registre en HTTPS, approbation du certificat sur le proxy cloud, pack non signé, compte), et ce que la version 1.2.1 supervise sur une fédération de lab à deux emplacements : 65 objets, 398 métriques, 29 définitions d'alerte, 3 tableaux de bord, 5 vues et un rapport. L'article explique aussi comment envoyer les alertes par e-mail."
+summary: "L'adaptateur collecte les données d'une fédération NSX 9.1 à deux emplacements en 12 secondes et 60 appels d'API. Pour qu'il fonctionne dans VCF Operations 9.1.1, il faut un registre d'images servi en HTTPS, un proxy cloud qui approuve le certificat du registre et le réglage qui autorise un pack non signé. Cet article détaille chaque étape de l'installation avec des captures d'écran, liste ce que supervise la version 1.2.1 du pack (objets, métriques, alertes, tableaux de bord, vues) et montre comment envoyer les alertes par e-mail."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Notes"]
 showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/object-model.svg"]
 params:
-  seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : registre HTTPS, approbation du certificat, pack non signé, puis objets, métriques, alertes, tableaux de bord et vues de la version 1.2.0."
+  seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : registre HTTPS, approbation du certificat, pack non signé, puis objets, métriques, alertes, tableaux de bord et vues de la version 1.2.1."
 ---
 
-La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. Cet article décrit la construction du pack, son installation dans VCF Operations 9.1.1 avec des captures d'écran, ce que le pack supervise en version 1.2.0 (objets, métriques, alertes, tableaux de bord, vues) et l'envoi de ses alertes par e-mail. L'écriture de l'adaptateur a demandé moins de temps que son installation : trois contrôles distincts de VCF Operations séparaient le fichier `.pak` d'une collecte opérationnelle. Le pack a connu cinq versions en deux jours, et les notes propres à chaque version figurent vers la fin de l'article.
+La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. Cet article décrit la construction du pack, son installation dans VCF Operations 9.1.1 avec des captures d'écran, ce que le pack supervise en version 1.2.1 (objets, métriques, alertes, tableaux de bord, vues) et l'envoi de ses alertes par e-mail. L'écriture de l'adaptateur a demandé moins de temps que son installation : trois contrôles distincts de VCF Operations séparaient le fichier `.pak` d'une collecte opérationnelle. Le pack a connu six versions en deux jours, et les notes propres à chaque version figurent vers la fin de l'article.
 
 ## Le lab
 
@@ -170,9 +170,9 @@ Un contrôle effectué 2 minutes après le premier cycle montre des objets sans 
 Une nouvelle version s'installe comme la première, et chaque version impose d'activer l'option des packs non signés. Dans le lab, deux mises à niveau ont demandé davantage :
 
 - Après la mise à niveau vers la version 1.0.1, l'instance d'adaptateur est restée à l'état `FAILED` jusqu'à son arrêt puis son redémarrage, alors que le proxy cloud avait déjà récupéré la nouvelle image.
-- La version 1.2.0 a changé l'identité des nœuds Edge et des tunnels RTEP, et la nouvelle identité a créé de nouveaux objets. VCF Operations a recréé les 4 nœuds Edge et les 8 tunnels. Les 12 anciens objets restent dans l'inventaire, sans données, jusqu'à leur suppression.
+- La version 1.2.0 a changé l'identité des nœuds Edge et des tunnels RTEP, et la nouvelle identité a créé de nouveaux objets. VCF Operations a recréé les 4 nœuds Edge et les 8 tunnels. Les 12 anciens objets sont restés dans l'inventaire, sans données, jusqu'à leur suppression (voir Objets ci-dessous).
 
-## Ce que le pack supervise (version 1.2.0)
+## Ce que le pack supervise (version 1.2.1)
 
 ### Objets
 
@@ -199,11 +199,15 @@ Les objets règle de pare-feu globale s'activent stratégie par stratégie ; il
 
 Le pack rend compte de son propre fonctionnement sur l'objet fédération : appels effectués, appels bridés, erreurs, et épuisement éventuel du quota d'appels d'un manager.
 
-Un nœud Edge et ses tunnels sont identifiés par l'emplacement et le nom du nœud : un nœud Edge redéployé conserve ainsi son objet et son historique. Les nœuds Edge du lab ont été remplacés le 18 novembre, avant la version 1.2.0, et ce remplacement a laissé dans l'inventaire 26 anciens objets sans données.
+Un nœud Edge et ses tunnels sont identifiés par l'emplacement et le nom du nœud : un nœud Edge redéployé conserve ainsi son objet et son historique. Les nœuds Edge du lab ont été remplacés le 18 novembre, avant la version 1.2.0. Ce remplacement et le changement d'identité de la version 1.2.0 ont laissé 37 anciens objets sans données. Ils ont été supprimés par l'API Suite (`DELETE /api/resources/{id}`), ce qui efface aussi leur historique : chaque nœud Edge et chaque tunnel n'a plus qu'un seul objet.
 
 Dans l'inventaire, les types d'objets forment une arborescence et chaque objet dispose d'une page de résumé. La capture ci-dessous montre un emplacement et date de la version 1.0.x :
 
 ![Inventaire de VCF Operations : les types d'objets NSX Federation dans l'arborescence, et le résumé de l'emplacement site-a-wld01 avec ses objets associés, ses compteurs d'alarmes, l'ancienneté de la sauvegarde et l'alerte d'écart de version](/images/nsx-federation-mp/ops-inventory-location.webp)
+
+Depuis la version 1.2.1, le pack dispose aussi d'une arborescence d'inventaire fonctionnelle. Pour l'ouvrir, aller dans « Inventory », cliquer sur « Detailed View », choisir le dernier onglet (l'icône en forme de pièce de puzzle), puis sélectionner « NSX Federation » dans la liste déroulante. L'arborescence part de la fédération. En dessous se trouvent les segments, les passerelles Tier-1 et Tier-0, la stratégie de sécurité globale, le Global Manager et les deux emplacements. Chaque emplacement contient son cluster Edge et ses canaux de synchronisation :
+
+![L'arborescence d'inventaire NSX Federation dans VCF Operations, version 1.2.1 : la fédération, ses segments, passerelles et stratégie, et l'emplacement site-a-wld01 déplié sur son cluster Edge et ses deux canaux de synchronisation](/images/nsx-federation-mp/ops-inventory-tree.webp)
 
 ### Métriques
 
@@ -345,7 +349,7 @@ Les trois dernières étapes de l'assistant (méthode d'envoi, modèle de messag
 
 Une règle portant sur les types d'objets du pack et limitée à Immediate et Critical envoie par e-mail les alertes de ces deux niveaux. L'écart de version et l'absence de Global Manager de secours ne sont alors visibles que dans l'interface. Une seconde règle, sans limite de criticité et adressée à la boîte aux lettres d'une équipe, permet de les recevoir aussi.
 
-## Notes de version, de 1.0.0 à 1.2.0
+## Notes de version, de 1.0.0 à 1.2.1
 
 ### 1.0.0 et 1.0.1 : les événements comme alertes
 
@@ -404,13 +408,18 @@ Deux alertes existantes ont changé dans la même version. L'alerte du nœud Edg
 
 Après l'installation, l'adaptateur a collecté les mêmes 65 objets et les 4 mêmes alertes se sont déclenchées. Aucune des 7 nouvelles alertes ne s'est déclenchée. C'est le comportement attendu dans un lab sain, mais ces alertes restent de ce fait non testées.
 
-L'arborescence d'inventaire ne s'est pas chargée. Le pack contient une spécification de parcours dont la racine est l'objet fédération. Pour ce contenu, le journal d'installation indique `Traversal specs root tag should be "AdapterKind"`. Le fichier est valide au regard du schéma du SDK et porte bien cette balise racine. La cause reste inconnue, et la présence de l'arborescence dans l'interface n'a pas été confirmée.
+L'arborescence d'inventaire ne s'est pas chargée. Le journal d'installation indique `Traversal specs root tag should be "AdapterKind"`, alors que la spécification de parcours est valide au regard du schéma du SDK et porte bien cette balise racine.
+
+### 1.2.1 : l'arborescence d'inventaire
+
+Le modèle de projet du SDK place ses fichiers de schéma à côté du contenu : `traversalSpecsSchema.xsd` dans `content/traversalspecs` et `alertDefinitionSchema.xsd` dans `content/alertdefs`. Le programme d'installation lit chaque fichier de `content/traversalspecs` comme une spécification de parcours. Le fichier de schéma n'a pas de balise racine `AdapterKind`, si bien que l'import de tout le dossier a échoué. Le journal du nœud Operations montre la même erreur pour les versions précédentes, qui contenaient le fichier de schéma sans aucune spécification.
+
+La version 1.2.1 est la version 1.2.0 sans les deux fichiers de schéma, retirés du pack. L'import des spécifications de parcours s'est alors déroulé sans erreur, et l'arborescence est apparue dans l'interface (capture dans la partie Objets).
 
 ## Ce qui manque encore
 
 Dans le pack :
 
-- Une arborescence d'inventaire fonctionnelle. La spécification de parcours de la version 1.2.0 ne s'est pas chargée.
 - Des super métriques.
 - Un pack signé. Chaque nouvelle version impose d'activer l'option des packs non signés.
 
@@ -426,13 +435,9 @@ Tests :
 - Le rapport et l'option des liens vers l'intégration NSX.
 - La notification par e-mail, qui exige un serveur de messagerie absent du lab.
 
-Nettoyage du lab :
-
-- La suppression des 38 anciens objets laissés par le remplacement des nœuds Edge et par le changement d'identité de la version 1.2.0.
-
 ## Sources
 
-- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026 ; versions 1.0.1, 1.1.0, 1.1.1 et 1.2.0 le 18 novembre.
+- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026 ; versions 1.0.1, 1.1.0, 1.1.1, 1.2.0 et 1.2.1 le 18 novembre.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html) : « No signature found on PAK file » lors de l'installation d'un management pack
 - [Docker : verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

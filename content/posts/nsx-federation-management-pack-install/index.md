@@ -1,18 +1,18 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 2: building, installing and what the pack captures"
 date: 2026-11-18
-description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the install step by step with screenshots (HTTPS registry, certificate trust on the cloud proxy, unsigned pack, account), and what version 1.2.0 monitors on a two-location lab federation: 65 objects, 398 metrics, 29 alert definitions, three dashboards, five views and a report. It also covers how to send the alerts by email."
-summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Running it inside VCF Operations 9.1.1 takes an image registry served over HTTPS, a cloud proxy that trusts the registry certificate, and the setting that allows an unsigned pack. This post documents each install step with screenshots, lists what version 1.2.0 of the pack monitors (objects, metrics, alerts, dashboards, views), and shows how to send the alerts by email."
+description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the install step by step with screenshots (HTTPS registry, certificate trust on the cloud proxy, unsigned pack, account), and what version 1.2.1 monitors on a two-location lab federation: 65 objects, 398 metrics, 29 alert definitions, three dashboards, five views and a report. It also covers how to send the alerts by email."
+summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Running it inside VCF Operations 9.1.1 takes an image registry served over HTTPS, a cloud proxy that trusts the registry certificate, and the setting that allows an unsigned pack. This post documents each install step with screenshots, lists what version 1.2.1 of the pack monitors (objects, metrics, alerts, dashboards, views), and shows how to send the alerts by email."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/object-model.svg"]
 params:
-  seoDescription: "Building and installing a custom NSX Federation management pack in VCF Operations 9.1.1: HTTPS registry, certificate trust, unsigned pack, and the objects, metrics, alerts, dashboards and views of version 1.2.0."
+  seoDescription: "Building and installing a custom NSX Federation management pack in VCF Operations 9.1.1: HTTPS registry, certificate trust, unsigned pack, and the objects, metrics, alerts, dashboards and views of version 1.2.1."
 ---
 
-[Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1 with screenshots, what the pack monitors as of version 1.2.0 (objects, metrics, alerts, dashboards, views), and how to send its alerts by email. The adapter itself took less time than the install. Three separate checks in VCF Operations stood between the `.pak` file and a running collector. The pack went through five versions in two days, and the notes on each version are near the end.
+[Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1 with screenshots, what the pack monitors as of version 1.2.1 (objects, metrics, alerts, dashboards, views), and how to send its alerts by email. The adapter itself took less time than the install. Three separate checks in VCF Operations stood between the `.pak` file and a running collector. The pack went through six versions in two days, and the notes on each version are near the end.
 
 ## The lab
 
@@ -170,9 +170,9 @@ A check two minutes after the first cycle shows objects with no metrics, which l
 A new version is installed the same way as the first one, and every version needs the unsigned-pack switch. Two upgrades in the lab needed more:
 
 - After the upgrade to 1.0.1 the adapter instance stayed in `FAILED` until it was stopped and started. The cloud proxy had already pulled the new image.
-- Version 1.2.0 changed the identity of edge nodes and RTEP tunnels, and the new identity created new objects. VCF Operations created the four edge nodes and eight tunnels again. The twelve old objects stay in the inventory without data until they are deleted.
+- Version 1.2.0 changed the identity of edge nodes and RTEP tunnels, and the new identity created new objects. VCF Operations created the four edge nodes and eight tunnels again. The twelve old objects stayed in the inventory without data until they were deleted (see Objects below).
 
-## What the pack monitors (version 1.2.0)
+## What the pack monitors (version 1.2.1)
 
 ### Objects
 
@@ -199,11 +199,15 @@ Global firewall rule objects are opt-in per policy and were left off for this in
 
 The pack reports its own health on the federation object: calls made, calls throttled, errors, and whether a manager ran out of its call budget.
 
-An edge node and its tunnels are identified by location and node name, so a redeployed edge keeps its object and its history. The edge nodes of the lab were replaced on 18 November, before version 1.2.0, and that replacement left 26 old objects without data in the inventory.
+An edge node and its tunnels are identified by location and node name, so a redeployed edge keeps its object and its history. The edge nodes of the lab were replaced on 18 November, before version 1.2.0. That replacement and the change of identity in 1.2.0 left 37 old objects without data. They were deleted through the suite API (`DELETE /api/resources/{id}`), which also deletes their history, so each edge node and tunnel now has one object.
 
 In the inventory, the object types sit in a tree and each object has a summary page. The screenshot below shows a location and dates from version 1.0.x:
 
 ![VCF Operations inventory: the NSX Federation object types in the tree, and the summary of location site-a-wld01 with its related objects, alarm counts, backup age and the version mismatch alert](/images/nsx-federation-mp/ops-inventory-location.webp)
+
+Since version 1.2.1 the pack also has a working inventory tree. To open it, go to Inventory, click Detailed View, select the last tab (the puzzle-piece icon) and pick NSX Federation in the drop-down. The tree starts at the federation. Under it sit the segments, the Tier-1 and Tier-0 gateways, the global policy, the Global Manager and the two locations. A location holds its edge cluster and its sync channels:
+
+![The NSX Federation inventory tree in VCF Operations, version 1.2.1: the federation, its segments, gateways and policy, and location site-a-wld01 opened on its edge cluster and two sync channels](/images/nsx-federation-mp/ops-inventory-tree.webp)
 
 ### Metrics
 
@@ -345,7 +349,7 @@ The last three wizard steps (outbound method, payload template, test) are descri
 
 A rule on the pack's object types, limited to Immediate and Critical, sends the alerts of those two levels by email. The version mismatch and the missing standby stay in the UI. A second rule without the criticality limit, sent to a team mailbox, covers them.
 
-## Version notes, 1.0.0 to 1.2.0
+## Version notes, 1.0.0 to 1.2.1
 
 ### 1.0.0 and 1.0.1: events as alerts
 
@@ -404,13 +408,18 @@ Two existing alerts changed in the same version. The edge node alert was narrowe
 
 After the install the adapter collected the same 65 objects and the same four alerts fired. None of the seven new alerts fired. That is correct for a healthy lab, and it leaves them untested.
 
-The inventory tree did not load. The pack ships a traversal specification rooted at the federation object. The install logged `Traversal specs root tag should be "AdapterKind"` for that content. The file validates against the SDK schema and has that root tag. The cause is not known, and the tree has not been confirmed in the UI.
+The inventory tree did not load. The install logged `Traversal specs root tag should be "AdapterKind"`, although the traversal specification validates against the SDK schema and has that root tag.
+
+### 1.2.1: the inventory tree
+
+The SDK project template keeps its schema files next to the content: `traversalSpecsSchema.xsd` in `content/traversalspecs` and `alertDefinitionSchema.xsd` in `content/alertdefs`. The installer reads every file in `content/traversalspecs` as a traversal specification. The schema file has no `AdapterKind` root tag, so the import of the whole folder failed. The log of the Operations node shows the same error for the earlier versions, which had the schema file and no specification at all.
+
+Version 1.2.1 is 1.2.0 with both schema files moved out of the pack. The traversal import then ran without an error, and the tree appeared in the UI (screenshot under Objects).
 
 ## What is not there yet
 
 In the pack:
 
-- A working inventory tree. The traversal specification of version 1.2.0 did not load.
 - Super metrics.
 - A signed pack. Every new version needs the unsigned-pack switch.
 
@@ -426,13 +435,9 @@ Tests:
 - The report and the option that links to the NSX integration.
 - The email notification, which needs a mail server the lab does not have.
 
-Lab clean-up:
-
-- Removal of the 38 old objects left by the edge replacement and by the change of identity in version 1.2.0.
-
 ## Sources
 
-- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1, 1.1.0, 1.1.1 and 1.2.0 on 18 November.
+- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1, 1.1.0, 1.1.1, 1.2.0 and 1.2.1 on 18 November.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack
 - [Docker: verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

@@ -9,7 +9,7 @@ showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/object-model.svg"]
 params:
-  seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : pack non signé, registre privé, confiance du certificat, et les objets, métriques et alertes remontés."
+  seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : pack non signé, registre privé, confiance du certificat, les objets et métriques remontés, et ses définitions d'alertes et tableaux de bord."
 ---
 
 La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'est terminée sur une conception et sans code. Ce billet couvre la construction, l'installation dans VCF Operations 9.1.1, et ce que le pack montre une fois la collecte en route. L'adaptateur lui-même a pris moins de temps que l'installation. Trois contrôles distincts de VCF Operations se dressaient entre le fichier `.pak` et un collecteur qui tourne.
@@ -64,17 +64,19 @@ pak_manager.pakfile.no_signature
 The PAK file ... is not signed. It is missing required signature files signature.mf and signature.cert
 ```
 
-VCF Operations 9 bloque par défaut les packs non signés, et la case « Ignore the PAK file signature checking » reste masquée dans la boîte de dialogue de téléversement tant que le blocage n'est pas levé. L'interrupteur se trouve dans la console d'administration (`https://<vcf-operations>/admin`), sous Administrator Settings, Security Settings : « unsigned PAK installation ». Broadcom le documente dans la KB 415279.
+VCF Operations 9 bloque par défaut les packs non signés, et la case « Ignore the PAK file signature checking » reste masquée dans la boîte de dialogue de téléversement tant que le blocage n'est pas levé. L'interrupteur se trouve dans la console d'administration (`https://<vcf-operations>/admin`), sous Administrator Settings, Security Settings : « Allow unsigned PAK installation ». Broadcom le documente dans la KB 415279.
+
+![La console d'administration de VCF Operations, Administrator Settings, Security Settings : « Allow unsigned PAK installation » est désactivé, avec le bouton qui l'active](/images/nsx-federation-mp/ops-admin-unsigned-pak.webp)
 
 Une fois l'interrupteur activé, il y a deux façons d'installer le pack.
 
 ### Méthode 1 : à la main dans l'interface
 
-1. Dans la console d'administration, passer « unsigned PAK installation » à enabled.
+1. Dans la console d'administration, cliquer sur « Activate unsigned PAK installation ».
 2. Dans VCF Operations, ouvrir Administration, Integrations, Repository et choisir d'ajouter un pack.
 3. Sélectionner le fichier `.pak` et cocher les deux cases : installer même si le pack est déjà installé, et « Ignore the PAK file signature checking ».
 4. Téléverser, accepter l'avertissement sur le fichier non signé, et laisser l'installation se terminer.
-5. Repasser « unsigned PAK installation » à disabled.
+5. De retour dans la console d'administration, désactiver de nouveau l'installation de PAK non signés.
 
 ### Méthode 2 : par script
 
@@ -95,9 +97,13 @@ POST solution.action   mainAction=getInstallStatus      (until "completed")
 
 4. Chrome appelle `disableUPI`.
 
+L'étape 2 doit venir après l'étape 1, car la connexion à la console d'administration déconnecte la session de l'interface du produit. Un jeton de session lu avant cette connexion n'est plus valide.
+
 Ces appels sont internes à l'interface. Ils ne sont pas supportés et peuvent changer à chaque version. L'interrupteur s'applique à toute l'instance. Dans le lab, il n'est resté activé que le temps du téléversement.
 
-Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK_NSXFederation` 1.0.0 apparaissent dans VCF Operations.
+Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK_NSXFederation` apparaissent dans VCF Operations. Le pack s'affiche sous Administration, Integrations, Repository avec sa version. La capture date d'après la dernière mise à niveau de ce billet, vers la 1.1.1.
+
+![Administration, Integrations, Repository filtré sur « Federation » : le pack NSX Federation, version 1.1.1, avec un compte](/images/nsx-federation-mp/ops-repository-pack.webp)
 
 ## Étape 4 : le cloud proxy ne parle qu'en HTTPS à un registre
 
@@ -131,7 +137,9 @@ Le cloud proxy fait tourner Docker, et Docker fait confiance à un registre priv
 /etc/docker/certs.d/10.0.6.27:5000/ca.crt
 ```
 
-SSH est désactivé sur le cloud proxy et l'est resté. Le fichier a été écrit par les guest operations de vCenter (`govc guest.run` avec le compte root de l'appliance). Au démarrage suivant, le cloud proxy a tiré l'image et l'instance a atteint `STARTED`, puis `DATA_RECEIVING`.
+SSH est désactivé sur le cloud proxy et l'est resté. Le fichier a été écrit par les guest operations de vCenter (`govc guest.run` avec le compte root de l'appliance). Au démarrage suivant, le cloud proxy a tiré l'image et l'instance a atteint `STARTED`, puis `DATA_RECEIVING`. L'onglet Accounts affiche l'instance à l'état « Collecting ».
+
+![Administration, Integrations, Accounts : le compte « NSX Federation - nsx-gm-01a » à l'état Collecting, sur le cloud proxy opscollector-01a](/images/nsx-federation-mp/ops-account-collecting.webp)
 
 Une mise à niveau ou un redéploiement du cloud proxy peut supprimer ce fichier. Un registre dont le certificat vient d'une autorité que le cloud proxy approuve déjà évite cette étape.
 
@@ -242,7 +250,13 @@ Cannot import Alert Definitions: Invalid format of Recommendation Id:
 Recommendation-NSXFederation-active_gm. It should start with Recommendation-df- or Recommendation-ud-
 ```
 
-Un seul préfixe d'ID erroné fait rejeter tout le fichier, et l'installation du pack ne le signale pas. Le schéma du SDK ne contrôle pas ce préfixe non plus : le fichier était valide au regard de `alertDefinitionSchema.xsd`. Avec le préfixe `Recommendation-df-`, le même contenu a été importé par la suite API sans erreur, et le lab fonctionne avec cet import. La version 1.1.1 porte le fichier corrigé. Elle est construite et pas encore installée.
+Un seul préfixe d'ID erroné fait rejeter tout le fichier, et l'installation du pack ne le signale pas. Le schéma du SDK ne contrôle pas ce préfixe non plus : le fichier était valide au regard de `alertDefinitionSchema.xsd`. Avec le préfixe `Recommendation-df-`, le même contenu a été importé par la suite API sans erreur, et le lab a fonctionné avec cet import jusqu'à la version suivante du pack. La version 1.1.1 porte le fichier corrigé. Avant son installation, le contenu importé à la main a été supprimé. L'installation de la 1.1.1 a ensuite apporté les 22 définitions d'alertes, les 33 symptômes et les 18 recommandations depuis le pack, et les quatre mêmes alertes se sont déclenchées de nouveau.
+
+![La liste des alertes filtrée sur « Global Manager » avec la version 1.1.1 : les quatre alertes portent désormais le nom de leur définition](/images/nsx-federation-mp/ops-alerts-defined.webp)
+
+Une alerte issue d'une définition porte aussi sa recommandation et le symptôme qui l'a déclenchée :
+
+![Détail de l'alerte « Global Manager backup is missing, old or failed » sur gm-site-a : description, recommandation et le symptôme « Backup is not configured on the Global Manager »](/images/nsx-federation-mp/ops-alert-recommendation.webp)
 
 ### Tableaux de bord
 
@@ -260,6 +274,8 @@ Tous les tableaux de bord fonctionnent de la même façon : une liste pilote un 
 
 ![Le tableau de bord Inter-site Connectivity : canaux de synchronisation et nœuds edge, tunnels RTEP, voisins BGP du Tier-0 et les valeurs clés du nœud edge sélectionné](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
 
+![Le tableau de bord Stretched Objects : les gateways, segments et politiques étendus, la réalisation par location, et les valeurs clés, propriétés et objets liés du segment fed-stretched](/images/nsx-federation-mp/ops-dashboard-stretched.webp)
+
 Un fichier de tableau de bord est du JSON, et la documentation du SDK décrit une façon de l'obtenir : construire le tableau de bord dans l'interface et l'exporter. Pour ce pack, un script écrit le JSON à partir du même modèle d'objets que l'adaptateur. Le format a été déduit des tableaux de bord que VCF Operations exporte par la suite API (`/api/content/operations/export`). Dans le fichier, un type d'objet est un marqueur tel que `resourceKind:id:3_::_`, et une table en tête de fichier associe chaque marqueur à un type d'adaptateur et à un type d'objet.
 
 Deux comportements ont coûté du temps :
@@ -271,7 +287,6 @@ Deux comportements ont coûté du temps :
 
 - Une arborescence d'inventaire (traversal specification).
 - Les tests de 18 des 22 définitions d'alertes, qui demandent des pannes que le lab n'a pas.
-- L'installation de la version 1.1.1, pour que les définitions d'alertes viennent du pack lui-même.
 - Le nettoyage des objets remplacés. Un nœud edge redéployé reçoit un nouvel ID dans NSX et devient un nouvel objet. Après le remplacement des edges, 26 anciens objets nœud edge et tunnel sont restés dans l'inventaire sans données, à côté des 65 objets actifs.
 - La latence entre managers. NSX la mesure et l'affiche dans son interface ; l'API qui la porte n'a pas été trouvée.
 - L'état du pare-feu des hôtes, le second point ouvert de la partie 1.
@@ -281,7 +296,7 @@ Deux comportements ont coûté du temps :
 
 ## Sources
 
-- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026, versions 1.0.1 et 1.1.0 le 18 novembre.
+- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026, versions 1.0.1, 1.1.0 et 1.1.1 le 18 novembre.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html) : « No signature found on PAK file » lors de l'installation d'un management pack
 - [Docker : verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

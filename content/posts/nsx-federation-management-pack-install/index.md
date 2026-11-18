@@ -9,7 +9,7 @@ showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/object-model.svg"]
 params:
-  seoDescription: "Building and installing a custom NSX Federation management pack in VCF Operations 9.1.1: unsigned pack, private registry, certificate trust, and the objects, metrics and alerts it captures."
+  seoDescription: "Building and installing a custom NSX Federation management pack in VCF Operations 9.1.1: unsigned pack, private registry, certificate trust, the objects and metrics it captures, and its alert definitions and dashboards."
 ---
 
 [Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1, and what the pack shows once it collects. The adapter itself took less time than the install. Three separate checks in VCF Operations stood between the `.pak` file and a running collector.
@@ -64,17 +64,19 @@ pak_manager.pakfile.no_signature
 The PAK file ... is not signed. It is missing required signature files signature.mf and signature.cert
 ```
 
-VCF Operations 9 blocks unsigned packs by default, and the "Ignore the PAK file signature checking" box is hidden in the upload dialog until the block is lifted. The switch is in the admin console (`https://<vcf-operations>/admin`), under Administrator Settings, Security Settings: "unsigned PAK installation". Broadcom documents it in KB 415279.
+VCF Operations 9 blocks unsigned packs by default, and the "Ignore the PAK file signature checking" box is hidden in the upload dialog until the block is lifted. The switch is in the admin console (`https://<vcf-operations>/admin`), under Administrator Settings, Security Settings: "Allow unsigned PAK installation". Broadcom documents it in KB 415279.
+
+![The admin console of VCF Operations, Administrator Settings, Security Settings: "Allow unsigned PAK installation" is deactivated, with the button that activates it](/images/nsx-federation-mp/ops-admin-unsigned-pak.webp)
 
 With the switch on, there are two ways to install the pack.
 
 ### Method 1: by hand in the UI
 
-1. In the admin console, set "unsigned PAK installation" to enabled.
+1. In the admin console, click "Activate unsigned PAK installation".
 2. In VCF Operations, open Administration, Integrations, Repository and choose to add a pack.
 3. Select the `.pak` file and tick both boxes: install even if already installed, and "Ignore the PAK file signature checking".
 4. Upload, accept the warning about the unsigned file, and let the install finish.
-5. Set "unsigned PAK installation" back to disabled.
+5. Back in the admin console, deactivate unsigned PAK installation again.
 
 ### Method 2: scripted
 
@@ -95,9 +97,13 @@ POST solution.action   mainAction=getInstallStatus      (until "completed")
 
 4. Chrome calls `disableUPI`.
 
+Step 2 has to come after step 1, because the login to the admin console logs the product UI session out. A session token read before that login is no longer valid.
+
 These calls are internal to the UI. They are unsupported and can change with any release. The switch applies to the whole instance. In the lab it was on only for the duration of the upload.
 
-After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` 1.0.0 appear in VCF Operations.
+After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` appear in VCF Operations. The pack shows under Administration, Integrations, Repository with its version. The screenshot dates from after the last upgrade in this post, to 1.1.1.
+
+![Administration, Integrations, Repository filtered on "Federation": the NSX Federation pack, version 1.1.1, with one account](/images/nsx-federation-mp/ops-repository-pack.webp)
 
 ## Step 4: the cloud proxy only speaks HTTPS to a registry
 
@@ -131,7 +137,9 @@ The cloud proxy runs Docker, and Docker trusts a private registry when its certi
 /etc/docker/certs.d/10.0.6.27:5000/ca.crt
 ```
 
-SSH is disabled on the cloud proxy and stayed disabled. The file was written through vCenter guest operations (`govc guest.run` with the appliance root account). On the next start the cloud proxy pulled the image and the instance reached `STARTED`, then `DATA_RECEIVING`.
+SSH is disabled on the cloud proxy and stayed disabled. The file was written through vCenter guest operations (`govc guest.run` with the appliance root account). On the next start the cloud proxy pulled the image and the instance reached `STARTED`, then `DATA_RECEIVING`. The Accounts tab shows the instance as "Collecting".
+
+![Administration, Integrations, Accounts: the account "NSX Federation - nsx-gm-01a" with the status Collecting, on the cloud proxy opscollector-01a](/images/nsx-federation-mp/ops-account-collecting.webp)
 
 An upgrade or a redeploy of the cloud proxy may remove that file. A registry with a certificate from an authority the cloud proxy already trusts avoids the step.
 
@@ -242,7 +250,13 @@ Cannot import Alert Definitions: Invalid format of Recommendation Id:
 Recommendation-NSXFederation-active_gm. It should start with Recommendation-df- or Recommendation-ud-
 ```
 
-One wrong ID prefix rejects the whole file, and the pack install does not report it. The SDK schema does not check this prefix either: the file validated against `alertDefinitionSchema.xsd`. With the prefix `Recommendation-df-` the same content imported through the suite API without error, and the lab runs on that import. Version 1.1.1 carries the corrected file. It is built and not yet installed.
+One wrong ID prefix rejects the whole file, and the pack install does not report it. The SDK schema does not check this prefix either: the file validated against `alertDefinitionSchema.xsd`. With the prefix `Recommendation-df-` the same content imported through the suite API without error, and the lab ran on that import until the next pack version. Version 1.1.1 carries the corrected file. Before its install, the content imported by hand was deleted. The install of 1.1.1 then brought the 22 alert definitions, the 33 symptoms and the 18 recommendations from the pack, and the same four alerts fired again.
+
+![The alert list filtered on "Global Manager" with version 1.1.1: the four alerts now carry the names of their definitions](/images/nsx-federation-mp/ops-alerts-defined.webp)
+
+An alert from a definition also carries its recommendation and the symptom that triggered it:
+
+![Detail of the alert "Global Manager backup is missing, old or failed" on gm-site-a: description, recommendation and the symptom "Backup is not configured on the Global Manager"](/images/nsx-federation-mp/ops-alert-recommendation.webp)
 
 ### Dashboards
 
@@ -260,6 +274,8 @@ Every dashboard works the same way: a list drives a scoreboard, and a click on a
 
 ![The Inter-site Connectivity dashboard: sync channels and edge nodes, RTEP tunnels, Tier-0 BGP neighbors and the key values of the selected edge node](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
 
+![The Stretched Objects dashboard: the stretched gateways, segments and policies, the realization per location, and the key values, properties and related objects of segment fed-stretched](/images/nsx-federation-mp/ops-dashboard-stretched.webp)
+
 A dashboard file is JSON, and the SDK documentation describes one way to get it: build the dashboard in the UI and export it. For this pack a script writes the JSON from the same object model as the adapter. The format was worked out from the dashboards VCF Operations exports through the suite API (`/api/content/operations/export`). In the file, an object type is a placeholder such as `resourceKind:id:3_::_`, and a table at the top of the file maps each placeholder to an adapter kind and an object type.
 
 Two behaviours cost time:
@@ -271,7 +287,6 @@ Two behaviours cost time:
 
 - An inventory tree (traversal specification).
 - Tests for 18 of the 22 alert definitions, which need faults the lab does not have.
-- An install of version 1.1.1, so that the alert definitions come from the pack itself.
 - Clean-up of replaced objects. An edge node that is redeployed gets a new ID in NSX and becomes a new object. After the edge replacement, 26 old edge node and tunnel objects stayed in the inventory without data, next to the 65 live ones.
 - Latency between managers. NSX measures it and shows it in its UI; the API that carries it was not found.
 - The firewall state of the hosts, the second open item from part 1.
@@ -281,7 +296,7 @@ Two behaviours cost time:
 
 ## Sources
 
-- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1 and 1.1.0 on 18 November.
+- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1, 1.1.0 and 1.1.1 on 18 November.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack
 - [Docker: verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

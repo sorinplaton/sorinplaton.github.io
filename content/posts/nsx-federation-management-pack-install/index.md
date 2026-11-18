@@ -1,8 +1,8 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 2: building, installing and what the pack captures"
 date: 2026-11-18
-description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the three obstacles between a .pak file and a running collector (unsigned pack, HTTPS-only registry, untrusted certificate), and the 65 objects, 312 metrics and four alerts the pack produces on a two-location lab federation."
-summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Getting it to run inside VCF Operations 9.1.1 took three fixes: allowing an unsigned pack, serving the image registry over HTTPS, and making the cloud proxy trust the registry certificate. This post documents each step and lists what the pack captures."
+description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the three obstacles between a .pak file and a running collector (unsigned pack, HTTPS-only registry, untrusted certificate), the 65 objects, 312 metrics and four alerts the pack produces on a two-location lab federation, and the 22 alert definitions and three dashboards added in version 1.1."
+summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Getting it to run inside VCF Operations 9.1.1 took three fixes: allowing an unsigned pack, serving the image registry over HTTPS, and making the cloud proxy trust the registry certificate. This post documents each step, lists what the pack captures, and covers the alert definitions and dashboards of version 1.1."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
@@ -176,7 +176,7 @@ The pack reports its own health on the federation object: calls made, calls thro
 
 ### Alerts on day one
 
-The pack ships no alert definition. An event sent by the adapter surfaces in VCF Operations as a "Notification event" alert on the object.
+Versions 1.0.0 and 1.0.1 ship no alert definition. An event sent by the adapter surfaces in VCF Operations as a "Notification event" alert on the object.
 
 Version 1.0.0 showed three alerts:
 
@@ -197,9 +197,81 @@ All four describe the lab correctly.
 
 The open NSX alarms of each location arrive the same way. While edge nodes were being replaced in the lab on 18 November, the alarms `rtep_bgp_down` and `rtep_connectivity_lost` showed up as alerts on both location objects. VCF Operations cancelled each one about 15 minutes later, with no action in VCF Operations.
 
+## Version 1.1: alert definitions and dashboards
+
+Events as alerts have two limits. They carry no recommendation, and every one is named "Notification event". Version 1.1 adds real alert definitions and three dashboards to the pack.
+
+### Alert definitions
+
+The content is one XML file in `content/alertdefs` with 33 symptoms, 22 alert definitions and 18 recommendations. A script generates it from a table of symptoms, alerts and recommendations. Each symptom is a condition on one metric or one property:
+
+```xml
+<SymptomDefinition adapterKind="NSXFederation" id="SymptomDefinition-NSXFederation-gm_backup_off"
+                   name="Backup is not configured on the Global Manager" resourceKind="global_manager">
+    <State severity="immediate">
+        <Condition key="backup_enabled" operator="=" thresholdType="static" type="property"
+                   value="False" valueType="string"/>
+    </State>
+</SymptomDefinition>
+```
+
+| Object type | Alerts |
+| --- | --- |
+| Federation | No active Global Manager; split-brain (two active); a Global Manager not reachable by the collector; no standby configured; partial collection (API call budget used) |
+| Global Manager | Cluster degraded; backup missing, old or failed; certificate about to expire |
+| Location | Connection to the active Global Manager lost; Local Manager not reachable by the collector; certificate not trusted; full sync not completed; inter-site BGP sessions down; version differs from the Global Manager; backup missing or old; certificate about to expire; Local Manager cluster degraded |
+| Sync channel | Channel down |
+| Edge node | Inter-site BGP sessions down |
+| Tier-0 BGP neighbor | Session down; uplink session established with no prefixes received |
+| Stretched object at a location | Not realized |
+
+Three changes in the adapter go with the definitions:
+
+- Three derived metrics, because a symptom compares a metric with a fixed value and cannot subtract two metrics: Global Managers not reachable, inter-site BGP sessions not established, locations not realized.
+- A condition that has an alert definition no longer sends an event. Without that change the same condition would show twice, once as the alert and once as a "Notification event".
+- Conditions without a definition stay events: the forwarded NSX alarms and the sync status of a standby Global Manager, which the lab cannot test.
+
+The symptoms and alert definitions were tested before any pack build, at first without the recommendations. The suite API imports alert content from a zip file (`POST /suite-api/api/content/operations/import`). It needs neither a pack install nor the unsigned-pack switch. About five minutes after the import the four alerts that match the lab fired: no standby, Global Manager backup, and the version mismatch on both locations. The other 18 have not fired, because the lab has no such fault.
+
+### A recommendation ID the installer rejects
+
+Version 1.1.0 installed with the status "completed". The dashboards were there. The alert definitions were missing, and only the analytics log of VCF Operations gave the reason:
+
+```
+Cannot import Alert Definitions: Invalid format of Recommendation Id:
+Recommendation-NSXFederation-active_gm. It should start with Recommendation-df- or Recommendation-ud-
+```
+
+One wrong ID prefix rejects the whole file, and the pack install does not report it. The SDK schema does not check this prefix either: the file validated against `alertDefinitionSchema.xsd`. With the prefix `Recommendation-df-` the same content imported through the suite API without error, and the lab runs on that import. Version 1.1.1 carries the corrected file. It is built and not yet installed.
+
+### Dashboards
+
+Three dashboards sit in a folder named "NSX Federation":
+
+| Dashboard | Content |
+| --- | --- |
+| Federation Overview | Open alerts on the pack's objects; a list of the federation, the Global Managers and the locations; key values, properties and related objects of the selected one |
+| Inter-site Connectivity | Sync channels and edge nodes, RTEP tunnels, Tier-0 BGP neighbors; key values of the selected row |
+| Stretched Objects | Stretched gateways, segments and policies with their span; the realization of each object at each location |
+
+Every dashboard works the same way: a list drives a scoreboard, and a click on a scoreboard value draws its trend.
+
+![The Federation Overview dashboard: the four open alerts grouped under three definitions, the list of federation objects with gm-site-a selected, its key values, related objects and properties](/images/nsx-federation-mp/ops-dashboard-overview.webp)
+
+![The Inter-site Connectivity dashboard: sync channels and edge nodes, RTEP tunnels, Tier-0 BGP neighbors and the key values of the selected edge node](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
+
+A dashboard file is JSON, and the SDK documentation describes one way to get it: build the dashboard in the UI and export it. For this pack a script writes the JSON from the same object model as the adapter. The format was worked out from the dashboards VCF Operations exports through the suite API (`/api/content/operations/export`). In the file, an object type is a placeholder such as `resourceKind:id:3_::_`, and a table at the top of the file maps each placeholder to an adapter kind and an object type.
+
+Two behaviours cost time:
+
+- An imported dashboard shows empty widgets at first. The object lists show every object of the instance and the scoreboards show nothing. A background job in VCF Operations completes the import a few minutes later, and the widgets then get their settings.
+- The object lists keep the default columns. The added metric columns sit to the right, behind a scroll bar. A saved column layout in the file was not applied at import.
+
 ## What is not there yet
 
-- Alert and symptom definitions, dashboards and an inventory tree. The alerts above are plain events.
+- An inventory tree (traversal specification).
+- Tests for 18 of the 22 alert definitions, which need faults the lab does not have.
+- An install of version 1.1.1, so that the alert definitions come from the pack itself.
 - Clean-up of replaced objects. An edge node that is redeployed gets a new ID in NSX and becomes a new object. After the edge replacement, 26 old edge node and tunnel objects stayed in the inventory without data, next to the 65 live ones.
 - Latency between managers. NSX measures it and shows it in its UI; the API that carries it was not found.
 - The firewall state of the hosts, the second open item from part 1.
@@ -209,7 +281,7 @@ The open NSX alarms of each location arrive the same way. While edge nodes were 
 
 ## Sources
 
-- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, version 1.0.1 on 18 November.
+- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1 and 1.1.0 on 18 November.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack
 - [Docker: verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

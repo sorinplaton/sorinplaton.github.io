@@ -1,8 +1,8 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 2 : construction, installation et ce que le pack remonte"
 date: 2026-11-18
-description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, les trois obstacles entre un fichier .pak et un collecteur qui tourne (pack non signé, registre en HTTPS uniquement, certificat non approuvé), et les 65 objets, 312 métriques et quatre alertes que le pack produit sur une fédération de lab à deux locations."
-summary: "L'adaptateur collecte une NSX Federation 9.1 à deux locations en 12 secondes et 60 appels d'API. Le faire tourner dans VCF Operations 9.1.1 a demandé trois corrections : autoriser un pack non signé, servir le registre d'images en HTTPS, et faire approuver le certificat du registre par le cloud proxy. Ce billet documente chaque étape et liste ce que le pack remonte."
+description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, les trois obstacles entre un fichier .pak et un collecteur qui tourne (pack non signé, registre en HTTPS uniquement, certificat non approuvé), les 65 objets, 312 métriques et quatre alertes que le pack produit sur une fédération de lab à deux locations, et les 22 définitions d'alertes et trois tableaux de bord ajoutés en version 1.1."
+summary: "L'adaptateur collecte une NSX Federation 9.1 à deux locations en 12 secondes et 60 appels d'API. Le faire tourner dans VCF Operations 9.1.1 a demandé trois corrections : autoriser un pack non signé, servir le registre d'images en HTTPS, et faire approuver le certificat du registre par le cloud proxy. Ce billet documente chaque étape, liste ce que le pack remonte, et couvre les définitions d'alertes et les tableaux de bord de la version 1.1."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Notes"]
 showToc: true
@@ -176,7 +176,7 @@ Le pack rapporte sa propre santé sur l'objet fédération : appels effectués, 
 
 ### Les alertes du premier jour
 
-Le pack ne livre aucune définition d'alerte. Un événement envoyé par l'adaptateur apparaît dans VCF Operations comme une alerte « Notification event » sur l'objet.
+Les versions 1.0.0 et 1.0.1 ne livrent aucune définition d'alerte. Un événement envoyé par l'adaptateur apparaît dans VCF Operations comme une alerte « Notification event » sur l'objet.
 
 La version 1.0.0 a montré trois alertes :
 
@@ -197,9 +197,81 @@ Les quatre décrivent correctement le lab.
 
 Les alarmes NSX ouvertes de chaque location arrivent de la même façon. Pendant le remplacement de nœuds edge dans le lab le 18 novembre, les alarmes `rtep_bgp_down` et `rtep_connectivity_lost` sont apparues comme alertes sur les deux objets location. VCF Operations a annulé chacune d'elles environ 15 minutes plus tard, sans aucune action dans VCF Operations.
 
+## Version 1.1 : définitions d'alertes et tableaux de bord
+
+Les événements utilisés comme alertes ont deux limites. Ils ne portent aucune recommandation, et chacun s'appelle « Notification event ». La version 1.1 ajoute au pack de vraies définitions d'alertes et trois tableaux de bord.
+
+### Définitions d'alertes
+
+Le contenu tient dans un seul fichier XML de `content/alertdefs`, avec 33 symptômes, 22 définitions d'alertes et 18 recommandations. Un script le génère à partir d'une table de symptômes, d'alertes et de recommandations. Chaque symptôme est une condition sur une métrique ou une propriété :
+
+```xml
+<SymptomDefinition adapterKind="NSXFederation" id="SymptomDefinition-NSXFederation-gm_backup_off"
+                   name="Backup is not configured on the Global Manager" resourceKind="global_manager">
+    <State severity="immediate">
+        <Condition key="backup_enabled" operator="=" thresholdType="static" type="property"
+                   value="False" valueType="string"/>
+    </State>
+</SymptomDefinition>
+```
+
+| Type d'objet | Alertes |
+| --- | --- |
+| Fédération | Aucun Global Manager actif ; split-brain (deux actifs) ; un Global Manager injoignable depuis le collecteur ; aucun standby configuré ; collecte partielle (budget d'appels d'API épuisé) |
+| Global Manager | Cluster dégradé ; sauvegarde absente, ancienne ou en échec ; certificat proche de l'expiration |
+| Location | Connexion au Global Manager actif perdue ; Local Manager injoignable depuis le collecteur ; certificat non approuvé ; full sync non terminé ; sessions BGP inter-site tombées ; version différente de celle du Global Manager ; sauvegarde absente ou ancienne ; certificat proche de l'expiration ; cluster du Local Manager dégradé |
+| Canal de synchronisation | Canal tombé |
+| Nœud edge | Sessions BGP inter-site tombées |
+| Voisin BGP du Tier-0 | Session tombée ; session d'uplink établie sans aucun préfixe reçu |
+| Objet étendu dans une location | Non réalisé |
+
+Trois changements dans l'adaptateur accompagnent les définitions :
+
+- Trois métriques dérivées, car un symptôme compare une métrique à une valeur fixe et ne peut pas soustraire deux métriques : Global Managers injoignables, sessions BGP inter-site non établies, locations non réalisées.
+- Une condition qui a une définition d'alerte n'envoie plus d'événement. Sans ce changement, la même condition apparaîtrait deux fois, une fois comme alerte et une fois comme « Notification event ».
+- Les conditions sans définition restent des événements : les alarmes NSX relayées et l'état de synchronisation d'un Global Manager standby, que le lab ne peut pas tester.
+
+Les symptômes et les définitions d'alertes ont été testés avant toute construction de pack, d'abord sans les recommandations. La suite API importe du contenu d'alertes depuis un fichier zip (`POST /suite-api/api/content/operations/import`). Cet import ne demande ni installation de pack ni interrupteur des packs non signés. Environ cinq minutes après l'import, les quatre alertes qui correspondent au lab se sont déclenchées : aucun standby, la sauvegarde du Global Manager, et l'écart de version sur les deux locations. Les 18 autres ne se sont pas déclenchées, car le lab ne présente aucune de ces pannes.
+
+### Un ID de recommandation que l'installeur rejette
+
+La version 1.1.0 s'est installée avec le statut « completed ». Les tableaux de bord étaient présents. Les définitions d'alertes manquaient, et seul le journal analytics de VCF Operations en donnait la raison :
+
+```
+Cannot import Alert Definitions: Invalid format of Recommendation Id:
+Recommendation-NSXFederation-active_gm. It should start with Recommendation-df- or Recommendation-ud-
+```
+
+Un seul préfixe d'ID erroné fait rejeter tout le fichier, et l'installation du pack ne le signale pas. Le schéma du SDK ne contrôle pas ce préfixe non plus : le fichier était valide au regard de `alertDefinitionSchema.xsd`. Avec le préfixe `Recommendation-df-`, le même contenu a été importé par la suite API sans erreur, et le lab fonctionne avec cet import. La version 1.1.1 porte le fichier corrigé. Elle est construite et pas encore installée.
+
+### Tableaux de bord
+
+Trois tableaux de bord sont rangés dans un dossier nommé « NSX Federation » :
+
+| Tableau de bord | Contenu |
+| --- | --- |
+| Federation Overview | Alertes ouvertes sur les objets du pack ; une liste de la fédération, des Global Managers et des locations ; valeurs clés, propriétés et objets liés de l'élément sélectionné |
+| Inter-site Connectivity | Canaux de synchronisation et nœuds edge, tunnels RTEP, voisins BGP du Tier-0 ; valeurs clés de la ligne sélectionnée |
+| Stretched Objects | Gateways, segments et politiques étendus avec leur span ; la réalisation de chaque objet dans chaque location |
+
+Tous les tableaux de bord fonctionnent de la même façon : une liste pilote un scoreboard, et un clic sur une valeur du scoreboard trace sa tendance.
+
+![Le tableau de bord Federation Overview : les quatre alertes ouvertes regroupées sous trois définitions, la liste des objets de la fédération avec gm-site-a sélectionné, ses valeurs clés, ses objets liés et ses propriétés](/images/nsx-federation-mp/ops-dashboard-overview.webp)
+
+![Le tableau de bord Inter-site Connectivity : canaux de synchronisation et nœuds edge, tunnels RTEP, voisins BGP du Tier-0 et les valeurs clés du nœud edge sélectionné](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
+
+Un fichier de tableau de bord est du JSON, et la documentation du SDK décrit une façon de l'obtenir : construire le tableau de bord dans l'interface et l'exporter. Pour ce pack, un script écrit le JSON à partir du même modèle d'objets que l'adaptateur. Le format a été déduit des tableaux de bord que VCF Operations exporte par la suite API (`/api/content/operations/export`). Dans le fichier, un type d'objet est un marqueur tel que `resourceKind:id:3_::_`, et une table en tête de fichier associe chaque marqueur à un type d'adaptateur et à un type d'objet.
+
+Deux comportements ont coûté du temps :
+
+- Un tableau de bord importé affiche d'abord des widgets vides. Les listes d'objets montrent tous les objets de l'instance et les scoreboards ne montrent rien. Une tâche de fond de VCF Operations termine l'import quelques minutes plus tard, et les widgets reçoivent alors leurs réglages.
+- Les listes d'objets gardent les colonnes par défaut. Les colonnes de métriques ajoutées se trouvent à droite, derrière une barre de défilement. Une disposition de colonnes enregistrée dans le fichier n'a pas été appliquée à l'import.
+
 ## Ce qui manque encore
 
-- Les définitions d'alertes et de symptômes, les tableaux de bord et une arborescence d'inventaire. Les alertes ci-dessus sont de simples événements.
+- Une arborescence d'inventaire (traversal specification).
+- Les tests de 18 des 22 définitions d'alertes, qui demandent des pannes que le lab n'a pas.
+- L'installation de la version 1.1.1, pour que les définitions d'alertes viennent du pack lui-même.
 - Le nettoyage des objets remplacés. Un nœud edge redéployé reçoit un nouvel ID dans NSX et devient un nouvel objet. Après le remplacement des edges, 26 anciens objets nœud edge et tunnel sont restés dans l'inventaire sans données, à côté des 65 objets actifs.
 - La latence entre managers. NSX la mesure et l'affiche dans son interface ; l'API qui la porte n'a pas été trouvée.
 - L'état du pare-feu des hôtes, le second point ouvert de la partie 1.
@@ -209,7 +281,7 @@ Les alarmes NSX ouvertes de chaque location arrivent de la même façon. Pendant
 
 ## Sources
 
-- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026, version 1.0.1 le 18 novembre.
+- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026, versions 1.0.1 et 1.1.0 le 18 novembre.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html) : « No signature found on PAK file » lors de l'installation d'un management pack
 - [Docker : verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

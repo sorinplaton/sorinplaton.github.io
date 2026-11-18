@@ -1,8 +1,8 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 2: building, installing and what the pack captures"
 date: 2026-11-18
-description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the three obstacles between a .pak file and a running collector (unsigned pack, HTTPS-only registry, untrusted certificate), the 65 objects, 312 metrics and four alerts the pack produces on a two-location lab federation, and the 22 alert definitions and three dashboards added in versions 1.1.0 and 1.1.1."
-summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Getting it to run inside VCF Operations 9.1.1 took three fixes: allowing an unsigned pack, serving the image registry over HTTPS, and making the cloud proxy trust the registry certificate. This post documents each step, lists what the pack captures, and covers the alert definitions and dashboards added in version 1.1.0 and corrected in 1.1.1."
+description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the three obstacles between a .pak file and a running collector (unsigned pack, HTTPS-only registry, untrusted certificate), the 65 objects, 312 metrics and four alerts the pack produces on a two-location lab federation, the 22 alert definitions and three dashboards added in version 1.1, and the steps to send the alerts by email."
+summary: "The adapter collects a two-location NSX 9.1 Federation in 12 seconds and 60 API calls. Getting it to run inside VCF Operations 9.1.1 took three fixes: allowing an unsigned pack, serving the image registry over HTTPS, and making the cloud proxy trust the registry certificate. This post documents each step and lists what the pack captures. It also covers the alert definitions and dashboards of version 1.1 and how to send the alerts by email."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
@@ -241,16 +241,7 @@ Three changes in the adapter go with the definitions:
 
 The symptoms and alert definitions were tested before any pack build, at first without the recommendations. The suite API imports alert content from a zip file (`POST /suite-api/api/content/operations/import`). It needs neither a pack install nor the unsigned-pack switch. About five minutes after the import the four alerts that match the lab fired: no standby, Global Manager backup, and the version mismatch on both locations. The other 18 have not fired, because the lab has no such fault.
 
-### A recommendation ID the installer rejects
-
-Version 1.1.0 installed with the status "completed". The dashboards were there. The alert definitions were missing, and only the analytics log of VCF Operations gave the reason:
-
-```
-Cannot import Alert Definitions: Invalid format of Recommendation Id:
-Recommendation-NSXFederation-active_gm. It should start with Recommendation-df- or Recommendation-ud-
-```
-
-One wrong ID prefix rejects the whole file, and the pack install does not report it. The SDK schema does not check this prefix either: the file validated against `alertDefinitionSchema.xsd`. With the prefix `Recommendation-df-` the same content imported through the suite API without error, and the lab ran on that import until the next pack version. Version 1.1.1 carries the corrected file. Before its install, the content imported by hand was deleted. The install of 1.1.1 then brought the 22 alert definitions, the 33 symptoms and the 18 recommendations from the pack, and the same four alerts fired again.
+The SDK schema does not check one rule: a recommendation ID has to start with `Recommendation-df-`. Without that prefix VCF Operations rejects the whole alert file. Version 1.1.1 exists to correct that prefix. Installed with the pack, the definitions raise the same four alerts, now under their own names:
 
 ![The alert list filtered on "Global Manager" with version 1.1.1: the four alerts now carry the names of their definitions](/images/nsx-federation-mp/ops-alerts-defined.webp)
 
@@ -283,9 +274,71 @@ Two behaviours cost time:
 - An imported dashboard shows empty widgets at first. The object lists show every object of the instance and the scoreboards show nothing. A background job in VCF Operations completes the import a few minutes later, and the widgets then get their settings.
 - The object lists keep the default columns. The added metric columns sit to the right, behind a scroll bar. A saved column layout in the file was not applied at import.
 
+### Coverage by object type
+
+Each object type of the pack was compared with the built-in NSX integration (50 object types, 423 alert definitions). The result per type:
+
+| Object type | Metrics | Alert definitions | Dashboard |
+| --- | --- | --- | --- |
+| Federation | 14 | 5 | Federation Overview |
+| Global Manager | 10 | 3 | Federation Overview |
+| Global Manager node | 1 | None, covered by the cluster alert of the Global Manager | Related objects only |
+| Location | 14 | 9 | Federation Overview |
+| Sync channel | 1 | 1 | Inter-site Connectivity |
+| Edge cluster | 4 | None | Inter-site Connectivity |
+| Edge node | 4 | 1 | Inter-site Connectivity |
+| RTEP tunnel | 9 | None | Inter-site Connectivity |
+| Tier-0 BGP neighbor | 7 | 2 | Inter-site Connectivity |
+| Stretched Tier-0, Tier-1, segment | 4 each | None, covered by the realization alert | Stretched Objects |
+| Global security policy | 7 | None, covered by the realization alert | Stretched Objects |
+| Stretched object at a location | 5 | 1 | Stretched Objects |
+| Global firewall rule (opt-in) | 4 | None | None |
+
+The review found these gaps:
+
+- **RTEP tunnel.** A tunnel whose BGP session is down raises the alert of its edge node. The tunnel itself has no alert, and neither do dropped or blocked packets.
+- **Counters are totals.** Packets, bytes, drops and rule hits are the running totals NSX returns. The pack computes no rate, so a threshold on drops per minute is not possible yet.
+- **Edge cluster.** The inter-site status of the cluster is a property with no alert.
+- **Stretched objects in error.** The "locations in error" metric has no alert. An object that fails at a location only raises the alert of that realization.
+- **Global Manager alarms.** The pack counts the open alarms of the Global Manager and forwards only those of the Local Managers as events.
+- **Units.** No metric declares a unit, so hours, days, bytes and packets show as plain numbers.
+- **Views, reports and super metrics.** The pack ships none.
+
+## Sending the alerts by email
+
+The pack raises the alerts and VCF Operations sends them. That takes two settings: an outbound instance that knows the mail server, and a notification rule that picks the alerts. Both are under Administration, Configurations, in the Alerts group. The lab has no outbound instance and no mail server, so the forms below were opened in the UI and not saved, and no email was sent.
+
+### 1. The outbound instance
+
+1. Open Administration, Configurations, Outbound Settings and click Add.
+2. Choose the plugin type "Standard Email Plugin" and give the instance a name.
+3. Fill in SMTP Host and SMTP Port, the sender address and the sender name. Tick "Use Secure Connection" and "Requires Authentication" if the mail server asks for them.
+4. Click Test, then Save.
+
+![Create New Outbound Instance with the Standard Email Plugin: SMTP host and port, secure connection, sender address and name, credential and receiver address](/images/nsx-federation-mp/ops-email-plugin.webp)
+
+The same list offers a Webhook, Slack, ServiceNow and SNMP trap plugin. The rule in the next step works with any of them.
+
+### 2. The notification rule
+
+1. Open Administration, Configurations, Notifications and click Add. The wizard has five steps.
+2. **Notification:** a name, for example "NSX Federation alerts by email".
+3. **Define Criteria:** under Object Scope choose "Object Type" and select the object types of the NSX Federation adapter. Under Alert Scope, Category can stay on all alerts or be narrowed to "Alert Definition" to pick single definitions. Criticality limits the rule, for example to Immediate and Critical. "Notify On" selects which status changes of an alert send a message.
+4. **Set Outbound Method:** the email plugin and the instance from part 1.
+5. **Select Payload Template:** the template that formats the message. Templates are managed under Payload Templates on the same Configurations page.
+6. **Test Notification**, then Create.
+
+Steps 4 to 6 come from the step names of the wizard. Without an outbound instance the lab could not go through them.
+
+![The Define Criteria step of a notification rule: object scope, alert scope with category, criticality and control state, and the status changes to notify on](/images/nsx-federation-mp/ops-notification-rule.webp)
+
+A rule on the pack's object types, limited to Immediate and Critical, sends the outages by email. The version mismatch and the missing standby stay in the UI. A second rule without the criticality limit, sent to a team mailbox, covers them.
+
 ## What is not there yet
 
 - An inventory tree (traversal specification).
+- The gaps listed under coverage: alerts for RTEP tunnels, edge clusters, stretched objects in error and Global Manager alarms, rates for the counters, and units on the metrics.
+- A test of the email notification, which needs a mail server the lab does not have.
 - Tests for 18 of the 22 alert definitions, which need faults the lab does not have.
 - Clean-up of replaced objects. An edge node that is redeployed gets a new ID in NSX and becomes a new object. After the edge replacement, 26 old edge node and tunnel objects stayed in the inventory without data, next to the 65 live ones.
 - Latency between managers. NSX measures it and shows it in its UI; the API that carries it was not found.

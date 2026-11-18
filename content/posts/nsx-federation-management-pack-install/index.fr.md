@@ -1,7 +1,7 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 2 : construction, installation et données collectées par le pack"
 date: 2026-11-18
-description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, les trois obstacles qui séparent un fichier .pak d'un collecteur opérationnel (pack non signé, registre accessible uniquement en HTTPS, certificat non approuvé), les 65 objets, 312 métriques et quatre alertes que le pack produit sur une fédération de lab à deux emplacements, les 22 définitions d'alerte et les trois tableaux de bord ajoutés en version 1.1, et la marche à suivre pour envoyer les alertes par e-mail."
+description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, les trois obstacles qui séparent un fichier .pak d'un collecteur opérationnel (pack non signé, registre à servir en HTTPS, certificat non approuvé), les 65 objets, 312 métriques et quatre alertes que le pack produit sur une fédération de lab à deux emplacements, les 22 définitions d'alerte et les trois tableaux de bord ajoutés en version 1.1, et la marche à suivre pour envoyer les alertes par e-mail."
 summary: "L'adaptateur collecte une NSX Federation 9.1 à deux emplacements en 12 secondes et 60 appels d'API. Pour le faire fonctionner dans VCF Operations 9.1.1, il a fallu trois corrections : autoriser un pack non signé, servir le registre d'images en HTTPS et faire approuver le certificat du registre par le proxy cloud. Cet article détaille chaque étape et liste ce que le pack collecte. Il présente aussi les définitions d'alerte et les tableaux de bord de la version 1.1, ainsi que l'envoi des alertes par e-mail."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Notes"]
@@ -16,7 +16,7 @@ La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur u
 
 ## Le lab
 
-Un Holodeck VCF 9.1.1 imbriqué. Un Global Manager (`nsx-gm-01a`, un seul nœud actif, pas de Global Manager de secours) fédère deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1.0, build 25795063, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur une machine de rebond Linux équipée de Docker.
+Le lab est un Holodeck VCF 9.1.1 imbriqué. Un Global Manager (`nsx-gm-01a`, un seul nœud actif, pas de Global Manager de secours) fédère deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1.0, build 25795063, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur une machine de rebond Linux équipée de Docker.
 
 ## Étape 1 : construire l'adaptateur
 
@@ -30,12 +30,12 @@ RUN pip install vmware-aria-operations-integration-sdk
 
 L'adaptateur tient en deux fichiers Python :
 
-- `nsxclient.py` : un client REST NSX en lecture seule, avec pagination par curseur, budget d'appels par manager, temporisation avant nouvel essai sur les codes HTTP 429 et 503, épinglage du certificat par empreinte SHA-256 et petit cache sur disque pour les données qui changent peu.
+- `nsxclient.py` : un client REST NSX en lecture seule, avec pagination par curseur, budget d'appels par manager, attente avant nouvelle tentative sur les codes HTTP 429 et 503, épinglage du certificat par empreinte SHA-256 et petit cache sur disque pour les données qui changent peu.
 - `adapter.py` : le modèle d'objets, la logique de collecte et les événements.
 
-L'instance d'adaptateur reçoit une ou deux adresses de Global Manager et un seul jeu d'identifiants. Elle découvre les Local Managers à partir du Global Manager et approuve chacun d'eux grâce à l'empreinte de certificat que le Global Manager détient déjà.
+L'instance d'adaptateur reçoit une ou deux adresses de Global Manager et un seul jeu d'identifiants. Elle découvre les Local Managers à partir du Global Manager et approuve chacun d'eux à partir de l'empreinte de certificat que le Global Manager en détient déjà.
 
-Avant toute installation, la collecte a été lancée depuis le conteneur d'outillage sur les managers du lab en fonctionnement :
+Avant toute installation, la collecte a été lancée depuis le conteneur d'outillage sur les managers réels du lab :
 
 | Test | Résultat |
 | --- | --- |
@@ -45,7 +45,7 @@ Avant toute installation, la collecte a été lancée depuis le conteneur d'outi
 
 ## Étape 2 : un registre pour l'image de l'adaptateur
 
-Un pack SDK ne se suffit pas à lui-même. Le fichier `.pak` contient les définitions d'objets et une référence à une image de conteneur, que le proxy cloud récupère dans un registre au démarrage de l'instance d'adaptateur. Le lab utilise un conteneur `registry:2` sur la machine de rebond.
+Un pack SDK n'est pas autonome. Le fichier `.pak` contient les définitions d'objets et une référence à une image de conteneur, que le proxy cloud récupère dans un registre au démarrage de l'instance d'adaptateur. Le lab utilise un conteneur `registry:2` sur la machine de rebond.
 
 Avec une adresse de la forme `host:port`, `mp-build` a inscrit le mauvais registre dans le pack (il s'est replié sur Docker Hub). Un court script réécrit deux valeurs, `REGISTRY` et `REPOSITORY`, dans le fichier `.conf` que contient `adapter.zip` :
 
@@ -101,7 +101,7 @@ L'étape 2 doit suivre l'étape 1, car l'ouverture de session sur la console d'a
 
 Ces appels sont internes à l'interface : ils ne sont pas pris en charge et peuvent changer à chaque version. L'option vaut pour toute l'instance. Dans le lab, elle n'est restée activée que le temps de l'envoi.
 
-La première version installée était la 1.0.0. Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK_NSXFederation` apparaissent dans VCF Operations. Le pack figure, avec sa version, sous Administration, Integrations, Repository. La capture est postérieure à la dernière mise à niveau mentionnée dans cet article, vers la version 1.1.1.
+La première version installée était la 1.0.0. Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK_NSXFederation` apparaissent dans VCF Operations. Le pack figure, avec sa version, sous « Administration, Integrations, Repository ». La capture a été prise après la dernière mise à niveau décrite dans cet article, celle vers la version 1.1.1.
 
 ![Administration, Integrations, Repository avec le filtre « Federation » : le pack NSX Federation, en version 1.1.1, avec un compte](/images/nsx-federation-mp/ops-repository-pack.webp)
 
@@ -131,7 +131,7 @@ Une fois le HTTPS en place, le journal du registre a changé (10.0.6.33 est le r
 http: TLS handshake error from 10.0.6.33:56544: remote error: tls: bad certificate
 ```
 
-Le proxy cloud exécute Docker, et Docker approuve un registre privé lorsque le certificat de celui-ci se trouve dans un dossier qui porte le nom du registre :
+Le proxy cloud exécute Docker, et Docker approuve un registre privé dès lors que son certificat se trouve dans un dossier portant le nom du registre :
 
 ```
 /etc/docker/certs.d/10.0.6.27:5000/ca.crt
@@ -201,9 +201,9 @@ La version 1.0.1 envoie tous les événements sans clé de défaut. Après la mi
 
 ![Alertes de VCF Operations filtrées sur « Global Manager » : l'alerte de sauvegarde sur gm-site-a, l'absence de Global Manager de secours sur l'objet fédération, et l'écart de version sur les deux emplacements](/images/nsx-federation-mp/ops-alerts.webp)
 
-Toutes les quatre décrivent fidèlement le lab.
+Les quatre alertes décrivent correctement l'état du lab.
 
-Les alarmes NSX ouvertes de chaque emplacement arrivent par le même chemin. Le 18 novembre, pendant le remplacement de nœuds Edge dans le lab, les alarmes `rtep_bgp_down` et `rtep_connectivity_lost` sont apparues sous forme d'alertes sur les deux objets emplacement. VCF Operations a annulé chacune d'elles environ 15 minutes plus tard, sans aucune intervention de ce côté.
+Les alarmes NSX ouvertes de chaque emplacement arrivent par le même chemin. Le 18 novembre, pendant le remplacement de nœuds Edge dans le lab, les alarmes `rtep_bgp_down` et `rtep_connectivity_lost` sont apparues sous forme d'alertes sur les deux objets emplacement. VCF Operations a annulé chacune d'elles environ 15 minutes plus tard, sans aucune intervention dans VCF Operations.
 
 ## Version 1.1 : définitions d'alerte et tableaux de bord
 
@@ -259,7 +259,7 @@ Trois tableaux de bord sont regroupés dans un dossier nommé « NSX Federation
 | Inter-site Connectivity | Canaux de synchronisation et nœuds Edge, tunnels RTEP, voisins BGP du Tier-0 ; valeurs clés de la ligne sélectionnée |
 | Stretched Objects | Passerelles, segments et stratégies étendus, avec leur étendue ; réalisation de chaque objet sur chaque emplacement |
 
-Tous fonctionnent sur le même principe : une liste alimente un widget « Scoreboard » (un tableau de valeurs clés), et un clic sur l'une de ces valeurs en trace la tendance.
+Tous fonctionnent sur le même principe : une liste alimente un widget « Scoreboard » (un tableau de valeurs clés), et un clic sur l'une de ces valeurs en affiche la courbe de tendance.
 
 ![Le tableau de bord Federation Overview : les quatre alertes ouvertes, regroupées sous trois définitions, la liste des objets de la fédération avec gm-site-a sélectionné, ses valeurs clés, ses objets associés et ses propriétés](/images/nsx-federation-mp/ops-dashboard-overview.webp)
 
@@ -297,7 +297,7 @@ Chaque type d'objet du pack a été comparé à l'intégration NSX native (50 ty
 Cette comparaison a fait apparaître les lacunes suivantes :
 
 - **Tunnel RTEP.** Un tunnel dont la session BGP est tombée déclenche l'alerte de son nœud Edge. Le tunnel lui-même n'a pas d'alerte, pas plus que les paquets rejetés ou bloqués.
-- **Les compteurs sont des cumuls.** Paquets, octets, rejets et correspondances de règles sont les cumuls que renvoie NSX. Le pack ne calcule aucun taux : un seuil sur les rejets par minute n'est donc pas encore possible.
+- **Les compteurs sont des cumuls.** Paquets, octets, rejets et correspondances de règles sont les totaux cumulés que renvoie NSX. Le pack ne calcule aucun taux : un seuil sur les rejets par minute n'est donc pas encore possible.
 - **Cluster Edge.** L'état intersite du cluster est une propriété sans alerte.
 - **Objets étendus en erreur.** La métrique « emplacements en erreur » n'a pas d'alerte. Un objet en échec sur un emplacement ne déclenche que l'alerte de la réalisation concernée.
 - **Alarmes du Global Manager.** Le pack compte les alarmes ouvertes du Global Manager, et ne relaie sous forme d'événements que celles des Local Managers.
@@ -310,7 +310,7 @@ Le pack déclenche les alertes, VCF Operations les envoie. Deux réglages sont n
 
 ### 1. L'instance sortante
 
-1. Ouvrir Administration, Configurations, Outbound Settings et cliquer sur « Add ».
+1. Ouvrir « Administration, Configurations, Outbound Settings » et cliquer sur « Add ».
 2. Choisir le type de plug-in « Standard Email Plugin » et donner un nom à l'instance.
 3. Renseigner « SMTP Host » et « SMTP Port », ainsi que l'adresse et le nom de l'expéditeur. Cocher « Use Secure Connection » et « Requires Authentication » si le serveur de messagerie l'exige.
 4. Cliquer sur « Test », puis sur « Save ».
@@ -321,18 +321,18 @@ La même liste propose des plug-ins Webhook, Slack, ServiceNow et SNMP trap. La 
 
 ### 2. La règle de notification
 
-1. Ouvrir Administration, Configurations, Notifications et cliquer sur « Add ». L'assistant compte cinq étapes.
+1. Ouvrir « Administration, Configurations, Notifications » et cliquer sur « Add ». L'assistant compte cinq étapes.
 2. **Notification :** un nom, par exemple « NSX Federation alerts by email ».
 3. **Define Criteria :** sous « Object Scope », choisir « Object Type » et sélectionner les types d'objets de l'adaptateur NSX Federation. Sous « Alert Scope », le champ « Category » peut rester sur toutes les alertes ou être restreint à « Alert Definition » pour choisir des définitions précises. « Criticality » limite la règle, par exemple à Immediate et Critical. « Notify On » détermine les changements d'état d'une alerte qui déclenchent un message.
 4. **Set Outbound Method :** le plug-in e-mail et l'instance créée à la section 1.
 5. **Select Payload Template :** le modèle qui met en forme le message. Les modèles se gèrent sous « Payload Templates », sur la même page Configurations.
 6. **Test Notification**, puis « Create ».
 
-Les étapes 4 à 6 reprennent les intitulés de l'assistant. Faute d'instance sortante, le lab n'a pas permis de les parcourir.
+Les étapes 4 à 6 sont décrites d'après les intitulés de l'assistant : faute d'instance sortante, elles n'ont pas pu être déroulées dans le lab.
 
 ![L'étape Define Criteria d'une règle de notification : périmètre des objets, périmètre des alertes avec catégorie, criticité et état de contrôle, et changements d'état à notifier](/images/nsx-federation-mp/ops-notification-rule.webp)
 
-Une règle portant sur les types d'objets du pack et limitée à Immediate et Critical envoie les pannes par e-mail. L'écart de version et l'absence de Global Manager de secours restent dans l'interface. Une seconde règle, sans limite de criticité et adressée à la boîte aux lettres d'une équipe, les couvre.
+Une règle portant sur les types d'objets du pack et limitée à Immediate et Critical signale les pannes par e-mail. L'écart de version et l'absence de Global Manager de secours restent dans l'interface. Une seconde règle, sans limite de criticité et adressée à la boîte aux lettres d'une équipe, les couvre.
 
 ## Ce qui manque encore
 

@@ -1,15 +1,15 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 1 : concevoir le management pack"
 date: 2026-11-17
-description: "VCF Operations 9.1.1 supervise chaque Local Manager NSX, mais ignore tout d'une NSX Federation : ni Global Manager, ni synchronisation entre emplacements, ni tunnels RTEP, ni objets étendus. Cet article décrit la conception d'un management pack sur mesure dans un lab Holodeck : ce que couvre l'intégration native, les appels d'API NSX qui donnent l'état de la fédération, le modèle d'objets, les alertes, et ce qu'un réexamen à l'échelle d'une grande entreprise a changé."
-summary: "Une NSX Federation 9.1 à deux emplacements tourne dans le lab, et VCF Operations n'en montre rien. Partie 1 de la construction du management pack : vérification de l'intégration NSX native, exploration des API du Global Manager et des Local Managers, modèle à 12 types d'objets, liste des métriques et des alertes, et les huit changements qu'un réexamen à l'échelle d'une grande entreprise a imposés avant la première ligne de code."
+description: "VCF Operations 9.1.1 supervise chaque Local Manager NSX, mais ignore tout d'une NSX Federation : ni Global Manager, ni synchronisation entre emplacements, ni tunnels RTEP, ni objets étendus. Cet article décrit la conception d'un management pack sur mesure dans un lab Holodeck : ce que couvre l'intégration native, les appels d'API NSX qui donnent l'état de la fédération, le modèle d'objets, les alertes, et ce qu'il a fallu revoir pour qu'il tienne à l'échelle d'une grande entreprise."
+summary: "Une NSX Federation 9.1 à deux emplacements tourne dans le lab, et VCF Operations n'en montre rien. Partie 1 de la construction du management pack : vérification de l'intégration NSX native, exploration des API du Global Manager et des Local Managers, modèle à 12 types d'objets, liste des métriques et des alertes, et les huit points revus pour tenir à l'échelle d'une grande entreprise, avant la première ligne de code."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Notes"]
 showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/object-model.svg"]
 params:
-  seoDescription: "Concevoir un management pack VCF Operations pour NSX 9.1 Federation : appels d'API, modèle d'objets, alertes et changements imposés par un réexamen à l'échelle d'une grande entreprise."
+  seoDescription: "Concevoir un management pack VCF Operations pour NSX 9.1 Federation : appels d'API, modèle d'objets, alertes, et les points revus pour tenir à l'échelle d'une grande entreprise."
 ---
 
 VCF Operations 9.1.1 supervise tous les Local Managers NSX du lab, mais ne montre rien de la fédération qui les relie. Le Global Manager, l'état de synchronisation entre les emplacements (les « Locations » de NSX Federation), les tunnels RTEP et les passerelles étendues n'y ont ni objet, ni métrique, ni alerte. Cet article décrit la conception d'un management pack qui les ajoute. Aucune ligne de code de l'adaptateur n'existe encore : la partie 1 s'arrête là où la construction commence.
@@ -24,7 +24,7 @@ La page NSX ci-dessus répond déjà aux questions que se pose un exploitant : 
 
 ## Étape 1 : vérifier ce que VCF Operations collecte déjà
 
-Un pack qui ferait doublon avec l'intégration NSX native doublerait le nombre d'objets et déclencherait deux alertes pour une même panne. La première étape consiste donc à inventorier l'existant à l'aide de l'API de VCF Operations.
+Un pack qui referait le travail de l'intégration NSX native doublerait le nombre d'objets et déclencherait deux alertes pour une même panne. La première étape consiste donc à inventorier, par l'API de VCF Operations, ce qui est déjà collecté.
 
 ```bash
 OPS=ops-a.site-a.vcf.lab
@@ -46,14 +46,14 @@ Résultat :
 - **Version** : VCF Operations 9.1.1.0, build 25795063.
 - **Collecteur** : `opscollector-01a`, de type `UNIFIED_CLOUD_PROXY`, à l'état `UP`. Ce point compte pour la construction : un adaptateur écrit avec l'Integration SDK s'exécute dans un conteneur sur un collecteur, jamais sur le nœud d'analyse.
 - **Intégration NSX** : le type d'adaptateur `NSXTAdapter` compte 50 types d'objets et quatre instances, une par Local Manager NSX du lab, fédéré ou non. Aucun de ces 50 types ne correspond à un Global Manager, à un emplacement ou à un tunnel RTEP, et aucune instance ne pointe vers le Global Manager.
-- **Objets de la fédération** : l'instance de `nsx-wld01` liste le cluster Edge `fed-ec-a` et le pool d'adresses IP RTEP, car ce sont des objets locaux. La recherche des objets globaux (`fed-t0`, `fed-stretched`) dans son inventaire n'a rien renvoyé.
-- **Constat annexe** : l'instance de `nsx-shared-a`, le Local Manager de l'emplacement `site-a-wld03`, existe, mais ne contient qu'un seul objet, elle-même. Elle ne collecte pas encore.
+- **Objets de la fédération** : l'instance de `nsx-wld01` liste le cluster Edge `fed-ec-a` et le pool d'adresses IP RTEP, car ce sont des objets locaux. Une recherche des objets globaux (`fed-t0`, `fed-stretched`) dans son inventaire n'a rien donné.
+- **Constat annexe** : l'instance de `nsx-shared-a`, le Local Manager de l'emplacement `site-a-wld03`, existe, mais ne contient qu'un seul objet : elle-même. Elle ne collecte pas encore.
 
 L'intégration native couvre la tuyauterie propre à chaque emplacement et s'arrête à la frontière de la fédération. Au pack de prendre en charge la couche fédération et de la relier au reste.
 
 ## Étape 2 : trouver les appels d'API qui donnent l'état de la fédération
 
-Tous les appels ci-dessous sont des GET, exécutés sur les managers du lab en fonctionnement. Le Global Manager publie son arborescence Policy sous `/global-manager/api/v1/global-infra` ; un Local Manager expose les objets qu'il a reçus sous `/policy/api/v1/global-infra`.
+Tous les appels ci-dessous sont des GET, exécutés sur les managers réels du lab. Le Global Manager publie son arborescence Policy sous `/global-manager/api/v1/global-infra` ; un Local Manager expose les objets qu'il a reçus sous `/policy/api/v1/global-infra`.
 
 **La fédération est-elle connectée ?** La question se pose au Global Manager :
 
@@ -90,7 +90,7 @@ curl -sk -u "$NSX_USER:$NSX_PW" \
 
 Le premier appel renvoie les sessions BGP intersites de chaque nœud Edge (2 au total, 2 établies sur `edge-wld01-01a`), avec les adresses RTEP source et voisine. Le second renvoie, pour chaque tunnel, les octets, les paquets, les paquets rejetés et les paquets bloqués.
 
-La cartographie complète, une fois vérifiée :
+La cartographie complète, après vérification :
 
 | Question | Manager | Chemin d'API |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ Un management pack repose d'abord sur un modèle d'objets : quels éléments ex
 
 ![Modèle d'objets : du Global Manager au nœud de manager ; de l'emplacement au cluster Edge, au nœud Edge puis au tunnel RTEP ; de la passerelle Tier-0 à la passerelle Tier-1 puis au segment, avec le voisin BGP sous le Tier-0 ; de la stratégie globale à la règle](/images/nsx-federation-mp/object-model.svg)
 
-Les identifiants proviennent de NSX, jamais d'une adresse : identifiant de fédération et identifiant de site pour les managers et les emplacements, identifiant de nœud de transport pour les nœuds Edge, chemin de stratégie globale pour les passerelles, les segments et les stratégies. Un objet identifié par une adresse IP ou par un FQDN se transforme en un second objet, sans historique, le jour où une adresse IP virtuelle change ou qu'un Global Manager bascule.
+Les identifiants proviennent de NSX, jamais d'une adresse : identifiant de fédération et identifiant de site pour les managers et les emplacements, identifiant de nœud de transport pour les nœuds Edge, chemin de stratégie globale pour les passerelles, les segments et les stratégies. Un objet identifié par une adresse IP ou par un FQDN devient un second objet, sans historique, le jour où une adresse IP virtuelle change ou qu'un Global Manager bascule.
 
 ## Étape 4 : métriques et alertes
 
@@ -142,13 +142,13 @@ Le lab compte deux emplacements et un Global Manager à un seul nœud. L'objecti
 1. **Une seule adresse de Global Manager est un défaut de conception.** Après un basculement, l'adaptateur pointerait vers un manager rétrogradé, ou hors service, au moment précis où la supervision est nécessaire. Il lui faut l'adresse du Global Manager actif et celle du Global Manager de secours ; il doit repérer l'actif à chaque cycle et continuer à collecter sur les Local Managers quand aucun Global Manager ne répond. Deux managers qui se déclarent actifs en même temps déclenchent une alerte critique.
 2. **L'état du Global Manager de secours entre dans la première version.** Pour une équipe dotée d'une procédure de reprise d'activité, la première question est la suivante : le Global Manager de secours est-il synchronisé, et un basculement peut-il être lancé ? L'ébauche la plaçait en dernier.
 3. **Ne plus faire doublon avec l'intégration native.** Les nœuds Edge, les passerelles et les segments existent déjà pour chaque Local Manager. Le pack doit, autant que possible, rattacher ses métriques et ses relations à ces objets, et ne créer que les types propres à la fédération.
-4. **Un objet par règle ne passe pas à l'échelle.** Des milliers de règles, à quatre compteurs chacune, sur vingt emplacements : l'essentiel des valeurs serait à zéro. Par défaut, le pack remonte des totaux par stratégie et ne crée d'objets règle que sur demande.
+4. **Un objet par règle ne passe pas à l'échelle.** Des milliers de règles, à quatre compteurs chacune, sur vingt emplacements : la plupart des valeurs resteraient à zéro. Par défaut, le pack remonte des totaux par stratégie et ne crée d'objets règle que sur demande.
 5. **Fixer un budget d'appels d'API.** Un appel de réalisation par objet étendu ne tient pas dans un cycle de 5 minutes à grande échelle, et NSX limite chaque client (100 requêtes par seconde et 40 requêtes simultanées par défaut). La collecte doit s'exécuter en parallèle, Local Manager par Local Manager, avec des cycles plus lents pour l'inventaire que pour les états.
 6. **Prévenir les avalanches d'alertes.** La perte d'un seul emplacement déclencherait l'alerte de l'emplacement, puis celles de chaque tunnel, de chaque session BGP et de chaque objet étendu. Les alertes doivent être hiérarchisées par cause racine et tenir compte des fenêtres de maintenance.
 7. **Le nombre de secondes écoulées depuis la dernière synchronisation complète n'est pas le bon indicateur.** Une fédération saine fonctionne en synchronisation différentielle ; la synchronisation complète reste l'exception. Les indicateurs utiles sont l'état de la synchronisation, le remplissage des files d'attente et les échecs de synchronisation complète.
-8. **Le pack doit se superviser lui-même.** Durée de collecte, nombre d'appels d'API et dernière collecte réussie par emplacement, pour qu'une absence de données ne soit jamais interprétée comme un état sain.
+8. **Le pack doit se superviser lui-même.** Il expose sa durée de collecte, son nombre d'appels d'API et la dernière collecte réussie par emplacement, pour qu'une absence de données ne soit jamais interprétée comme un état sain.
 
-Ce réexamen a aussi contredit un constat de l'étape 2, et la capture d'écran tranche : NSX mesure bel et bien la latence entre managers. Le produit dispose de cette valeur ; c'est l'exploration qui n'a pas trouvé l'API qui la renvoie.
+Ce réexamen a aussi contredit un constat de l'étape 2, et la capture d'écran tranche : NSX mesure bel et bien la latence entre managers. Le produit dispose de cette valeur ; l'exploration n'a simplement pas trouvé l'API qui la renvoie.
 
 Une réserve subsiste : vingt emplacements, c'est peut-être plus que ce que NSX 9.1 Federation prend en charge. Ce point est à vérifier dans les maximums de configuration avant de fixer les objectifs d'échelle.
 
@@ -156,7 +156,7 @@ Une réserve subsiste : vingt emplacements, c'est peut-être plus que ce que NS
 
 VCF Operations offre deux manières de construire un pack : le Management Pack Builder, sans code, et l'Integration SDK. Le SDK a été retenu pour trois raisons, toutes issues des étapes précédentes. Une même instance d'adaptateur doit interroger plusieurs managers et découvrir les Local Managers à partir du Global Manager. Elle doit suivre le basculement d'un Global Manager. Enfin, les valeurs dérivées, comme un écart de version ou un état d'emplacement qui résiste aux avalanches d'alertes, exigent du code.
 
-La contrepartie se situe du côté de la construction. Un adaptateur SDK est une image de conteneur : il faut donc un outillage Python et Docker pour le construire, et le collecteur récupère l'image dans un registre de conteneurs qu'il doit pouvoir joindre.
+Ce choix alourdit la construction. Un adaptateur SDK est une image de conteneur : il faut donc un outillage Python et Docker pour le construire, et le collecteur récupère l'image dans un registre de conteneurs qu'il doit pouvoir joindre.
 
 ## La suite
 

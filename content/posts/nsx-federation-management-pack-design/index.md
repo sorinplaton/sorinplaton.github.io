@@ -140,8 +140,6 @@ The first release keeps the alert list short:
 - no standby Global Manager is configured
 - a location runs a different version from the Global Manager
 
-Two of them would fire in the lab on day one: no backup and no standby Global Manager. The Global Manager and the locations run the same release, 9.1.1, at two patch levels, which raises no alert.
-
 ## Step 5: reviewing the design for enterprise scale
 
 The lab has two locations and one Global Manager node. The target is a pack a large enterprise could run: three-node Global Manager clusters, an active and a standby in different sites, many locations, thousands of stretched objects, several teams. The design was reviewed again on that basis, and eight points changed the plan.

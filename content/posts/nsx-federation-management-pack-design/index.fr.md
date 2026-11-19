@@ -140,8 +140,6 @@ La première version s'en tient à une courte liste d'alertes :
 - absence de Global Manager de secours
 - version d'un emplacement différente de celle du Global Manager
 
-Deux d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente et l'absence de Global Manager de secours. Le Global Manager et les emplacements exécutent la même release, 9.1.1, à deux niveaux de correctif, ce qui ne déclenche aucune alerte.
-
 ## Étape 5 : éprouver la conception à l'échelle d'une grande entreprise
 
 Le lab compte deux emplacements et un Global Manager à un seul nœud. L'objectif est un pack exploitable dans une grande entreprise, c'est-à-dire avec des clusters Global Manager à trois nœuds, l'un actif et l'autre de secours sur des sites distincts, de nombreux emplacements, des milliers d'objets étendus et plusieurs équipes. La conception a été réexaminée sous cet angle, et huit points ont modifié le plan.

@@ -119,7 +119,7 @@ A management pack starts with an object model: which things exist, what identifi
 
 ![Object model: Global Manager to Manager node; Location to Edge cluster to Edge node to RTEP tunnel; Tier-0 gateway to Tier-1 gateway to Segment, with BGP neighbor under Tier-0; Global policy to Rule](/images/nsx-federation-mp/object-model.svg)
 
-Identifiers come from NSX, never from an address: the federation id and site id for managers and locations, the transport node id for edges, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over.
+Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over.
 
 ## Step 4: metrics and alerts
 
@@ -147,7 +147,7 @@ The first release keeps the alert list short:
 - no standby Global Manager is configured
 - a location runs a different version from the Global Manager
 
-Three of them would fire in the lab on day one: no backup, no standby Global Manager, and a build mismatch between the Global Manager (9.1.1.0100) and the locations (9.1.1.0).
+Two of them would fire in the lab on day one: no backup and no standby Global Manager. The Global Manager (9.1.1.0100) and the locations (9.1.1.0) run the same release, which raises no alert.
 
 ## Step 5: reviewing the design for enterprise scale
 
@@ -155,7 +155,7 @@ The lab has two locations and one Global Manager node. The target is a pack a la
 
 1. **One Global Manager address is a design fault.** After a switchover the adapter would point at a demoted or dead manager at the moment it is needed. It needs the active and the standby address, has to detect the active one on every cycle, and has to keep collecting from the Local Managers when no Global Manager answers. Two managers both claiming the active role becomes a critical alert.
 2. **Standby readiness moves to the first release.** For a team with a DR runbook, "is the standby in sync and can a switchover start" is the first question. The first draft of the plan ranked it last.
-3. **Stop duplicating the built-in integration.** Edge nodes, gateways and segments already exist per Local Manager. The pack should attach its metrics and relationships to those objects where it can, and own only the federation types.
+3. **Stop duplicating the built-in integration.** Edge nodes, gateways and segments already exist per Local Manager. The pack should attach its metrics and relationships to those objects where it can, and own only the federation types. As built, the pack links edge nodes and edge clusters to the built-in objects and keeps its own types ([part 2](/posts/nsx-federation-management-pack-install/)).
 4. **Rules as objects do not scale.** Thousands of rules with four counters each, across twenty locations, give mostly zeros. The pack reports policy-level totals by default and creates rule objects only on request.
 5. **Budget the API calls.** One realization call per stretched object does not fit a 5-minute cycle at scale, and NSX limits each client (100 requests per second and 40 concurrent by default). Collection has to run per Local Manager in parallel, with slower cycles for inventory than for status.
 6. **Design against alert storms.** One lost location would raise the location alert, every tunnel, every BGP session and every stretched object. The alerts need a root-cause order and an awareness of maintenance windows.

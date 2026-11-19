@@ -119,7 +119,7 @@ Un management pack repose d'abord sur un modèle d'objets : quels éléments ex
 
 ![Modèle d'objets : du Global Manager au nœud de manager ; de l'emplacement au cluster Edge, au nœud Edge puis au tunnel RTEP ; de la passerelle Tier-0 à la passerelle Tier-1 puis au segment, avec le voisin BGP sous le Tier-0 ; de la stratégie globale à la règle](/images/nsx-federation-mp/object-model.svg)
 
-Les identifiants proviennent de NSX, jamais d'une adresse : identifiant de fédération et identifiant de site pour les managers et les emplacements, identifiant de nœud de transport pour les nœuds Edge, chemin de stratégie globale pour les passerelles, les segments et les stratégies. Un objet identifié par une adresse IP ou par un FQDN devient un second objet, sans historique, dès qu'une adresse IP virtuelle change ou qu'un Global Manager bascule.
+Les identifiants proviennent de NSX, jamais d'une adresse de manager : identifiant de fédération et identifiant de site pour les managers et les emplacements, emplacement et nom du nœud pour les nœuds Edge, adresses RTEP et adresses des pairs pour les tunnels et les sessions BGP, chemin de stratégie globale pour les passerelles, les segments et les stratégies. Un objet identifié par une adresse IP ou par un FQDN devient un second objet, sans historique, dès qu'une adresse IP virtuelle change ou qu'un Global Manager bascule.
 
 ## Étape 4 : métriques et alertes
 
@@ -147,7 +147,7 @@ La première version s'en tient à une liste d'alertes courte :
 - absence de Global Manager de secours
 - version d'un emplacement différente de celle du Global Manager
 
-Trois d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente, l'absence de Global Manager de secours et l'écart de build entre le Global Manager (9.1.1.0100) et les emplacements (9.1.1.0).
+Deux d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente et l'absence de Global Manager de secours. Le Global Manager (9.1.1.0100) et les emplacements (9.1.1.0) exécutent la même release, ce qui ne déclenche aucune alerte.
 
 ## Étape 5 : éprouver la conception à l'échelle d'une grande entreprise
 
@@ -155,7 +155,7 @@ Le lab compte deux emplacements et un Global Manager à un seul nœud. L'objecti
 
 1. **Une seule adresse de Global Manager est un défaut de conception.** Après un basculement, l'adaptateur pointerait vers un manager rétrogradé ou hors service, au moment précis où la supervision est nécessaire. Il lui faut l'adresse du Global Manager actif et celle du Global Manager de secours ; il doit repérer l'actif à chaque cycle et continuer à collecter sur les Local Managers quand aucun Global Manager ne répond. Deux managers qui se déclarent actifs en même temps déclenchent une alerte critique.
 2. **L'état du Global Manager de secours entre dans la première version.** Pour une équipe dotée d'une procédure de reprise d'activité, la première question est la suivante : le Global Manager de secours est-il synchronisé, et un basculement peut-il être lancé ? La première ébauche du plan reléguait ce point en dernière position.
-3. **Le pack ne doit plus faire doublon avec l'intégration native.** Les nœuds Edge, les passerelles et les segments existent déjà pour chaque Local Manager. Le pack doit, autant que possible, rattacher ses métriques et ses relations à ces objets, et ne créer que les types propres à la fédération.
+3. **Le pack ne doit plus faire doublon avec l'intégration native.** Les nœuds Edge, les passerelles et les segments existent déjà pour chaque Local Manager. Le pack doit, autant que possible, rattacher ses métriques et ses relations à ces objets, et ne créer que les types propres à la fédération. Tel qu'il est construit, le pack relie les nœuds Edge et les clusters Edge aux objets natifs et conserve ses propres types ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
 4. **Un objet par règle ne passe pas à l'échelle.** Des milliers de règles, à quatre compteurs chacune, sur vingt emplacements : la plupart des valeurs resteraient à zéro. Par défaut, le pack remonte des totaux par stratégie et ne crée d'objets règle que sur demande.
 5. **Les appels d'API ont besoin d'un quota.** Un appel de réalisation par objet étendu ne tient pas dans un cycle de 5 minutes à grande échelle, et NSX limite chaque client (100 requêtes par seconde et 40 requêtes simultanées par défaut). La collecte doit s'exécuter en parallèle, Local Manager par Local Manager, avec des cycles plus lents pour l'inventaire que pour les états.
 6. **Les avalanches d'alertes doivent être évitées dès la conception.** La perte d'un seul emplacement déclencherait l'alerte de l'emplacement, puis celles de chaque tunnel, de chaque session BGP et de chaque objet étendu. Les alertes doivent être regroupées sous leur cause première et tenir compte des fenêtres de maintenance.

@@ -18,6 +18,8 @@ La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur u
 
 Le lab est un environnement VCF 9.1.1. Il compte deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Global Manager de secours. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur une machine de rebond Linux équipée de Docker, 10.0.6.27. Cette même machine héberge le registre d'images, sur le port 5000.
 
+![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le secours nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le cloud proxy opscollector-01a, et l'hôte de rebond qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg)
+
 Le Global Manager de secours a été déployé à partir de la même appliance 9.1.1 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de gestion. Il a été enregistré sur le Global Manager actif par l'API, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants du compte admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes.
 
 ## Construire l'adaptateur

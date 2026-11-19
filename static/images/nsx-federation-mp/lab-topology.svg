@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1090" viewBox="0 0 1600 1090" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1600" height="1090" fill="#ffffff"/><defs>
+<marker id="ma" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1d2733"/></marker>
+<marker id="sa" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M9,0 L0,4.5 L9,9 z" fill="#1d2733"/></marker>
+<marker id="mp" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b3fa0"/></marker>
+<marker id="sp" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M9,0 L0,4.5 L9,9 z" fill="#5b3fa0"/></marker>
+<marker id="mt" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#0b7a75"/></marker>
+<marker id="st" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M9,0 L0,4.5 L9,9 z" fill="#0b7a75"/></marker>
+<marker id="mg" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#6b7785"/></marker>
+<marker id="sg" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M9,0 L0,4.5 L9,9 z" fill="#6b7785"/></marker>
+<marker id="mb" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f4e9c"/></marker>
+<marker id="sb" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M9,0 L0,4.5 L9,9 z" fill="#1f4e9c"/></marker>
+</defs>
+<text x="800.0" y="36" font-size="23" fill="#1d2733" text-anchor="middle" font-weight="bold">The part 2 lab: two Global Managers, two locations, one VCF Operations</text>
+<text x="800.0" y="62" font-size="14" fill="#6b7785" text-anchor="middle">Where the pack collects from, and where its image is built and pulled</text>
+<rect x="420" y="90" width="760" height="130" rx="6" fill="#f7f4fb" stroke="#5b3fa0" stroke-width="1.6" stroke-dasharray="8 5"/><text letter-spacing="1" x="434" y="112" font-size="13" fill="#5b3fa0" text-anchor="start" font-weight="bold">GLOBAL MANAGER PAIR</text>
+<rect x="618" y="142" width="44" height="36" rx="4" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.8"/><line x1="625" y1="154" x2="647" y2="154" stroke="#5b3fa0" stroke-width="1.3"/><circle cx="653" cy="154" r="2" fill="#5b3fa0"/><line x1="625" y1="166" x2="647" y2="166" stroke="#5b3fa0" stroke-width="1.3"/><circle cx="653" cy="166" r="2" fill="#5b3fa0"/>
+<text x="612" y="155" font-size="15" fill="#5b3fa0" text-anchor="end" font-weight="bold">nsx-gm-01a</text><text x="612" y="173" font-size="13" fill="#6b7785" text-anchor="end">active · gm-site-a</text>
+<rect x="938" y="142" width="44" height="36" rx="4" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.8"/><line x1="945" y1="154" x2="967" y2="154" stroke="#5b3fa0" stroke-width="1.3"/><circle cx="973" cy="154" r="2" fill="#5b3fa0"/><line x1="945" y1="166" x2="967" y2="166" stroke="#5b3fa0" stroke-width="1.3"/><circle cx="973" cy="166" r="2" fill="#5b3fa0"/>
+<text x="988" y="155" font-size="15" fill="#5b3fa0" text-anchor="start" font-weight="bold">nsx-gm-01b</text><text x="988" y="173" font-size="13" fill="#6b7785" text-anchor="start">standby · gm-site-b</text>
+<path d="M662,160 L938,160" fill="none" stroke="#5b3fa0" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#mp)" marker-start="url(#sp)"/>
+<text x="800" y="150" font-size="13" fill="#5b3fa0" text-anchor="middle">GM sync</text>
+<rect x="40" y="280" width="720" height="290" rx="6" fill="#f5f8fd" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/><text letter-spacing="1" x="54" y="302" font-size="13" fill="#1f4e9c" text-anchor="start" font-weight="bold">LOCATION site-a-wld01</text>
+<rect x="840" y="280" width="720" height="290" rx="6" fill="#f5faf5" stroke="#2e7d32" stroke-width="1.6" stroke-dasharray="8 5"/><text letter-spacing="1" x="854" y="302" font-size="13" fill="#2e7d32" text-anchor="start" font-weight="bold">LOCATION site-a-wld03</text>
+<path d="M640,178 L640,250 L400,250 L400,324" fill="none" stroke="#5b3fa0" stroke-width="1.4" stroke-dasharray="2 3" marker-end="url(#mp)"/>
+<path d="M640,250 L1200,250 L1200,324" fill="none" stroke="#5b3fa0" stroke-width="1.4" stroke-dasharray="2 3" marker-end="url(#mp)"/>
+<text x="520" y="243" font-size="13" fill="#5b3fa0" text-anchor="middle">GM → LM push</text>
+<rect x="347" y="326" width="30" height="26" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.6"/><line x1="352" y1="334.7" x2="367" y2="334.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="371" cy="334.7" r="1.5" fill="#1f4e9c"/><line x1="352" y1="343.3" x2="367" y2="343.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="371" cy="343.3" r="1.5" fill="#1f4e9c"/>
+<rect x="385" y="326" width="30" height="26" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.6"/><line x1="390" y1="334.7" x2="405" y2="334.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="409" cy="334.7" r="1.5" fill="#1f4e9c"/><line x1="390" y1="343.3" x2="405" y2="343.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="409" cy="343.3" r="1.5" fill="#1f4e9c"/>
+<rect x="423" y="326" width="30" height="26" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.6"/><line x1="428" y1="334.7" x2="443" y2="334.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="447" cy="334.7" r="1.5" fill="#1f4e9c"/><line x1="428" y1="343.3" x2="443" y2="343.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="447" cy="343.3" r="1.5" fill="#1f4e9c"/>
+<text x="470" y="336" font-size="15" fill="#1f4e9c" text-anchor="start" font-weight="bold">nsx-wld01-a</text><text x="470" y="354" font-size="13" fill="#6b7785" text-anchor="start">Local Manager</text>
+<path d="M400,352 L400,428" fill="none" stroke="#6b7785" stroke-width="1.4" marker-end="url(#mg)"/>
+<rect x="1147" y="326" width="30" height="26" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.6"/><line x1="1152" y1="334.7" x2="1167" y2="334.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="1171" cy="334.7" r="1.5" fill="#2e7d32"/><line x1="1152" y1="343.3" x2="1167" y2="343.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="1171" cy="343.3" r="1.5" fill="#2e7d32"/>
+<rect x="1185" y="326" width="30" height="26" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.6"/><line x1="1190" y1="334.7" x2="1205" y2="334.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="1209" cy="334.7" r="1.5" fill="#2e7d32"/><line x1="1190" y1="343.3" x2="1205" y2="343.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="1209" cy="343.3" r="1.5" fill="#2e7d32"/>
+<rect x="1223" y="326" width="30" height="26" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.6"/><line x1="1228" y1="334.7" x2="1243" y2="334.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="1247" cy="334.7" r="1.5" fill="#2e7d32"/><line x1="1228" y1="343.3" x2="1243" y2="343.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="1247" cy="343.3" r="1.5" fill="#2e7d32"/>
+<text x="1270" y="336" font-size="15" fill="#2e7d32" text-anchor="start" font-weight="bold">nsx-shared-a</text><text x="1270" y="354" font-size="13" fill="#6b7785" text-anchor="start">Local Manager</text>
+<path d="M1200,352 L1200,428" fill="none" stroke="#6b7785" stroke-width="1.4" marker-end="url(#mg)"/>
+<rect x="230" y="430" width="340" height="110" rx="5" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text letter-spacing="1" x="242" y="450" font-size="12" fill="#1f4e9c" text-anchor="start" font-weight="bold">EDGE CLUSTER · 2 NODES</text>
+<circle cx="340" cy="495" r="22" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.8"/><line x1="327.9" y1="489.72" x2="352.1" y2="489.72" stroke="#1f4e9c" stroke-width="1.6"/><path d="M347.1,485.72 L352.1,489.72 L347.1,493.72" fill="none" stroke="#1f4e9c" stroke-width="1.6"/><line x1="327.9" y1="500.28" x2="352.1" y2="500.28" stroke="#1f4e9c" stroke-width="1.6"/><path d="M332.9,496.28 L327.9,500.28 L332.9,504.28" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<circle cx="460" cy="495" r="22" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.8"/><line x1="447.9" y1="489.72" x2="472.1" y2="489.72" stroke="#1f4e9c" stroke-width="1.6"/><path d="M467.1,485.72 L472.1,489.72 L467.1,493.72" fill="none" stroke="#1f4e9c" stroke-width="1.6"/><line x1="447.9" y1="500.28" x2="472.1" y2="500.28" stroke="#1f4e9c" stroke-width="1.6"/><path d="M452.9,496.28 L447.9,500.28 L452.9,504.28" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<text x="400" y="530" font-size="13" fill="#6b7785" text-anchor="middle">edge nodes</text>
+<rect x="1030" y="430" width="340" height="110" rx="5" fill="#ffffff" stroke="#2e7d32" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text letter-spacing="1" x="1042" y="450" font-size="12" fill="#2e7d32" text-anchor="start" font-weight="bold">EDGE CLUSTER · 2 NODES</text>
+<circle cx="1140" cy="495" r="22" fill="#ffffff" stroke="#2e7d32" stroke-width="1.8"/><line x1="1127.9" y1="489.72" x2="1152.1" y2="489.72" stroke="#2e7d32" stroke-width="1.6"/><path d="M1147.1,485.72 L1152.1,489.72 L1147.1,493.72" fill="none" stroke="#2e7d32" stroke-width="1.6"/><line x1="1127.9" y1="500.28" x2="1152.1" y2="500.28" stroke="#2e7d32" stroke-width="1.6"/><path d="M1132.9,496.28 L1127.9,500.28 L1132.9,504.28" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<circle cx="1260" cy="495" r="22" fill="#ffffff" stroke="#2e7d32" stroke-width="1.8"/><line x1="1247.9" y1="489.72" x2="1272.1" y2="489.72" stroke="#2e7d32" stroke-width="1.6"/><path d="M1267.1,485.72 L1272.1,489.72 L1267.1,493.72" fill="none" stroke="#2e7d32" stroke-width="1.6"/><line x1="1247.9" y1="500.28" x2="1272.1" y2="500.28" stroke="#2e7d32" stroke-width="1.6"/><path d="M1252.9,496.28 L1247.9,500.28 L1252.9,504.28" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<text x="1200" y="530" font-size="13" fill="#6b7785" text-anchor="middle">edge nodes</text>
+<path d="M484,495 L1116,495" fill="none" stroke="#0b7a75" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#mt)" marker-start="url(#st)"/>
+<text x="680" y="485" font-size="13" fill="#0b7a75" text-anchor="middle" font-weight="bold">RTEP · inter-site BGP</text>
+<rect x="40" y="610" width="900" height="150" rx="6" fill="#f7f8fa" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/><text letter-spacing="1" x="54" y="632" font-size="13" fill="#6b7785" text-anchor="start" font-weight="bold">VCF OPERATIONS 9.1.1</text>
+<rect x="148" y="677" width="44" height="36" rx="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><line x1="155" y1="689" x2="177" y2="689" stroke="#1d2733" stroke-width="1.3"/><circle cx="183" cy="689" r="2" fill="#1d2733"/><line x1="155" y1="701" x2="177" y2="701" stroke="#1d2733" stroke-width="1.3"/><circle cx="183" cy="701" r="2" fill="#1d2733"/>
+<text x="206" y="690" font-size="15" fill="#1d2733" text-anchor="start" font-weight="bold">VCF Operations</text><text x="206" y="708" font-size="13" fill="#6b7785" text-anchor="start">analytics node</text>
+<rect x="538" y="677" width="44" height="36" rx="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><line x1="545" y1="689" x2="567" y2="689" stroke="#1d2733" stroke-width="1.3"/><circle cx="573" cy="689" r="2" fill="#1d2733"/><line x1="545" y1="701" x2="567" y2="701" stroke="#1d2733" stroke-width="1.3"/><circle cx="573" cy="701" r="2" fill="#1d2733"/>
+<text x="596" y="690" font-size="15" fill="#1d2733" text-anchor="start" font-weight="bold">opscollector-01a</text><text x="596" y="708" font-size="13" fill="#6b7785" text-anchor="start">cloud proxy · pack account</text>
+<path d="M538,695 L192,695" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#ma)"/>
+<path d="M560,677 L560,595 L800,595 L800,222" fill="none" stroke="#1f4e9c" stroke-width="1.8" marker-end="url(#mb)"/>
+<path d="M800,595 L800,560" fill="none" stroke="#1f4e9c" stroke-width="1.8"/>
+<text x="790" y="588" font-size="13" fill="#1f4e9c" text-anchor="end" font-weight="bold">REST API to both GMs and the LMs</text>
+<circle cx="1030" cy="740" r="18" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><line x1="1020.1" y1="735.68" x2="1039.9" y2="735.68" stroke="#1d2733" stroke-width="1.6"/><path d="M1034.9,731.68 L1039.9,735.68 L1034.9,739.68" fill="none" stroke="#1d2733" stroke-width="1.6"/><line x1="1020.1" y1="744.32" x2="1039.9" y2="744.32" stroke="#1d2733" stroke-width="1.6"/><path d="M1025.1,740.32 L1020.1,744.32 L1025.1,748.32" fill="none" stroke="#1d2733" stroke-width="1.6"/>
+<text x="1030" y="712" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">lab router · NAT</text>
+<rect x="1120" y="610" width="440" height="150" rx="6" fill="#f7f8fa" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/><text letter-spacing="1" x="1134" y="632" font-size="13" fill="#6b7785" text-anchor="start" font-weight="bold">BUILD</text>
+<rect x="1224" y="673" width="32" height="44" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><line x1="1229" y1="683" x2="1245" y2="683" stroke="#1d2733" stroke-width="1.2"/><circle cx="1250" cy="683" r="1.6" fill="#1d2733"/><line x1="1229" y1="693" x2="1245" y2="693" stroke="#1d2733" stroke-width="1.2"/><circle cx="1250" cy="693" r="1.6" fill="#1d2733"/><line x1="1229" y1="703" x2="1245" y2="703" stroke="#1d2733" stroke-width="1.2"/><circle cx="1250" cy="703" r="1.6" fill="#1d2733"/>
+<text x="1272" y="690" font-size="15" fill="#1d2733" text-anchor="start" font-weight="bold">jump host</text><text x="1272" y="708" font-size="13" fill="#6b7785" text-anchor="start">Docker build · registry :5000</text>
+<path d="M1240,717 L1240,740 L1050,740" fill="none" stroke="#0b7a75" stroke-width="1.6" marker-end="url(#mt)"/>
+<path d="M1010,740 L560,740 L560,715" fill="none" stroke="#0b7a75" stroke-width="1.6" marker-end="url(#mt)"/>
+<text x="800" y="732" font-size="13" fill="#0b7a75" text-anchor="middle">pack image pull</text>
+<rect x="40" y="800" width="1520" height="32" fill="#233648"/>
+<text x="52" y="821" font-size="14" fill="#ffffff" text-anchor="start" font-weight="bold">Component</text>
+<text x="342" y="821" font-size="14" fill="#ffffff" text-anchor="start" font-weight="bold">Name</text>
+<text x="652" y="821" font-size="14" fill="#ffffff" text-anchor="start" font-weight="bold">Detail</text>
+<line x1="40" y1="868" x2="1560" y2="868" stroke="#d8dee3"/>
+<text x="52" y="855" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Global Manager, active</text>
+<text x="342" y="855" font-size="14" fill="#1d2733" text-anchor="start">nsx-gm-01a (gm-site-a)</text>
+<text x="652" y="855" font-size="14" fill="#1d2733" text-anchor="start">10.1.1.37 · NSX 9.1.1 · single node</text>
+<rect x="40" y="868" width="1520" height="36" fill="#f7f9fa"/>
+<line x1="40" y1="904" x2="1560" y2="904" stroke="#d8dee3"/>
+<text x="52" y="891" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Global Manager, standby</text>
+<text x="342" y="891" font-size="14" fill="#1d2733" text-anchor="start">nsx-gm-01b (gm-site-b)</text>
+<text x="652" y="891" font-size="14" fill="#1d2733" text-anchor="start">Small size · on the site-a-wld03 cluster · registered as STANDBY through the API</text>
+<line x1="40" y1="940" x2="1560" y2="940" stroke="#d8dee3"/>
+<text x="52" y="927" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Location site-a-wld01</text>
+<text x="342" y="927" font-size="14" fill="#1d2733" text-anchor="start">Local Manager nsx-wld01-a</text>
+<text x="652" y="927" font-size="14" fill="#1d2733" text-anchor="start">cluster VIP 10.1.1.24 · edge cluster fed-ec-a, two nodes</text>
+<rect x="40" y="940" width="1520" height="36" fill="#f7f9fa"/>
+<line x1="40" y1="976" x2="1560" y2="976" stroke="#d8dee3"/>
+<text x="52" y="963" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Location site-a-wld03</text>
+<text x="342" y="963" font-size="14" fill="#1d2733" text-anchor="start">Local Manager nsx-shared-a</text>
+<text x="652" y="963" font-size="14" fill="#1d2733" text-anchor="start">cluster VIP 10.1.1.80 · two-node edge cluster</text>
+<line x1="40" y1="1012" x2="1560" y2="1012" stroke="#d8dee3"/>
+<text x="52" y="999" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">VCF Operations</text>
+<text x="342" y="999" font-size="14" fill="#1d2733" text-anchor="start">9.1.1</text>
+<text x="652" y="999" font-size="14" fill="#1d2733" text-anchor="start">one cloud proxy, opscollector-01a, runs the pack account</text>
+<rect x="40" y="1012" width="1520" height="36" fill="#f7f9fa"/>
+<line x1="40" y1="1048" x2="1560" y2="1048" stroke="#d8dee3"/>
+<text x="52" y="1035" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Jump host</text>
+<text x="342" y="1035" font-size="14" fill="#1d2733" text-anchor="start">10.0.6.27</text>
+<text x="652" y="1035" font-size="14" fill="#1d2733" text-anchor="start">Linux with Docker · builds the pack · image registry on port 5000</text>
+<line x1="40" y1="1084" x2="1560" y2="1084" stroke="#d8dee3"/>
+<text x="52" y="1071" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Lab router</text>
+<text x="342" y="1071" font-size="14" fill="#1d2733" text-anchor="start">10.0.6.33</text>
+<text x="652" y="1071" font-size="14" fill="#1d2733" text-anchor="start">NAT in front of the cloud proxy</text>
+</svg>

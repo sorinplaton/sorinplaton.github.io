@@ -2,12 +2,12 @@
 title: "Monitoring NSX Federation in VCF Operations, part 1: designing the management pack"
 date: 2026-11-17
 description: "VCF Operations 9.1.1 has an adapter instance for each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a nested lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the alerts, and what a review of the design against enterprise scale changed."
-summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, an object model of 12 types, the metric and alert list, and the eight changes that a review against enterprise scale forced before any code was written."
+summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a first object model of 12 types, the metric and alert list, and the eight changes that a review against enterprise scale forced before any code was written."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Nested lab"]
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
-images: ["/images/nsx-federation-mp/object-model.svg"]
+images: ["/images/nsx-federation-mp/gm-location-manager.webp"]
 params:
   seoDescription: "Designing a VCF Operations management pack for NSX 9.1 Federation: API calls, object model, alerts and the changes a review against enterprise scale forced."
 ---
@@ -108,18 +108,18 @@ The full map, as verified:
 
 Two values did not turn up:
 
-- **Latency between managers.** The Location Manager page shows it (3 ms and 2 ms in the screenshot above) and NSX raises an alarm on it (KB 345822), so NSX measures it. None of the fourteen paths tried returned it. The next attempt is to capture the call the page itself makes.
+- **Latency between managers.** The Location Manager page shows it (3 ms and 2 ms in the screenshot above) and NSX raises an alarm on it (KB 345822), so NSX measures it. None of the fourteen paths tried returned it. The next attempt is to capture the call the page itself makes. As built, the pack has no latency metric: it raises the NSX latency alarms as alerts.
 - **Firewall enforced on the host.** The lab has a live case: the rule in `fed-demo` is reported as realized on both Local Managers, while the hosts answer `firewall: disabled` to `nsxcli -c get firewall status` and no VM port has a filter. No manager API found so far exposes that host state.
 
 Two facts about the lab itself become alerts: the Global Manager has no backup configured, and it runs alone with no standby.
 
 ## Step 3: the object model
 
-A management pack starts with an object model: which things exist, what identifies them, and which object is the parent of which. The first draft has 12 types in four chains, shown in the diagram below. It still models edge nodes, gateways and segments itself, and step 5 comes back to that.
+A management pack starts with an object model: which things exist, what identifies them, and which object is the parent of which. The first draft has 12 types in four chains, shown in the diagram below. It still models edge nodes, gateways and segments itself, and step 5 comes back to that. As built, the pack has 15 types ([part 2](/posts/nsx-federation-management-pack-install/)).
 
 ![Object model: Global Manager to Manager node; Location to Edge cluster to Edge node to RTEP tunnel; Tier-0 gateway to Tier-1 gateway to Segment, with BGP neighbor under Tier-0; Global policy to Rule](/images/nsx-federation-mp/object-model.svg)
 
-Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over.
+Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over. As built, sync channels are identified by the names of the managers at both ends.
 
 ## Step 4: metrics and alerts
 
@@ -155,7 +155,7 @@ The lab has two locations and one Global Manager node. The target is a pack a la
 
 1. **One Global Manager address is a design fault.** After a switchover the adapter would point at a demoted or dead manager at the moment it is needed. It needs the active and the standby address, has to detect the active one on every cycle, and has to keep collecting from the Local Managers when no Global Manager answers. Two managers both claiming the active role becomes a critical alert.
 2. **Standby readiness moves to the first release.** For a team with a DR runbook, "is the standby in sync and can a switchover start" is the first question. The first draft of the plan ranked it last.
-3. **Stop duplicating the built-in integration.** Edge nodes, gateways and segments already exist per Local Manager. The pack should attach its metrics and relationships to those objects where it can, and own only the federation types. As built, the pack links edge nodes and edge clusters to the built-in objects and keeps its own types ([part 2](/posts/nsx-federation-management-pack-install/)).
+3. **Stop duplicating the built-in integration.** Edge nodes and edge clusters already exist per Local Manager; the global gateways and segments do not (step 1). The pack should attach its metrics and relationships to those objects where it can, and own only the federation types. As built, the pack links edge nodes and edge clusters to the built-in objects and keeps its own types ([part 2](/posts/nsx-federation-management-pack-install/)).
 4. **Rules as objects do not scale.** Thousands of rules with four counters each, across twenty locations, give mostly zeros. The pack reports policy-level totals by default and creates rule objects only on request.
 5. **Budget the API calls.** One realization call per stretched object does not fit a 5-minute cycle at scale, and NSX limits each client (100 requests per second and 40 concurrent by default). Collection has to run per Local Manager in parallel, with slower cycles for inventory than for status.
 6. **Design against alert storms.** One lost location would raise the location alert, every tunnel, every BGP session and every stretched object. The alerts need a root-cause order and an awareness of maintenance windows.

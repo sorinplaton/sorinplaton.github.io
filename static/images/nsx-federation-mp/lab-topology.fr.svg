@@ -85,7 +85,7 @@
 <line x1="40" y1="976" x2="1560" y2="976" stroke="#d8dee3"/>
 <text x="52" y="963" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Emplacement site-a-wld03</text>
 <text x="342" y="963" font-size="14" fill="#1d2733" text-anchor="start">Local Manager nsx-shared-a</text>
-<text x="652" y="963" font-size="14" fill="#1d2733" text-anchor="start">VIP du cluster 10.1.1.80 · cluster Edge à deux nœuds · instance NSX partageable, utilisée par wld03-a seul</text>
+<text x="652" y="963" font-size="14" fill="#1d2733" text-anchor="start">VIP du cluster 10.1.1.80 · cluster Edge à deux nœuds · Local Manager de cet emplacement seul</text>
 <line x1="40" y1="1012" x2="1560" y2="1012" stroke="#d8dee3"/>
 <text x="52" y="999" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">VCF Operations</text>
 <text x="342" y="999" font-size="14" fill="#1d2733" text-anchor="start">9.1.1</text>

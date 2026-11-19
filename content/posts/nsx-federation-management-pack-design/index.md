@@ -159,7 +159,7 @@ The lab has two locations and one Global Manager node. The target is a pack a la
 4. **Rules as objects do not scale.** Thousands of rules with four counters each, across twenty locations, give mostly zeros. The pack reports policy-level totals by default and creates rule objects only on request.
 5. **Budget the API calls.** One realization call per stretched object does not fit a 5-minute cycle at scale, and NSX limits each client (100 requests per second and 40 concurrent by default). Collection has to run per Local Manager in parallel, with slower cycles for inventory than for status.
 6. **Design against alert storms.** One lost location would raise the location alert, every tunnel, every BGP session and every stretched object. The alerts need a root-cause order and an awareness of maintenance windows.
-7. **"Seconds since the last full sync" is the wrong signal.** The first draft planned that metric. A healthy federation runs on delta sync, and a full sync is the exception. The useful signals are sync status, queue occupancy and full-sync failures.
+7. **"Seconds since the last full sync" is the wrong signal.** The first draft planned that metric. A healthy federation runs on delta sync, and a full sync is the exception. The useful signals are sync status, queue occupancy and full-sync failures. As built, the pack keeps the age of the last full sync as a metric, with no alert, and alerts on sync status and full-sync failures.
 8. **The pack has to monitor itself.** It reports its collection time, API call count and last success per location, so that "no data" is never read as "healthy".
 
 One caution: twenty locations may be more than NSX 9.1 Federation supports. That has to be checked against the configuration maximums before the scale targets are written down.
@@ -177,7 +177,7 @@ The cost is on the build side. An SDK adapter is a container image, so the build
 - Build the collector core against the lab, with a mock for the cases the lab cannot show: a standby Global Manager, a switchover, twenty locations.
 - Find the latency API and a way to read the host firewall state.
 
-[Part 2](/posts/nsx-federation-management-pack-install/) covers the build, the install and the first objects in VCF Operations.
+[Part 2](/posts/nsx-federation-management-pack-install/) covers the build, the install and what the pack monitors.
 
 ## Sources
 

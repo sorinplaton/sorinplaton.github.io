@@ -159,7 +159,7 @@ Le lab compte deux emplacements et un Global Manager à un seul nœud. L'objecti
 4. **Un objet par règle ne passe pas à l'échelle.** Des milliers de règles, à quatre compteurs chacune, sur vingt emplacements : la plupart des valeurs resteraient à zéro. Par défaut, le pack remonte des totaux par stratégie et ne crée d'objets règle que sur demande.
 5. **Les appels d'API ont besoin d'un quota.** Un appel de réalisation par objet étendu ne tient pas dans un cycle de 5 minutes à grande échelle, et NSX limite chaque client (100 requêtes par seconde et 40 requêtes simultanées par défaut). La collecte doit s'exécuter en parallèle, Local Manager par Local Manager, avec des cycles plus lents pour l'inventaire que pour les états.
 6. **Les avalanches d'alertes doivent être évitées dès la conception.** La perte d'un seul emplacement déclencherait l'alerte de l'emplacement, puis celles de chaque tunnel, de chaque session BGP et de chaque objet étendu. Les alertes doivent être regroupées sous leur cause première et tenir compte des fenêtres de maintenance.
-7. **Le nombre de secondes écoulées depuis la dernière synchronisation complète n'est pas le bon indicateur.** La première ébauche prévoyait cette métrique. Une fédération saine fonctionne en synchronisation différentielle, et la synchronisation complète reste l'exception. Les indicateurs utiles sont l'état de la synchronisation, le remplissage des files d'attente et les échecs de synchronisation complète.
+7. **Le nombre de secondes écoulées depuis la dernière synchronisation complète n'est pas le bon indicateur.** La première ébauche prévoyait cette métrique. Une fédération saine fonctionne en synchronisation différentielle, et la synchronisation complète reste l'exception. Les indicateurs utiles sont l'état de la synchronisation, le remplissage des files d'attente et les échecs de synchronisation complète. Tel qu'il est construit, le pack conserve l'âge de la dernière synchronisation complète comme métrique, sans alerte, et déclenche des alertes sur l'état de la synchronisation et sur les échecs de synchronisation complète.
 8. **Le pack doit se superviser lui-même.** Il expose sa durée de collecte, son nombre d'appels d'API et la dernière collecte réussie par emplacement, pour qu'une absence de données ne soit jamais interprétée comme un état sain.
 
 Une réserve : vingt emplacements, c'est peut-être plus que ce que NSX 9.1 Federation prend en charge. Ce point est à vérifier dans les valeurs maximales de configuration avant de fixer les objectifs d'échelle.
@@ -177,7 +177,7 @@ Ce choix alourdit la construction. Un adaptateur SDK est une image de conteneur�
 - Construire le cœur de la collecte sur le lab, avec un simulateur pour les cas que le lab ne peut pas reproduire : un Global Manager de secours, un basculement, vingt emplacements.
 - Trouver l'API de latence et un moyen de lire l'état du pare-feu sur les hôtes.
 
-La [partie 2](/fr/posts/nsx-federation-management-pack-install/) traite de la construction, de l'installation et des premiers objets dans VCF Operations.
+La [partie 2](/fr/posts/nsx-federation-management-pack-install/) traite de la construction, de l'installation et de ce que le pack supervise.
 
 ## Sources
 

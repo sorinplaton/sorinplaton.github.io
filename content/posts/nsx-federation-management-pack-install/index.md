@@ -1,7 +1,7 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 2: building, installing and what the pack captures"
 date: 2026-11-18
-description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the install step by step with screenshots (HTTPS registry, certificate trust on the cloud proxy, unsigned pack, account), and what the pack monitors on a two-location lab federation: 72 objects, 444 metrics, 63 alert definitions, four custom groups, three dashboards, five views and a report. It also covers a Global Manager switchover and how to send the alerts by email."
+description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the install step by step with screenshots (HTTPS registry, certificate trust on the cloud proxy, unsigned pack, account), and what the pack monitors on a two-location lab federation: 72 objects, 447 metrics, 63 alert definitions, four custom groups, three dashboards, five views and a report. It also covers a Global Manager switchover and how to send the alerts by email."
 summary: "The adapter collects a two-location NSX 9.1 Federation in 10 to 25 seconds. Running it inside VCF Operations 9.1.1 takes an image registry served over HTTPS, a cloud proxy that trusts the registry certificate, and the setting that allows an unsigned pack. This post documents each install step with screenshots, lists what the pack monitors (objects, metrics, alerts, groups, dashboards, views), tests a Global Manager switchover, and shows how to send the alerts by email."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Field notes"]
@@ -12,7 +12,7 @@ params:
   seoDescription: "Building and installing a custom NSX Federation management pack in VCF Operations 9.1.1: HTTPS registry, certificate trust, unsigned pack, and the objects, metrics, alerts, groups, dashboards and views it provides."
 ---
 
-[Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1 with screenshots, what the pack monitors (objects, metrics, alerts, groups, dashboards, views), a Global Manager switchover, and how to send the alerts by email. The pack described here is version 1.7.3, and its source is on GitHub: [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.3/docs/FEATURES.md) lists every object type, metric, property and alert of the pack, with the condition and the recommendation of each alert. The adapter itself took less time than the install. Three separate checks in VCF Operations stood between the `.pak` file and a running collector.
+[Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1 with screenshots, what the pack monitors (objects, metrics, alerts, groups, dashboards, views), a Global Manager switchover, and how to send the alerts by email. The pack described here is version 1.7.4, and its source is on GitHub: [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.4/docs/FEATURES.md) lists every object type, metric, property and alert of the pack, with the condition and the recommendation of each alert. The adapter itself took less time than the install. Three separate checks in VCF Operations stood between the `.pak` file and a running collector.
 
 ## The lab
 
@@ -35,13 +35,13 @@ The adapter is two Python files:
 - `nsxclient.py`: a read-only NSX REST client with cursor paging, a call budget per manager, back-off on HTTP 429 and 503, a certificate check by SHA-256 fingerprint, and a small on-disk cache for slow-moving data.
 - `adapter.py`: the object model, the collection logic and the events.
 
-The adapter instance takes one or two Global Manager addresses and one credential. It discovers the Local Managers from the Global Manager, and it compares the certificate of each Local Manager with the thumbprint the Global Manager already holds for it. A Global Manager is trusted by the certificate accepted on the account in VCF Operations. Once a certificate is checked, every connection of the cycle is bound to its fingerprint, so the credentials are not sent to a server that presents another certificate. The check has two modes: "enforce" stops the collection of a manager whose certificate does not match or that has no trusted certificate on record, and "report" collects and raises an alert. The default is "enforce": accept the Global Manager certificates when the account validates the connection, or the managers are not collected. The lab account was created through the API, has no accepted certificate, and runs in "report". The account also accepts a separate credential for the Local Managers. The pack only reads from NSX, so a read-only account is enough. The lab account uses NSX's built-in `audit` account on all four managers and collects the same objects as `admin`, with no failed call.
+The adapter instance takes one or two Global Manager addresses and one credential. It discovers the Local Managers from the Global Manager, and it compares the certificate of each Local Manager with the thumbprint the Global Manager already holds for it. A Global Manager is trusted by the certificate accepted on the account in VCF Operations. Once a certificate is checked, every connection of the cycle is bound to its fingerprint, so the credentials are not sent to a server that presents another certificate.
 
 One account monitors one federation. A listed Global Manager that answers for another federation is reported and left out, and an optional setting names the federation object when VCF Operations monitors several.
 
 An SDK pack is not self-contained. The `.pak` file carries the object definitions and a pointer to a container image. The cloud proxy pulls that image from a registry when the adapter instance starts.
 
-`mp-build` builds the pack. Given a registry address in `host:port` form, it wrote Docker Hub into the pack. A short script rewrites two values, `REGISTRY` and `REPOSITORY`, in the `.conf` file inside `adapter.zip`:
+`mp-build` builds the pack. Given a registry address in `host:port` form, it wrote Docker Hub into the pack. A short script, `tools/repack.py`, rewrites two values, `REGISTRY` and `REPOSITORY`, in the `.conf` file inside `adapter.zip`:
 
 ```
 REGISTRY=10.0.6.27:5000
@@ -135,15 +135,17 @@ The product UI login (item 2) has to come after the admin console login (item 1)
 
 The switch cannot be turned off while the install runs. During an upgrade the admin console answered `Cluster is in PAK installing state` until the install had finished. A script has to retry the last call.
 
-These calls are internal to the UI. They are unsupported and can change with any release. The switch applies to the whole instance. In the lab it was on only for the duration of the upload.
+These calls are internal to the UI. They are unsupported and can change with any release. The switch applies to the whole instance. In the lab it was on only for the duration of the upload. The repository holds these steps as `install/upi.sh` and `install/install_unsigned.sh`.
 
 After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` appear in VCF Operations. The pack shows under Administration, Integrations, Repository with its version:
 
-![Administration, Integrations, Repository filtered on "Federation": the NSX Federation pack, version 1.7.3, with one account](/images/nsx-federation-mp/ops-repository-pack.webp)
+![Administration, Integrations, Repository: the NSX Federation pack, version 1.7.4, with one account](/images/nsx-federation-mp/ops-repository-pack.webp)
 
 ### Step 4: create the account
 
-The adapter instance, called an account in the UI, is created on the cloud proxy. It takes one or two Global Manager addresses and one credential. With both addresses, the pack follows the active role when the Global Managers switch over. The other settings are optional: the security policies whose rules become objects, how the pack works with the built-in NSX integration (links and alarm alerts, both automatic by default), and the deletion of objects that left NSX (off by default). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.3/docs/OPERATIONS.md) describes each setting.
+The adapter instance, called an account in the UI, is created on the cloud proxy. It takes one or two Global Manager addresses and one credential. With both addresses, the pack follows the active role when the Global Managers switch over. The other settings are optional: the security policies whose rules become objects, how the pack works with the built-in NSX integration (links and alarm alerts, both automatic by default), and the deletion of objects that left NSX (off by default). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.4/docs/OPERATIONS.md) describes each setting.
+
+Validate the connection and accept the Global Manager certificates when the account is saved. The check has two modes: "enforce" stops the collection of a manager whose certificate does not match or that has no trusted certificate on record, and "report" collects and raises an alert. The default is "enforce": without an accepted certificate the managers are not collected. The lab account was created through the API, has no accepted certificate, and runs in "report". The account also accepts a separate credential for the Local Managers. The pack only reads from NSX, so a read-only account is enough. The lab account uses NSX's built-in `audit` account on all four managers and collects the same objects as `admin`, with no failed call.
 
 With the registry trusted, the cloud proxy pulled the image on the next start of the instance, and the instance reached `STARTED`, then `DATA_RECEIVING`. The Accounts tab shows the instance as "Collecting":
 
@@ -169,11 +171,11 @@ A change in how the adapter identifies an object creates a new object. The old o
 
 ## What the pack monitors
 
-This section gives an overview. The complete list of objects, metrics and alerts is in [FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.3/docs/FEATURES.md).
+This section gives an overview. The complete list of objects, metrics and alerts is in [FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.4/docs/FEATURES.md).
 
 ### Objects
 
-The pack defines 15 object types. In the lab it creates 72 objects of 14 types. The fifteenth type, the global firewall rule, is opt-in.
+The pack defines 15 object types. In the lab it creates 72 objects of 14 types. The fifteenth type, the global firewall rule, is opt-in per policy and was left off for this install.
 
 | Object type | Count in the lab | Examples of what is collected |
 | --- | --- | --- |
@@ -192,11 +194,9 @@ The pack defines 15 object types. In the lab it creates 72 objects of 14 types. 
 | Global security policy | 1 | Span, realization, rules total and disabled |
 | Stretched object at a location (realization) | 14 | Realized or not, status text |
 
-Global firewall rule objects are opt-in per policy and were left off for this install.
-
 The pack reports its own health on the federation object: calls made, calls throttled, errors, and whether a manager ran out of its call budget.
 
-An edge node and its tunnels are identified by location and node name, so a redeployed edge keeps its object and its history.
+An edge node is identified by location and node name, and each of its tunnels by that node and its two RTEP addresses, so a redeployed edge keeps its objects and their history.
 
 In the inventory, the object types sit in a tree and each object has a summary page. The screenshot below shows a location:
 
@@ -214,7 +214,7 @@ Four custom groups come with the pack: all objects of the pack (72 in the lab), 
 
 ### Metrics
 
-The pack sends 444 metrics per cycle in the lab once the rates are available.
+The pack sends 447 metrics per cycle in the lab once the rates are available.
 
 The metrics sit in groups, as in the built-in integrations: Sync, Connectivity, Certificates, Alarms, Rates and so on, 17 groups in all. The metric tree of an object stays short enough to read. The key of a metric carries its group, `sync|standby_in_sync` for example.
 
@@ -232,7 +232,7 @@ Seven figures cover the whole federation, on the federation object: locations he
 
 Each location also carries what the Location Manager page of NSX shows for it: the state of its three replication flows with the Global Manager, when the Global Manager last saw it, the round-trip time when NSX reports one, and its onboarding status. The NSX API reference does not list the call behind that page. It was read from the requests of the NSX UI: `GET /api/v1/federation/replication/gm/sites/<site-id>/status` on the active Global Manager. In the lab the three flows read SYNCHRONIZING and the round-trip time is empty.
 
-The table below gives the coverage of each object type. The Metrics column counts the metric keys defined for the type. Not every object sends every key (only policy realizations carry counters, for example), so the column multiplied by the object counts does not give 444.
+The table below gives the coverage of each object type. The Metrics column counts the metric keys defined for the type. Not every object sends every key (only policy realizations carry counters, for example), so the column multiplied by the object counts does not give 447.
 
 | Object type | Metrics | Alert definitions | Dashboard |
 | --- | --- | --- | --- |
@@ -338,7 +338,7 @@ Inter-site Connectivity shows the rates of one RTEP tunnel:
 
 Stretched Objects, with the segment fed-stretched selected:
 
-![The Stretched Objects dashboard: the stretched gateways, segments and policies, the realization per location, and the key values, properties and related objects of segment fed-stretched](/images/nsx-federation-mp/ops-dashboard-stretched.webp)
+![The Stretched Objects dashboard: the stretched gateways, segments and policies, the realization per location, and the key values and properties of segment fed-stretched](/images/nsx-federation-mp/ops-dashboard-stretched.webp)
 
 ### Views and a report
 
@@ -441,7 +441,7 @@ The same call as a PUT with the full object was refused with `Global Manager can
 
 Each switchover took about two minutes. The pack followed the active role in its first cycle after the change, with no edit to the account, because the account lists both addresses. No alert opened or closed during the test. For about a minute during the precheck, the new active Global Manager listed both Global Managers as active. The pack still counted one active Global Manager and raised no split-brain alert.
 
-After a switchover the former active Global Manager is a standby. Each standby carries its own sync value, as the active one reports it, so a Global Manager keeps a current value in either role.
+After a switchover the former active Global Manager is a standby and carries its own sync value, as described under The standby Global Manager.
 
 A planned switchover never leaves the federation without an active Global Manager, so the alerts "no active Global Manager" and "Global Manager not reachable" did not fire, as expected.
 
@@ -523,8 +523,8 @@ The 1,253 alert definitions and 2,044 symptom definitions on the lab's VCF Opera
 ## Sources
 
 - Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Managers), VCF Operations 9.1.1.0 build 25795063. Build, install and tests from 17 to 19 November 2026.
-- Source of the pack: [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag v1.7.3
-- Objects, metrics and alerts of version 1.7.3: [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.3/docs/FEATURES.md); account settings and sizing: [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.3/docs/OPERATIONS.md)
+- Source of the pack: [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag v1.7.4
+- Objects, metrics and alerts of version 1.7.4: [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.4/docs/FEATURES.md); account settings and sizing: [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.4/docs/OPERATIONS.md)
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack
 - [Docker: verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

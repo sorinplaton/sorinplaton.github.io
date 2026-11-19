@@ -16,7 +16,7 @@ La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur u
 
 ## Le lab
 
-Le lab est un environnement VCF 9.1.1 imbriqué. Il compte deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Global Manager de secours. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur une machine de rebond Linux équipée de Docker, 10.0.6.27. Cette même machine héberge le registre d'images, sur le port 5000.
+Le lab est un environnement VCF 9.1.1 en nested. Il compte deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Global Manager de secours. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur une machine de rebond Linux équipée de Docker, 10.0.6.27. Cette même machine héberge le registre d'images, sur le port 5000.
 
 Le Global Manager de secours a été déployé à partir de la même appliance 9.1.1 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de gestion. Il a été enregistré sur le Global Manager actif par l'API, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants du compte admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes.
 
@@ -526,7 +526,7 @@ Les 1 253 définitions d'alerte et 2 047 définitions de symptôme présentes 
 
 ## Sources
 
-- Lab : VCF 9.1.1 imbriqué, NSX 9.1.1 (Local Managers et Global Managers), VCF Operations 9.1.1. Construction, installation et tests du 17 au 19 novembre 2026.
+- Lab : VCF 9.1.1 en nested, NSX 9.1.1 (Local Managers et Global Managers), VCF Operations 9.1.1. Construction, installation et tests du 17 au 19 novembre 2026.
 - Code source du pack : [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag [v1.7.7](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/tree/v1.7.7)
 - Objets, métriques et alertes de la version 1.7.7 : [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.7/docs/FEATURES.md) (en anglais) ; réglages du compte et dimensionnement : [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.7/docs/OPERATIONS.md) (en anglais)
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)

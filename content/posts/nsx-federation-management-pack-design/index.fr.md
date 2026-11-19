@@ -1,7 +1,7 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 1 : concevoir le management pack"
 date: 2026-11-17
-description: "VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX, mais ne voit rien d'une fédération NSX : ni Global Manager, ni synchronisation entre emplacements, ni tunnels RTEP, ni objets étendus. Cet article décrit la conception d'un management pack sur mesure dans un lab imbriqué : ce que couvre l'intégration native, les appels d'API NSX qui donnent l'état de la fédération, le modèle d'objets, les alertes, et ce qu'a changé la relecture de la conception à l'échelle d'une grande entreprise."
+description: "VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX, mais ne voit rien d'une fédération NSX : ni Global Manager, ni synchronisation entre emplacements, ni tunnels RTEP, ni objets étendus. Cet article décrit la conception d'un management pack sur mesure dans un lab nested : ce que couvre l'intégration native, les appels d'API NSX qui donnent l'état de la fédération, le modèle d'objets, les alertes, et ce qu'a changé la relecture de la conception à l'échelle d'une grande entreprise."
 summary: "Une fédération NSX 9.1 à deux emplacements tourne dans le lab, et VCF Operations n'en montre rien. Cette première partie précède toute ligne de code : elle vérifie l'intégration NSX native, explore les API du Global Manager et des Local Managers, puis fixe un modèle à 12 types d'objets, la liste des métriques et des alertes, et les 8 changements imposés par une relecture à l'échelle d'une grande entreprise."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Nested lab"]
 categories: ["Notes"]
@@ -16,7 +16,7 @@ VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manag
 
 ## Le lab
 
-La fédération tourne dans un lab VCF 9.1.1 imbriqué. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), actif, à un seul nœud et sans Global Manager de secours. Deux emplacements en NSX 9.1.1 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-shared-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`).
+La fédération tourne dans un lab VCF 9.1.1 en nested. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), actif, à un seul nœud et sans Global Manager de secours. Deux emplacements en NSX 9.1.1 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-shared-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`).
 
 Les deux emplacements appartiennent à la même instance VCF : c'est un raccourci de lab, à ne pas reproduire dans une architecture de production. Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
 
@@ -181,7 +181,7 @@ La [partie 2](/fr/posts/nsx-federation-management-pack-install/) traite de la co
 
 ## Sources
 
-- Lab : VCF 9.1.1 imbriqué, NSX 9.1.1 (Local Managers et Global Manager), VCF Operations 9.1.1. Tous les appels d'API de cet article ont été exécutés le 17 novembre 2026.
+- Lab : VCF 9.1.1 en nested, NSX 9.1.1 (Local Managers et Global Manager), VCF Operations 9.1.1. Tous les appels d'API de cet article ont été exécutés le 17 novembre 2026.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html) : split-brain après le basculement d'un Global Manager
 - KB Broadcom [378126](https://knowledge.broadcom.com/external/article/378126/nsx-apis-throws-error-message-client-ex.html) : limites de débit appliquées aux clients de l'API NSX

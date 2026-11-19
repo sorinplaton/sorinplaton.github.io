@@ -1,9 +1,9 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 1: designing the management pack"
 date: 2026-11-17
-description: "VCF Operations 9.1.1 has an adapter instance for each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a nested lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the alerts, and what a review of the design against enterprise scale changed."
+description: "VCF Operations 9.1.1 has an adapter instance for each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the alerts, and what a review of the design against enterprise scale changed."
 summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a first object model of 12 types, the metric and alert list, and the eight changes that a review against enterprise scale forced before any code was written."
-tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Nested lab"]
+tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Lab"]
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
@@ -16,7 +16,7 @@ VCF Operations 9.1.1 has an adapter instance for every NSX Local Manager in the 
 
 ## The lab
 
-The federation runs on a nested VCF 9.1.1 lab. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), is a single active node with no standby. The two locations run NSX 9.1.1: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-shared-a`, cluster virtual IP 10.1.1.80). Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`. As built, a standby Global Manager, `nsx-gm-01b`, was added before the install, and the pack is tested with both Global Managers ([part 2](/posts/nsx-federation-management-pack-install/)).
+The federation runs on a VCF 9.1.1 lab. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), is a single active node with no standby. The two locations run NSX 9.1.1: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-shared-a`, cluster virtual IP 10.1.1.80). Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`. As built, a standby Global Manager, `nsx-gm-01b`, was added before the install, and the pack is tested with both Global Managers ([part 2](/posts/nsx-federation-management-pack-install/)).
 
 Both locations sit inside one VCF instance, which is a lab shortcut and should not be copied into a real design. The lab has four NSX Local Managers in all, and two of them are in the federation.
 
@@ -181,7 +181,7 @@ The cost is on the build side. An SDK adapter is a container image, so the build
 
 ## Sources
 
-- Lab: nested VCF 9.1.1, NSX 9.1.1 (Local Managers and Global Manager), VCF Operations 9.1.1. All API calls in this post were run on 17 November 2026.
+- Lab: VCF 9.1.1, NSX 9.1.1 (Local Managers and Global Manager), VCF Operations 9.1.1. All API calls in this post were run on 17 November 2026.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html): split-brain after a Global Manager switchover
 - Broadcom KB [378126](https://knowledge.broadcom.com/external/article/378126/nsx-apis-throws-error-message-client-ex.html): NSX API client rate limits

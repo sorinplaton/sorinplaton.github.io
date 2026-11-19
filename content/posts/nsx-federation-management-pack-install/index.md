@@ -7,12 +7,12 @@ tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Inte
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
-images: ["/images/nsx-federation-mp/object-model.svg"]
+images: ["/images/nsx-federation-mp/ops-dashboard-stretched.webp"]
 params:
   seoDescription: "Building and installing a custom NSX Federation management pack in VCF Operations 9.1.1: HTTPS registry, certificate trust, unsigned pack, and the objects, metrics, alerts, groups, dashboards and views it provides."
 ---
 
-[Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1 with screenshots, what the pack monitors (objects, metrics, alerts, groups, dashboards, views), a Global Manager switchover, and how to send the alerts by email. The pack described here is version 1.7.7, and its source is on GitHub: [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.7/docs/FEATURES.md) lists every object type, metric, property and alert of the pack, with the condition and the recommendation of each alert. The adapter itself took less time than the install. Three separate checks in VCF Operations stood between the `.pak` file and a running collector.
+[Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1 with screenshots, what the pack monitors (objects, metrics, alerts, groups, dashboards, views), a Global Manager switchover, and how to send the alerts by email. The pack described here is version 1.7.7, and its source is on GitHub: [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.7/docs/FEATURES.md) lists every object type, metric, property and alert of the pack, with the condition and the recommendation of each alert. Writing the adapter took less time than installing it: three separate checks in VCF Operations stood between the `.pak` file and a running collector.
 
 ## The lab
 
@@ -69,7 +69,7 @@ docker run -d --name fedmp-registry -p 10.0.6.27:5000:5000 \
   -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry:2
 ```
 
-The first registry in the lab served plain HTTP. With it, the adapter instance was created on the cloud proxy and went from `STARTING` to `FAILED` with an empty status message. The registry log showed no request at all. A packet capture on the registry port gave the reason. The cloud proxy opened a connection and sent a TLS hello to a registry that served plain HTTP. The cloud proxy does not fall back to HTTP, so the registry was recreated with the certificate above.
+The first registry in the lab served plain HTTP. With it, the adapter instance was created on the cloud proxy and went from `STARTING` to `FAILED` with an empty status message. The registry log showed no request at all. A packet capture on the registry port showed why: the cloud proxy opened a connection and sent a TLS hello. It does not fall back to HTTP, so the registry was recreated with the certificate above.
 
 ### Step 2: make the cloud proxy trust the registry certificate
 
@@ -135,7 +135,7 @@ The product UI login (item 2) has to come after the admin console login (item 1)
 
 The switch cannot be turned off while the install runs. During an upgrade the admin console answered `Cluster is in PAK installing state` until the install had finished. A script has to retry the last call.
 
-These calls are internal to the UI. They are unsupported and can change with any release. The switch applies to the whole instance. In the lab it was on only for the duration of the upload. The repository holds these steps as `install/upi.sh` and `install/install_unsigned.sh`.
+These calls are internal to the UI, unsupported, and can change with any release. The switch applies to the whole instance, and in the lab it was on only for the duration of the upload. The repository holds these steps as `install/upi.sh` and `install/install_unsigned.sh`.
 
 After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` appear in VCF Operations. The pack shows under Administration, Integrations, Repository with its version:
 
@@ -145,7 +145,9 @@ After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFe
 
 The adapter instance, called an account in the UI, is created on the cloud proxy. It takes one or two Global Manager addresses and one credential. With both addresses, the pack follows the active role when the Global Managers switch over. The other settings are optional: the security policies whose rules become objects, how the pack works with the built-in NSX integration (links and alarm alerts, both automatic by default), and the deletion of objects that left NSX (off by default). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.7/docs/OPERATIONS.md) describes each setting.
 
-Validate the connection and accept the Global Manager certificates when the account is saved. The check has two modes: "enforce" stops the collection of a manager whose certificate does not match or that has no trusted certificate on record, and "report" collects and raises an alert. The default is "enforce": without an accepted certificate the managers are not collected. The lab account was created through the API, has no accepted certificate, and runs in "report". The account also accepts a separate credential for the Local Managers. The pack only reads from NSX, so a read-only account is enough. The lab account uses NSX's built-in `audit` account on all four managers and collects the same objects as `admin`, with no failed call.
+Validate the connection and accept the Global Manager certificates when the account is saved. The check has two modes: "enforce" stops the collection of a manager whose certificate does not match or that has no trusted certificate on record, and "report" collects and raises an alert. The default is "enforce": without an accepted certificate the managers are not collected. The lab account was created through the API, has no accepted certificate, and runs in "report".
+
+The account also accepts a separate credential for the Local Managers. The pack only reads from NSX, so a read-only account is enough. The lab account uses NSX's built-in `audit` account on all four managers and collects the same objects as `admin`, with no failed call.
 
 With the registry trusted, the cloud proxy pulled the image on the next start of the instance, and the instance reached `STARTED`, then `DATA_RECEIVING`. The Accounts tab shows the instance as "Collecting":
 
@@ -342,7 +344,7 @@ Stretched Objects, with the segment fed-stretched selected:
 
 ### Views and a report
 
-The five list views cover locations, sync channels, RTEP tunnels, Tier-0 BGP neighbors and the realization of stretched objects per location. A report, "NSX Federation - Health report", puts them in one PDF. A view is an XML file. A script generates it, as for the alerts and the dashboards. The Locations view:
+The five list views cover locations, sync channels, RTEP tunnels, Tier-0 BGP neighbors and the realization of stretched objects per location. A report, "NSX Federation - Health report", puts them in one PDF. The five views and the report sit in one XML file, which a script generates, as for the alerts and the dashboards. The Locations view:
 
 ![The list view "NSX Federation - Locations": both locations with version, connection to the Global Manager, collector reachability, inter-site BGP sessions and full sync failures](/images/nsx-federation-mp/ops-view-locations.webp)
 
@@ -358,7 +360,9 @@ In the lab, the edge cluster of site-a-wld01 and its two edge nodes have the bui
 
 Most of the collection is made of secondary calls: cluster status, alarms, backups, certificates, sync status. When one of them fails, with an HTTP error or a timeout, the adapter sends nothing for the values that depend on it. A failed status call does not read as "location not connected", and a failed backup call does not read as "backup not configured". VCF Operations keeps the last known value, and no alert fires on data that was never received.
 
-The federation object counts these calls in the metric "NSX API calls without an answer" and lists them in a property, with the manager, the call and the HTTP status. Four alerts watch the collection itself: data gaps for two cycles, a collection that takes more than four minutes or is throttled by NSX, a collection without any Global Manager, and a manager that used its whole call budget. A call that times out or loses its connection is retried once before it counts as failed. A manager that times out three times in a row, or keeps answering HTTP 429 or 503, is skipped for the rest of the cycle. A Local Manager whose cluster status call fails together with most of its other calls is reported as not reached. A location outside the known span of a policy is not asked for its statistics. Where the policy is realized, a 404 on its statistics is a failed call, and its counters are not sent for that cycle; when the span is not known yet, a 404 means the policy does not exist on that Local Manager and is not counted.
+The federation object counts these calls in the metric "NSX API calls without an answer" and lists them in a property, with the manager, the call and the HTTP status. Four alerts watch the collection itself: data gaps for two cycles, a collection that takes more than four minutes or is throttled by NSX, a collection without any Global Manager, and a manager that used its whole call budget.
+
+A call that times out or loses its connection is retried once before it counts as failed. A manager that times out three times in a row, or keeps answering HTTP 429 or 503, is skipped for the rest of the cycle. A Local Manager whose cluster status call fails together with most of its other calls is reported as not reached. A location outside the known span of a policy is not asked for its statistics. Where the policy is realized, a 404 on its statistics is a failed call, and its counters are not sent for that cycle; when the span is not known yet, a 404 means the policy does not exist on that Local Manager and is not counted.
 
 ### One alert for a location outage
 
@@ -373,7 +377,7 @@ While the active Global Manager reports a location as not connected, the adapter
 </SymptomSet>
 ```
 
-The outage symptom clears three cycles after the location is back, one cycle after the symptoms it keeps quiet, so the end of an outage raises no alert either.
+The outage symptom clears three cycles after the location is back, at least one cycle after the symptoms it keeps quiet, so the end of an outage raises no alert either.
 
 The sync channels have a second property of the same kind. The channels of a Global Manager that does not answer, or of every Global Manager when none is active, stay quiet behind the alert on the federation.
 
@@ -407,7 +411,7 @@ The collection also runs against the live managers from the tooling container, w
 | --- | --- |
 | Normal run, both Global Manager addresses | 72 objects, about 45 API calls (about 75 when the cached inventory is reloaded), 10 to 25 seconds |
 | Second Global Manager address unreachable | Collection continues. "Global Managers not reachable" reads 1 on the federation, and a Global Manager collected in an earlier cycle reads 0 on "Reachable by the collector" |
-| No Global Manager reachable | Both Local Managers are still collected from the cached location list, and the objects of both locations are marked degraded. The cache lives in the adapter container. When a restart empties it, the list is read back from VCF Operations |
+| No Global Manager reachable | Both Local Managers are still collected from the cached location list. The property "Collection mode" of the federation object reads degraded, which raises "NSX Federation collection runs without a Global Manager". The cache lives in the adapter container. When a restart empties it, the list is read back from VCF Operations |
 
 ### Failed calls
 
@@ -491,7 +495,7 @@ A rule on the pack's object types, limited to Immediate and Critical, sends the 
 
 ### Traps in the SDK
 
-Five things cost time during the build. None of them is in the SDK documentation:
+Five things cost time during the build, and none of them is in the SDK documentation:
 
 - **Events with a fault key are dropped.** VCF Operations shows an adapter event that carries a fault key only when the pack ships a matching symptom definition. Without one, the event disappears without an error on either side. The pack sends its events without a fault key.
 - **Recommendation IDs.** A recommendation ID has to start with `Recommendation-df-`. The SDK schema does not check it, and without the prefix VCF Operations rejects the whole alert file while the install still reports success.

@@ -399,7 +399,7 @@ La réalisation est la seule partie de la collecte qui coûte un appel par objet
 
 ## Tests dans le lab
 
-Le pack dispose d'une suite de tests qui se passe de NSX : un simulateur répond aux appels de l'adaptateur à partir d'un enregistrement anonymisé de la fédération du lab. Ses 53 tests couvrent un cycle normal, des appels en échec, la panne d'un emplacement, un Global Manager d'une autre fédération, la liste des emplacements en cache et celle relue dans VCF Operations, le quota d'appels, l'approbation des certificats, les versions et les mises à niveau, la réalisation par paliers sur 600 segments de plus, la suppression des objets qui ont quitté NSX, et la cohérence du contenu des alertes avec le modèle d'objets. Un workflow GitHub Actions les exécute à chaque push.
+Le pack dispose d'une suite de tests qui se passe de NSX : un simulateur répond aux appels de l'adaptateur à partir d'un enregistrement anonymisé de la fédération du lab. Ses 57 tests couvrent un cycle normal, des appels en échec, la panne d'un emplacement, un Global Manager d'une autre fédération, la liste des emplacements en cache et celle relue dans VCF Operations, le quota d'appels, l'approbation des certificats, les versions et les mises à niveau, la réalisation par paliers sur 600 segments de plus, la suppression des objets qui ont quitté NSX, et la cohérence du contenu des alertes avec le modèle d'objets. Un workflow GitHub Actions les exécute à chaque push.
 
 La collecte s'exécute aussi depuis le conteneur d'outillage, directement sur les managers du lab, sans VCF Operations :
 

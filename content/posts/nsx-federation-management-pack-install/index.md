@@ -399,7 +399,7 @@ Realization is the only part of the collection that costs one call per object. W
 
 ## Tests in the lab
 
-The pack has a test suite that needs no NSX: a mock answers the adapter's calls from an anonymised recording of the lab federation. Its 53 tests cover a normal cycle, failed calls, a location outage, a Global Manager of another federation, the cached location list and the one read back from VCF Operations, the call budget, certificate trust, versions and upgrades, tiered realization on 600 more segments, the deletion of objects that left NSX, and the consistency of the alert content with the object model. A GitHub Actions workflow runs them on every push.
+The pack has a test suite that needs no NSX: a mock answers the adapter's calls from an anonymised recording of the lab federation. Its 57 tests cover a normal cycle, failed calls, a location outage, a Global Manager of another federation, the cached location list and the one read back from VCF Operations, the call budget, certificate trust, versions and upgrades, tiered realization on 600 more segments, the deletion of objects that left NSX, and the consistency of the alert content with the object model. A GitHub Actions workflow runs them on every push.
 
 The collection also runs against the live managers from the tooling container, without VCF Operations:
 

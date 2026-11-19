@@ -48,7 +48,7 @@ Résultat :
 - Version : VCF Operations 9.1.1.0, build 25795063.
 - Collecteur (proxy cloud) : `opscollector-01a`, de type `UNIFIED_CLOUD_PROXY`, à l'état `UP`. Ce point compte pour la construction, car un adaptateur écrit avec l'Integration SDK s'exécute dans un conteneur sur un proxy cloud, jamais sur le nœud d'analyse.
 - Intégration NSX : le type d'adaptateur `NSXTAdapter` compte 50 types d'objets et 4 instances, une par Local Manager NSX du lab, y compris les deux qui ne font pas partie de la fédération. Aucun de ces 50 types ne correspond à un Global Manager, à un emplacement ou à un tunnel RTEP, et aucune instance ne pointe vers le Global Manager.
-- Objets de la fédération : l'instance de `nsx-wld01` liste le cluster Edge `fed-ec-a` et le pool d'adresses IP RTEP, car ce sont des objets locaux. La recherche des objets globaux (`fed-t0`, `fed-stretched`) dans son inventaire n'a rien donné.
+- Objets de la fédération : l'instance de `nsx-wld01-a` liste le cluster Edge `fed-ec-a` et le pool d'adresses IP RTEP, car ce sont des objets locaux. La recherche des objets globaux (`fed-t0`, `fed-stretched`) dans son inventaire n'a rien donné.
 - Constat annexe : l'instance de `nsx-shared-a`, le Local Manager de l'emplacement `site-a-wld03`, existe, mais ne contient qu'un seul objet, elle-même. Elle ne collecte pas encore de données, et la vue native de cet emplacement est donc vide. Le pack n'en est pas affecté, car il interroge lui-même les managers.
 
 L'intégration native couvre les composants propres à chaque emplacement et s'arrête à la frontière de la fédération. Au pack de prendre en charge la couche fédération et de la relier au reste.
@@ -85,9 +85,9 @@ La réponse contient un état consolidé et un état par emplacement (`SUCCESS` 
 
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" \
- https://nsx-wld01.site-a.vcf.lab/api/v1/edge-clusters/<edge-cluster-id>/inter-site/status
+ https://nsx-wld01-a.site-a.vcf.lab/api/v1/edge-clusters/<edge-cluster-id>/inter-site/status
 curl -sk -u "$NSX_USER:$NSX_PW" \
- https://nsx-wld01.site-a.vcf.lab/api/v1/transport-nodes/<edge-node-id>/inter-site/statistics
+ https://nsx-wld01-a.site-a.vcf.lab/api/v1/transport-nodes/<edge-node-id>/inter-site/statistics
 ```
 
 Le premier appel renvoie les sessions BGP intersites de chaque nœud Edge (2 au total, 2 établies sur `edge-wld01-01a`), avec les adresses RTEP source et voisine. Le second renvoie, pour chaque tunnel, les octets, les paquets, les paquets rejetés et les paquets bloqués.

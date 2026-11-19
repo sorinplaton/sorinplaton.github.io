@@ -48,7 +48,7 @@ What came back:
 - Version: VCF Operations 9.1.1.0, build 25795063.
 - Collector: `opscollector-01a`, type `UNIFIED_CLOUD_PROXY`, state `UP`. This matters for the build, because adapters written with the Integration SDK run as containers on a collector and never on the analytics node.
 - NSX integration: adapter kind `NSXTAdapter` with 50 object types and four instances, one per NSX Local Manager in the lab, including the two that are not in the federation. None of the 50 types is a Global Manager, a location or an RTEP tunnel, and no instance points at the Global Manager.
-- Federation objects: the instance for `nsx-wld01` lists the edge cluster `fed-ec-a` and the RTEP IP pool, because those are local objects. A search of its inventory for the global objects (`fed-t0`, `fed-stretched`) returned nothing.
+- Federation objects: the instance for `nsx-wld01-a` lists the edge cluster `fed-ec-a` and the RTEP IP pool, because those are local objects. A search of its inventory for the global objects (`fed-t0`, `fed-stretched`) returned nothing.
 - A side finding: the instance for `nsx-shared-a`, the Local Manager of location `site-a-wld03`, exists but holds one object, itself. It is not collecting yet, so the built-in view of that location is empty. The pack is not affected, because it talks to the managers itself.
 
 The built-in integration covers the per-location plumbing and stops at the federation boundary. The pack has to own the federation layer and link to the rest.
@@ -85,9 +85,9 @@ The answer carries a consolidated status and one status per location (`SUCCESS` 
 
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" \
- https://nsx-wld01.site-a.vcf.lab/api/v1/edge-clusters/<edge-cluster-id>/inter-site/status
+ https://nsx-wld01-a.site-a.vcf.lab/api/v1/edge-clusters/<edge-cluster-id>/inter-site/status
 curl -sk -u "$NSX_USER:$NSX_PW" \
- https://nsx-wld01.site-a.vcf.lab/api/v1/transport-nodes/<edge-node-id>/inter-site/statistics
+ https://nsx-wld01-a.site-a.vcf.lab/api/v1/transport-nodes/<edge-node-id>/inter-site/statistics
 ```
 
 The first returns the inter-site BGP sessions of each edge node (2 total, 2 established on `edge-wld01-01a`) with source and neighbor RTEP addresses. The second returns bytes, packets, dropped and blocked packets per tunnel.

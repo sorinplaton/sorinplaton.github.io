@@ -12,7 +12,7 @@ params:
   seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : registre HTTPS, approbation du certificat, pack non signé, puis objets, métriques, alertes, groupes, tableaux de bord et vues qu'il fournit."
 ---
 
-La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. Cet article décrit la construction du pack, son installation dans VCF Operations 9.1.1 avec des captures d'écran, ce que le pack supervise (objets, métriques, alertes, groupes, tableaux de bord, vues), un basculement de Global Manager et l'envoi des alertes par e-mail. Le pack décrit ici est la version 1.4.0. L'écriture de l'adaptateur a demandé moins de temps que son installation : trois contrôles distincts de VCF Operations séparaient le fichier `.pak` d'une collecte opérationnelle.
+La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. Cet article décrit la construction du pack, son installation dans VCF Operations 9.1.1 avec des captures d'écran, ce que le pack supervise (objets, métriques, alertes, groupes, tableaux de bord, vues), un basculement de Global Manager et l'envoi des alertes par e-mail. Le pack décrit ici est la version 1.4.0, et son code source est sur GitHub : [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). L'écriture de l'adaptateur a demandé moins de temps que son installation : trois contrôles distincts de VCF Operations séparaient le fichier `.pak` d'une collecte opérationnelle.
 
 ## Le lab
 
@@ -32,10 +32,10 @@ RUN pip install vmware-aria-operations-integration-sdk
 
 L'adaptateur tient en deux fichiers Python :
 
-- `nsxclient.py` : un client REST NSX en lecture seule, avec pagination par curseur, quota d'appels par manager, nouvelle tentative après attente sur les codes HTTP 429 et 503, épinglage du certificat par empreinte SHA-256 et petit cache sur disque pour les données qui changent peu.
+- `nsxclient.py` : un client REST NSX en lecture seule, avec pagination par curseur, quota d'appels par manager, nouvelle tentative après attente sur les codes HTTP 429 et 503, contrôle du certificat par empreinte SHA-256 et petit cache sur disque pour les données qui changent peu.
 - `adapter.py` : le modèle d'objets, la logique de collecte et les événements.
 
-L'instance d'adaptateur reçoit une ou deux adresses de Global Manager et un seul jeu d'identifiants. Elle découvre les Local Managers à partir du Global Manager et approuve le certificat de chacun d'eux grâce à l'empreinte que le Global Manager a déjà enregistrée.
+L'instance d'adaptateur reçoit une ou deux adresses de Global Manager et un seul jeu d'identifiants. Elle découvre les Local Managers à partir du Global Manager et compare le certificat de chacun d'eux à l'empreinte que le Global Manager a déjà enregistrée. Ce contrôle a deux modes : « enforce » arrête la collecte d'un manager dont le certificat ne correspond pas, « report » poursuit la collecte et déclenche une alerte. Le compte du lab fonctionne en mode « report ». Le compte accepte aussi un jeu d'identifiants distinct pour les Local Managers.
 
 Avant toute installation, la collecte a été lancée depuis le conteneur d'outillage, directement sur les managers du lab :
 
@@ -43,7 +43,7 @@ Avant toute installation, la collecte a été lancée depuis le conteneur d'outi
 | --- | --- |
 | Exécution normale, un seul Global Manager | 65 objets, 60 appels d'API, environ 12 secondes |
 | Seconde adresse de Global Manager injoignable | La collecte se poursuit, avec un événement supplémentaire pour l'adresse injoignable |
-| Aucun Global Manager joignable | Les données des deux Local Managers sont tout de même collectées grâce à la liste d'emplacements en cache : 37 objets, marqués comme dégradés |
+| Aucun Global Manager joignable | Les données des deux Local Managers sont tout de même collectées grâce à la liste d'emplacements en cache : 37 objets, marqués comme dégradés. Le cache se trouve dans le conteneur de l'adaptateur et disparaît au redémarrage du conteneur |
 
 Un pack SDK n'est pas autonome. Le fichier `.pak` contient les définitions d'objets et une référence à une image de conteneur. Le proxy cloud récupère cette image dans un registre au démarrage de l'instance d'adaptateur.
 
@@ -236,7 +236,7 @@ Les métriques sont rangées en groupes, comme dans les intégrations natives :
 
 ![Onglet « Metrics » du Global Manager gm-site-a : les groupes Alarms, Certificates, Cluster, Connectivity et Sync, et la courbe de « Standby Global Managers in sync » à 1](/images/nsx-federation-mp/ops-metric-groups.webp)
 
-Dix-huit métriques sont marquées comme indicateurs clés, de une à quatre par type d'objet : les Global Managers actifs et la part d'emplacements en bonne santé sur la fédération, les nœuds hors ligne et la synchronisation du Global Manager de secours sur un Global Manager, la connexion et la synchronisation complète d'un emplacement, BGP et les paquets rejetés sur un tunnel, etc. VCF Operations les affiche en premier dans le résumé de l'objet :
+Dix-huit métriques sont marquées comme indicateurs clés, trois au plus par type d'objet : les Global Managers actifs et la part d'emplacements en bonne santé sur la fédération, les nœuds hors ligne et la synchronisation du Global Manager de secours sur un Global Manager, la connexion et la synchronisation complète d'un emplacement, BGP et les paquets rejetés sur un tunnel, etc. VCF Operations les affiche en premier dans le résumé de l'objet :
 
 ![Résumé de gm-site-a : l'alerte de sauvegarde ouverte et, à droite, les indicateurs clés « Nodes offline 0 » et « Standby Global Managers in sync 1 »](/images/nsx-federation-mp/ops-key-attributes.webp)
 
@@ -348,7 +348,7 @@ Le tableau de bord Federation Overview avec gm-site-b actif :
 
 ![Le tableau de bord Federation Overview pendant le test de basculement : gm-site-b sélectionné, son widget « Scoreboard » avec Standby in sync à 1, les nœuds en ligne à 1, les nœuds hors ligne à 0 et l'expiration des certificats à 822,6 jours, et les deux mêmes définitions d'alerte ouvertes](/images/nsx-federation-mp/ops-switchover-gm-b.webp)
 
-Le test a révélé un effet secondaire : les métriques de synchronisation du Global Manager de secours appartiennent au Global Manager actif. Après le basculement, l'ancien Global Manager actif cesse de les envoyer, et VCF Operations continue d'afficher leur dernière valeur. Le « Scoreboard » de l'ancien actif affichait donc encore « Standby in sync 1 » alors qu'il était lui-même devenu le Global Manager de secours. L'alerte n'est pas concernée, car elle suit le Global Manager qui envoie la métrique.
+Le test a révélé un effet secondaire : les métriques de synchronisation du Global Manager de secours appartiennent au Global Manager actif. Après le basculement, l'ancien Global Manager actif cesse de les envoyer, et VCF Operations continue d'afficher leur dernière valeur. Le « Scoreboard » de l'ancien actif affichait donc encore « Standby in sync 1 » alors qu'il était lui-même devenu le Global Manager de secours. La valeur restée affichée était 1, donc aucune alerte ne s'est déclenchée. L'effet d'un 0 périmé sur l'alerte n'a pas été testé.
 
 Un basculement planifié ne laisse jamais la fédération sans Global Manager actif : les alertes « aucun Global Manager actif » et « Global Manager injoignable » ne se sont donc pas déclenchées, comme prévu. Pour les tester, il faut une panne imprévue du Global Manager actif.
 
@@ -370,7 +370,7 @@ L'alerte d'alarme affiche le symptôme, le texte de l'événement et la recomman
 
 Les mêmes événements, envoyés de nouveau avec une heure d'annulation, ont effacé les deux alertes au cycle suivant.
 
-Les conditions sans définition arrivent toujours sous forme d'événements : les autres alarmes NSX ouvertes de chaque emplacement et toutes les alarmes critiques du Global Manager. Un tel événement apparaît sous la forme d'une alerte « Notification event » sur l'objet concerné, sans recommandation. Une condition dotée d'une définition d'alerte portant sur une métrique ou une propriété n'émet pas d'événement. Sinon, elle apparaîtrait deux fois : une fois comme alerte, une fois comme « Notification event ».
+Certaines conditions sans définition arrivent toujours sous forme d'événements : une alarme de fédération dont le type n'a pas de définition, sur un Local Manager ou sur le Global Manager, et toutes les alarmes critiques du Global Manager, dans la limite de 20 par manager. Les autres alarmes NSX d'un emplacement sont comptées dans ses métriques et ne sont pas transmises. Un tel événement apparaît sous la forme d'une alerte « Notification event » sur l'objet concerné, sans recommandation. Une condition dotée d'une définition d'alerte portant sur une métrique ou une propriété n'émet pas d'événement. Sinon, elle apparaîtrait deux fois : une fois comme alerte, une fois comme « Notification event ».
 
 Le remplacement des nœuds Edge du lab en a fourni un exemple réel. Les alarmes NSX `rtep_bgp_down` et `rtep_connectivity_lost` sont apparues sous forme d'alertes sur les deux objets emplacement. VCF Operations a annulé chacune d'elles environ 15 minutes plus tard, sans intervention d'un opérateur.
 
@@ -471,6 +471,18 @@ Dans le pack :
 
 - Une signature. Chaque installation et chaque mise à niveau imposent d'activer l'option des packs non signés.
 
+Une relecture indépendante du code, menée au regard des besoins d'une grande organisation, a relevé d'autres manques. Aucun n'est visible dans un lab sain à deux emplacements :
+
+- **Appels en échec lus comme des réponses vides.** Lorsqu'un appel NSX secondaire échoue, l'adaptateur traite la réponse comme vide. Un appel d'état en échec peut alors se lire comme « emplacement non connecté » et un appel de sauvegarde en échec comme « sauvegarde non configurée », et chacun déclenche une alerte. Un appel en échec doit signifier « inconnu ».
+- **Approbation du certificat.** L'empreinte est vérifiée sur une connexion distincte, avant les appels d'API, et un manager sans empreinte enregistrée n'est pas contrôlé. Aucun mode ne valide une chaîne de certificats et un nom d'hôte.
+- **Droits du compte.** Le lab a utilisé le compte NSX `admin`. Un rôle en lecture seule n'a été ni testé ni documenté.
+- **Échelle.** La collecte effectue un appel de réalisation par objet étendu à chaque cycle. Elle n'a été mesurée que sur deux emplacements, et aucune maquette de grande fédération n'a été construite.
+- **Tempêtes d'alertes.** Lorsqu'un emplacement tombe, les alertes de ses tunnels, de ses sessions BGP, de ses canaux et de ses réalisations se déclenchent à côté de l'alerte de l'emplacement. Rien ne les regroupe sous une cause racine unique, et il n'existe pas de fenêtre de maintenance.
+- **Autosupervision.** Les erreurs d'API, la limitation de débit et la durée de collecte sont des métriques, mais seul le quota d'appels a une alerte.
+- **Plusieurs fédérations.** Rien ne vérifie que les Global Managers déclarés appartiennent à la même fédération, et les groupes comme les tableaux de bord ne sont pas délimités par fédération.
+- **Couverture.** Pas encore collectés : le basculement du Tier-0 et le nœud Edge actif par emplacement, les nœuds des Local Managers, l'état d'intégration (onboarding), la file d'attente et la latence de synchronisation sous forme de métriques, les maximums de configuration, l'état de mise à niveau.
+- **Ingénierie.** Il n'y a ni tests unitaires, ni pipeline, ni nettoyage des objets supprimés dans NSX.
+
 Points restés ouverts depuis la partie 1 :
 
 - La latence entre managers sous forme de métrique. NSX la mesure et l'affiche dans son interface ; l'API qui la fournit n'a pas été trouvée. Les alarmes de latence NSX déclenchent une alerte.
@@ -487,6 +499,7 @@ Tests :
 ## Sources
 
 - Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Managers), VCF Operations 9.1.1.0 build 25795063. Construction, installation et tests du 17 au 19 novembre 2026.
+- Code source du pack : [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag v1.4.0
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html) : « No signature found on PAK file » lors de l'installation d'un management pack
 - [Docker : verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

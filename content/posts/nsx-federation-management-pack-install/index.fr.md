@@ -316,6 +316,38 @@ Jusqu'à la version 1.3.0, l'état de synchronisation d'un Global Manager de sec
 
 La version 1.4.0 remplace l'événement par deux métriques sur le Global Manager actif : Global Managers de secours synchronisés (1 lorsque tous le sont) et entrées restant à envoyer. Un Global Manager de secours compte comme synchronisé lorsque sa synchronisation complète est terminée et que la synchronisation delta fonctionne, et comme non synchronisé en cas d'échec ou d'erreur. L'alerte « Standby Global Manager is not in sync » se déclenche après trois cycles et s'efface après deux. Dans le lab, la métrique vaut 1 et aucune entrée ne reste à envoyer. Comme le pack n'envoie plus l'événement, l'ancienne alerte « Notification event » est restée ouverte après la mise à niveau, jusqu'à son annulation par l'API Suite (`POST /api/alerts?action=cancel`).
 
+#### Test de basculement
+
+Une fois le Global Manager de secours en place, un basculement planifié a été mené le 19 novembre avec la version 1.4.0, pour observer ce que le pack signale lorsque le rôle actif change de Global Manager. Le basculement tient en un seul appel sur le Global Manager de secours, la forme API de « Make Active » dans Location Manager :
+
+```
+PATCH https://<standby-gm>/global-manager/api/v1/global-infra/global-managers/gm-site-b
+{"display_name": "gm-site-b", "mode": "ACTIVE"}
+```
+
+Le même appel en PUT, avec l'objet complet, a été refusé avec `Global Manager can only be activated locally`. Le PATCH limité au nom et au mode a été accepté. La progression s'affiche en six étapes dans `GET /api/v1/sites/switchover-status` sur le nouveau Global Manager actif.
+
+| Heure | NSX | Pack |
+| --- | --- | --- |
+| 07:26:31 | Basculement vers gm-site-b demandé ; vérification préalable | |
+| 07:27 | | Cycle pendant la vérification préalable : gm-site-a actif, un seul Global Manager actif |
+| 07:28 | gm-site-a passe en secours | |
+| 07:29:10 | Basculement terminé | |
+| 07:32 | | Premier cycle complet : gm-site-b actif, gm-site-a en secours, tous deux joignables, les deux emplacements connectés, Global Manager de secours synchronisé |
+| 07:42:32 | Retour vers gm-site-a demandé | |
+| 07:44:35 | Retour terminé | |
+| 07:52 | | gm-site-a de nouveau actif, Global Manager de secours synchronisé |
+
+Chaque basculement a duré environ deux minutes. Le pack a suivi le rôle actif dès son premier cycle après le changement, sans modification du compte, puisque celui-ci contient les deux adresses. Aucune alerte ne s'est ouverte ni fermée pendant le test, et les quatre alertes du lab sont restées en l'état. Pendant environ une minute de la vérification préalable, le nouveau Global Manager actif a présenté les deux Global Managers comme actifs. Le pack a tout de même compté un seul Global Manager actif et n'a levé aucune alerte de split-brain.
+
+Le tableau de bord Federation Overview avec gm-site-b actif :
+
+![Le tableau de bord Federation Overview pendant le test de basculement : gm-site-b sélectionné, son widget « Scoreboard » avec Standby in sync à 1, les nœuds en ligne à 1, les nœuds hors ligne à 0 et l'expiration des certificats à 822,6 jours, et les deux mêmes définitions d'alerte ouvertes](/images/nsx-federation-mp/ops-switchover-gm-b.webp)
+
+Le test a révélé un effet secondaire : les métriques de synchronisation du Global Manager de secours appartiennent au Global Manager actif. Après le basculement, l'ancien Global Manager actif cesse de les envoyer, et VCF Operations continue d'afficher leur dernière valeur. Le « Scoreboard » de l'ancien actif affichait donc encore « Standby in sync 1 » alors qu'il était lui-même devenu le Global Manager de secours. L'alerte n'est pas concernée, car elle suit le Global Manager qui envoie la métrique.
+
+Un basculement planifié ne laisse jamais la fédération sans Global Manager actif : les alertes « aucun Global Manager actif » et « Global Manager injoignable » ne se sont donc pas déclenchées, comme prévu. Pour les tester, il faut une panne imprévue du Global Manager actif.
+
 #### Les alarmes NSX comme alertes nommées
 
 L'adaptateur relaie les alarmes de fédération du Global Manager, et celles de chaque Local Manager, sous forme d'événements dont le texte est `NSX alarm <event_type>: <summary>`. L'intégration NSX native utilise la même forme et s'en sert pour donner à 381 types d'alarme une alerte propre. Jusqu'à la version 1.2.1, le pack n'avait aucun symptôme pour ces événements : ils apparaissaient comme des alertes « Notification event » anonymes, sans recommandation.
@@ -508,7 +540,7 @@ La version 1.4.0 rapproche le pack des intégrations natives dans sa façon de p
 
 Un Global Manager de secours a été ajouté au lab pour cette version. `nsx-gm-01b` a été déployé à partir de la même appliance 9.1.1.0100 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de management. Il a ensuite été enregistré sur le Global Manager actif par l'API de celui-ci, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes. Le compte du pack a reçu la seconde adresse, et le cycle suivant a montré deux Global Managers, tous deux joignables, dont un actif.
 
-Le Global Manager de secours a révélé la fausse alerte de synchronisation décrite dans la section Alertes. La correction, les métriques de synchronisation du Global Manager de secours et leur alerte font partie de la version 1.4.0.
+Le Global Manager de secours a révélé la fausse alerte de synchronisation décrite dans la section Alertes. La correction, les métriques de synchronisation du Global Manager de secours et leur alerte font partie de la version 1.4.0. Un basculement planifié puis un retour ont suivi, décrits eux aussi dans la section Alertes.
 
 ## Ce qui manque encore
 
@@ -524,7 +556,7 @@ Points restés ouverts depuis la partie 1 :
 
 Tests :
 
-- La plupart des définitions d'alerte, qui exigent des pannes que le lab ne présente pas. Le Global Manager de secours est en place depuis la version 1.4.0, mais un basculement, un Global Manager de secours non synchronisé et un split-brain n'ont pas été testés. Les alertes d'alarme ont été testées avec des événements envoyés, et non avec de vraies alarmes NSX.
+- La plupart des définitions d'alerte, qui exigent des pannes que le lab ne présente pas. Le Global Manager de secours est en place depuis la version 1.4.0, et un basculement planifié suivi d'un retour a été testé. Une panne du Global Manager actif, un Global Manager de secours non synchronisé et un split-brain ne l'ont pas été. Les alertes d'alarme ont été testées avec des événements envoyés, et non avec de vraies alarmes NSX.
 - Le seuil dynamique, qui exige plusieurs jours d'historique.
 - Le rapport.
 - La notification par e-mail, qui exige un serveur de messagerie absent du lab.

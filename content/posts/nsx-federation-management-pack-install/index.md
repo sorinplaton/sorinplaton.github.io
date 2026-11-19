@@ -316,6 +316,38 @@ Up to version 1.3.0 the sync status of a standby Global Manager arrived as an ev
 
 Version 1.4.0 replaces the event with two metrics on the active Global Manager: standby Global Managers in sync (1 when all are), and entries left to send. A standby counts as in sync when its full sync is complete and the delta sync runs, and as out of sync on a failure or error. The alert "Standby Global Manager is not in sync" fires after three cycles and clears after two. In the lab the metric reads 1 with no entries left. The pack no longer sends the event, so the old "Notification event" alert stayed open after the upgrade until it was cancelled through the suite API (`POST /api/alerts?action=cancel`).
 
+#### Switchover test
+
+With the standby in place, a planned switchover was run on 19 November with version 1.4.0, to see what the pack reports when the active role moves. The switchover is one call on the standby Global Manager, the API form of "Make Active" in Location Manager:
+
+```
+PATCH https://<standby-gm>/global-manager/api/v1/global-infra/global-managers/gm-site-b
+{"display_name": "gm-site-b", "mode": "ACTIVE"}
+```
+
+The same call as a PUT with the full object was refused with `Global Manager can only be activated locally`. The PATCH with only the name and the mode was accepted. Progress shows in `GET /api/v1/sites/switchover-status` on the new active Global Manager, in six steps.
+
+| Time | NSX | Pack |
+| --- | --- | --- |
+| 07:26:31 | Switchover to gm-site-b requested; precheck | |
+| 07:27 | | Cycle during the precheck: gm-site-a active, one active Global Manager |
+| 07:28 | gm-site-a becomes standby | |
+| 07:29:10 | Switchover complete | |
+| 07:32 | | First full cycle: gm-site-b active, gm-site-a standby, both reachable, both locations connected, standby in sync |
+| 07:42:32 | Switchback to gm-site-a requested | |
+| 07:44:35 | Switchback complete | |
+| 07:52 | | gm-site-a active again, standby in sync |
+
+Each switchover took about two minutes. The pack followed the active role in its first cycle after the change, with no edit to the account, because the account lists both addresses. No alert opened or closed during the test, and the four lab alerts stayed as they were. For about a minute during the precheck, the new active Global Manager listed both Global Managers as active. The pack still counted one active Global Manager and raised no split-brain alert.
+
+The Federation Overview dashboard with gm-site-b active:
+
+![The Federation Overview dashboard during the switchover test: gm-site-b selected, its scoreboard with Standby in sync 1, nodes online 1, nodes offline 0 and certificate expiry 822.6 days, and the same two open alert definitions](/images/nsx-federation-mp/ops-switchover-gm-b.webp)
+
+The test showed one side effect: the standby sync metrics belong to the active Global Manager. After the switchover, the former active stops sending them, and VCF Operations keeps showing their last value. The scoreboard of the former active therefore still showed "Standby in sync 1" while it was the standby itself. The alert is not affected, because it follows the Global Manager that sends the metric.
+
+A planned switchover never leaves the federation without an active Global Manager, so the alerts "no active Global Manager" and "Global Manager not reachable" did not fire, as expected. Testing them takes an unplanned failure of the active Global Manager.
+
 #### NSX alarms as named alerts
 
 The adapter forwards the federation alarms of the Global Manager, and those of each Local Manager, as events with the text `NSX alarm <event_type>: <summary>`. The built-in NSX integration uses the same form and matches it to give 381 alarm types an alert of their own. Up to version 1.2.1 the pack had no symptom for these events, so they surfaced as anonymous "Notification event" alerts without a recommendation.
@@ -508,7 +540,7 @@ Version 1.4.0 brings the pack closer to the built-in integrations in how it pres
 
 A standby Global Manager was added to the lab for this version. `nsx-gm-01b` was deployed from the same 9.1.1.0100 appliance as the active one, in the Small size, on the cluster of `site-a-wld03`, with an address and DNS record in the management network. It was then registered on the active Global Manager through its API, as `gm-site-b` in STANDBY mode, with its address, admin credentials and certificate thumbprint (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). The first full sync completed within minutes. The account of the pack got the second address, and the next cycle showed two Global Managers, both reachable, one active.
 
-The standby exposed the false sync alert described under Alerts. The fix, the standby sync metrics and their alert are part of 1.4.0.
+The standby exposed the false sync alert described under Alerts. The fix, the standby sync metrics and their alert are part of 1.4.0. A planned switchover and switchback followed, also described under Alerts.
 
 ## What is not there yet
 
@@ -524,7 +556,7 @@ Open from part 1:
 
 Tests:
 
-- Most alert definitions, which need faults the lab does not have. The standby Global Manager is in place since version 1.4.0, but a switchover, a standby out of sync and split-brain were not tested. The alarm alerts were tested with posted events, not with real NSX alarms.
+- Most alert definitions, which need faults the lab does not have. The standby Global Manager is in place since version 1.4.0, and a planned switchover and switchback were tested. A failure of the active Global Manager, a standby out of sync and split-brain were not. The alarm alerts were tested with posted events, not with real NSX alarms.
 - The dynamic threshold, which needs days of history.
 - The report.
 - The email notification, which needs a mail server the lab does not have.

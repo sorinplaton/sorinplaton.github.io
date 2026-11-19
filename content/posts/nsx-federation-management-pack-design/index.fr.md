@@ -106,11 +106,6 @@ Le tableau suivant récapitule les appels vérifiés :
 | Statistiques des règles d'une stratégie de sécurité globale | Local | `/policy/api/v1/global-infra/domains/default/security-policies/{id}/statistics` |
 | Sauvegarde, certificats, alarmes | Les deux | `/api/v1/cluster/backups/overview`, `/api/v1/trust-management/certificates`, `/api/v1/alarms` |
 
-Deux valeurs sont restées introuvables :
-
-- **La latence entre managers.** La page « Location Manager » l'affiche (3 ms et 2 ms sur la capture ci-dessus) et NSX déclenche une alarme sur cette valeur (KB 345822) : NSX la mesure donc. Aucun des 14 chemins essayés ne l'a renvoyée. La prochaine tentative consistera à capturer l'appel qu'émet la page elle-même. Tel qu'il est construit, le pack lit l'appel utilisé par cette page ([partie 2](/fr/posts/nsx-federation-management-pack-install/)) et conserve un temps d'aller-retour par emplacement lorsque NSX en renvoie un ; dans le lab, cette valeur est vide. Les alarmes de latence NSX deviennent des alertes.
-- **Le pare-feu appliqué sur l'hôte.** Le lab en offre un cas concret : la règle de `fed-demo` est signalée comme réalisée sur les deux Local Managers, alors que les hôtes répondent `firewall: disabled` à la commande `nsxcli -c get firewall status` et qu'aucun port de VM ne porte de filtre. Aucune des API de manager explorées jusqu'ici n'expose cet état de l'hôte.
-
 Deux particularités du lab donneront chacune lieu à une alerte : aucune sauvegarde n'est configurée sur le Global Manager, et celui-ci fonctionne seul, sans Global Manager de secours.
 
 ## Étape 3 : le modèle d'objets

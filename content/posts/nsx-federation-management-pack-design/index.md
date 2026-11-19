@@ -106,11 +106,6 @@ The full map, as verified:
 | Rule statistics of a global security policy | Local | `/policy/api/v1/global-infra/domains/default/security-policies/{id}/statistics` |
 | Backup, certificates, alarms | Both | `/api/v1/cluster/backups/overview`, `/api/v1/trust-management/certificates`, `/api/v1/alarms` |
 
-Two values did not turn up:
-
-- **Latency between managers.** The Location Manager page shows it (3 ms and 2 ms in the screenshot above) and NSX raises an alarm on it (KB 345822), so NSX measures it. None of the fourteen paths tried returned it. The next attempt is to capture the call the page itself makes. As built, the pack reads the call behind that page ([part 2](/posts/nsx-federation-management-pack-install/)) and keeps a round-trip time per location when NSX returns one; in the lab the value is empty. The NSX latency alarms become alerts.
-- **Firewall enforced on the host.** The lab has a live case: the rule in `fed-demo` is reported as realized on both Local Managers, while the hosts answer `firewall: disabled` to `nsxcli -c get firewall status` and no VM port has a filter. No manager API found so far exposes that host state.
-
 Two facts about the lab itself become alerts: the Global Manager has no backup configured, and it runs alone with no standby.
 
 ## Step 3: the object model

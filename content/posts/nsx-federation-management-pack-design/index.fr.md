@@ -108,7 +108,7 @@ Le tableau suivant récapitule les appels vérifiés :
 
 Deux valeurs sont restées introuvables :
 
-- **La latence entre managers.** La page « Location Manager » l'affiche (3 ms et 2 ms sur la capture ci-dessus) et NSX déclenche une alarme sur cette valeur (KB 345822) : NSX la mesure donc. Aucun des 14 chemins essayés ne l'a renvoyée. La prochaine tentative consistera à capturer l'appel qu'émet la page elle-même. Tel qu'il est construit, le pack n'a pas de métrique de latence : il remonte les alarmes de latence NSX sous forme d'alertes.
+- **La latence entre managers.** La page « Location Manager » l'affiche (3 ms et 2 ms sur la capture ci-dessus) et NSX déclenche une alarme sur cette valeur (KB 345822) : NSX la mesure donc. Aucun des 14 chemins essayés ne l'a renvoyée. La prochaine tentative consistera à capturer l'appel qu'émet la page elle-même. Tel qu'il est construit, le pack lit l'appel utilisé par cette page ([partie 2](/fr/posts/nsx-federation-management-pack-install/)) et conserve un temps d'aller-retour par emplacement lorsque NSX en renvoie un ; dans le lab, cette valeur est vide. Les alarmes de latence NSX deviennent des alertes.
 - **Le pare-feu appliqué sur l'hôte.** Le lab en offre un cas concret : la règle de `fed-demo` est signalée comme réalisée sur les deux Local Managers, alors que les hôtes répondent `firewall: disabled` à la commande `nsxcli -c get firewall status` et qu'aucun port de VM ne porte de filtre. Aucune des API de manager explorées jusqu'ici n'expose cet état de l'hôte.
 
 Deux particularités du lab donneront chacune lieu à une alerte : aucune sauvegarde n'est configurée sur le Global Manager, et celui-ci fonctionne seul, sans Global Manager de secours.
@@ -119,7 +119,7 @@ Un management pack repose d'abord sur un modèle d'objets : quels éléments ex
 
 ![Modèle d'objets : du Global Manager au nœud de manager ; de l'emplacement au cluster Edge, au nœud Edge puis au tunnel RTEP ; de la passerelle Tier-0 à la passerelle Tier-1 puis au segment, avec le voisin BGP sous le Tier-0 ; de la stratégie globale à la règle](/images/nsx-federation-mp/object-model.svg)
 
-Les identifiants proviennent de NSX, jamais d'une adresse de manager : identifiant de fédération et identifiant de site pour les managers et les emplacements, emplacement et nom du nœud pour les nœuds Edge, adresses RTEP et adresses des pairs pour les tunnels et les sessions BGP, chemin de stratégie globale pour les passerelles, les segments et les stratégies. Un objet identifié par une adresse IP ou par un FQDN devient un second objet, sans historique, dès qu'une adresse IP virtuelle change ou qu'un Global Manager bascule. Tel qu'il est construit, le pack identifie les canaux de synchronisation par les noms des managers aux deux extrémités.
+Les identifiants proviennent de NSX, jamais d'une adresse de manager : identifiant de fédération et identifiant de site pour les managers et les emplacements, emplacement et nom du nœud pour les nœuds Edge, adresses RTEP et adresses des pairs pour les tunnels et les sessions BGP, chemin de stratégie globale pour les passerelles, les segments et les stratégies. Un objet identifié par une adresse IP ou par un FQDN devient un second objet, sans historique, dès qu'une adresse IP virtuelle change ou qu'un Global Manager bascule. Tel qu'il est construit, le pack identifie un canal de synchronisation par les noms que NSX donne à ses deux extrémités, un emplacement ou un Global Manager, comme dans `site-a-wld01 -> gm-site-a`.
 
 ## Étape 4 : métriques et alertes
 
@@ -147,7 +147,7 @@ La première version s'en tient à une courte liste d'alertes :
 - absence de Global Manager de secours
 - version d'un emplacement différente de celle du Global Manager
 
-Deux d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente et l'absence de Global Manager de secours. Le Global Manager et les emplacements exécutent la même release, 9.1.1, ce qui ne déclenche aucune alerte.
+Deux d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente et l'absence de Global Manager de secours. Le Global Manager et les emplacements exécutent la même release, 9.1.1, à deux niveaux de correctif, ce qui ne déclenche aucune alerte.
 
 ## Étape 5 : éprouver la conception à l'échelle d'une grande entreprise
 

@@ -108,7 +108,7 @@ The full map, as verified:
 
 Two values did not turn up:
 
-- **Latency between managers.** The Location Manager page shows it (3 ms and 2 ms in the screenshot above) and NSX raises an alarm on it (KB 345822), so NSX measures it. None of the fourteen paths tried returned it. The next attempt is to capture the call the page itself makes. As built, the pack has no latency metric: it raises the NSX latency alarms as alerts.
+- **Latency between managers.** The Location Manager page shows it (3 ms and 2 ms in the screenshot above) and NSX raises an alarm on it (KB 345822), so NSX measures it. None of the fourteen paths tried returned it. The next attempt is to capture the call the page itself makes. As built, the pack reads the call behind that page ([part 2](/posts/nsx-federation-management-pack-install/)) and keeps a round-trip time per location when NSX returns one; in the lab the value is empty. The NSX latency alarms become alerts.
 - **Firewall enforced on the host.** The lab has a live case: the rule in `fed-demo` is reported as realized on both Local Managers, while the hosts answer `firewall: disabled` to `nsxcli -c get firewall status` and no VM port has a filter. No manager API found so far exposes that host state.
 
 Two facts about the lab itself become alerts: the Global Manager has no backup configured, and it runs alone with no standby.
@@ -119,7 +119,7 @@ A management pack starts with an object model: which things exist, what identifi
 
 ![Object model: Global Manager to Manager node; Location to Edge cluster to Edge node to RTEP tunnel; Tier-0 gateway to Tier-1 gateway to Segment, with BGP neighbor under Tier-0; Global policy to Rule](/images/nsx-federation-mp/object-model.svg)
 
-Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over. As built, sync channels are identified by the names of the managers at both ends.
+Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over. As built, a sync channel is identified by the names NSX gives its two ends, a location or a Global Manager, as in `site-a-wld01 -> gm-site-a`.
 
 ## Step 4: metrics and alerts
 
@@ -147,7 +147,7 @@ The first release keeps the alert list short:
 - no standby Global Manager is configured
 - a location runs a different version from the Global Manager
 
-Two of them would fire in the lab on day one: no backup and no standby Global Manager. The Global Manager and the locations run the same release, 9.1.1, which raises no alert.
+Two of them would fire in the lab on day one: no backup and no standby Global Manager. The Global Manager and the locations run the same release, 9.1.1, at two patch levels, which raises no alert.
 
 ## Step 5: reviewing the design for enterprise scale
 

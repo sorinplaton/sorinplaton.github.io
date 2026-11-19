@@ -12,13 +12,13 @@ params:
   seoDescription: "Concevoir un management pack VCF Operations pour NSX 9.1 Federation : appels d'API, modèle d'objets, alertes, et les changements imposés par une relecture à l'échelle d'une grande entreprise."
 ---
 
-VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX du lab, mais ne montre rien de la fédération qui relie deux d'entre eux. Le Global Manager, l'état de synchronisation entre les emplacements (les « Locations » de NSX Federation), les tunnels RTEP et les passerelles étendues n'y ont ni objet, ni métrique, ni alerte. Cet article décrit la conception d'un management pack qui les ajoute. La construction et l'installation sont dans la [partie 2](/fr/posts/nsx-federation-management-pack-install/).
+VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX du lab, mais ne montre rien de la fédération qui relie deux d'entre eux. Le Global Manager, l'état de synchronisation entre les emplacements (les « Locations » de NSX Federation), les tunnels RTEP et les passerelles étendues n'y ont ni objet, ni métrique, ni alerte. Cet article décrit la conception d'un management pack qui les ajoute. La construction et l'installation sont décrites dans la [partie 2](/fr/posts/nsx-federation-management-pack-install/).
 
 ## Le lab
 
-La fédération tourne dans un Holodeck VCF 9.1.1 imbriqué. Elle comprend un Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1.0100), à un seul nœud actif et sans Global Manager de secours. Deux emplacements en NSX 9.1.1.0 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-shared-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`).
+La fédération tourne dans un Holodeck VCF 9.1.1 imbriqué. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1.0100), actif, à un seul nœud et sans Global Manager de secours. Deux emplacements en NSX 9.1.1.0 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-shared-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`).
 
-Les deux emplacements appartiennent à la même instance VCF : c'est un raccourci de lab, à ne pas reproduire dans une vraie architecture. Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
+Les deux emplacements appartiennent à la même instance VCF : c'est un raccourci de lab, à ne pas reproduire dans une architecture de production. Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
 
 La page « Location Manager » du Global Manager montre la fédération :
 
@@ -135,7 +135,7 @@ Chaque type d'objet reçoit une courte liste de métriques et de propriétés. L
 | Voisin BGP | préfixes reçus et annoncés, durée d'établissement en secondes, coupures de connexion | état, AS distant |
 | Stratégie de sécurité globale, règle | nombre de règles ; correspondances, paquets et octets par emplacement | action, activation, état |
 
-La première version s'en tient à une liste d'alertes courte :
+La première version s'en tient à une courte liste d'alertes :
 
 - perte du Global Manager par un emplacement
 - perte de visibilité entre deux emplacements
@@ -154,7 +154,7 @@ Deux d'entre elles se déclencheraient dans le lab dès le premier jour : la sa
 Le lab compte deux emplacements et un Global Manager à un seul nœud. L'objectif est un pack exploitable dans une grande entreprise, c'est-à-dire avec des clusters Global Manager à trois nœuds, l'un actif et l'autre de secours sur des sites distincts, de nombreux emplacements, des milliers d'objets étendus et plusieurs équipes. La conception a été réexaminée sous cet angle, et huit points ont modifié le plan.
 
 1. **Une seule adresse de Global Manager est un défaut de conception.** Après un basculement, l'adaptateur pointerait vers un manager rétrogradé ou hors service, au moment précis où la supervision est nécessaire. Il lui faut l'adresse du Global Manager actif et celle du Global Manager de secours ; il doit repérer l'actif à chaque cycle et continuer à collecter sur les Local Managers quand aucun Global Manager ne répond. Deux managers qui se déclarent actifs en même temps déclenchent une alerte critique.
-2. **L'état du Global Manager de secours entre dans la première version.** Pour une équipe dotée d'une procédure de reprise d'activité, la première question est la suivante : le Global Manager de secours est-il synchronisé, et un basculement peut-il être lancé ? La première ébauche du plan reléguait ce point en dernière position.
+2. **L'état du Global Manager de secours entre dans la première version.** Pour une équipe dotée d'une procédure de reprise d'activité, la première question est la suivante : le secours est-il synchronisé, et un basculement peut-il être lancé ? La première ébauche du plan reléguait ce point en dernière position.
 3. **Le pack ne doit plus faire doublon avec l'intégration native.** Les nœuds Edge, les passerelles et les segments existent déjà pour chaque Local Manager. Le pack doit, autant que possible, rattacher ses métriques et ses relations à ces objets, et ne créer que les types propres à la fédération. Tel qu'il est construit, le pack relie les nœuds Edge et les clusters Edge aux objets natifs et conserve ses propres types ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
 4. **Un objet par règle ne passe pas à l'échelle.** Des milliers de règles, à quatre compteurs chacune, sur vingt emplacements : la plupart des valeurs resteraient à zéro. Par défaut, le pack remonte des totaux par stratégie et ne crée d'objets règle que sur demande.
 5. **Les appels d'API ont besoin d'un quota.** Un appel de réalisation par objet étendu ne tient pas dans un cycle de 5 minutes à grande échelle, et NSX limite chaque client (100 requêtes par seconde et 40 requêtes simultanées par défaut). La collecte doit s'exécuter en parallèle, Local Manager par Local Manager, avec des cycles plus lents pour l'inventaire que pour les états.
@@ -170,7 +170,7 @@ VCF Operations offre deux manières de construire un pack : le Management Pack 
 
 Ce choix alourdit la construction. Un adaptateur SDK est une image de conteneur : il faut donc un outillage Python et Docker pour le construire, et le proxy cloud récupère l'image dans un registre de conteneurs qu'il doit pouvoir joindre.
 
-## Ce qui reste ouvert à la fin de la partie 1
+## Points en suspens à la fin de la partie 1
 
 - Installer l'outillage du SDK et choisir le registre.
 - Décider jusqu'où le pack étend les objets NSX natifs.

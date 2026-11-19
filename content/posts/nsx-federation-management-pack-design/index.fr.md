@@ -16,7 +16,7 @@ VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manag
 
 ## Le lab
 
-La fédération tourne dans un Holodeck VCF 9.1.1 imbriqué. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1.0100), actif, à un seul nœud et sans Global Manager de secours. Deux emplacements en NSX 9.1.1.0 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-shared-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`).
+La fédération tourne dans un Holodeck VCF 9.1.1 imbriqué. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), actif, à un seul nœud et sans Global Manager de secours. Deux emplacements en NSX 9.1.1 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-shared-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`).
 
 Les deux emplacements appartiennent à la même instance VCF : c'est un raccourci de lab, à ne pas reproduire dans une architecture de production. Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
 
@@ -45,7 +45,7 @@ curl -sk -H "Authorization: OpsToken $TOKEN" -H 'Accept: application/json' \
 
 Résultat :
 
-- Version : VCF Operations 9.1.1.0, build 25795063.
+- Version : VCF Operations 9.1.1.
 - Collecteur (proxy cloud) : `opscollector-01a`, de type `UNIFIED_CLOUD_PROXY`, à l'état `UP`. Ce point compte pour la construction, car un adaptateur écrit avec l'Integration SDK s'exécute dans un conteneur sur un proxy cloud, jamais sur le nœud d'analyse.
 - Intégration NSX : le type d'adaptateur `NSXTAdapter` compte 50 types d'objets et 4 instances, une par Local Manager NSX du lab, y compris les deux qui ne font pas partie de la fédération. Aucun de ces 50 types ne correspond à un Global Manager, à un emplacement ou à un tunnel RTEP, et aucune instance ne pointe vers le Global Manager.
 - Objets de la fédération : l'instance de `nsx-wld01-a` liste le cluster Edge `fed-ec-a` et le pool d'adresses IP RTEP, car ce sont des objets locaux. La recherche des objets globaux (`fed-t0`, `fed-stretched`) dans son inventaire n'a rien donné.
@@ -147,7 +147,7 @@ La première version s'en tient à une courte liste d'alertes :
 - absence de Global Manager de secours
 - version d'un emplacement différente de celle du Global Manager
 
-Deux d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente et l'absence de Global Manager de secours. Le Global Manager (9.1.1.0100) et les emplacements (9.1.1.0) exécutent la même release, ce qui ne déclenche aucune alerte.
+Deux d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente et l'absence de Global Manager de secours. Le Global Manager et les emplacements exécutent la même release, 9.1.1, ce qui ne déclenche aucune alerte.
 
 ## Étape 5 : éprouver la conception à l'échelle d'une grande entreprise
 
@@ -181,7 +181,7 @@ La [partie 2](/fr/posts/nsx-federation-management-pack-install/) traite de la co
 
 ## Sources
 
-- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Tous les appels d'API de cet article ont été exécutés le 17 novembre 2026.
+- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1 (Local Managers et Global Manager), VCF Operations 9.1.1. Tous les appels d'API de cet article ont été exécutés le 17 novembre 2026.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html) : split-brain après le basculement d'un Global Manager
 - KB Broadcom [378126](https://knowledge.broadcom.com/external/article/378126/nsx-apis-throws-error-message-client-ex.html) : limites de débit appliquées aux clients de l'API NSX

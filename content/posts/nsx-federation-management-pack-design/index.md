@@ -16,7 +16,7 @@ VCF Operations 9.1.1 has an adapter instance for every NSX Local Manager in the 
 
 ## The lab
 
-The federation runs on a nested VCF 9.1.1 Holodeck. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1.0100), is a single active node with no standby. The two locations run NSX 9.1.1.0: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-shared-a`, cluster virtual IP 10.1.1.80). Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`.
+The federation runs on a nested VCF 9.1.1 Holodeck. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), is a single active node with no standby. The two locations run NSX 9.1.1: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-shared-a`, cluster virtual IP 10.1.1.80). Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`.
 
 Both locations sit inside one VCF instance, which is a lab shortcut and should not be copied into a real design. The lab has four NSX Local Managers in all, and two of them are in the federation.
 
@@ -45,7 +45,7 @@ curl -sk -H "Authorization: OpsToken $TOKEN" -H 'Accept: application/json' \
 
 What came back:
 
-- Version: VCF Operations 9.1.1.0, build 25795063.
+- Version: VCF Operations 9.1.1.
 - Collector: `opscollector-01a`, type `UNIFIED_CLOUD_PROXY`, state `UP`. This matters for the build, because adapters written with the Integration SDK run as containers on a collector and never on the analytics node.
 - NSX integration: adapter kind `NSXTAdapter` with 50 object types and four instances, one per NSX Local Manager in the lab, including the two that are not in the federation. None of the 50 types is a Global Manager, a location or an RTEP tunnel, and no instance points at the Global Manager.
 - Federation objects: the instance for `nsx-wld01-a` lists the edge cluster `fed-ec-a` and the RTEP IP pool, because those are local objects. A search of its inventory for the global objects (`fed-t0`, `fed-stretched`) returned nothing.
@@ -147,7 +147,7 @@ The first release keeps the alert list short:
 - no standby Global Manager is configured
 - a location runs a different version from the Global Manager
 
-Two of them would fire in the lab on day one: no backup and no standby Global Manager. The Global Manager (9.1.1.0100) and the locations (9.1.1.0) run the same release, which raises no alert.
+Two of them would fire in the lab on day one: no backup and no standby Global Manager. The Global Manager and the locations run the same release, 9.1.1, which raises no alert.
 
 ## Step 5: reviewing the design for enterprise scale
 
@@ -181,7 +181,7 @@ The cost is on the build side. An SDK adapter is a container image, so the build
 
 ## Sources
 
-- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. All API calls in this post were run on 17 November 2026.
+- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1 (Local Managers and Global Manager), VCF Operations 9.1.1. All API calls in this post were run on 17 November 2026.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html): split-brain after a Global Manager switchover
 - Broadcom KB [378126](https://knowledge.broadcom.com/external/article/378126/nsx-apis-throws-error-message-client-ex.html): NSX API client rate limits

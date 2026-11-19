@@ -290,7 +290,7 @@ The 63 definitions, by object type:
 
 The edge node alert fires only when the node has lost all its inter-site sessions, because a single lost session raises the tunnel alert. "Stretched object is not realized at a location" is a Warning, because the error alerts on the object itself are Immediate.
 
-Each alert also sets how it counts and how fast it reacts:
+Each alert also sets which badge it lowers and how fast it reacts:
 
 - **Badge.** Fourteen alerts lower the Risk badge instead of Health: both backup alerts, both certificate expiry alerts, the certificate not trusted, no standby, the release mismatch, the call budget, the data gaps, the slow or throttled collection, the Global Managers on different versions, the location ahead of the Global Manager and both upgrade alerts. These conditions cause trouble later, and Health is kept for what is broken now.
 - **Wait and cancel cycles.** Ten symptoms that can flap need two collection cycles, 10 minutes, to raise an alert and two to clear it: a replication flow in error; sync channel down; inter-site BGP sessions down and none established on the location; no inter-site session on the edge node; inter-site BGP down on the tunnel; tunnel drops, received and sent; Tier-0 BGP neighbor down; no prefixes received. The data gaps and the slow collection also wait two cycles, and so do a full sync that did not complete and a stretched object that is not realized, so a sync or a change in progress raises nothing. The dynamic threshold, the standby sync and the throttling wait three. The outage symptoms clear after three cycles (see How the collection behaves).
@@ -514,7 +514,7 @@ Two behaviours cost time after a dashboard import:
 
 ### Compared with the built-in integrations
 
-The 1,253 alert definitions and 2,047 symptom definitions on the lab's VCF Operations were compared with the pack, counting the definitions of each adapter kind. The way the pack counts, reacts and names alarms follows from this comparison:
+The 1,253 alert definitions and 2,047 symptom definitions on the lab's VCF Operations were compared with the pack, counting the definitions of each adapter kind. The pack's choice of badges, reaction times and alarm names follows from this comparison:
 
 | | Built-in NSX | Built-in vCenter | Built-in vSAN | NSX Federation pack |
 | --- | --- | --- | --- | --- |

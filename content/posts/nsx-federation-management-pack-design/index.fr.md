@@ -106,8 +106,6 @@ Le tableau suivant récapitule les appels vérifiés :
 | Statistiques des règles d'une stratégie de sécurité globale | Local | `/policy/api/v1/global-infra/domains/default/security-policies/{id}/statistics` |
 | Sauvegarde, certificats, alarmes | Les deux | `/api/v1/cluster/backups/overview`, `/api/v1/trust-management/certificates`, `/api/v1/alarms` |
 
-Deux particularités du lab donneront chacune lieu à une alerte : aucune sauvegarde n'est configurée sur le Global Manager, et celui-ci fonctionne seul, sans Global Manager de secours.
-
 ## Étape 3 : le modèle d'objets
 
 Un management pack repose d'abord sur un modèle d'objets : quels éléments existent, comment ils sont identifiés et lequel est le parent de l'autre. La première ébauche compte 12 types répartis en 4 chaînes, comme le montre le schéma ci-dessous. Elle modélise encore elle-même les nœuds Edge, les passerelles et les segments ; l'étape 5 revient sur ce point. Tel qu'il est construit, le pack compte 15 types ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).

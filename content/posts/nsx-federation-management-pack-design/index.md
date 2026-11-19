@@ -106,8 +106,6 @@ The full map, as verified:
 | Rule statistics of a global security policy | Local | `/policy/api/v1/global-infra/domains/default/security-policies/{id}/statistics` |
 | Backup, certificates, alarms | Both | `/api/v1/cluster/backups/overview`, `/api/v1/trust-management/certificates`, `/api/v1/alarms` |
 
-Two facts about the lab itself become alerts: the Global Manager has no backup configured, and it runs alone with no standby.
-
 ## Step 3: the object model
 
 A management pack starts with an object model: which things exist, what identifies them, and which object is the parent of which. The first draft has 12 types in four chains, shown in the diagram below. It still models edge nodes, gateways and segments itself, and step 5 comes back to that. As built, the pack has 15 types ([part 2](/posts/nsx-federation-management-pack-install/)).

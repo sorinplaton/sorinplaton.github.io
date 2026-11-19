@@ -12,11 +12,13 @@ params:
   seoDescription: "Designing a VCF Operations management pack for NSX 9.1 Federation: API calls, object model, alerts and the changes a review against enterprise scale forced."
 ---
 
-VCF Operations 9.1.1 has an adapter instance for every NSX Local Manager in the lab and shows nothing of the federation that links two of them. The Global Manager, the sync state between locations, the RTEP tunnels and the stretched gateways have no object, no metric and no alert. This post documents the design of a management pack that adds them. It covers the design only; [part 2](/posts/nsx-federation-management-pack-install/) covers the build and the install.
+VCF Operations 9.1.1 has an adapter instance for every NSX Local Manager in the lab and shows nothing of the federation that links two of them. The Global Manager, the sync state between locations, the RTEP tunnels and the stretched gateways have no object, no metric and no alert. This post describes the design of a management pack that adds them. The build and the install are in [part 2](/posts/nsx-federation-management-pack-install/).
 
 ## The lab
 
-The federation runs on a nested VCF 9.1.1 Holodeck: one Global Manager, `nsx-gm-01a` (10.1.1.37, single active node, no standby, NSX 9.1.1.0100), and two locations on NSX 9.1.1.0, `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-shared-a`, cluster virtual IP 10.1.1.80), each with a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`. Both locations sit inside one VCF instance. That is a lab shortcut and should not be read as a reference design. The lab has four NSX Local Managers in all, and two of them are in the federation.
+The federation runs on a nested VCF 9.1.1 Holodeck. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1.0100), is a single active node with no standby. The two locations run NSX 9.1.1.0: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-shared-a`, cluster virtual IP 10.1.1.80). Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`.
+
+Both locations sit inside one VCF instance, which is a lab shortcut and should not be copied into a real design. The lab has four NSX Local Managers in all, and two of them are in the federation.
 
 The Location Manager page of the Global Manager shows the federation:
 
@@ -24,7 +26,7 @@ The Location Manager page of the Global Manager shows the federation:
 
 ## Step 1: check what VCF Operations already collects
 
-A pack that copies the built-in NSX integration doubles the object count and raises two alerts for one fault. The first step is an inventory of what is already there, through the VCF Operations API.
+A pack that copies the built-in NSX integration doubles the object count and raises two alerts for one fault. So the first step is an inventory of what is already there, taken through the VCF Operations API.
 
 ```bash
 OPS=ops-a.site-a.vcf.lab
@@ -133,7 +135,19 @@ Each object type gets a short list. Metrics are numbers kept over time; properti
 | BGP neighbor | prefixes in and out, seconds established, connection drops | state, remote AS |
 | Global security policy, Rule | rule count, hit, packet and byte counts per location | action, enabled, status |
 
-The first release keeps the alert list short: a location lost its Global Manager, two locations lost each other, an inter-site BGP session or RTEP tunnel is down, a stretched object is not realized somewhere in its span, the sync failed, an uplink BGP neighbor is down, the Global Manager backup is missing or old, no standby Global Manager is configured, a location runs a different version from the Global Manager. Three would fire in the lab on day one: no backup, no standby Global Manager, and a build mismatch between the Global Manager (9.1.1.0100) and the locations (9.1.1.0).
+The first release keeps the alert list short:
+
+- a location lost its Global Manager
+- two locations lost each other
+- an inter-site BGP session or RTEP tunnel is down
+- a stretched object is not realized somewhere in its span
+- the sync failed
+- an uplink BGP neighbor is down
+- the Global Manager backup is missing or old
+- no standby Global Manager is configured
+- a location runs a different version from the Global Manager
+
+Three of them would fire in the lab on day one: no backup, no standby Global Manager, and a build mismatch between the Global Manager (9.1.1.0100) and the locations (9.1.1.0).
 
 ## Step 5: reviewing the design for enterprise scale
 
@@ -146,11 +160,9 @@ The lab has two locations and one Global Manager node. The target is a pack a la
 5. **Budget the API calls.** One realization call per stretched object does not fit a 5-minute cycle at scale, and NSX limits each client (100 requests per second and 40 concurrent by default). Collection has to run per Local Manager in parallel, with slower cycles for inventory than for status.
 6. **Design against alert storms.** One lost location would raise the location alert, every tunnel, every BGP session and every stretched object. The alerts need a root-cause order and an awareness of maintenance windows.
 7. **"Seconds since the last full sync" is the wrong signal.** The first draft planned that metric. A healthy federation runs on delta sync, and a full sync is the exception. The useful signals are sync status, queue occupancy and full-sync failures.
-8. **The pack has to monitor itself.** Collection time, API call count and last success per location, so that "no data" is never read as "healthy".
+8. **The pack has to monitor itself.** It reports its collection time, API call count and last success per location, so that "no data" is never read as "healthy".
 
-The latency gap from step 2 stays open. NSX shows the value in its UI, and the API that returns it was not found.
-
-One caution remains: twenty locations may be more than NSX 9.1 Federation supports. That has to be checked against the configuration maximums before the scale targets are written down.
+One caution: twenty locations may be more than NSX 9.1 Federation supports. That has to be checked against the configuration maximums before the scale targets are written down.
 
 ## Step 6: the build route
 

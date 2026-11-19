@@ -12,11 +12,13 @@ params:
   seoDescription: "Concevoir un management pack VCF Operations pour NSX 9.1 Federation : appels d'API, modèle d'objets, alertes, et les changements imposés par une relecture à l'échelle d'une grande entreprise."
 ---
 
-VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX du lab, mais ne montre rien de la fédération qui relie deux d'entre eux. Le Global Manager, l'état de synchronisation entre les emplacements (les « Locations » de NSX Federation), les tunnels RTEP et les passerelles étendues n'y ont ni objet, ni métrique, ni alerte. Cet article décrit la conception d'un management pack qui les ajoute. Il s'en tient à la conception ; la [partie 2](/fr/posts/nsx-federation-management-pack-install/) traite de la construction et de l'installation.
+VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX du lab, mais ne montre rien de la fédération qui relie deux d'entre eux. Le Global Manager, l'état de synchronisation entre les emplacements (les « Locations » de NSX Federation), les tunnels RTEP et les passerelles étendues n'y ont ni objet, ni métrique, ni alerte. Cet article décrit la conception d'un management pack qui les ajoute. La construction et l'installation sont dans la [partie 2](/fr/posts/nsx-federation-management-pack-install/).
 
 ## Le lab
 
-La fédération tourne dans un Holodeck VCF 9.1.1 imbriqué. Elle comprend un Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1.0100), à un seul nœud actif et sans Global Manager de secours. Deux emplacements en NSX 9.1.1.0 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-shared-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`). Les deux emplacements appartiennent à la même instance VCF : c'est un raccourci de lab, à ne pas prendre pour une architecture de référence. Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
+La fédération tourne dans un Holodeck VCF 9.1.1 imbriqué. Elle comprend un Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1.0100), à un seul nœud actif et sans Global Manager de secours. Deux emplacements en NSX 9.1.1.0 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-shared-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`).
+
+Les deux emplacements appartiennent à la même instance VCF : c'est un raccourci de lab, à ne pas reproduire dans une vraie architecture. Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
 
 La page « Location Manager » du Global Manager montre la fédération :
 
@@ -133,7 +135,19 @@ Chaque type d'objet reçoit une courte liste de métriques et de propriétés. L
 | Voisin BGP | préfixes reçus et annoncés, durée d'établissement en secondes, coupures de connexion | état, AS distant |
 | Stratégie de sécurité globale, règle | nombre de règles ; correspondances, paquets et octets par emplacement | action, activation, état |
 
-La première version s'en tient à une liste d'alertes courte : perte du Global Manager par un emplacement, perte de visibilité entre deux emplacements, chute d'une session BGP intersite ou d'un tunnel RTEP, objet étendu non réalisé sur l'un des emplacements de sa portée, échec de la synchronisation, chute d'un voisin BGP de liaison montante, sauvegarde du Global Manager absente ou trop ancienne, absence de Global Manager de secours, version d'un emplacement différente de celle du Global Manager. Trois d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente, l'absence de Global Manager de secours et l'écart de build entre le Global Manager (9.1.1.0100) et les emplacements (9.1.1.0).
+La première version s'en tient à une liste d'alertes courte :
+
+- perte du Global Manager par un emplacement
+- perte de visibilité entre deux emplacements
+- chute d'une session BGP intersite ou d'un tunnel RTEP
+- objet étendu non réalisé sur l'un des emplacements de sa portée
+- échec de la synchronisation
+- chute d'un voisin BGP de liaison montante
+- sauvegarde du Global Manager absente ou trop ancienne
+- absence de Global Manager de secours
+- version d'un emplacement différente de celle du Global Manager
+
+Trois d'entre elles se déclencheraient dans le lab dès le premier jour : la sauvegarde absente, l'absence de Global Manager de secours et l'écart de build entre le Global Manager (9.1.1.0100) et les emplacements (9.1.1.0).
 
 ## Étape 5 : éprouver la conception à l'échelle d'une grande entreprise
 
@@ -148,9 +162,7 @@ Le lab compte deux emplacements et un Global Manager à un seul nœud. L'objecti
 7. **Le nombre de secondes écoulées depuis la dernière synchronisation complète n'est pas le bon indicateur.** La première ébauche prévoyait cette métrique. Une fédération saine fonctionne en synchronisation différentielle, et la synchronisation complète reste l'exception. Les indicateurs utiles sont l'état de la synchronisation, le remplissage des files d'attente et les échecs de synchronisation complète.
 8. **Le pack doit se superviser lui-même.** Il expose sa durée de collecte, son nombre d'appels d'API et la dernière collecte réussie par emplacement, pour qu'une absence de données ne soit jamais interprétée comme un état sain.
 
-La question de la latence, posée à l'étape 2, reste ouverte. NSX affiche la valeur dans son interface, et l'API qui la renvoie n'a pas été trouvée.
-
-Une réserve subsiste : vingt emplacements, c'est peut-être plus que ce que NSX 9.1 Federation prend en charge. Ce point est à vérifier dans les valeurs maximales de configuration avant de fixer les objectifs d'échelle.
+Une réserve : vingt emplacements, c'est peut-être plus que ce que NSX 9.1 Federation prend en charge. Ce point est à vérifier dans les valeurs maximales de configuration avant de fixer les objectifs d'échelle.
 
 ## Étape 6 : le mode de construction
 

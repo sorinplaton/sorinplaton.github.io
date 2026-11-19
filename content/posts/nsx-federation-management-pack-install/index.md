@@ -174,7 +174,7 @@ A new version is installed the same way as the first one, and every version need
 
 ## What the pack monitors (version 1.3.0)
 
-Version 1.3.0 is built but not installed yet. Its alert content was imported into VCF Operations through the suite API and tested there, and the new federation metrics come from a run of the adapter against the lab outside VCF Operations. Everything else in this section comes from version 1.2.1 running inside VCF Operations.
+Version 1.3.0 is installed in the lab. Its alert content was first imported through the suite API and tested there; the pack install then replaced it without duplicates. Screenshots taken with an earlier version say so.
 
 ### Objects
 
@@ -219,7 +219,7 @@ NSX returns packets, bytes, drops and rule hits as running totals. The adapter k
 
 Three metrics are derived by the adapter, because a symptom compares a metric with a fixed value and cannot subtract two metrics: Global Managers not reachable, inter-site BGP sessions not established, locations not realized.
 
-Version 1.3.0 adds seven figures for the whole federation on the federation object: locations healthy, as a count and a percentage; RTEP tunnels; tunnels whose BGP session is down; RTEP drops per minute over all tunnels; days to the first certificate expiry on any manager; open critical alarms on all managers. A super metric could compute some of them, but it does nothing until a policy enables it, so the adapter computes all seven. They appear in the Federation Overview scoreboard. The run against the lab gave two of two locations healthy (100 %), eight tunnels, none down, and 331 days to the first certificate expiry.
+Version 1.3.0 adds seven figures for the whole federation on the federation object: locations healthy, as a count and a percentage; RTEP tunnels; tunnels whose BGP session is down; RTEP drops per minute over all tunnels; days to the first certificate expiry on any manager; open critical alarms on all managers. A super metric could compute some of them, but it does nothing until a policy enables it, so the adapter computes all seven. They appear in the Federation Overview scoreboard. In the lab, version 1.3.0 reports two of two locations healthy (100 %), eight tunnels, none down, no drops, 331.6 days to the first certificate expiry (a Local Manager certificate; the Global Manager's first one expires in 823 days) and no critical alarm.
 
 The table below gives the coverage of each object type. The Metrics column counts the metric keys defined for the type. Not every object sends every key (only policy realizations carry counters, for example), so the column multiplied by the object counts does not give 398. The counts are for version 1.3.0.
 
@@ -330,9 +330,13 @@ Three dashboards sit in a folder named "NSX Federation":
 
 Every dashboard works the same way: a list drives a scoreboard, and a click on a scoreboard value draws its trend.
 
-Federation Overview, with the Global Manager selected:
+Federation Overview, with the Global Manager selected (version 1.1.1):
 
 ![The Federation Overview dashboard: the four open alerts grouped under three definitions, the list of federation objects with gm-site-a selected, its key values, related objects and properties](/images/nsx-federation-mp/ops-dashboard-overview.webp)
+
+With version 1.3.0 and the federation selected, the scoreboard ends with the federation rollups: locations healthy, RTEP BGP down, RTEP drops per minute, certificate expiry and critical alarms:
+
+![The Federation Overview dashboard with version 1.3.0 and the federation selected: the scoreboard shows API errors, call budget, locations healthy 100, RTEP BGP down 0, RTEP drops per minute 0, certificate expiry 331.6 days and critical alarms 0](/images/nsx-federation-mp/ops-dashboard-rollups.webp)
 
 Inter-site Connectivity, taken with version 1.2.0, shows the rates of one RTEP tunnel:
 
@@ -478,7 +482,6 @@ The rollups also ran into a bug in the SDK. `CollectResult.get_objects_by_type` 
 
 In the pack:
 
-- The install of version 1.3.0. So far its alert content was tested by import and its adapter outside VCF Operations.
 - A signed pack. Every new version needs the unsigned-pack switch.
 
 Open from part 1:
@@ -496,7 +499,7 @@ Tests:
 
 ## Sources
 
-- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1, 1.1.0, 1.1.1, 1.2.0 and 1.2.1 on 18 November, 1.3.0 built and its alert content tested on 19 November.
+- Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Build and install on 17 and 18 November 2026, versions 1.0.1, 1.1.0, 1.1.1, 1.2.0 and 1.2.1 on 18 November, 1.3.0 on 19 November.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack
 - [Docker: verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

@@ -174,7 +174,7 @@ Une nouvelle version s'installe comme la première, et chaque version impose d'a
 
 ## Ce que le pack supervise (version 1.3.0)
 
-La version 1.3.0 est construite mais pas encore installée. Son contenu d'alerte a été importé dans VCF Operations par l'API Suite et testé sur place, et les nouvelles métriques de fédération proviennent d'une exécution de l'adaptateur contre le lab, hors de VCF Operations. Tout le reste de cette section provient de la version 1.2.1 exécutée dans VCF Operations.
+La version 1.3.0 est installée dans le lab. Son contenu d'alerte a d'abord été importé par l'API Suite et testé sur place ; l'installation du pack l'a ensuite remplacé, sans doublon. Les captures prises avec une version antérieure le précisent.
 
 ### Objets
 
@@ -219,7 +219,7 @@ NSX renvoie les paquets, les octets, les rejets et les correspondances de règle
 
 Trois métriques sont dérivées par l'adaptateur (Global Managers injoignables, sessions BGP intersites non établies, emplacements non réalisés), car un symptôme compare une métrique à une valeur fixe et ne sait pas soustraire deux métriques.
 
-La version 1.3.0 ajoute sur l'objet fédération sept valeurs qui portent sur toute la fédération : emplacements en bonne santé, en nombre et en pourcentage ; tunnels RTEP ; tunnels dont la session BGP est tombée ; paquets RTEP rejetés par minute sur l'ensemble des tunnels ; jours restants avant la première expiration de certificat, tous managers confondus ; alarmes critiques ouvertes sur l'ensemble des managers. Une super métrique pourrait en calculer une partie, mais elle reste inactive tant qu'une politique ne l'active pas : l'adaptateur calcule donc les sept. Elles apparaissent dans le widget « Scoreboard » de Federation Overview. L'exécution contre le lab a donné deux emplacements sains sur deux (100 %), 8 tunnels, aucun tombé, et 331 jours avant la première expiration de certificat.
+La version 1.3.0 ajoute sur l'objet fédération sept valeurs qui portent sur toute la fédération : emplacements en bonne santé, en nombre et en pourcentage ; tunnels RTEP ; tunnels dont la session BGP est tombée ; paquets RTEP rejetés par minute sur l'ensemble des tunnels ; jours restants avant la première expiration de certificat, tous managers confondus ; alarmes critiques ouvertes sur l'ensemble des managers. Une super métrique pourrait en calculer une partie, mais elle reste inactive tant qu'une politique ne l'active pas : l'adaptateur calcule donc les sept. Elles apparaissent dans le widget « Scoreboard » de Federation Overview. Dans le lab, la version 1.3.0 affiche deux emplacements sains sur deux (100 %), 8 tunnels, aucun tombé, aucun paquet rejeté, 331,6 jours avant la première expiration de certificat (celui d'un Local Manager ; le premier certificat du Global Manager expire dans 823 jours) et aucune alarme critique.
 
 Le tableau ci-dessous donne la couverture de chaque type d'objet. La colonne Métriques compte les clés de métrique définies pour le type. Tous les objets n'envoient pas toutes les clés (seules les réalisations de stratégie portent des compteurs, par exemple) : la colonne multipliée par le nombre d'objets ne donne donc pas 398. Les nombres sont ceux de la version 1.3.0.
 
@@ -330,9 +330,13 @@ Trois tableaux de bord sont regroupés dans un dossier nommé « NSX Federation
 
 Tous fonctionnent sur le même principe : une liste alimente un widget « Scoreboard », et un clic sur l'une des valeurs de ce widget en affiche la courbe de tendance.
 
-Federation Overview, avec le Global Manager sélectionné :
+Federation Overview, avec le Global Manager sélectionné (version 1.1.1) :
 
 ![Le tableau de bord Federation Overview : les 4 alertes ouvertes, regroupées sous 3 définitions, la liste des objets de la fédération avec gm-site-a sélectionné, ses valeurs clés, ses objets associés et ses propriétés](/images/nsx-federation-mp/ops-dashboard-overview.webp)
+
+Avec la version 1.3.0 et la fédération sélectionnée, le widget « Scoreboard » se termine par les agrégats de fédération : emplacements en bonne santé, RTEP BGP tombé, paquets RTEP rejetés par minute, expiration des certificats et alarmes critiques :
+
+![Le tableau de bord Federation Overview avec la version 1.3.0 et la fédération sélectionnée : le widget « Scoreboard » affiche les erreurs d'API, le budget d'appels, les emplacements en bonne santé à 100, RTEP BGP tombé à 0, les paquets RTEP rejetés par minute à 0, l'expiration des certificats à 331,6 jours et les alarmes critiques à 0](/images/nsx-federation-mp/ops-dashboard-rollups.webp)
 
 Inter-site Connectivity, capturé avec la version 1.2.0, montre les taux d'un tunnel RTEP :
 
@@ -478,7 +482,6 @@ Les agrégats se sont aussi heurtés à un bug du SDK. `CollectResult.get_object
 
 Dans le pack :
 
-- L'installation de la version 1.3.0. À ce stade, son contenu d'alerte a été testé par import et son adaptateur hors de VCF Operations.
 - Un pack signé. Chaque nouvelle version impose d'activer l'option des packs non signés.
 
 Points restés ouverts depuis la partie 1 :
@@ -496,7 +499,7 @@ Tests :
 
 ## Sources
 
-- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026 ; versions 1.0.1, 1.1.0, 1.1.1, 1.2.0 et 1.2.1 le 18 novembre ; version 1.3.0 construite et son contenu d'alerte testé le 19 novembre.
+- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026 ; versions 1.0.1, 1.1.0, 1.1.1, 1.2.0 et 1.2.1 le 18 novembre ; version 1.3.0 le 19 novembre.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html) : « No signature found on PAK file » lors de l'installation d'un management pack
 - [Docker : verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

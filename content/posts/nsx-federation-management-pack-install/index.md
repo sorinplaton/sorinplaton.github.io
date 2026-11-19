@@ -1,7 +1,7 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 2: building, installing and what the pack captures"
 date: 2026-11-18
-description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the install step by step with screenshots (HTTPS registry, certificate trust on the cloud proxy, unsigned pack, account), and what the pack monitors on a two-location lab federation: 70 objects, 419 metrics, 53 alert definitions, four custom groups, three dashboards, five views and a report. It also covers a Global Manager switchover and how to send the alerts by email."
+description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: the adapter built with the Integration SDK, the install step by step with screenshots (HTTPS registry, certificate trust on the cloud proxy, unsigned pack, account), and what the pack monitors on a two-location lab federation: 70 objects, 420 metrics, 56 alert definitions, four custom groups, three dashboards, five views and a report. It also covers a Global Manager switchover and how to send the alerts by email."
 summary: "The adapter collects a two-location NSX 9.1 Federation in about 12 seconds. Running it inside VCF Operations 9.1.1 takes an image registry served over HTTPS, a cloud proxy that trusts the registry certificate, and the setting that allows an unsigned pack. This post documents each install step with screenshots, lists what the pack monitors (objects, metrics, alerts, groups, dashboards, views), tests a Global Manager switchover, and shows how to send the alerts by email."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Field notes"]
@@ -12,7 +12,7 @@ params:
   seoDescription: "Building and installing a custom NSX Federation management pack in VCF Operations 9.1.1: HTTPS registry, certificate trust, unsigned pack, and the objects, metrics, alerts, groups, dashboards and views it provides."
 ---
 
-[Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1 with screenshots, what the pack monitors (objects, metrics, alerts, groups, dashboards, views), a Global Manager switchover, and how to send the alerts by email. The pack described here is version 1.4.0, and its source is on GitHub: [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). The adapter itself took less time than the install. Three separate checks in VCF Operations stood between the `.pak` file and a running collector.
+[Part 1](/posts/nsx-federation-management-pack-design/) ended with a design and no code. This post covers the build, the install in VCF Operations 9.1.1 with screenshots, what the pack monitors (objects, metrics, alerts, groups, dashboards, views), a Global Manager switchover, and how to send the alerts by email. The pack described here is version 1.5.0, and its source is on GitHub: [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). The adapter itself took less time than the install. Three separate checks in VCF Operations stood between the `.pak` file and a running collector.
 
 ## The lab
 
@@ -35,7 +35,7 @@ The adapter is two Python files:
 - `nsxclient.py`: a read-only NSX REST client with cursor paging, a call budget per manager, back-off on HTTP 429 and 503, a certificate check by SHA-256 fingerprint, and a small on-disk cache for slow-moving data.
 - `adapter.py`: the object model, the collection logic and the events.
 
-The adapter instance takes one or two Global Manager addresses and one credential. It discovers the Local Managers from the Global Manager, and it compares the certificate of each Local Manager with the thumbprint the Global Manager already holds for it. The check has two modes: "enforce" stops the collection of a manager whose certificate does not match, and "report" collects and raises an alert. The lab account runs in "report". The account also accepts a separate credential for the Local Managers.
+The adapter instance takes one or two Global Manager addresses and one credential. It discovers the Local Managers from the Global Manager, and it compares the certificate of each Local Manager with the thumbprint the Global Manager already holds for it. The check has two modes: "enforce" stops the collection of a manager whose certificate does not match, and "report" collects and raises an alert. The lab account runs in "report". The account also accepts a separate credential for the Local Managers. The pack only reads from NSX, so a read-only account is enough: a collection with the built-in `audit` account of NSX returned the same 70 objects as `admin`, with no failed call.
 
 Before any install, the collection ran against the live managers from the tooling container:
 
@@ -157,7 +157,7 @@ These calls are internal to the UI. They are unsupported and can change with any
 
 After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` appear in VCF Operations. The pack shows under Administration, Integrations, Repository with its version:
 
-![Administration, Integrations, Repository filtered on "Federation": the NSX Federation pack, version 1.4.0, with one account](/images/nsx-federation-mp/ops-repository-pack.webp)
+![Administration, Integrations, Repository filtered on "Federation": the NSX Federation pack, version 1.5.0, with one account](/images/nsx-federation-mp/ops-repository-pack.webp)
 
 ### Step 4: create the account
 
@@ -216,7 +216,7 @@ An edge node and its tunnels are identified by location and node name, so a rede
 
 In the inventory, the object types sit in a tree and each object has a summary page. The screenshot below shows a location:
 
-![VCF Operations inventory: the NSX Federation object types in the tree, and the summary of location site-a-wld01 with its related objects, alarm counts, backup age and the version mismatch alert](/images/nsx-federation-mp/ops-inventory-location.webp)
+![VCF Operations inventory: the NSX Federation object types in the tree, and the summary of location site-a-wld01 with its related objects, its key indicators and no open alert](/images/nsx-federation-mp/ops-inventory-location.webp)
 
 The pack also ships an inventory tree. To open it, go to Inventory, click Detailed View, select the last tab (the puzzle-piece icon) and pick NSX Federation in the drop-down. The tree starts at the federation. Under it sit the segments, the Tier-1 and Tier-0 gateways, the global policy, the Global Managers and the two locations. A location holds its edge cluster and its sync channels:
 
@@ -230,7 +230,7 @@ Four custom groups come with the pack: all objects of the pack (70 in the lab), 
 
 ### Metrics
 
-The pack sends 419 metrics per cycle in the lab once the rates are available.
+The pack sends 420 metrics per cycle in the lab once the rates are available.
 
 The metrics sit in groups, as in the built-in integrations: Sync, Connectivity, Certificates, Alarms, Rates and so on, 17 groups in all. The metric tree of an object stays short enough to read. The key of a metric carries its group, `sync|standby_in_sync` for example.
 
@@ -246,11 +246,11 @@ Three metrics are derived by the adapter, because a symptom compares a metric wi
 
 Seven figures cover the whole federation, on the federation object: locations healthy, as a count and a percentage; RTEP tunnels; tunnels whose BGP session is down; RTEP drops per minute over all tunnels; days to the first certificate expiry on any manager; open critical alarms on all managers. A super metric could compute some of them, but it does nothing until a policy enables it, so the adapter computes all seven. In the lab they read two of two locations healthy (100 %), eight tunnels, none down, no drops, 331.6 days to the first certificate expiry (a Local Manager certificate) and no critical alarm.
 
-The table below gives the coverage of each object type. The Metrics column counts the metric keys defined for the type. Not every object sends every key (only policy realizations carry counters, for example), so the column multiplied by the object counts does not give 419.
+The table below gives the coverage of each object type. The Metrics column counts the metric keys defined for the type. Not every object sends every key (only policy realizations carry counters, for example), so the column multiplied by the object counts does not give 420.
 
 | Object type | Metrics | Alert definitions | Dashboard |
 | --- | --- | --- | --- |
-| Federation | 21 | 5 | Federation Overview |
+| Federation | 22 | 8 | Federation Overview |
 | Global Manager | 12 | 17 | Federation Overview |
 | Global Manager node | 1 | None, covered by the cluster alert of the Global Manager | Related objects only |
 | Location | 14 | 18 | Federation Overview |
@@ -266,7 +266,7 @@ The table below gives the coverage of each object type. The Metrics column count
 
 ### Alerts
 
-The pack has 53 alert definitions, 67 symptoms and 27 recommendations. The content is one XML file in `content/alertdefs`. A script generates it from a table of symptoms, alerts and recommendations. A symptom is a condition on one metric, one property or one event. Two symptoms use a dynamic threshold. A condition on a property looks like this:
+The pack has 56 alert definitions, 71 symptoms and 30 recommendations. The content is one XML file in `content/alertdefs`. A script generates it from a table of symptoms, alerts and recommendations. A symptom is a condition on one metric, one property or one event. Two symptoms use a dynamic threshold. A condition on a property looks like this:
 
 ```xml
 <SymptomDefinition adapterKind="NSXFederation" id="SymptomDefinition-NSXFederation-gm_backup_off"
@@ -285,13 +285,13 @@ A condition on an event matches the text of the event with a regular expression:
            operator="regex" type="msg_event"/>
 ```
 
-The 53 definitions, by object type:
+The 56 definitions, by object type:
 
 | Object type | Definitions | Alerts |
 | --- | --- | --- |
-| Federation | 5 | No active Global Manager; split-brain (two active); a Global Manager not reachable by the collector; no standby configured; partial collection (API call budget used) |
+| Federation | 8 | No active Global Manager; split-brain (two active); a Global Manager not reachable by the collector; no standby configured; partial collection (API call budget used); collection with data gaps; collection slow or throttled; collection without a Global Manager |
 | Global Manager | 17 | Cluster degraded; backup missing, old or failed; certificate about to expire; standby not in sync; 13 NSX federation alarms (see below) |
-| Location | 18 | Connection to the active Global Manager lost; Local Manager not reachable by the collector; certificate not trusted; full sync not completed; inter-site BGP sessions down; version differs from the Global Manager; backup missing or old; certificate about to expire; Local Manager cluster degraded; 9 NSX federation alarms |
+| Location | 18 | Connection to the active Global Manager lost; Local Manager not reachable by the collector; certificate not trusted; full sync not completed; inter-site BGP sessions down; NSX release differs from the Global Manager; backup missing or old; certificate about to expire; Local Manager cluster degraded; 9 NSX federation alarms |
 | Sync channel | 1 | Channel down |
 | Edge cluster | 1 | Inter-site status is not UP |
 | Edge node | 1 | All inter-site BGP sessions down |
@@ -304,13 +304,23 @@ The edge node alert fires only when the node has lost all its inter-site session
 
 Each alert also sets how it counts and how fast it reacts:
 
-- **Badge.** Eight alerts lower the Risk badge instead of Health: both backup alerts, both certificate expiry alerts, the certificate not trusted, no standby, the version mismatch and the call budget. These conditions cause trouble later, and Health is kept for what is broken now.
-- **Wait and cancel cycles.** Nine symptoms that can flap need two collection cycles, 10 minutes, to raise an alert and two to clear it: sync channel down; inter-site BGP sessions down and none established on the location; no inter-site session on the edge node; inter-site BGP down on the tunnel; tunnel drops, received and sent; Tier-0 BGP neighbor down; no prefixes received. The dynamic threshold and the standby sync wait three cycles.
-- **Compliance subtype.** Four alerts carry the compliance subtype: no standby, both backup alerts and the version mismatch. The Compliance page of VCF Operations 9.1 shows a banner that the older Compliance feature is deprecated in VCF 9.1 and points to Security Posture Management. The subtype therefore only classifies the alerts, and no custom benchmark was built on it.
+- **Badge.** Ten alerts lower the Risk badge instead of Health: both backup alerts, both certificate expiry alerts, the certificate not trusted, no standby, the release mismatch, the call budget, the data gaps and the slow or throttled collection. These conditions cause trouble later, and Health is kept for what is broken now.
+- **Wait and cancel cycles.** Nine symptoms that can flap need two collection cycles, 10 minutes, to raise an alert and two to clear it: sync channel down; inter-site BGP sessions down and none established on the location; no inter-site session on the edge node; inter-site BGP down on the tunnel; tunnel drops, received and sent; Tier-0 BGP neighbor down; no prefixes received. The data gaps and the slow collection also wait two cycles. The dynamic threshold, the standby sync and the throttling wait three.
+- **Compliance subtype.** Four alerts carry the compliance subtype: no standby, both backup alerts and the release mismatch. The Compliance page of VCF Operations 9.1 shows a banner that the older Compliance feature is deprecated in VCF 9.1 and points to Security Posture Management. The subtype therefore only classifies the alerts, and no custom benchmark was built on it.
 - **Thresholds.** The backup age (24 hours) and the certificate warning (30 days) are fixed in the symptoms. A VCF Operations policy can override the threshold of a symptom for another value.
 - **Dynamic threshold.** The tunnel traffic alert compares the receive and send rates with the range VCF Operations learns for each tunnel. It needs days of history before it can fire.
 
-Four alerts fire in the lab, from two definitions: the missing backup on both Global Managers and the version mismatch on both locations. All four describe the lab correctly and count against Risk. Apart from the alarm alerts tested below, no other definition has fired, because the lab has no such fault.
+Two alerts fire in the lab, from one definition: the missing backup on both Global Managers. Both describe the lab correctly and count against Risk. Apart from the alarm alerts tested below, no other definition has fired, because the lab has no such fault.
+
+The release alert compares the first three numbers of the NSX version. The Local Managers of the lab run 9.1.1.0 and the Global Managers 9.1.1.0100: the same release at two patch levels, which raises no alert.
+
+#### Failed calls are reported as unknown
+
+Most of the collection is made of secondary calls: cluster status, alarms, backups, certificates, sync status. When one of them fails, with an HTTP error or a timeout, the adapter sends nothing for the values that depend on it. A failed status call does not read as "location not connected", and a failed backup call does not read as "backup not configured". VCF Operations keeps the last known value, and no alert fires on data that was never received.
+
+The federation object counts these calls in the metric "NSX API calls without an answer" and lists them in a property, with the manager, the call and the HTTP status. Three alerts watch the collection itself: data gaps for two cycles, a collection that takes more than four minutes or is throttled by NSX, and a collection that runs without any Global Manager.
+
+This was tested by fault injection in a local run: the status, backup, alarm and cluster calls were made to answer HTTP 500 on every manager. The run reported 15 calls without an answer and sent none of the values behind them.
 
 An alert from a definition carries its recommendation and the symptom that triggered it:
 
@@ -342,13 +352,13 @@ The same call as a PUT with the full object was refused with `Global Manager can
 | 07:44:35 | Switchback complete | |
 | 07:52 | | gm-site-a active again, standby in sync |
 
-Each switchover took about two minutes. The pack followed the active role in its first cycle after the change, with no edit to the account, because the account lists both addresses. No alert opened or closed during the test, and the four lab alerts stayed as they were. For about a minute during the precheck, the new active Global Manager listed both Global Managers as active. The pack still counted one active Global Manager and raised no split-brain alert.
+Each switchover took about two minutes. The pack followed the active role in its first cycle after the change, with no edit to the account, because the account lists both addresses. No alert opened or closed during the test. For about a minute during the precheck, the new active Global Manager listed both Global Managers as active. The pack still counted one active Global Manager and raised no split-brain alert.
 
 The Federation Overview dashboard with gm-site-b active:
 
-![The Federation Overview dashboard during the switchover test: gm-site-b selected, its scoreboard with Standby in sync 1, nodes online 1, nodes offline 0 and certificate expiry 822.6 days, and the same two open alert definitions](/images/nsx-federation-mp/ops-switchover-gm-b.webp)
+![The Federation Overview dashboard during the switchover test: gm-site-b selected, its scoreboard with Standby in sync 1, nodes online 1, nodes offline 0 and certificate expiry 822.6 days, and the open alerts of the lab at the time of the test](/images/nsx-federation-mp/ops-switchover-gm-b.webp)
 
-The test showed one side effect: the standby sync metrics belong to the active Global Manager. After the switchover, the former active stops sending them, and VCF Operations keeps showing their last value. The scoreboard of the former active therefore still showed "Standby in sync 1" while it was the standby itself. The value left behind was 1, so no alert was raised. What a stale 0 would do to the alert was not tested.
+The test showed one side effect: the standby sync metrics belong to the active Global Manager. After the switchover, the former active stops sending them, and VCF Operations keeps showing their last value. The scoreboard of the former active therefore still showed "Standby in sync 1" while it was the standby itself. The value left behind was 1, so no alert was raised.
 
 A planned switchover never leaves the federation without an active Global Manager, so the alerts "no active Global Manager" and "Global Manager not reachable" did not fire, as expected. Testing them takes an unplanned failure of the active Global Manager.
 
@@ -356,7 +366,7 @@ A planned switchover never leaves the federation without an active Global Manage
 
 The adapter forwards the federation alarms of the Global Manager, and those of each Local Manager, as events with the text `NSX alarm <event_type>: <summary>`. The built-in NSX integration uses the same form and matches it to give 381 alarm types an alert of their own.
 
-The pack gives the 13 federation alarm types of NSX 9.1 their own symptom, alert and recommendation: split-brain between Global Managers; sync errors and warnings between the Global Managers, between the Global Manager and a location, and between locations; the two latency warnings; the sync queue above its threshold; a Local Manager restored during its configuration import; RTEP BGP down; RTEP connectivity lost. The Global Manager gets all 13. A location gets 9, because the four alarms between Global Managers do not apply to it. The latency alarms partly cover the open item on latency between managers: NSX raises one when the latency stays above its threshold for two minutes.
+The pack gives the 13 federation alarm types of NSX 9.1 their own symptom, alert and recommendation: split-brain between Global Managers; sync errors and warnings between the Global Managers, between the Global Manager and a location, and between locations; the two latency warnings; the sync queue above its threshold; a Local Manager restored during its configuration import; RTEP BGP down; RTEP connectivity lost. The Global Manager gets all 13. A location gets 9, because the four alarms between Global Managers do not apply to it. NSX raises a latency alarm when the latency between two managers stays above its threshold for two minutes.
 
 The built-in NSX integration has the same alarms, but only for the managers added to it as NSX accounts. In the lab those are the Local Managers, so the alarms of the Global Manager reach VCF Operations only through this pack.
 
@@ -380,10 +390,10 @@ The 1,219 alert definitions and 1,991 symptom definitions on the lab's VCF Opera
 
 | | Built-in NSX | Built-in vCenter | Built-in vSAN | NSX Federation pack |
 | --- | --- | --- | --- | --- |
-| Alert definitions | 423 | 185 | 225 | 53 |
-| Main trigger | NSX alarms as events (381), properties | Properties (702), vCenter faults (107) | Faults (504) | Metric thresholds (33), NSX alarms as events (22), properties (10), dynamic thresholds (2) |
-| Badge | 405 Health, 18 Risk | 129 Health, 55 Risk, 1 Efficiency | 206 Health, 15 Risk, 4 Efficiency | 45 Health, 8 Risk |
-| Symptoms with wait or cancel cycles above 1 | None | 31 | None | 12 |
+| Alert definitions | 423 | 185 | 225 | 56 |
+| Main trigger | NSX alarms as events (381), properties | Properties (702), vCenter faults (107) | Faults (504) | Metric thresholds (36), NSX alarms as events (22), properties (11), dynamic thresholds (2) |
+| Badge | 405 Health, 18 Risk | 129 Health, 55 Risk, 1 Efficiency | 206 Health, 15 Risk, 4 Efficiency | 46 Health, 10 Risk |
+| Symptoms with wait or cancel cycles above 1 | None | 31 | None | 15 |
 | Compliance alerts | 9 | 2 | None | 4 |
 
 No super metric was defined on the system.
@@ -400,9 +410,9 @@ Three dashboards sit in a folder named "NSX Federation":
 
 Every dashboard works the same way: a list drives a scoreboard, and a click on a scoreboard value draws its trend.
 
-Federation Overview with gm-site-a selected. The scoreboard of a Global Manager starts with the standby sync, and the open alerts are the backup and the version mismatch:
+Federation Overview with gm-site-a selected. The scoreboard of a Global Manager starts with the standby sync, and the only open alert is the backup:
 
-![The Federation Overview dashboard: two open alert definitions (backup, version mismatch), the list with gm-site-a and gm-site-b, and the scoreboard of gm-site-a with Standby in sync 1, nodes offline 0 and certificate expiry 822.9 days](/images/nsx-federation-mp/ops-dashboard-standby.webp)
+![The Federation Overview dashboard: one open alert definition (backup), the list with gm-site-a and gm-site-b, and the scoreboard of gm-site-a with Standby in sync 1, nodes offline 0 and certificate expiry 822.5 days](/images/nsx-federation-mp/ops-dashboard-standby.webp)
 
 With the federation selected, the scoreboard ends with the federation rollups: locations healthy, RTEP BGP down, RTEP drops per minute, certificate expiry and critical alarms:
 
@@ -429,7 +439,7 @@ The five list views cover locations, sync channels, RTEP tunnels, Tier-0 BGP nei
 
 ### Link to the built-in NSX integration
 
-An option on the adapter instance, off by default, links each edge node and edge cluster to the object of the built-in NSX integration. Part 1 left open how far the pack extends the built-in NSX objects, and this option is the answer so far.
+An option on the adapter instance, off by default, links each edge node and edge cluster to the object of the built-in NSX integration.
 
 With the option on, the edge cluster of site-a-wld01 and its two edge nodes got the built-in Edge Cluster and Transport Node objects as children after one cycle. Their alerts, such as the built-in "RTEP Connectivity Lost", can then be listed from the federation object. The edges of site-a-wld03 got no link: the Local Manager of that location is not an NSX account in VCF Operations, so the built-in objects do not exist. The pack keeps its own tunnel and edge alerts for that reason. For a location whose Local Manager is not added to the built-in integration, they are the only coverage.
 
@@ -463,43 +473,12 @@ The last three wizard steps (outbound method, payload template, test) are descri
 
 ![The Define Criteria step of a notification rule: object scope, alert scope with category, criticality and control state, and the status changes to notify on](/images/nsx-federation-mp/ops-notification-rule.webp)
 
-A rule on the pack's object types, limited to Immediate and Critical, sends the alerts of those two levels by email. The version mismatch and the other Information and Warning alerts stay in the UI. A second rule without the criticality limit, sent to a team mailbox, covers them.
-
-## What is not there yet
-
-In the pack:
-
-- A signature. Every install and upgrade needs the unsigned-pack switch.
-
-An independent review of the code against what a large organisation would need found more gaps. None of them shows in a healthy two-location lab:
-
-- **Failed calls read as empty answers.** When a secondary NSX call fails, the adapter treats the answer as empty. A failed status call can then read as "location not connected" and a failed backup call as "backup not configured", and each raises an alert. A failed call has to mean "unknown".
-- **Certificate trust.** The fingerprint is checked on a separate connection before the API calls, and a manager without a recorded thumbprint is not checked. There is no mode that validates a certificate chain and a host name.
-- **Account rights.** The lab used the NSX `admin` account. A read-only role was not tested or documented.
-- **Scale.** The collection makes one realization call per stretched object in every cycle. It was measured on two locations only, and no mock of a large federation was built.
-- **Alert storms.** When a location goes down, the alerts of its tunnels, BGP sessions, channels and realizations fire next to the location alert. Nothing groups them under one root cause, and there is no maintenance window.
-- **Self-monitoring.** API errors, throttling and collection time are metrics, but only the call budget has an alert.
-- **Several federations.** Nothing checks that the listed Global Managers belong to the same federation, and the groups and dashboards are not scoped per federation.
-- **Coverage.** Not collected yet: Tier-0 failover and the active edge per location, Local Manager nodes, onboarding state, sync queue and latency as metrics, configuration maximums, upgrade state.
-- **Engineering.** There are no unit tests, no pipeline, and no clean-up of objects deleted in NSX.
-
-Open from part 1:
-
-- Latency between managers as a metric. NSX measures it and shows it in its UI; the API that carries it was not found. The NSX latency alarms raise an alert.
-- The firewall state of the hosts, the second open item from part 1.
-- The mock for the cases the lab cannot show. It was not built.
-
-Tests:
-
-- Most alert definitions, which need faults the lab does not have. A planned switchover and switchback were tested. A failure of the active Global Manager, a standby out of sync and split-brain were not. The alarm alerts were tested with posted events, not with real NSX alarms.
-- The dynamic threshold, which needs days of history.
-- The report.
-- The email notification, which needs a mail server the lab does not have.
+A rule on the pack's object types, limited to Immediate and Critical, sends the alerts of those two levels by email. The Information and Warning alerts stay in the UI. A second rule without the criticality limit, sent to a team mailbox, covers them.
 
 ## Sources
 
 - Lab: nested VCF 9.1.1 Holodeck, NSX 9.1.1.0 (Local Managers) and 9.1.1.0100 (Global Managers), VCF Operations 9.1.1.0 build 25795063. Build, install and tests from 17 to 19 November 2026.
-- Source of the pack: [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag v1.4.0
+- Source of the pack: [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag v1.5.0
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack
 - [Docker: verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

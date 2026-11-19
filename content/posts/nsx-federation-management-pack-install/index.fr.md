@@ -1,18 +1,18 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 2 : construction, installation et données collectées par le pack"
 date: 2026-11-18
-description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, l'installation pas à pas avec captures d'écran (registre en HTTPS, approbation du certificat sur le proxy cloud, pack non signé, compte), et ce que la version 1.2.1 supervise sur une fédération de lab à deux emplacements : 65 objets, 398 métriques, 29 définitions d'alerte, 3 tableaux de bord, 5 vues et un rapport. L'article explique aussi comment envoyer les alertes par e-mail."
-summary: "L'adaptateur collecte les données d'une fédération NSX 9.1 à deux emplacements en 12 secondes et 60 appels d'API. Pour qu'il fonctionne dans VCF Operations 9.1.1, il faut un registre d'images servi en HTTPS, un proxy cloud qui approuve le certificat du registre et le réglage qui autorise un pack non signé. Cet article détaille chaque étape de l'installation avec des captures d'écran, liste ce que supervise la version 1.2.1 du pack (objets, métriques, alertes, tableaux de bord, vues) et montre comment envoyer les alertes par e-mail."
+description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, l'installation pas à pas avec captures d'écran (registre en HTTPS, approbation du certificat sur le proxy cloud, pack non signé, compte), et ce que la version 1.3.0 supervise sur une fédération de lab à deux emplacements : 65 objets, 52 définitions d'alerte, 3 tableaux de bord, 5 vues et un rapport. L'article explique aussi comment envoyer les alertes par e-mail."
+summary: "L'adaptateur collecte les données d'une fédération NSX 9.1 à deux emplacements en 12 secondes et 60 appels d'API. Pour qu'il fonctionne dans VCF Operations 9.1.1, il faut un registre d'images servi en HTTPS, un proxy cloud qui approuve le certificat du registre et le réglage qui autorise un pack non signé. Cet article détaille chaque étape de l'installation avec des captures d'écran, liste ce que supervise la version 1.3.0 du pack (objets, métriques, alertes, tableaux de bord, vues) et montre comment envoyer les alertes par e-mail."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Holodeck"]
 categories: ["Notes"]
 showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/object-model.svg"]
 params:
-  seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : registre HTTPS, approbation du certificat, pack non signé, puis objets, métriques, alertes, tableaux de bord et vues de la version 1.2.1."
+  seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : registre HTTPS, approbation du certificat, pack non signé, puis objets, métriques, alertes, tableaux de bord et vues de la version 1.3.0."
 ---
 
-La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. Cet article décrit la construction du pack, son installation dans VCF Operations 9.1.1 avec des captures d'écran, ce que le pack supervise en version 1.2.1 (objets, métriques, alertes, tableaux de bord, vues) et l'envoi de ses alertes par e-mail. L'écriture de l'adaptateur a demandé moins de temps que son installation : trois contrôles distincts de VCF Operations séparaient le fichier `.pak` d'une collecte opérationnelle. Le pack a connu six versions en deux jours, et les notes propres à chaque version figurent vers la fin de l'article.
+La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. Cet article décrit la construction du pack, son installation dans VCF Operations 9.1.1 avec des captures d'écran, ce que le pack supervise en version 1.3.0 (objets, métriques, alertes, tableaux de bord, vues) et l'envoi de ses alertes par e-mail. L'écriture de l'adaptateur a demandé moins de temps que son installation : trois contrôles distincts de VCF Operations séparaient le fichier `.pak` d'une collecte opérationnelle. Le pack a connu sept versions en trois jours, et les notes propres à chaque version figurent vers la fin de l'article.
 
 ## Le lab
 
@@ -172,7 +172,9 @@ Une nouvelle version s'installe comme la première, et chaque version impose d'a
 - Après la mise à niveau vers la version 1.0.1, l'instance d'adaptateur est restée à l'état `FAILED` jusqu'à son arrêt puis son redémarrage, alors que le proxy cloud avait déjà récupéré la nouvelle image.
 - La version 1.2.0 a changé l'identité des nœuds Edge et des tunnels RTEP, et la nouvelle identité a créé de nouveaux objets. VCF Operations a recréé les 4 nœuds Edge et les 8 tunnels. Les 12 anciens objets sont restés dans l'inventaire, sans données, jusqu'à leur suppression (voir Objets ci-dessous).
 
-## Ce que le pack supervise (version 1.2.1)
+## Ce que le pack supervise (version 1.3.0)
+
+La version 1.3.0 est construite mais pas encore installée. Son contenu d'alerte a été importé dans VCF Operations par l'API Suite et testé sur place, et les nouvelles métriques de fédération proviennent d'une exécution de l'adaptateur contre le lab, hors de VCF Operations. Tout le reste de cette section provient de la version 1.2.1 exécutée dans VCF Operations.
 
 ### Objets
 
@@ -211,24 +213,26 @@ Depuis la version 1.2.1, le pack dispose aussi d'une arborescence d'inventaire f
 
 ### Métriques
 
-Le pack envoie 398 métriques par cycle dans le lab, une fois les taux disponibles.
+La version 1.2.1 envoie 398 métriques par cycle dans le lab, une fois les taux disponibles.
 
 NSX renvoie les paquets, les octets, les rejets et les correspondances de règles sous forme de totaux cumulés. L'adaptateur conserve les compteurs du cycle précédent et ajoute des taux : paquets, rejets et paquets bloqués par minute et octets par seconde sur les tunnels RTEP, correspondances de règles par minute sur les stratégies, les réalisations et les règles. Les unités sont déclarées : heures, jours, secondes, octets, paquets et taux par minute.
 
 Trois métriques sont dérivées par l'adaptateur (Global Managers injoignables, sessions BGP intersites non établies, emplacements non réalisés), car un symptôme compare une métrique à une valeur fixe et ne sait pas soustraire deux métriques.
 
-Le tableau ci-dessous donne la couverture de chaque type d'objet. La colonne Métriques compte les clés de métrique définies pour le type. Tous les objets n'envoient pas toutes les clés (seules les réalisations de stratégie portent des compteurs, par exemple) : la colonne multipliée par le nombre d'objets ne donne donc pas 398.
+La version 1.3.0 ajoute sur l'objet fédération sept valeurs qui portent sur toute la fédération : emplacements en bonne santé, en nombre et en pourcentage ; tunnels RTEP ; tunnels dont la session BGP est tombée ; paquets RTEP rejetés par minute sur l'ensemble des tunnels ; jours restants avant la première expiration de certificat, tous managers confondus ; alarmes critiques ouvertes sur l'ensemble des managers. Une super métrique pourrait en calculer une partie, mais elle reste inactive tant qu'une politique ne l'active pas : l'adaptateur calcule donc les sept. Elles apparaissent dans le widget « Scoreboard » de Federation Overview. L'exécution contre le lab a donné deux emplacements sains sur deux (100 %), 8 tunnels, aucun tombé, et 331 jours avant la première expiration de certificat.
+
+Le tableau ci-dessous donne la couverture de chaque type d'objet. La colonne Métriques compte les clés de métrique définies pour le type. Tous les objets n'envoient pas toutes les clés (seules les réalisations de stratégie portent des compteurs, par exemple) : la colonne multipliée par le nombre d'objets ne donne donc pas 398. Les nombres sont ceux de la version 1.3.0.
 
 | Type d'objet | Métriques | Définitions d'alerte | Tableau de bord |
 | --- | --- | --- | --- |
-| Fédération | 14 | 5 | Federation Overview |
-| Global Manager | 10 | 3 | Federation Overview |
+| Fédération | 21 | 5 | Federation Overview |
+| Global Manager | 10 | 16 | Federation Overview |
 | Nœud de Global Manager | 1 | Aucune, le nœud est couvert par l'alerte de cluster du Global Manager | Objets associés uniquement |
-| Emplacement | 14 | 9 | Federation Overview |
+| Emplacement | 14 | 18 | Federation Overview |
 | Canal de synchronisation | 1 | 1 | Inter-site Connectivity |
 | Cluster Edge | 4 | 1 | Inter-site Connectivity |
 | Nœud Edge | 4 | 1 | Inter-site Connectivity |
-| Tunnel RTEP | 17 | 2 | Inter-site Connectivity |
+| Tunnel RTEP | 17 | 3 | Inter-site Connectivity |
 | Voisin BGP du Tier-0 | 7 | 2 | Inter-site Connectivity |
 | Tier-0, Tier-1 et segment étendus | 4 chacun | 1 chacun | Stretched Objects |
 | Stratégie de sécurité globale | 8 | 1 | Stretched Objects |
@@ -237,7 +241,7 @@ Le tableau ci-dessous donne la couverture de chaque type d'objet. La colonne Mé
 
 ### Alertes
 
-Le pack compte 29 définitions d'alerte, 42 symptômes et 20 recommandations. Ces définitions tiennent dans un seul fichier XML, placé dans `content/alertdefs`. Un script le génère à partir d'une table des symptômes, des alertes et des recommandations. Chaque symptôme est une condition portant sur une métrique ou sur une propriété :
+La version 1.3.0 compte 52 définitions d'alerte, 66 symptômes et 27 recommandations. Ces définitions tiennent dans un seul fichier XML, placé dans `content/alertdefs`. Un script le génère à partir d'une table des symptômes, des alertes et des recommandations. Un symptôme est une condition portant sur une métrique, sur une propriété ou sur un événement. Deux symptômes utilisent un seuil dynamique. Une condition sur une propriété se présente ainsi :
 
 ```xml
 <SymptomDefinition adapterKind="NSXFederation" id="SymptomDefinition-NSXFederation-gm_backup_off"
@@ -249,24 +253,38 @@ Le pack compte 29 définitions d'alerte, 42 symptômes et 20 recommandations. Ce
 </SymptomDefinition>
 ```
 
-Les 29 définitions se répartissent ainsi par type d'objet :
+Une condition sur un événement compare le texte de l'événement à une expression régulière :
+
+```xml
+<Condition eventMsg="NSX alarm rtep_bgp_down:(?s).*" eventSubType="5" eventType="11"
+           operator="regex" type="msg_event"/>
+```
+
+Les 52 définitions se répartissent ainsi par type d'objet :
 
 | Type d'objet | Définitions | Alertes |
 | --- | --- | --- |
 | Fédération | 5 | Aucun Global Manager actif ; split-brain (deux Global Managers actifs) ; Global Manager injoignable depuis le proxy cloud ; aucun Global Manager de secours configuré ; collecte partielle (quota d'appels d'API épuisé) |
-| Global Manager | 3 | Cluster dégradé ; sauvegarde absente, trop ancienne ou en échec ; certificat proche de l'expiration |
-| Emplacement | 9 | Connexion au Global Manager actif perdue ; Local Manager injoignable depuis le proxy cloud ; certificat non approuvé ; synchronisation complète non terminée ; sessions BGP intersites tombées ; version différente de celle du Global Manager ; sauvegarde absente ou trop ancienne ; certificat proche de l'expiration ; cluster du Local Manager dégradé |
+| Global Manager | 16 | Cluster dégradé ; sauvegarde absente, trop ancienne ou en échec ; certificat proche de l'expiration ; 13 alarmes de fédération NSX (voir ci-dessous) |
+| Emplacement | 18 | Connexion au Global Manager actif perdue ; Local Manager injoignable depuis le proxy cloud ; certificat non approuvé ; synchronisation complète non terminée ; sessions BGP intersites tombées ; version différente de celle du Global Manager ; sauvegarde absente ou trop ancienne ; certificat proche de l'expiration ; cluster du Local Manager dégradé ; 9 alarmes de fédération NSX |
 | Canal de synchronisation | 1 | Canal interrompu |
 | Cluster Edge | 1 | État intersite différent de UP |
 | Nœud Edge | 1 | Toutes les sessions BGP intersites tombées |
-| Tunnel RTEP | 2 | Session BGP intersite tombée sur le tunnel ; plus de 60 paquets rejetés par minute dans un sens |
+| Tunnel RTEP | 3 | Session BGP intersite tombée sur le tunnel ; plus de 60 paquets rejetés par minute dans un sens ; trafic hors de sa plage habituelle (seuil dynamique) |
 | Voisin BGP du Tier-0 | 2 | Session tombée ; session de liaison montante établie sans aucun préfixe reçu |
 | Tier-0, Tier-1, segment, stratégie de sécurité globale | 1 chacun | Emplacements en erreur |
 | Objet étendu sur un emplacement | 1 | Non réalisé |
 
 L'alerte du nœud Edge ne se déclenche que lorsque le nœud a perdu toutes ses sessions intersites, car la perte d'une seule session déclenche l'alerte du tunnel. « Stretched object is not realized at a location » est de niveau Warning, car les alertes d'erreur sur l'objet lui-même sont de niveau Immediate.
 
-Dans le lab, 4 alertes se déclenchent, issues de 3 définitions : absence de Global Manager de secours, sauvegarde du Global Manager et écart de version sur les deux emplacements. Ces 4 alertes décrivent correctement l'état du lab. Les 26 autres définitions ne se sont pas déclenchées, faute de panne correspondante dans le lab. La liste des alertes les affiche sous le nom de leur définition (capture prise avec la version 1.1.1) :
+La version 1.3.0 règle aussi ce que compte chaque alerte et la vitesse à laquelle elle réagit :
+
+- **Badge.** Huit alertes font baisser le badge « Risk » au lieu du badge « Health » : les deux alertes de sauvegarde, les deux alertes d'expiration de certificat, le certificat non approuvé, l'absence de Global Manager de secours, l'écart de version et le quota d'appels. Ces conditions posent problème plus tard, et « Health » reste réservé à ce qui est en panne maintenant. L'intégration vCenter native place 55 de ses 185 définitions sur « Risk ».
+- **Cycles d'attente et d'annulation.** Neuf conditions susceptibles d'osciller exigent deux cycles de collecte, soit 10 minutes, pour déclencher une alerte, et deux pour l'effacer : canal de synchronisation interrompu, BGP intersite sur l'emplacement, le nœud Edge et le tunnel, paquets rejetés sur le tunnel, voisin BGP du Tier-0 tombé et absence de préfixes. Le seuil dynamique attend trois cycles.
+- **Sous-type Compliance.** Quatre alertes portent le sous-type Compliance : l'absence de Global Manager de secours, les deux alertes de sauvegarde et l'écart de version. Dans VCF Operations 9.1, la page « Compliance » affiche un bandeau qui annonce l'abandon de l'ancienne fonction Compliance dans VCF 9.1 et renvoie vers Security Posture Management. Le sous-type ne sert donc qu'à classer les alertes, et aucun référentiel personnalisé n'a été construit dessus.
+- **Seuil dynamique.** L'alerte de trafic du tunnel compare les débits en réception et en émission à la plage que VCF Operations apprend pour chaque tunnel. Elle a besoin de plusieurs jours d'historique avant de pouvoir se déclencher.
+
+Dans le lab, 4 alertes se déclenchent, issues de 3 définitions : absence de Global Manager de secours, sauvegarde du Global Manager et écart de version sur les deux emplacements. Ces 4 alertes décrivent correctement l'état du lab et, depuis l'import du contenu d'alerte 1.3.0, elles pèsent sur « Risk ». En dehors des deux alertes d'alarme testées plus bas, aucune autre définition ne s'est déclenchée, faute de panne correspondante dans le lab. La liste des alertes les affiche sous le nom de leur définition (capture prise avec la version 1.1.1) :
 
 ![La liste des alertes filtrée sur « Global Manager » avec la version 1.1.1 : les 4 alertes portent désormais le nom de leur définition](/images/nsx-federation-mp/ops-alerts-defined.webp)
 
@@ -274,7 +292,29 @@ Une alerte issue d'une définition affiche aussi sa recommandation et le symptô
 
 ![Détail de l'alerte « Global Manager backup is missing, old or failed » sur gm-site-a : la description, la recommandation et le symptôme « Backup is not configured on the Global Manager »](/images/nsx-federation-mp/ops-alert-recommendation.webp)
 
-Les conditions sans définition arrivent sous forme d'événements : les alarmes NSX ouvertes de chaque emplacement, les alarmes de fédération et toutes les alarmes critiques du Global Manager, ainsi que l'état de synchronisation d'un Global Manager de secours, que le lab ne permet pas de tester. Un événement émis par l'adaptateur apparaît dans VCF Operations sous la forme d'une alerte « Notification event » sur l'objet concerné, sans recommandation. Une condition dotée d'une définition d'alerte n'émet pas d'événement. Sinon, elle apparaîtrait deux fois : une fois comme alerte, une fois comme « Notification event ».
+L'objet fédération, dont la seule alerte est l'absence de Global Manager de secours, affiche « Health » à 100 % et « Risk » à 25 % :
+
+![Résumé de l'objet fédération après l'import du contenu d'alerte 1.3.0 : « Badge Health » à 100 %, « Badge Risk » à 25 %, et l'alerte « NSX Federation has no standby Global Manager »](/images/nsx-federation-mp/ops-federation-risk.webp)
+
+#### Les alarmes NSX comme alertes nommées
+
+L'adaptateur relaie les alarmes de fédération du Global Manager, et celles de chaque Local Manager, sous forme d'événements dont le texte est `NSX alarm <event_type>: <summary>`. L'intégration NSX native utilise la même forme et s'en sert pour donner à 381 types d'alarme une alerte propre. Jusqu'à la version 1.2.1, le pack n'avait aucun symptôme pour ces événements : ils apparaissaient comme des alertes « Notification event » anonymes, sans recommandation.
+
+La version 1.3.0 donne aux 13 types d'alarme de fédération de NSX 9.1 un symptôme, une alerte et une recommandation propres : split-brain entre Global Managers ; erreurs et avertissements de synchronisation entre les Global Managers, entre le Global Manager et un emplacement, et entre emplacements ; les deux avertissements de latence ; la file de synchronisation au-dessus de son seuil ; un Local Manager restauré pendant l'import de sa configuration ; RTEP BGP tombé ; connectivité RTEP perdue. Le Global Manager reçoit les 13. Un emplacement en reçoit 9, car les quatre alarmes entre Global Managers ne le concernent pas. Les alarmes de latence couvrent en partie le point ouvert sur la latence entre managers : NSX en lève une lorsque la latence reste au-dessus de son seuil pendant deux minutes.
+
+L'intégration NSX native dispose des mêmes alarmes, mais uniquement pour les managers qui y sont ajoutés comme comptes NSX. Dans le lab, ce sont les Local Managers : les alarmes du Global Manager n'arrivent donc dans VCF Operations que par ce pack.
+
+Le lab n'avait aucune alarme de fédération ouverte. Pour tester les définitions, deux événements ont été envoyés par l'API Suite (`POST /api/events`) sous la forme qu'utilise l'adaptateur : `gm_to_lm_synchronization_warning` sur le Global Manager et `rtep_bgp_down` sur l'emplacement site-a-wld01. Chacun a déclenché son alerte nommée en un cycle, et aucune alerte « Notification event » n'est apparue à côté. La liste des alertes de la fédération, de son Global Manager et de ses emplacements :
+
+![Alertes de la fédération, de son Global Manager et de ses emplacements avec le contenu d'alerte 1.3.0 : les deux alertes d'alarme NSX issues des événements de test, à côté des 4 alertes du lab](/images/nsx-federation-mp/ops-alerts-130.webp)
+
+L'alerte d'alarme affiche le symptôme, le texte de l'événement et la recommandation :
+
+![Détail de l'alerte « NSX alarm: RTEP BGP neighbor down » sur site-a-wld01 : la description, la recommandation et le symptôme « Local Manager raised NSX alarm rtep_bgp_down » avec le texte de l'événement de test](/images/nsx-federation-mp/ops-alarm-alert.webp)
+
+Les mêmes événements, envoyés de nouveau avec une heure d'annulation, ont effacé les deux alertes au cycle suivant.
+
+Les conditions sans définition arrivent toujours sous forme d'événements : les autres alarmes NSX ouvertes de chaque emplacement, toutes les alarmes critiques du Global Manager, ainsi que l'état de synchronisation d'un Global Manager de secours, que le lab ne permet pas de tester. Un tel événement apparaît sous la forme d'une alerte « Notification event » sur l'objet concerné, sans recommandation. Une condition dotée d'une définition d'alerte portant sur une métrique ou une propriété n'émet pas d'événement. Sinon, elle apparaîtrait deux fois : une fois comme alerte, une fois comme « Notification event ».
 
 Le remplacement des nœuds Edge du 18 novembre en a fourni un exemple. Les alarmes NSX `rtep_bgp_down` et `rtep_connectivity_lost` sont apparues sous forme d'alertes sur les deux objets emplacement. VCF Operations a annulé chacune d'elles environ 15 minutes plus tard, sans intervention d'un opérateur.
 
@@ -315,7 +355,9 @@ Les cinq vues de type liste portent sur les emplacements, les canaux de synchron
 
 ### Lien avec l'intégration NSX native
 
-Une option de l'instance d'adaptateur, désactivée par défaut, relie chaque nœud Edge et chaque cluster Edge à l'objet correspondant de l'intégration NSX native. La partie 1 laissait ouverte la question de savoir jusqu'où le pack étend les objets NSX natifs, et cette option est la réponse apportée à ce stade. Elle n'a pas été testée dans VCF Operations.
+Une option de l'instance d'adaptateur, désactivée par défaut, relie chaque nœud Edge et chaque cluster Edge à l'objet correspondant de l'intégration NSX native. La partie 1 laissait ouverte la question de savoir jusqu'où le pack étend les objets NSX natifs, et cette option est la réponse apportée à ce stade.
+
+L'option a été activée dans le lab avec la version 1.2.1. Après un cycle, le cluster Edge de site-a-wld01 et ses deux nœuds Edge avaient pour enfants les objets natifs Edge Cluster et Transport Node. Leurs alertes, comme l'alerte native « RTEP Connectivity Lost », sont alors accessibles depuis l'objet fédération. Les nœuds Edge de site-a-wld03 n'ont reçu aucun lien : le Local Manager de cet emplacement n'est pas un compte NSX dans VCF Operations, si bien que les objets natifs n'existent pas. Le pack conserve donc ses propres alertes de tunnel et de nœud Edge. Pour un emplacement dont le Local Manager n'est pas ajouté à l'intégration native, elles sont la seule couverture.
 
 ## Envoyer les alertes par e-mail
 
@@ -349,7 +391,7 @@ Les trois dernières étapes de l'assistant (méthode d'envoi, modèle de messag
 
 Une règle portant sur les types d'objets du pack et limitée à Immediate et Critical envoie par e-mail les alertes de ces deux niveaux. L'écart de version et l'absence de Global Manager de secours ne sont alors visibles que dans l'interface. Une seconde règle, sans limite de criticité et adressée à la boîte aux lettres d'une équipe, permet de les recevoir aussi.
 
-## Notes de version, de 1.0.0 à 1.2.1
+## Notes de version, de 1.0.0 à 1.3.0
 
 ### 1.0.0 et 1.0.1 : les événements comme alertes
 
@@ -416,28 +458,45 @@ Le modèle de projet du SDK place ses fichiers de schéma à côté du contenu 
 
 La version 1.2.1 est la version 1.2.0 sans les deux fichiers de schéma, retirés du pack. L'import des spécifications de parcours s'est alors déroulé sans erreur, et l'arborescence est apparue dans l'interface (capture dans la partie Objets).
 
+### 1.3.0 : ce que font les intégrations natives
+
+Les 1 219 définitions d'alerte et 1 991 définitions de symptôme présentes dans le VCF Operations du lab ont été comparées au pack :
+
+| | NSX natif | vCenter natif | vSAN natif | Pack 1.2.1 |
+| --- | --- | --- | --- | --- |
+| Définitions d'alerte | 423 | 185 | 225 | 29 |
+| Déclencheur principal | Alarmes NSX sous forme d'événements (381), propriétés | Propriétés (702), défauts vCenter (107) | Défauts (504) | Seuils de métrique (32), propriétés (10) |
+| Badge | 405 Health, 18 Risk | 129 Health, 55 Risk, 1 Efficiency | 206 Health, 15 Risk, 4 Efficiency | 29 Health |
+| Cycles d'attente ou d'annulation supérieurs à 1 | Aucun | 31 | Aucun | Aucun |
+| Alertes Compliance | 9 | 2 | Aucune | Aucune |
+
+Aucune super métrique n'était définie sur le système. La version 1.3.0 retient de cette comparaison les alertes d'alarme nommées, le badge « Risk », les cycles d'attente et d'annulation, le sous-type Compliance, les agrégats de fédération et un seuil dynamique, tous décrits plus haut dans les sections Alertes et Métriques.
+
+Les agrégats se sont aussi heurtés à un bug du SDK. `CollectResult.get_objects_by_type` compare le type d'adaptateur de chaque objet au type d'objet demandé et renvoie donc toujours une liste vide. L'adaptateur filtre lui-même les objets.
+
 ## Ce qui manque encore
 
 Dans le pack :
 
-- Des super métriques.
+- L'installation de la version 1.3.0. À ce stade, son contenu d'alerte a été testé par import et son adaptateur hors de VCF Operations.
 - Un pack signé. Chaque nouvelle version impose d'activer l'option des packs non signés.
 
 Points restés ouverts depuis la partie 1 :
 
-- La latence entre managers. NSX la mesure et l'affiche dans son interface ; l'API qui la fournit n'a pas été trouvée.
+- La latence entre managers sous forme de métrique. NSX la mesure et l'affiche dans son interface ; l'API qui la fournit n'a pas été trouvée. Depuis la version 1.3.0, les alarmes de latence NSX déclenchent une alerte.
 - L'état du pare-feu sur les hôtes, second point resté ouvert dans la partie 1.
 - Le simulateur pour les cas que le lab ne peut pas reproduire. Il n'a pas été construit.
 
 Tests :
 
-- 26 des 29 définitions d'alerte, qui exigent des pannes que le lab ne présente pas. Cela comprend un Global Manager de secours, un basculement et un split-brain, car le lab n'a qu'un seul Global Manager.
-- Le rapport et l'option des liens vers l'intégration NSX.
+- La plupart des définitions d'alerte, qui exigent des pannes que le lab ne présente pas. Cela comprend un Global Manager de secours, un basculement et un split-brain, car le lab n'a qu'un seul Global Manager. Les alertes d'alarme ont été testées avec des événements envoyés, et non avec de vraies alarmes NSX.
+- Le seuil dynamique, qui exige plusieurs jours d'historique.
+- Le rapport.
 - La notification par e-mail, qui exige un serveur de messagerie absent du lab.
 
 ## Sources
 
-- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026 ; versions 1.0.1, 1.1.0, 1.1.1, 1.2.0 et 1.2.1 le 18 novembre.
+- Lab : Holodeck VCF 9.1.1 imbriqué, NSX 9.1.1.0 (Local Managers) et 9.1.1.0100 (Global Manager), VCF Operations 9.1.1.0 build 25795063. Construction et installation les 17 et 18 novembre 2026 ; versions 1.0.1, 1.1.0, 1.1.1, 1.2.0 et 1.2.1 le 18 novembre ; version 1.3.0 construite et son contenu d'alerte testé le 19 novembre.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html) : « No signature found on PAK file » lors de l'installation d'un management pack
 - [Docker : verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)

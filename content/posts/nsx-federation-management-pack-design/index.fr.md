@@ -128,18 +128,6 @@ Chaque type d'objet reçoit une courte liste de métriques et de propriétés. L
 | Voisin BGP | préfixes reçus et annoncés, durée d'établissement en secondes, coupures de connexion | état, AS distant |
 | Stratégie de sécurité globale, règle | nombre de règles ; correspondances, paquets et octets par emplacement | action, activation, état |
 
-La première version s'en tient à une courte liste d'alertes :
-
-- perte du Global Manager par un emplacement
-- perte de visibilité entre deux emplacements
-- chute d'une session BGP intersite ou d'un tunnel RTEP
-- objet étendu non réalisé sur l'un des emplacements de sa portée
-- échec de la synchronisation
-- chute d'un voisin BGP de liaison montante
-- sauvegarde du Global Manager absente ou trop ancienne
-- absence de Global Manager de secours
-- version d'un emplacement différente de celle du Global Manager
-
 ## Étape 5 : éprouver la conception à l'échelle d'une grande entreprise
 
 Le lab compte deux emplacements et un Global Manager à un seul nœud. L'objectif est un pack exploitable dans une grande entreprise, c'est-à-dire avec des clusters Global Manager à trois nœuds, l'un actif et l'autre de secours sur des sites distincts, de nombreux emplacements, des milliers d'objets étendus et plusieurs équipes. La conception a été réexaminée sous cet angle, et huit points ont modifié le plan.

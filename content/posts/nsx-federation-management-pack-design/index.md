@@ -128,18 +128,6 @@ Each object type gets a short list. Metrics are numbers kept over time; properti
 | BGP neighbor | prefixes in and out, seconds established, connection drops | state, remote AS |
 | Global security policy, Rule | rule count, hit, packet and byte counts per location | action, enabled, status |
 
-The first release keeps the alert list short:
-
-- a location lost its Global Manager
-- two locations lost each other
-- an inter-site BGP session or RTEP tunnel is down
-- a stretched object is not realized somewhere in its span
-- the sync failed
-- an uplink BGP neighbor is down
-- the Global Manager backup is missing or old
-- no standby Global Manager is configured
-- a location runs a different version from the Global Manager
-
 ## Step 5: reviewing the design for enterprise scale
 
 The lab has two locations and one Global Manager node. The target is a pack a large enterprise could run: three-node Global Manager clusters, an active and a standby in different sites, many locations, thousands of stretched objects, several teams. The design was reviewed again on that basis, and eight points changed the plan.

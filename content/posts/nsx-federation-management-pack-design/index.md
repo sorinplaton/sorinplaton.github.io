@@ -16,7 +16,7 @@ VCF Operations 9.1.1 has an adapter instance for every NSX Local Manager in the 
 
 ## The lab
 
-The federation runs on a VCF 9.1.1 lab. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), is a single active node with no standby. The two locations run NSX 9.1.1: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-wld03-a`, cluster virtual IP 10.1.1.80). Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`. As built, a standby Global Manager, `nsx-gm-01b`, was added before the install, and the pack is tested with both Global Managers ([part 2](/posts/nsx-federation-management-pack-install/)).
+The federation runs on a VCF 9.1.1 lab. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), is a single active node with no standby. The two locations run NSX 9.1.1: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-shared-a`, cluster virtual IP 10.1.1.80). The Local Manager of `site-a-wld03` is called `nsx-shared-a` because VCF lets several workload domains share one NSX Manager instance; in the lab, only the workload domain `wld03-a` uses it. Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`. As built, a standby Global Manager, `nsx-gm-01b`, was added before the install, and the pack is tested with both Global Managers ([part 2](/posts/nsx-federation-management-pack-install/)).
 
 Both locations sit inside one VCF instance, which is a lab shortcut and should not be copied into a real design. The lab has four NSX Local Managers in all, and two of them are in the federation.
 
@@ -49,7 +49,7 @@ What came back:
 - Collector (cloud proxy): `opscollector-01a`, type `UNIFIED_CLOUD_PROXY`, state `UP`. This matters for the build, because adapters written with the Integration SDK run as containers on a collector and never on the analytics node.
 - NSX integration: adapter kind `NSXTAdapter` with 50 object types and four instances, one per NSX Local Manager in the lab, including the two that are not in the federation. None of the 50 types is a Global Manager, a location or an RTEP tunnel, and no instance points at the Global Manager.
 - Federation objects: the instance for `nsx-wld01-a` lists the edge cluster `fed-ec-a` and the RTEP IP pool, because those are local objects. A search of its inventory for the global objects (`fed-t0`, `fed-stretched`) returned nothing.
-- A side finding: the instance for `nsx-wld03-a`, the Local Manager of location `site-a-wld03`, exists but holds one object, itself. It is not collecting yet, so the built-in view of that location is empty. The pack is not affected, because it talks to the managers itself.
+- A side finding: the instance for `nsx-shared-a`, the Local Manager of location `site-a-wld03`, exists but holds one object, itself. It is not collecting yet, so the built-in view of that location is empty. The pack is not affected, because it talks to the managers itself.
 
 The built-in integration covers the per-location plumbing and stops at the federation boundary. The pack has to own the federation layer and link to the rest.
 

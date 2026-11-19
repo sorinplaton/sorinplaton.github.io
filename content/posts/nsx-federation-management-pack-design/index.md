@@ -22,8 +22,6 @@ The Location Manager page of the Global Manager shows the federation:
 
 ![The Global Manager's Location Manager page: one active Global Manager, no standby, two locations with latency and sync status, and a banner saying backups are not configured](/images/nsx-federation-mp/gm-location-manager.webp)
 
-That page already answers the questions an operator asks: is the Global Manager up, are the locations in sync, how far apart are they. The pack has to give the same answers, with history and alerts, in the tool that monitors the rest of the platform.
-
 ## Step 1: check what VCF Operations already collects
 
 A pack that copies the built-in NSX integration doubles the object count and raises two alerts for one fault. The first step is an inventory of what is already there, through the VCF Operations API.

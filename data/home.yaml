@@ -4,8 +4,8 @@
 
 layers:
   - id: host
-    en: { m: "Holodeck host", name: "Holodeck host", sub: "physical servers" }
-    fr: { m: "Hôte Holodeck", name: "Hôte Holodeck", sub: "serveurs physiques" }
+    en: { m: "Lab host", name: "Lab host", sub: "physical servers" }
+    fr: { m: "Hôte du lab", name: "Hôte du lab", sub: "serveurs physiques" }
   - id: vsphere
     en: { m: "ESX, vCenter", name: "ESX, vCenter, lifecycle", sub: "nested hosts, depot, installer" }
     fr: { m: "ESX, vCenter", name: "ESX, vCenter, cycle de vie", sub: "hôtes imbriqués, depot, installer" }
@@ -74,8 +74,8 @@ strings:
     nav_search: "Search"
     other_lang: "FR"
     other_lang_label: "Lire en français"
-    exhibit_name: "Holodeck"
-    exhibit_line: "VCF 9.1, nested in a home lab. Every config on this site ran here first."
+    exhibit_name: "Home lab"
+    exhibit_line: "VCF 9.1, nested. Every config on this site ran here first."
     exhibit_c1: "physical servers"
     exhibit_c2: "the whole stack, nested inside"
     latest: "Latest"
@@ -107,8 +107,8 @@ strings:
     nav_search: "Recherche"
     other_lang: "EN"
     other_lang_label: "Read in English"
-    exhibit_name: "Holodeck"
-    exhibit_line: "VCF 9.1, imbriqué dans un lab personnel. Chaque configuration du site a d'abord tourné ici."
+    exhibit_name: "Lab personnel"
+    exhibit_line: "VCF 9.1, imbriqué. Chaque configuration du site a d'abord tourné ici."
     exhibit_c1: "serveurs physiques"
     exhibit_c2: "toute la pile, imbriquée dedans"
     latest: "Dernier article"

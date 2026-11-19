@@ -22,8 +22,6 @@ La page « Location Manager » du Global Manager montre la fédération :
 
 ![La page « Location Manager » du Global Manager : un Global Manager actif, aucun Global Manager de secours, deux emplacements avec leur latence et leur état de synchronisation, et un bandeau signalant que les sauvegardes ne sont pas configurées](/images/nsx-federation-mp/gm-location-manager.webp)
 
-Cette page répond déjà aux questions que se pose un exploitant : le Global Manager fonctionne-t-il, les emplacements sont-ils synchronisés, quelle latence les sépare ? Le pack doit apporter les mêmes réponses, avec en plus l'historique et les alertes, dans l'outil qui supervise déjà le reste de la plateforme.
-
 ## Étape 1 : vérifier ce que VCF Operations collecte déjà
 
 Un pack qui referait le travail de l'intégration NSX native doublerait le nombre d'objets et déclencherait deux alertes pour une même panne. La première étape consiste donc à inventorier, par l'API de VCF Operations, ce qui est déjà collecté.

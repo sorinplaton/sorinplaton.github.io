@@ -26,6 +26,8 @@ Le Global Manager de secours a été déployé à partir de la même appliance 9
 
 Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente de la machine de rebond ; ils s'exécutent donc depuis une petite image d'outillage :
 
+*Construit sur : la machine de rebond, comme Dockerfile de l'image d'outillage.*
+
 ```dockerfile
 FROM python:3.11-slim
 RUN apt-get update && apt-get install -y docker.io git && rm -rf /var/lib/apt/lists/*
@@ -45,6 +47,8 @@ Un pack SDK n'est pas autonome. Le fichier `.pak` contient les définitions d'ob
 
 `mp-build` construit le pack. Lorsque l'adresse de registre fournie a la forme `host:port`, il inscrit pourtant Docker Hub dans le pack. Un court script, `tools/repack.py`, réécrit deux valeurs, `REGISTRY` et `REPOSITORY`, dans le fichier `.conf` que contient `adapter.zip` :
 
+*Se trouve dans : le fichier `.conf` de `adapter.zip`, dans le `.pak`, réécrit par `tools/repack.py` sur la machine de rebond.*
+
 ```
 REGISTRY=10.0.6.27:5000
 REPOSITORY=/nsxfederation
@@ -58,6 +62,8 @@ L'installation compte cinq étapes, présentées ici dans l'ordre qui fonctionne
 ### Étape 1 : servir le registre en HTTPS
 
 Le lab utilise un conteneur `registry:2` sur la machine de rebond. Le proxy cloud ne s'adresse à un registre qu'en HTTPS, et le conteneur a donc besoin d'un certificat :
+
+*À exécuter sur : la machine de rebond (10.0.6.27).*
 
 ```bash
 mkdir -p certs
@@ -77,11 +83,15 @@ Le premier registre du lab servait du HTTP en clair. Avec lui, l'instance d'adap
 
 Avec un certificat autosigné, le HTTPS ne suffit pas. Tant que le proxy cloud n'approuve pas le certificat, le journal du registre affiche l'erreur suivante (10.0.6.33 est le routeur du lab, qui masque le proxy cloud par NAT) :
 
+*Sortie : le journal du conteneur du registre sur la machine de rebond.*
+
 ```
 http: TLS handshake error from 10.0.6.33:56544: remote error: tls: bad certificate
 ```
 
 Le proxy cloud exécute Docker, et Docker approuve un registre privé dès lors que son certificat se trouve dans un dossier portant le nom du registre :
+
+*Se trouve sur : le proxy cloud `opscollector-01a`.*
 
 ```
 /etc/docker/certs.d/10.0.6.27:5000/ca.crt
@@ -94,6 +104,8 @@ Une mise à niveau ou un redéploiement du proxy cloud peut faire disparaître c
 ### Étape 3 : installer le pack non signé
 
 Le pack n'est pas signé par Broadcom. L'envoi par l'API de l'appliance échoue :
+
+*Sortie : la réponse de l'API de l'appliance VCF Operations à un envoi depuis la machine de rebond.*
 
 ```
 pak_manager.pakfile.no_signature
@@ -123,6 +135,8 @@ Dans le lab, un Chrome sans interface graphique (headless), piloté par le Chrom
 1. Chrome ouvre une session sur la console d'administration et appelle `clusterManagement.action` avec `mainAction=enableUPI`. La même page propose aussi `getUPIStatus` et `disableUPI`.
 2. Chrome ouvre une session sur l'interface principale. Un court script lit dans la page les cookies de session et la valeur de `secureToken`.
 3. Un script Python réutilise cette session pour trois appels :
+
+*À exécuter sur : la machine de rebond, vers VCF Operations, dans la session ouverte par Chrome.*
 
 ```
 POST admin/services/solution/upload?uploadId=<ms>&ignoreSignatureChecking=true&secureToken=<token>
@@ -258,6 +272,8 @@ Le tableau ci-dessous donne la couverture de chaque type d'objet. La colonne Mé
 
 Le pack compte 63 définitions d'alerte, 98 symptômes et 34 recommandations. Onze recommandations se terminent par un lien vers l'article de la KB Broadcom ou la page de documentation qui traite de la panne. Ce contenu tient dans un seul fichier XML, placé dans `content/alertdefs`. Un script le génère à partir d'une table des symptômes, des alertes et des recommandations. Un symptôme est une condition portant sur une métrique, sur une propriété ou sur un événement. Deux symptômes utilisent un seuil dynamique. Une condition sur une propriété se présente ainsi :
 
+*Se trouve dans : le fichier d'alertes du pack, dans `content/alertdefs`.*
+
 ```xml
 <SymptomDefinition adapterKind="NSXFederation" id="SymptomDefinition-NSXFederation-gm_backup_off"
                    name="Backup is not configured on the Global Manager" resourceKind="global_manager">
@@ -269,6 +285,8 @@ Le pack compte 63 définitions d'alerte, 98 symptômes et 34 recommandations. On
 ```
 
 Une condition sur un événement compare le texte de l'événement à une expression régulière :
+
+*Se trouve dans : le fichier d'alertes du pack, dans `content/alertdefs`.*
 
 ```xml
 <Condition eventMsg="NSX alarm rtep_bgp_down:(?s).*" eventSubType="5" eventType="11"
@@ -372,6 +390,8 @@ Un emplacement qui perd sa connexion au Global Manager entraîne de nombreux obj
 
 Tant que le Global Manager actif signale un emplacement comme non connecté, l'adaptateur écrit le nom de cet emplacement dans une propriété, « Locations in outage », sur les objets qui en dépendent : l'emplacement, son cluster Edge, ses nœuds Edge et ses voisins BGP, les tunnels et les canaux de synchronisation dont une extrémité s'y trouve, les objets étendus dont la portée l'inclut, avec leur réalisation sur cet emplacement, et les Global Managers. Une panne sur un autre emplacement continue de déclencher son alerte. Treize définitions d'alerte exigent que cette propriété vaille « none », de même que les alertes d'alarme, à l'exception des alarmes entre Global Managers. Elles restent muettes pendant la panne, et « Location lost its connection to the active Global Manager » est l'alerte à traiter. Dans le XML des alertes, cette condition est un second symptôme avec `negateCondition="true"` :
 
+*Se trouve dans : le fichier d'alertes du pack, dans `content/alertdefs`.*
+
 ```xml
 <SymptomSet applyOn="self" operator="and">
     <Symptom ref="SymptomDefinition-NSXFederation-seg_error"/>
@@ -426,6 +446,8 @@ La règle a été testée sur le lab sans provoquer de panne. Le compte étant a
 ### Test de basculement
 
 Un basculement planifié a été mené le 19 novembre, pour observer ce que le pack signale lorsque le rôle actif change de Global Manager. Le basculement tient en un seul appel sur le Global Manager de secours, l'équivalent, par l'API, de « Make Active » dans « Location Manager » :
+
+*À exécuter sur : la machine de rebond, vers l'API du Global Manager de secours.*
 
 ```
 PATCH https://<standby-gm>/global-manager/api/v1/global-infra/global-managers/gm-site-b

@@ -26,6 +26,8 @@ The standby was deployed from the same 9.1.1 appliance as the active Global Mana
 
 The pack uses the VCF Operations Integration SDK 1.3.1. The SDK tools (`mp-init`, `mp-test`, `mp-build`) need a Python version the jump host does not carry, so they run from a small tooling image:
 
+*Built on: the jump host, as the Dockerfile of the tooling image.*
+
 ```dockerfile
 FROM python:3.11-slim
 RUN apt-get update && apt-get install -y docker.io git && rm -rf /var/lib/apt/lists/*
@@ -45,6 +47,8 @@ An SDK pack is not self-contained. The `.pak` file carries the object definition
 
 `mp-build` builds the pack. Given a registry address in `host:port` form, it wrote Docker Hub into the pack. A short script, `tools/repack.py`, rewrites two values, `REGISTRY` and `REPOSITORY`, in the `.conf` file inside `adapter.zip`:
 
+*Found in: the `.conf` file inside `adapter.zip` in the `.pak`, rewritten by `tools/repack.py` on the jump host.*
+
 ```
 REGISTRY=10.0.6.27:5000
 REPOSITORY=/nsxfederation
@@ -58,6 +62,8 @@ The install has five steps, given here in the order that works. The failures met
 ### Step 1: serve the registry over HTTPS
 
 The lab uses a `registry:2` container on the jump host. The cloud proxy only speaks HTTPS to a registry, so the container needs a certificate:
+
+*Run on: the jump host (10.0.6.27).*
 
 ```bash
 mkdir -p certs
@@ -77,11 +83,15 @@ The first registry in the lab served plain HTTP. With it, the adapter instance w
 
 HTTPS alone is not enough for a self-signed certificate. Without trust on the cloud proxy, the registry log shows this (10.0.6.33 is the lab router, which hides the cloud proxy behind NAT):
 
+*Output: the log of the registry container on the jump host.*
+
 ```
 http: TLS handshake error from 10.0.6.33:56544: remote error: tls: bad certificate
 ```
 
 The cloud proxy runs Docker, and Docker trusts a private registry when its certificate sits in a folder named after the registry:
+
+*Found on: the cloud proxy `opscollector-01a`.*
 
 ```
 /etc/docker/certs.d/10.0.6.27:5000/ca.crt
@@ -94,6 +104,8 @@ An upgrade or a redeploy of the cloud proxy may remove that file. A registry wit
 ### Step 3: install the unsigned pack
 
 The pack is not signed by Broadcom. The upload through the appliance API fails:
+
+*Output: the answer of the VCF Operations appliance API to an upload from the jump host.*
 
 ```
 pak_manager.pakfile.no_signature
@@ -123,6 +135,8 @@ The lab used a headless Chrome on the jump host, driven through the Chrome DevTo
 1. Chrome logs in to the admin console and calls `clusterManagement.action` with `mainAction=enableUPI`. The same page offers `getUPIStatus` and `disableUPI`.
 2. Chrome logs in to the product UI. A short script reads the session cookies and the `secureToken` value from the page.
 3. A Python script reuses that session for three calls:
+
+*Run on: the jump host, against VCF Operations, in the session opened by Chrome.*
 
 ```
 POST admin/services/solution/upload?uploadId=<ms>&ignoreSignatureChecking=true&secureToken=<token>
@@ -258,6 +272,8 @@ The table below gives the coverage of each object type. The Metrics column count
 
 The pack has 63 alert definitions, 98 symptoms and 34 recommendations. Eleven recommendations end with a link to the Broadcom KB article or documentation page for the fault. The content is one XML file in `content/alertdefs`. A script generates it from a table of symptoms, alerts and recommendations. A symptom is a condition on one metric, one property or one event. Two symptoms use a dynamic threshold. A condition on a property looks like this:
 
+*Found in: the alert file of the pack, in `content/alertdefs`.*
+
 ```xml
 <SymptomDefinition adapterKind="NSXFederation" id="SymptomDefinition-NSXFederation-gm_backup_off"
                    name="Backup is not configured on the Global Manager" resourceKind="global_manager">
@@ -269,6 +285,8 @@ The pack has 63 alert definitions, 98 symptoms and 34 recommendations. Eleven re
 ```
 
 A condition on an event matches the text of the event with a regular expression:
+
+*Found in: the alert file of the pack, in `content/alertdefs`.*
 
 ```xml
 <Condition eventMsg="NSX alarm rtep_bgp_down:(?s).*" eventSubType="5" eventType="11"
@@ -372,6 +390,8 @@ A location that loses its connection to the Global Manager takes many objects wi
 
 While the active Global Manager reports a location as not connected, the adapter writes the name of that location to a property, "Locations in outage", on the objects that depend on it: the location, its edge cluster, edge nodes and BGP neighbors, the tunnels and sync channels with one end there, the stretched objects whose span includes it with their realization there, and the Global Managers. A fault at another location still raises its alert. Thirteen alert definitions require that this property reads "none", and so do the alarm alerts, except the alarms between Global Managers. They stay quiet during the outage, and "Location lost its connection to the active Global Manager" is the alert to act on. In the alert XML this is a second symptom with `negateCondition="true"`:
 
+*Found in: the alert file of the pack, in `content/alertdefs`.*
+
 ```xml
 <SymptomSet applyOn="self" operator="and">
     <Symptom ref="SymptomDefinition-NSXFederation-seg_error"/>
@@ -426,6 +446,8 @@ The rule was tested on the lab without an outage. With the account stopped, the 
 ### Switchover test
 
 A planned switchover was run on 19 November, to see what the pack reports when the active role moves. The switchover is one call on the standby Global Manager, the API form of "Make Active" in Location Manager:
+
+*Run on: the jump host, against the API of the standby Global Manager.*
 
 ```
 PATCH https://<standby-gm>/global-manager/api/v1/global-infra/global-managers/gm-site-b

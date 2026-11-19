@@ -28,6 +28,8 @@ La page « Location Manager » du Global Manager montre la fédération :
 
 Un pack qui referait le travail de l'intégration NSX native doublerait le nombre d'objets et déclencherait deux alertes pour une même panne. La première étape consiste donc à inventorier, par l'API de VCF Operations, ce qui est déjà collecté.
 
+*À exécuter sur : la machine de rebond, vers l'API de VCF Operations.*
+
 ```bash
 OPS=ops-a.site-a.vcf.lab
 TOKEN=$(curl -sk https://$OPS/suite-api/api/auth/token/acquire \
@@ -55,13 +57,17 @@ L'intégration native couvre les composants propres à chaque emplacement et s'a
 
 ## Étape 2 : trouver les appels d'API qui donnent l'état de la fédération
 
-Tous les appels ci-dessous sont des GET, exécutés directement sur les managers du lab. Le Global Manager publie son arborescence Policy sous `/global-manager/api/v1/global-infra` ; un Local Manager expose les objets qu'il a reçus sous `/policy/api/v1/global-infra`.
+Tous les appels ci-dessous sont des GET, envoyés aux managers du lab. Le Global Manager publie son arborescence Policy sous `/global-manager/api/v1/global-infra` ; un Local Manager expose les objets qu'il a reçus sous `/policy/api/v1/global-infra`.
 
 **La fédération est-elle connectée ?** C'est le Global Manager qu'il faut interroger :
+
+*À exécuter sur : la machine de rebond, vers l'API du Global Manager actif.*
 
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" https://nsx-gm-01a.site-a.vcf.lab/api/v1/sites/status
 ```
+
+*Sortie : la réponse du Global Manager à l'appel ci-dessus.*
 
 ```json
 {"remote_connections": [
@@ -74,6 +80,8 @@ Les adresses renvoyées, 10.1.1.25 et 10.1.1.81, sont les adresses de nœud des 
 
 **Un objet étendu est-il réalisé partout ?** Un appel par objet, sur le Global Manager :
 
+*À exécuter sur : la machine de rebond, vers l'API du Global Manager actif.*
+
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" \
  "https://nsx-gm-01a.site-a.vcf.lab/global-manager/api/v1/global-infra/realized-state/status?intent_path=/global-infra/segments/fed-stretched"
@@ -82,6 +90,8 @@ curl -sk -u "$NSX_USER:$NSX_PW" \
 La réponse contient un état consolidé et un état par emplacement (`SUCCESS` pour les deux ici). L'appel complémentaire `/global-infra/span?intent_path=...` liste les emplacements que l'objet est censé atteindre, c'est-à-dire sa portée.
 
 **Les tunnels entre emplacements sont-ils actifs ?** L'information se trouve sur les Local Managers, par cluster Edge et par nœud Edge :
+
+*À exécuter sur : la machine de rebond, vers l'API du Local Manager `nsx-wld01-a`.*
 
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" \

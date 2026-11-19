@@ -28,6 +28,8 @@ The Location Manager page of the Global Manager shows the federation:
 
 A pack that copies the built-in NSX integration doubles the object count and raises two alerts for one fault. So the first step is an inventory of what is already there, taken through the VCF Operations API.
 
+*Run on: the jump host, against the VCF Operations API.*
+
 ```bash
 OPS=ops-a.site-a.vcf.lab
 TOKEN=$(curl -sk https://$OPS/suite-api/api/auth/token/acquire \
@@ -59,9 +61,13 @@ Every call below is a GET and was run against the live managers. The Global Mana
 
 **Is the federation connected?** Asked on the Global Manager:
 
+*Run on: the jump host, against the API of the active Global Manager.*
+
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" https://nsx-gm-01a.site-a.vcf.lab/api/v1/sites/status
 ```
+
+*Output: the answer of the Global Manager to the call above.*
 
 ```json
 {"remote_connections": [
@@ -74,6 +80,8 @@ The addresses in the answer, 10.1.1.25 and 10.1.1.81, are the node addresses of 
 
 **Is a stretched object realized everywhere?** One call per object, on the Global Manager:
 
+*Run on: the jump host, against the API of the active Global Manager.*
+
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" \
  "https://nsx-gm-01a.site-a.vcf.lab/global-manager/api/v1/global-infra/realized-state/status?intent_path=/global-infra/segments/fed-stretched"
@@ -82,6 +90,8 @@ curl -sk -u "$NSX_USER:$NSX_PW" \
 The answer carries a consolidated status and one status per location (`SUCCESS` for both here). The companion call `/global-infra/span?intent_path=...` lists the locations the object is supposed to reach.
 
 **Are the cross-location tunnels up?** This lives on the Local Managers, per edge cluster and per edge node:
+
+*Run on: the jump host, against the API of the Local Manager `nsx-wld01-a`.*
 
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" \

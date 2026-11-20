@@ -18,7 +18,7 @@ VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manag
 
 La fédération tourne dans un lab VCF 9.1.1. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), actif, à un seul nœud et sans Standby Global Manager. Deux emplacements en NSX 9.1.1 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-wld03-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`). Un Standby Global Manager, `nsx-gm-01b`, a été ajouté plus tard, avant l'installation, et le pack est testé avec les deux Global Managers ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
 
-Les deux emplacements appartiennent à la même instance VCF : c'est un raccourci de lab, à ne pas reproduire dans une architecture de production. Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
+Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
 
 La page « Location Manager » du Global Manager montre la fédération :
 
@@ -51,7 +51,6 @@ Résultat :
 - Collecteur (proxy cloud) : `opscollector-01a`, de type `UNIFIED_CLOUD_PROXY`, à l'état `UP`. Ce point compte pour la construction, car un adaptateur écrit avec l'Integration SDK s'exécute dans un conteneur sur un proxy cloud, jamais sur le nœud d'analyse.
 - Intégration NSX : le type d'adaptateur `NSXTAdapter` compte 50 types d'objets et 4 instances, une par Local Manager NSX du lab, y compris les deux qui ne font pas partie de la fédération. Aucun de ces 50 types ne correspond à un Global Manager, à un emplacement ou à un tunnel RTEP, et aucune instance ne pointe vers le Global Manager.
 - Objets de la fédération : l'instance de `nsx-wld01-a` liste le cluster Edge `fed-ec-a` et le pool d'adresses IP RTEP, car ce sont des objets locaux. La recherche des objets globaux (`fed-t0`, `fed-stretched`) dans son inventaire n'a rien donné.
-- Constat annexe : l'instance de `nsx-wld03-a`, le Local Manager de l'emplacement `site-a-wld03`, existe, mais ne contient qu'un seul objet, elle-même. Elle ne collecte pas encore de données, et la vue native de cet emplacement est donc vide. Le pack n'en est pas affecté, car il interroge lui-même les managers.
 
 L'intégration native couvre les composants propres à chaque emplacement et s'arrête à la frontière de la fédération. Au pack de prendre en charge la couche fédération et de la relier au reste.
 

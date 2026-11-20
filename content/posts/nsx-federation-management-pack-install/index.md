@@ -46,7 +46,7 @@ The jump host builds the pack, runs the tests and serves the image. Before the b
 Two more tools are only needed for some steps, and can sit on another host:
 
 - `govc` and access to the vCenter that runs the cloud proxy VM, to copy the certificate to the cloud proxy (step 2).
-- `google-chrome`, `node` and the Python `requests` module, for the scripted install of the unsigned pack (step 3, method 2), with HTTPS access to VCF Operations.
+- `google-chrome`, `node` and the Python `requests` module, for the scripted install of the unsigned pack (optional, see docs/INSTALL.md in the repository), with HTTPS access to VCF Operations.
 
 ### The tooling image and the adapter code
 
@@ -90,7 +90,7 @@ The install has five steps, given here in the order that works. The failures met
 
 ### Step 1: serve the registry over HTTPS
 
-The lab uses a `registry:2` container on the jump host. The cloud proxy only speaks HTTPS to a registry, so the container needs a certificate:
+The cloud proxy pulls the adapter image from a registry, and it only speaks HTTPS to it. In production the image goes to the registry already in place (Harbor, for example). When its certificate comes from an authority the cloud proxy already trusts, step 2 is not needed. The lab has no such registry, so it runs a `registry:2` container on the jump host with a self-signed certificate:
 
 *Run on: the jump host.*
 
@@ -110,7 +110,7 @@ The first registry in the lab served plain HTTP. With it, the adapter instance w
 
 ### Step 2: make the cloud proxy trust the registry certificate
 
-HTTPS alone is not enough for a self-signed certificate. Without trust on the cloud proxy, the registry log shows this (10.0.6.33 is the lab router, which hides the cloud proxy behind NAT):
+This step applies to a registry whose certificate the cloud proxy does not trust yet, such as the self-signed one of the lab. Without that trust, the registry log shows this (10.0.6.33 is the lab router, which hides the cloud proxy behind NAT):
 
 *Output: the log of the registry container on the jump host.*
 
@@ -128,7 +128,7 @@ The cloud proxy runs Docker, and Docker trusts a private registry when its certi
 
 SSH is disabled on the cloud proxy and stayed disabled. The file was written through vCenter guest operations (`govc guest.run` with the appliance root account).
 
-An upgrade or a redeploy of the cloud proxy may remove that file. A registry with a certificate from an authority the cloud proxy already trusts avoids the step.
+An upgrade or a redeploy of the cloud proxy may remove that file.
 
 ### Step 3: install the unsigned pack
 
@@ -145,42 +145,15 @@ VCF Operations 9 blocks unsigned packs by default, and the "Ignore the PAK file 
 
 ![The admin console of VCF Operations, Administrator Settings, Security Settings: "Allow unsigned PAK installation" is deactivated, with the button that activates it](/images/nsx-federation-mp/ops-admin-unsigned-pak.webp)
 
-There are two ways to install the pack. Both turn the switch on first and off again after.
-
-#### Method 1: by hand in the UI
+The install turns the switch on first and off again after:
 
 1. In the admin console, click "Activate unsigned PAK installation".
 2. In VCF Operations, open Administration, Integrations, Repository and choose to add a pack.
 3. Select the `.pak` file and tick both boxes: install even if already installed, and "Ignore the PAK file signature checking".
 4. Upload, accept the warning about the unsigned file, and let the install finish.
-5. Back in the admin console, deactivate unsigned PAK installation again.
+5. Back in the admin console, deactivate unsigned PAK installation again. The console refuses while the install is still running.
 
-#### Method 2: scripted
-
-The appliance upload API (`/casa/upgrade/cluster/pak/reserved/operation/upload`) has no parameter that skips the signature check, even with the switch on. A script has to use the same calls as the UI, and the UI protects them with an anti-forgery token (`secureToken`) that a plain HTTP client never receives. In VCF Operations 9.1.1 the token lives in the page loaded under `/vcf-operations/plug/ops/`, inside the main UI.
-
-The lab used a headless Chrome on the jump host, driven through the Chrome DevTools Protocol:
-
-1. Chrome logs in to the admin console and calls `clusterManagement.action` with `mainAction=enableUPI`. The same page offers `getUPIStatus` and `disableUPI`.
-2. Chrome logs in to the product UI. A short script reads the session cookies and the `secureToken` value from the page.
-3. A Python script reuses that session for three calls:
-
-*Run on: the jump host, against VCF Operations, in the session opened by Chrome.*
-
-```
-POST admin/services/solution/upload?uploadId=<ms>&ignoreSignatureChecking=true&secureToken=<token>
-     multipart field "solution" = the .pak file, forceUpload=true, forceContent=true
-POST solution.action   mainAction=install
-POST solution.action   mainAction=getInstallStatus      (until "completed")
-```
-
-4. Chrome calls `disableUPI`.
-
-The product UI login (item 2) has to come after the admin console login (item 1), because the login to the admin console logs the product UI session out. A session token read before that login is no longer valid.
-
-The switch cannot be turned off while the install runs. During an upgrade the admin console answered `Cluster is in PAK installing state` until the install had finished. A script has to retry the last call.
-
-The repository holds these steps as `install/upi.sh` and `install/install_unsigned.sh`.
+The repository also holds a scripted version of these steps, `install/upi.sh` and `install/install_unsigned.sh`; [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.md) describes it.
 
 After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` appear in VCF Operations. The pack shows under Administration, Integrations, Repository with its version:
 
@@ -190,7 +163,7 @@ After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFe
 
 The adapter instance, called an account in the UI, is created on the cloud proxy. It takes one or two Global Manager addresses and one credential. With both addresses, the pack follows the active role when the Global Managers switch over. The other settings are optional: the security policies whose rules become objects, how the pack works with the built-in NSX integration (links and alarm alerts, both automatic by default), and the deletion of objects that left NSX (off by default). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/OPERATIONS.md) describes each setting.
 
-Validate the connection and accept the Global Manager certificates when the account is saved. The certificate check has two modes: "enforce" stops the collection of a manager whose certificate does not match or that has no trusted certificate on record, and "report" collects and raises an alert. The default is "enforce": without an accepted certificate the managers are not collected. The lab account was created through the API, has no accepted certificate, and runs in "report".
+Validate the connection and accept the Global Manager certificates when the account is saved. The certificate check has two modes: "enforce" stops the collection of a manager whose certificate does not match or that has no trusted certificate on record, and "report" collects and raises an alert. The default is "enforce": without an accepted certificate the managers are not collected.
 
 The account also accepts a separate credential for the Local Managers. The pack only reads from NSX, so a read-only account is enough. The lab account uses NSX's built-in `audit` account on all four managers and collects the same objects as `admin`, with no failed call.
 
@@ -212,7 +185,13 @@ A check two minutes after the first cycle shows objects with no metrics, which l
 
 ### Upgrade the pack
 
-A new version is installed the same way, with the unsigned-pack switch. After an upgrade, the adapter instance has to be stopped and started. Without that it can stay in `FAILED`, although the cloud proxy has already pulled the new image. Check that the account reaches Collecting, and start it a second time if it stays stopped. Metrics return after three cycles and rates after four. A symptom definition that the new version no longer ships stays in VCF Operations unused; delete it under Symptom Definitions.
+An upgrade has three steps:
+
+1. Install the new version the same way, with the unsigned-pack switch.
+2. Stop and start the account, so that the adapter instance runs the new image.
+3. Check that the account reaches Collecting, and start it again if it stays stopped.
+
+Metrics return after three cycles and rates after four. A symptom definition that the new version no longer ships stays in VCF Operations unused; delete it under Symptom Definitions.
 
 A change in how the adapter identifies an object creates a new object. The old one stays in the inventory without data until it is deleted through the suite API (`DELETE /api/resources/{id}`), which also deletes its history.
 
@@ -277,7 +256,7 @@ Three metrics are derived by the adapter, because a symptom compares a metric wi
 
 Seven figures cover the whole federation, on the federation object: locations healthy, as a count and a percentage; RTEP tunnels; tunnels whose BGP session is down; RTEP drops per minute over all tunnels; days to the first certificate expiry on any manager; open critical alarms on all managers. A super metric could compute some of them, but it does nothing until a policy enables it, so the adapter computes all seven. In the lab they read two of two locations healthy (100%), eight tunnels, none down, no drops, 330.9 days to the first certificate expiry (a Local Manager certificate) and no critical alarm.
 
-Each location also carries what the Location Manager page of NSX shows for it: the state of its three replication flows with the Global Manager, when the Global Manager last saw it, the round-trip time when NSX reports one, and its onboarding status. The NSX API reference does not list the call behind that page. It was read from the requests of the NSX UI: `GET /api/v1/federation/replication/gm/sites/<site-id>/status` on the active Global Manager. In the lab the three flows read SYNCHRONIZING and the round-trip time is empty.
+Each location also carries what the Location Manager page of NSX shows for it: the state of its three replication flows with the Global Manager, when the Global Manager last saw it, the round-trip time when NSX reports one, and its onboarding status. The pack reads the call that page itself makes: `GET /api/v1/federation/replication/gm/sites/<site-id>/status` on the active Global Manager. In the lab the three flows read SYNCHRONIZING and the round-trip time is empty.
 
 The table below gives the coverage of each object type. The Metrics column counts the metric keys defined for the type. Not every object sends every key (only policy realizations carry counters, for example), so the column multiplied by the object counts does not give 447.
 
@@ -347,7 +326,7 @@ Each alert also sets which badge it lowers and how fast it reacts:
 - **Thresholds.** The backup age (24 hours) and the certificate warning (30 days) are fixed in the symptoms. A VCF Operations policy can override the threshold of a symptom for another value.
 - **Dynamic threshold.** The tunnel traffic alert compares the receive and send rates with the range VCF Operations learns for each tunnel. It needs days of history before it can fire.
 
-Three alerts fire in the lab, from two definitions: the missing backup on both Global Managers, and a paused NSX upgrade on the Local Manager of site-a-wld01, whose upgrade coordinator holds a target version it has not applied. All three describe the lab correctly and count against Risk. The other definitions stay quiet because the lab has none of their faults.
+Three alerts fire in the lab, from two definitions: the missing backup on both Global Managers, and a paused NSX upgrade on the Local Manager of site-a-wld01, whose upgrade coordinator holds a target version it has not applied. All three describe the lab correctly and count against Risk. The other definitions have nothing to report on this federation; the section Tests in the lab lists what was verified and how.
 
 An alert from a definition carries its recommendation and the symptom that triggered it:
 
@@ -550,7 +529,7 @@ Posting the same events again with a cancel time cleared both alerts in the next
 
 ## Sending the alerts by email
 
-The pack raises the alerts and VCF Operations sends them. That takes two settings: an outbound instance that knows the mail server, and a notification rule that picks the alerts. Both are under Administration, Configurations, in the Alerts group. The lab has no outbound instance and no mail server, so the forms below were opened in the UI and not saved, and no email was sent.
+The pack raises the alerts and VCF Operations sends them. That takes two settings: an outbound instance that knows the mail server, and a notification rule that picks the alerts. Both are under Administration, Configurations, in the Alerts group. The lab has no mail server, so the screenshots show the forms before saving and the rule was not run end to end.
 
 ### 1. The outbound instance
 
@@ -574,7 +553,7 @@ The same list offers a Webhook, Slack, ServiceNow and SNMP trap plugin. The noti
 5. **Select Payload Template:** the template that formats the message. Templates are managed under Payload Templates on the same Configurations page.
 6. **Test Notification**, then Create.
 
-The last three wizard steps (outbound method, payload template, test) are described from their names only. Without an outbound instance the lab could not go through them. The Define Criteria step looks like this:
+The Define Criteria step looks like this:
 
 ![The Define Criteria step of a notification rule: object scope, alert scope with category, criticality and control state, and the status changes to notify on](/images/nsx-federation-mp/ops-notification-rule.webp)
 

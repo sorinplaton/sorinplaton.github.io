@@ -46,7 +46,7 @@ Le jumphost construit le pack, exécute les tests et sert l'image. Avant la cons
 Deux autres outils ne servent qu'à certaines étapes et peuvent se trouver sur un autre hôte :
 
 - `govc`, avec un accès au vCenter qui héberge la VM du proxy cloud, pour copier le certificat sur le proxy cloud (étape 2).
-- `google-chrome`, `node` et le module Python `requests`, pour l'installation scriptée du pack non signé (étape 3, méthode 2), avec un accès HTTPS à VCF Operations.
+- `google-chrome`, `node` et le module Python `requests`, pour l'installation scriptée du pack non signé (facultative, voir docs/INSTALL.fr.md dans le dépôt), avec un accès HTTPS à VCF Operations.
 
 ### L'image d'outillage et le code de l'adaptateur
 
@@ -90,7 +90,7 @@ L'installation compte cinq étapes, présentées ici dans l'ordre qui fonctionne
 
 ### Étape 1 : servir le registre en HTTPS
 
-Le lab utilise un conteneur `registry:2` sur le jumphost. Le proxy cloud ne s'adresse à un registre qu'en HTTPS, et le conteneur a donc besoin d'un certificat :
+Le proxy cloud récupère l'image de l'adaptateur dans un registre, et il ne s'y adresse qu'en HTTPS. En production, l'image va dans le registre déjà en place (Harbor, par exemple). Si son certificat est émis par une autorité que le proxy cloud approuve déjà, l'étape 2 est inutile. Le lab n'a pas de tel registre : il utilise donc un conteneur `registry:2` sur le jumphost, avec un certificat autosigné :
 
 *À exécuter sur : le jumphost.*
 
@@ -110,7 +110,7 @@ Le premier registre du lab servait du HTTP en clair. Avec lui, l'instance d'adap
 
 ### Étape 2 : faire approuver le certificat du registre par le proxy cloud
 
-Avec un certificat autosigné, le HTTPS ne suffit pas. Tant que le proxy cloud n'approuve pas le certificat, le journal du registre affiche l'erreur suivante (10.0.6.33 est le routeur du lab, qui masque le proxy cloud par NAT) :
+Cette étape concerne un registre dont le proxy cloud n'approuve pas encore le certificat, comme le certificat autosigné du lab. Tant qu'il ne l'approuve pas, le journal du registre affiche l'erreur suivante (10.0.6.33 est le routeur du lab, qui masque le proxy cloud par NAT) :
 
 *Sortie : le journal du conteneur du registre sur le jumphost.*
 
@@ -128,7 +128,7 @@ Le proxy cloud exécute Docker, et Docker approuve un registre privé dès lors 
 
 SSH est désactivé sur le proxy cloud et l'est resté. Le fichier a été écrit au moyen des opérations invité de vCenter (`govc guest.run` avec le compte root de l'appliance).
 
-Une mise à niveau ou un redéploiement du proxy cloud peut faire disparaître ce fichier. Un registre dont le certificat est émis par une autorité que le proxy cloud approuve déjà dispense de cette étape.
+Une mise à niveau ou un redéploiement du proxy cloud peut faire disparaître ce fichier.
 
 ### Étape 3 : installer le pack non signé
 
@@ -145,42 +145,15 @@ Par défaut, VCF Operations 9 bloque les packs non signés, et la case « Ignor
 
 ![La console d'administration de VCF Operations, Administrator Settings > Security Settings : l'option « Allow unsigned PAK installation » est désactivée, avec le bouton qui permet de l'activer](/images/nsx-federation-mp/ops-admin-unsigned-pak.webp)
 
-Le pack peut s'installer de deux façons. Toutes deux commencent par l'activation de l'option et se terminent par sa désactivation.
-
-#### Méthode 1 : à la main, dans l'interface
+L'installation commence par l'activation de l'option et se termine par sa désactivation :
 
 1. Dans la console d'administration, cliquer sur « Activate unsigned PAK installation ».
 2. Dans l'interface principale de VCF Operations, ouvrir « Administration > Integrations > Repository », puis choisir d'ajouter un pack.
 3. Sélectionner le fichier `.pak` et cocher les deux cases : celle qui force l'installation même si le pack est déjà installé, et « Ignore the PAK file signature checking ».
 4. Lancer l'envoi, accepter l'avertissement relatif au fichier non signé et attendre la fin de l'installation.
-5. Revenir dans la console d'administration et désactiver l'installation de fichiers PAK non signés.
+5. Revenir dans la console d'administration et désactiver l'installation de fichiers PAK non signés. La console refuse tant que l'installation est en cours.
 
-#### Méthode 2 : par script
-
-L'API d'envoi de l'appliance (`/casa/upgrade/cluster/pak/reserved/operation/upload`) n'offre aucun paramètre pour ignorer le contrôle de signature, même lorsque l'option est activée. Un script doit donc passer par les mêmes appels que l'interface, et celle-ci les protège par un jeton anti-CSRF (`secureToken`) qu'un simple client HTTP ne reçoit jamais. Dans VCF Operations 9.1.1, ce jeton figure dans la page chargée sous `/vcf-operations/plug/ops/`, à l'intérieur de l'interface principale.
-
-Dans le lab, un Chrome sans interface graphique (headless), piloté par le Chrome DevTools Protocol, s'en est chargé depuis le jumphost :
-
-1. Chrome ouvre une session sur la console d'administration et appelle `clusterManagement.action` avec `mainAction=enableUPI`. La même page propose aussi `getUPIStatus` et `disableUPI`.
-2. Chrome ouvre une session sur l'interface principale. Un court script lit dans la page les cookies de session et la valeur de `secureToken`.
-3. Un script Python réutilise cette session pour trois appels :
-
-*À exécuter sur : le jumphost, vers VCF Operations, dans la session ouverte par Chrome.*
-
-```
-POST admin/services/solution/upload?uploadId=<ms>&ignoreSignatureChecking=true&secureToken=<token>
-     multipart field "solution" = the .pak file, forceUpload=true, forceContent=true
-POST solution.action   mainAction=install
-POST solution.action   mainAction=getInstallStatus      (until "completed")
-```
-
-4. Chrome appelle `disableUPI`.
-
-L'ouverture de session sur l'interface principale (point 2) doit suivre celle sur la console d'administration (point 1), car cette dernière ferme la session de l'interface principale. Un jeton de session lu avant cette ouverture n'est plus valide.
-
-L'option ne peut pas être désactivée pendant l'installation. Lors d'une mise à niveau, la console d'administration a répondu `Cluster is in PAK installing state` jusqu'à la fin de l'installation. Un script doit donc répéter le dernier appel.
-
-Le dépôt contient ces étapes sous la forme des scripts `install/upi.sh` et `install/install_unsigned.sh`.
+Le dépôt contient aussi une version scriptée de ces étapes, `install/upi.sh` et `install/install_unsigned.sh` ; [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.fr.md) la décrit.
 
 Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK_NSXFederation` apparaissent dans VCF Operations. Le pack figure, avec sa version, sous « Administration > Integrations > Repository » :
 
@@ -190,7 +163,7 @@ Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK
 
 L'instance d'adaptateur, appelée compte dans l'interface, se crée sur le proxy cloud. Elle reçoit une ou deux adresses de Global Manager et un seul jeu d'identifiants. Avec les deux adresses, le pack suit le rôle actif lorsque les Global Managers basculent. Les autres réglages sont facultatifs : les stratégies de sécurité dont les règles deviennent des objets, la façon dont le pack fonctionne avec l'intégration NSX native (liens et alertes d'alarme, automatiques par défaut), et la suppression des objets qui ont quitté NSX (désactivée par défaut). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/OPERATIONS.md) (en anglais) décrit chaque réglage.
 
-Lors de l'enregistrement du compte, il faut valider la connexion et accepter les certificats des Global Managers. Le contrôle des certificats a deux modes : « enforce » arrête la collecte d'un manager dont le certificat ne correspond pas ou pour lequel aucun certificat approuvé n'est enregistré ; « report » poursuit la collecte et déclenche une alerte. Le mode par défaut est « enforce » : sans certificat accepté, aucun manager n'est interrogé. Le compte du lab a été créé par l'API, n'a aucun certificat accepté et fonctionne en mode « report ».
+Lors de l'enregistrement du compte, il faut valider la connexion et accepter les certificats des Global Managers. Le contrôle des certificats a deux modes : « enforce » arrête la collecte d'un manager dont le certificat ne correspond pas ou pour lequel aucun certificat approuvé n'est enregistré ; « report » poursuit la collecte et déclenche une alerte. Le mode par défaut est « enforce » : sans certificat accepté, aucun manager n'est interrogé.
 
 Le compte accepte aussi un jeu d'identifiants distinct pour les Local Managers. Le pack ne fait que lire dans NSX : un compte en lecture seule suffit donc. Le compte du lab utilise le compte intégré `audit` de NSX sur les quatre managers et collecte les mêmes objets qu'avec `admin`, sans aucun appel en échec.
 
@@ -212,7 +185,13 @@ Un contrôle effectué 2 minutes après le premier cycle montre des objets sans 
 
 ### Mettre le pack à niveau
 
-Une nouvelle version s'installe de la même façon, avec l'option des packs non signés. Après une mise à niveau, l'instance d'adaptateur doit être arrêtée puis redémarrée. Sans cela, elle peut rester à l'état `FAILED`, alors que le proxy cloud a déjà récupéré la nouvelle image. Il faut vérifier que le compte atteint l'état « Collecting », et le démarrer une seconde fois s'il reste arrêté. Les métriques reviennent après trois cycles, et les taux après quatre. Une définition de symptôme que la nouvelle version ne fournit plus reste inutilisée dans VCF Operations ; elle se supprime sous « Symptom Definitions ».
+Une mise à niveau se fait en trois étapes :
+
+1. Installer la nouvelle version de la même façon, avec l'option des packs non signés.
+2. Arrêter puis redémarrer le compte, pour que l'instance d'adaptateur exécute la nouvelle image.
+3. Vérifier que le compte atteint l'état « Collecting », et le démarrer de nouveau s'il reste arrêté.
+
+Les métriques reviennent après trois cycles, et les taux après quatre. Une définition de symptôme que la nouvelle version ne fournit plus reste inutilisée dans VCF Operations ; elle se supprime sous « Symptom Definitions ».
 
 Une modification de la façon dont l'adaptateur identifie un objet crée un nouvel objet. L'ancien reste dans l'inventaire, sans données, jusqu'à sa suppression par l'API Suite (`DELETE /api/resources/{id}`), ce qui efface aussi son historique.
 
@@ -277,7 +256,7 @@ Trois métriques sont dérivées par l'adaptateur (Global Managers injoignables,
 
 Sept valeurs, portées par l'objet fédération, couvrent toute la fédération : emplacements en bonne santé, en nombre et en pourcentage ; tunnels RTEP ; tunnels dont la session BGP est tombée ; paquets RTEP rejetés par minute sur l'ensemble des tunnels ; jours restants avant la première expiration de certificat, tous managers confondus ; alarmes critiques ouvertes sur l'ensemble des managers. Une super métrique pourrait en calculer une partie, mais elle reste inactive tant qu'une politique ne l'active pas : l'adaptateur calcule donc les sept. Dans le lab, elles indiquent deux emplacements en bonne santé sur deux (100 %), 8 tunnels, aucun tombé, aucun paquet rejeté, 330,9 jours avant la première expiration de certificat (celui d'un Local Manager) et aucune alarme critique.
 
-Chaque emplacement expose aussi ce que la page « Location Manager » de NSX affiche pour lui : l'état de ses trois flux de réplication avec le Global Manager, le moment où le Global Manager l'a vu pour la dernière fois, le temps d'aller-retour lorsque NSX en indique un, et l'état de son onboarding. La référence de l'API NSX ne mentionne pas l'appel utilisé par cette page. Il a été relevé dans les requêtes de l'interface NSX : `GET /api/v1/federation/replication/gm/sites/<site-id>/status` sur le Global Manager actif. Dans le lab, les trois flux indiquent SYNCHRONIZING et le temps d'aller-retour est vide.
+Chaque emplacement expose aussi ce que la page « Location Manager » de NSX affiche pour lui : l'état de ses trois flux de réplication avec le Global Manager, le moment où le Global Manager l'a vu pour la dernière fois, le temps d'aller-retour lorsque NSX en indique un, et l'état de son onboarding. Le pack lit l'appel qu'émet cette page elle-même : `GET /api/v1/federation/replication/gm/sites/<site-id>/status` sur le Global Manager actif. Dans le lab, les trois flux indiquent SYNCHRONIZING et le temps d'aller-retour est vide.
 
 Le tableau ci-dessous donne la couverture de chaque type d'objet. La colonne Métriques compte les clés de métrique définies pour le type. Tous les objets n'envoient pas toutes les clés (seules les réalisations de stratégie portent des compteurs, par exemple) : la colonne multipliée par le nombre d'objets ne donne donc pas 447.
 
@@ -347,7 +326,7 @@ Chaque alerte définit aussi le badge sur lequel elle pèse et la vitesse à laq
 - **Seuils.** L'ancienneté maximale de la sauvegarde (24 heures) et le délai d'avertissement avant expiration d'un certificat (30 jours) sont fixés dans les symptômes. Une politique VCF Operations peut remplacer le seuil d'un symptôme par une autre valeur.
 - **Seuil dynamique.** L'alerte de trafic du tunnel compare les débits en réception et en émission à la plage que VCF Operations apprend pour chaque tunnel. Elle a besoin de plusieurs jours d'historique avant de pouvoir se déclencher.
 
-Dans le lab, trois alertes se déclenchent, issues de deux définitions : l'absence de sauvegarde sur les deux Global Managers, et une mise à niveau NSX en pause sur le Local Manager de site-a-wld01, dont le coordinateur de mise à niveau conserve une version cible qu'il n'a pas appliquée. Toutes trois décrivent correctement l'état du lab et pèsent sur « Risk ». Les autres définitions restent muettes, car le lab ne présente aucune des pannes qu'elles surveillent.
+Dans le lab, trois alertes se déclenchent, issues de deux définitions : l'absence de sauvegarde sur les deux Global Managers, et une mise à niveau NSX en pause sur le Local Manager de site-a-wld01, dont le coordinateur de mise à niveau conserve une version cible qu'il n'a pas appliquée. Toutes trois décrivent correctement l'état du lab et pèsent sur « Risk ». Les autres définitions n'ont rien à signaler sur cette fédération ; la section « Tests dans le lab » indique ce qui a été vérifié, et comment.
 
 Une alerte issue d'une définition affiche sa recommandation et le symptôme qui l'a déclenchée :
 
@@ -550,7 +529,7 @@ Les mêmes événements, envoyés de nouveau avec une heure d'annulation, ont ef
 
 ## Envoyer les alertes par e-mail
 
-Le pack déclenche les alertes, VCF Operations les envoie. Deux réglages sont nécessaires : une instance sortante, qui connaît le serveur de messagerie, et une règle de notification, qui sélectionne les alertes. Les deux se trouvent sous « Administration > Configurations », dans le groupe « Alerts ». Le lab n'a ni instance sortante ni serveur de messagerie : les formulaires ci-dessous ont donc été ouverts dans l'interface sans être enregistrés, et aucun e-mail n'a été envoyé.
+Le pack déclenche les alertes, VCF Operations les envoie. Deux réglages sont nécessaires : une instance sortante, qui connaît le serveur de messagerie, et une règle de notification, qui sélectionne les alertes. Les deux se trouvent sous « Administration > Configurations », dans le groupe « Alerts ». Le lab n'a pas de serveur de messagerie : les captures montrent donc les formulaires avant enregistrement, et la règle n'a pas été exécutée de bout en bout.
 
 ### 1. L'instance sortante
 
@@ -574,7 +553,7 @@ La même liste propose des plug-ins Webhook, Slack, ServiceNow et SNMP trap. La 
 5. **Select Payload Template :** choisir le modèle qui met en forme le message. Les modèles se gèrent sous « Payload Templates », sur la même page « Configurations ».
 6. **Test Notification :** lancer le test, puis cliquer sur « Create ».
 
-Les trois dernières étapes de l'assistant (méthode d'envoi, modèle de message, test) sont décrites d'après leur seul intitulé : faute d'instance sortante, elles n'ont pas pu être déroulées dans le lab. L'étape « Define Criteria » se présente ainsi :
+L'étape « Define Criteria » se présente ainsi :
 
 ![L'étape Define Criteria d'une règle de notification : périmètre des objets, périmètre des alertes avec catégorie, criticité et état de contrôle, et changements d'état à notifier](/images/nsx-federation-mp/ops-notification-rule.webp)
 

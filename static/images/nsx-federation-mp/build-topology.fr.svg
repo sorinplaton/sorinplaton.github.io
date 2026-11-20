@@ -1,134 +1,182 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
-<rect width="1600" height="1100" fill="#ffffff"/><defs>
-<marker id="ma" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1d2733"/></marker>
-<marker id="mt" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#0b7a75"/></marker>
-<marker id="mp" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b3fa0"/></marker>
-<marker id="mb" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f4e9c"/></marker>
-<marker id="mo" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#b25e00"/></marker>
-<marker id="mg" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#2e7d32"/></marker>
-</defs>
-<text x="800.0" y="36" font-size="23" fill="#1d2733" text-anchor="middle" font-weight="bold">Construction et déploiement du pack</text>
-<text x="800.0" y="62" font-size="14" fill="#6b7785" text-anchor="middle">Du code source à l'adaptateur qui tourne sur le proxy cloud</text>
-<rect x="40" y="90" width="240" height="250" rx="6" fill="#f7f8fa" stroke="#1d2733" stroke-width="1.6" stroke-dasharray="8 5"/>
-<text x="54" y="112" font-size="13" fill="#1d2733" text-anchor="start" font-weight="bold" letter-spacing="1">SOURCE</text>
-<rect x="60" y="170" width="200" height="70" rx="5" fill="#ffffff" stroke="#1d2733" stroke-width="1.6"/>
-<text x="160.0" y="201.0" font-size="15" fill="#1d2733" text-anchor="middle" font-weight="bold">Dépôt GitHub</text>
-<text x="160.0" y="220.0" font-size="12" fill="#6b7785" text-anchor="middle">pack · tools · tests</text>
-<rect x="340" y="90" width="720" height="250" rx="6" fill="#f2f9f8" stroke="#0b7a75" stroke-width="1.6" stroke-dasharray="8 5"/>
-<text x="354" y="112" font-size="13" fill="#0b7a75" text-anchor="start" font-weight="bold" letter-spacing="1">MACHINE DE REBOND · 10.0.6.27</text>
-<rect x="370" y="130" width="300" height="70" rx="5" fill="#ffffff" stroke="#0b7a75" stroke-width="1.6"/>
-<text x="520.0" y="161.0" font-size="15" fill="#0b7a75" text-anchor="middle" font-weight="bold">fedmp-tooling</text>
-<text x="520.0" y="180.0" font-size="12" fill="#6b7785" text-anchor="middle">conteneur du SDK · mp-build · pytest</text>
-<rect x="730" y="130" width="300" height="70" rx="5" fill="#ffffff" stroke="#0b7a75" stroke-width="1.6"/>
-<text x="880.0" y="161.0" font-size="15" fill="#0b7a75" text-anchor="middle" font-weight="bold">NSXFederation_1.7.8.pak</text>
-<text x="880.0" y="180.0" font-size="12" fill="#6b7785" text-anchor="middle">tools/repack.py fixe REGISTRY</text>
-<rect x="370" y="250" width="300" height="70" rx="5" fill="#ffffff" stroke="#0b7a75" stroke-width="1.6"/>
-<text x="520.0" y="281.0" font-size="15" fill="#0b7a75" text-anchor="middle" font-weight="bold">fedmp-registry :5000</text>
-<text x="520.0" y="300.0" font-size="12" fill="#6b7785" text-anchor="middle">registry:2 · HTTPS · autosigné</text>
-<rect x="730" y="250" width="300" height="70" rx="5" fill="#ffffff" stroke="#0b7a75" stroke-width="1.6"/>
-<text x="880.0" y="281.0" font-size="15" fill="#0b7a75" text-anchor="middle" font-weight="bold">install_unsigned.sh</text>
-<text x="880.0" y="300.0" font-size="12" fill="#6b7785" text-anchor="middle">Chrome headless · ou à la main dans l'UI</text>
-<rect x="1120" y="90" width="440" height="250" rx="6" fill="#f5f8fd" stroke="#1f4e9c" stroke-width="1.6" stroke-dasharray="8 5"/>
-<text x="1134" y="112" font-size="13" fill="#1f4e9c" text-anchor="start" font-weight="bold" letter-spacing="1">VCF OPERATIONS</text>
-<rect x="1145" y="125" width="390" height="58" rx="5" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.6"/>
-<text x="1340.0" y="150.0" font-size="15" fill="#1f4e9c" text-anchor="middle" font-weight="bold">console d'administration</text>
-<text x="1340.0" y="169.0" font-size="12" fill="#6b7785" text-anchor="middle">option PAK non signé : activée, puis désactivée</text>
-<rect x="1145" y="195" width="390" height="58" rx="5" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.6"/>
-<text x="1340.0" y="220.0" font-size="15" fill="#1f4e9c" text-anchor="middle" font-weight="bold">Repository et compte</text>
-<text x="1340.0" y="239.0" font-size="12" fill="#6b7785" text-anchor="middle">pack installé · compte NSX Federation</text>
-<rect x="1145" y="265" width="390" height="58" rx="5" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.6"/>
-<text x="1340.0" y="290.0" font-size="15" fill="#1f4e9c" text-anchor="middle" font-weight="bold">nœud d'analyse</text>
-<text x="1340.0" y="309.0" font-size="12" fill="#6b7785" text-anchor="middle">métriques · alertes · tableaux de bord</text>
-<rect x="40" y="450" width="520" height="250" rx="6" fill="#f7f4fb" stroke="#5b3fa0" stroke-width="1.6" stroke-dasharray="8 5"/>
-<text x="54" y="472" font-size="13" fill="#5b3fa0" text-anchor="start" font-weight="bold" letter-spacing="1">NSX FEDERATION</text>
-<rect x="70" y="500" width="460" height="70" rx="5" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.6"/>
-<text x="300.0" y="531.0" font-size="15" fill="#5b3fa0" text-anchor="middle" font-weight="bold">Global Managers</text>
-<text x="300.0" y="550.0" font-size="12" fill="#6b7785" text-anchor="middle">nsx-gm-01a · nsx-gm-01b</text>
-<rect x="70" y="600" width="460" height="70" rx="5" fill="#ffffff" stroke="#5b3fa0" stroke-width="1.6"/>
-<text x="300.0" y="631.0" font-size="15" fill="#5b3fa0" text-anchor="middle" font-weight="bold">Local Managers</text>
-<text x="300.0" y="650.0" font-size="12" fill="#6b7785" text-anchor="middle">nsx-wld01-a · nsx-wld03-a</text>
-<rect x="760" y="450" width="800" height="250" rx="6" fill="#fdf7f0" stroke="#b25e00" stroke-width="1.6" stroke-dasharray="8 5"/>
-<text x="774" y="472" font-size="13" fill="#b25e00" text-anchor="start" font-weight="bold" letter-spacing="1">PROXY CLOUD · opscollector-01a</text>
-<rect x="790" y="500" width="360" height="70" rx="5" fill="#ffffff" stroke="#b25e00" stroke-width="1.6"/>
-<text x="970.0" y="531.0" font-size="15" fill="#b25e00" text-anchor="middle" font-weight="bold">confiance Docker</text>
-<text x="970.0" y="550.0" font-size="12" fill="#6b7785" text-anchor="middle">/etc/docker/certs.d/10.0.6.27:5000/ca.crt</text>
-<rect x="790" y="600" width="360" height="70" rx="5" fill="#ffffff" stroke="#b25e00" stroke-width="1.6"/>
-<text x="970.0" y="631.0" font-size="15" fill="#b25e00" text-anchor="middle" font-weight="bold">adaptateur NSX Federation</text>
-<text x="970.0" y="650.0" font-size="12" fill="#6b7785" text-anchor="middle">conteneur · une collecte toutes les 5 minutes</text>
-<path d="M260,205 L370,165" fill="none" stroke="#1d2733" stroke-width="1.8" marker-end="url(#ma)"/>
-<circle cx="315" cy="172" r="11" fill="#1d2733"/>
-<text x="315" y="176.5" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">1</text>
-<text x="315" y="205" font-size="12" fill="#1d2733" text-anchor="middle">clone</text>
-<path d="M670,165 L730,165" fill="none" stroke="#0b7a75" stroke-width="1.8" marker-end="url(#mt)"/>
-<circle cx="700" cy="150" r="11" fill="#0b7a75"/>
-<text x="700" y="154.5" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">2</text>
-<path d="M520,200 L520,250" fill="none" stroke="#0b7a75" stroke-width="1.8" marker-end="url(#mt)"/>
-<text x="530" y="230" font-size="12" fill="#0b7a75" text-anchor="start">envoi de l'image</text>
-<path d="M880,200 L880,250" fill="none" stroke="#0b7a75" stroke-width="1.8" marker-end="url(#mt)"/>
-<circle cx="895" cy="225" r="11" fill="#0b7a75"/>
-<text x="895" y="229.5" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">3</text>
-<path d="M1030,285 L1090,285 L1090,154 L1145,154" fill="none" stroke="#1f4e9c" stroke-width="1.8" marker-end="url(#mb)"/>
-<circle cx="1068" cy="285" r="11" fill="#1f4e9c"/>
-<text x="1068" y="289.5" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">4</text>
-<text x="1106" y="220" font-size="12" fill="#1f4e9c" text-anchor="middle" transform="rotate(-90 1106 220)">installation du .pak</text>
-<path d="M1260,323 L1260,615 L1150,615" fill="none" stroke="#1f4e9c" stroke-width="1.8" marker-end="url(#mb)"/>
-<circle cx="1260" cy="400" r="11" fill="#1f4e9c"/>
-<text x="1260" y="404.5" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">5</text>
-<text x="1275" y="404" font-size="12" fill="#1f4e9c" text-anchor="start">déploiement de l'instance</text>
-<path d="M470,320 L470,395 L1100,395 L1100,500" fill="none" stroke="#b25e00" stroke-width="1.8" stroke-dasharray="7 4" marker-end="url(#mo)"/>
-<circle cx="510" cy="395" r="11" fill="#b25e00"/>
-<text x="510" y="399.5" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">6</text>
-<text x="530" y="388" font-size="12" fill="#b25e00" text-anchor="start">image tirée par digest · HTTPS</text>
-<circle cx="760" cy="395" r="16" fill="#ffffff" stroke="#1d2733" stroke-width="1.6"/>
-<path d="M751,391 L769,391 M764,387 L769,391 L764,395 M769,399 L751,399 M756,395 L751,399 L756,403" fill="none" stroke="#1d2733" stroke-width="1.4"/>
-<text x="780" y="425" font-size="12" fill="#6b7785" text-anchor="start">routeur du lab · NAT 10.0.6.33</text>
-<path d="M790,635 L530,635" fill="none" stroke="#5b3fa0" stroke-width="1.8" marker-end="url(#mp)"/>
-<circle cx="660" cy="635" r="11" fill="#5b3fa0"/>
-<text x="660" y="639.5" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">7</text>
-<text x="660" y="724" font-size="12" fill="#5b3fa0" text-anchor="middle">API REST · compte audit en lecture seule</text>
-<path d="M790,620 L530,545" fill="none" stroke="#5b3fa0" stroke-width="1.8" marker-end="url(#mp)"/>
-<path d="M1150,650 L1460,650 L1460,323" fill="none" stroke="#2e7d32" stroke-width="1.8" marker-end="url(#mg)"/>
-<circle cx="1460" cy="400" r="11" fill="#2e7d32"/>
-<text x="1460" y="404.5" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">8</text>
-<text x="1475" y="404" font-size="12" fill="#2e7d32" text-anchor="start">données collectées</text>
-<rect x="40" y="740" width="1520" height="32" fill="#233648"/>
-<text x="52" y="761" font-size="14" fill="#ffffff" text-anchor="start" font-weight="bold">Étape</text>
-<text x="132" y="761" font-size="14" fill="#ffffff" text-anchor="start" font-weight="bold">Où</text>
-<text x="462" y="761" font-size="14" fill="#ffffff" text-anchor="start" font-weight="bold">Ce qui se passe</text>
-<line x1="40" y1="808" x2="1560" y2="808" stroke="#d8dee3"/>
-<text x="52" y="795" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">1</text>
-<text x="132" y="795" font-size="14" fill="#1d2733" text-anchor="start">machine de rebond</text>
-<text x="462" y="795" font-size="14" fill="#1d2733" text-anchor="start">Le dépôt est cloné depuis GitHub.</text>
-<rect x="40" y="808" width="1520" height="36" fill="#f7f9fa"/>
-<line x1="40" y1="844" x2="1560" y2="844" stroke="#d8dee3"/>
-<text x="52" y="831" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">2</text>
-<text x="132" y="831" font-size="14" fill="#1d2733" text-anchor="start">machine de rebond</text>
-<text x="462" y="831" font-size="14" fill="#1d2733" text-anchor="start">mp-build, dans le conteneur d'outillage, construit l'image de l'adaptateur et le .pak, puis envoie l'image au registre.</text>
-<line x1="40" y1="880" x2="1560" y2="880" stroke="#d8dee3"/>
-<text x="52" y="867" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">3</text>
-<text x="132" y="867" font-size="14" fill="#1d2733" text-anchor="start">machine de rebond</text>
-<text x="462" y="867" font-size="14" fill="#1d2733" text-anchor="start">tools/repack.py écrit l'adresse du registre 10.0.6.27:5000 dans le .pak ; le digest de l'image ne change pas.</text>
-<rect x="40" y="880" width="1520" height="36" fill="#f7f9fa"/>
-<line x1="40" y1="916" x2="1560" y2="916" stroke="#d8dee3"/>
-<text x="52" y="903" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">4</text>
-<text x="132" y="903" font-size="14" fill="#1d2733" text-anchor="start">rebond vers VCF Operations</text>
-<text x="462" y="903" font-size="14" fill="#1d2733" text-anchor="start">L'option PAK non signé est activée, le .pak est installé, puis l'option est désactivée.</text>
-<line x1="40" y1="952" x2="1560" y2="952" stroke="#d8dee3"/>
-<text x="52" y="939" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">5</text>
-<text x="132" y="939" font-size="14" fill="#1d2733" text-anchor="start">VCF Operations vers proxy</text>
-<text x="462" y="939" font-size="14" fill="#1d2733" text-anchor="start">La création du compte déploie l'instance de l'adaptateur sur le proxy cloud.</text>
-<rect x="40" y="952" width="1520" height="36" fill="#f7f9fa"/>
-<line x1="40" y1="988" x2="1560" y2="988" stroke="#d8dee3"/>
-<text x="52" y="975" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">6</text>
-<text x="132" y="975" font-size="14" fill="#1d2733" text-anchor="start">proxy cloud</text>
-<text x="462" y="975" font-size="14" fill="#1d2733" text-anchor="start">Docker tire l'image par son digest depuis le registre, en HTTPS, en faisant confiance à son certificat.</text>
-<line x1="40" y1="1024" x2="1560" y2="1024" stroke="#d8dee3"/>
-<text x="52" y="1011" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">7</text>
-<text x="132" y="1011" font-size="14" fill="#1d2733" text-anchor="start">proxy cloud vers NSX</text>
-<text x="462" y="1011" font-size="14" fill="#1d2733" text-anchor="start">L'adaptateur lit les Global Managers et les Local Managers par leur API REST.</text>
-<rect x="40" y="1024" width="1520" height="36" fill="#f7f9fa"/>
-<line x1="40" y1="1060" x2="1560" y2="1060" stroke="#d8dee3"/>
-<text x="52" y="1047" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">8</text>
-<text x="132" y="1047" font-size="14" fill="#1d2733" text-anchor="start">proxy cloud vers VCF Operations</text>
-<text x="462" y="1047" font-size="14" fill="#1d2733" text-anchor="start">Métriques, propriétés et événements partent vers le nœud d'analyse.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1010" viewBox="0 0 1600 1010" font-family="Inter, Segoe UI, Arial, Helvetica, sans-serif" fill="#1d2733">
+<defs><filter id="sh" x="-10%" y="-20%" width="120%" height="150%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1d2733" flood-opacity="0.12"/></filter>
+<marker id="a-src" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="#3a4654"/></marker>
+<marker id="a-jump" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="#0b7a75"/></marker>
+<marker id="a-ops" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="#1f4e9c"/></marker>
+<marker id="a-proxy" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="#b25e00"/></marker>
+<marker id="a-nsx" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="#5b3fa0"/></marker>
+<marker id="a-net" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="#6b7785"/></marker>
+</defs><rect width="1600" height="1010" fill="#ffffff"/>
+<text x="800.0" y="46" font-size="26" fill="#1d2733" text-anchor="middle" font-weight="700">Construction et déploiement du pack</text>
+<text x="800.0" y="74" font-size="15" fill="#5f6b78" text-anchor="middle">Du code source à l'adaptateur qui collecte la fédération NSX sur le proxy cloud</text>
+<rect x="40" y="120" width="250" height="330" rx="16" fill="#f3f5f7" stroke="#3a4654" stroke-opacity="0.35" stroke-width="1.5"/>
+<rect x="56" y="107" width="83.19999999999999" height="26" rx="13" fill="#3a4654"/>
+<text x="70" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">GITHUB</text>
+<rect x="330" y="120" width="590" height="330" rx="16" fill="#eef8f7" stroke="#0b7a75" stroke-opacity="0.35" stroke-width="1.5"/>
+<rect x="346" y="107" width="294.79999999999995" height="26" rx="13" fill="#0b7a75"/>
+<text x="360" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">MACHINE DE REBOND · 10.0.6.27</text>
+<rect x="960" y="120" width="600" height="330" rx="16" fill="#eff4fc" stroke="#1f4e9c" stroke-opacity="0.35" stroke-width="1.5"/>
+<rect x="976" y="107" width="156.79999999999998" height="26" rx="13" fill="#1f4e9c"/>
+<text x="990" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">VCF OPERATIONS</text>
+<rect x="40" y="560" width="660" height="230" rx="16" fill="#f5f1fb" stroke="#5b3fa0" stroke-opacity="0.35" stroke-width="1.5"/>
+<rect x="56" y="547" width="156.79999999999998" height="26" rx="13" fill="#5b3fa0"/>
+<text x="70" y="565" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">NSX FEDERATION</text>
+<rect x="880" y="560" width="680" height="230" rx="16" fill="#fdf5ec" stroke="#b25e00" stroke-opacity="0.35" stroke-width="1.5"/>
+<rect x="896" y="547" width="304.0" height="26" rx="13" fill="#b25e00"/>
+<text x="910" y="565" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">PROXY CLOUD · opscollector-01a</text>
+<rect x="58" y="200" width="214" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="58" y="200" width="5" height="78" rx="2.5" fill="#3a4654"/>
+<circle cx="98" cy="239.0" r="22" fill="#3a4654"/>
+<g transform="translate(86,227.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6 L2 12 L8 18"/><path d="M16 6 L22 12 L16 18"/><path d="M14 4 L10 20"/></g>
+<text x="132" y="234.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">Dépôt source</text>
+<text x="132" y="254.0" font-size="12.5" fill="#5f6b78" text-anchor="start">pack · tools · tests</text>
+<rect x="352" y="160" width="266" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="352" y="160" width="5" height="78" rx="2.5" fill="#0b7a75"/>
+<circle cx="392" cy="199.0" r="22" fill="#0b7a75"/>
+<g transform="translate(380,187.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L21 7 L21 17 L12 22 L3 17 L3 7 Z"/><path d="M3 7 L12 12 L21 7"/><path d="M12 12 L12 22"/></g>
+<text x="426" y="194.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">fedmp-tooling</text>
+<text x="426" y="214.0" font-size="12.5" fill="#5f6b78" text-anchor="start">conteneur du SDK : mp-build</text>
+<rect x="636" y="160" width="266" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="636" y="160" width="5" height="78" rx="2.5" fill="#0b7a75"/>
+<circle cx="676" cy="199.0" r="22" fill="#0b7a75"/>
+<g transform="translate(664,187.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2 H14 L19 7 V22 H5 Z"/><path d="M14 2 V7 H19"/><path d="M8 13 H16"/><path d="M8 17 H16"/></g>
+<text x="710" y="194.0" font-size="13.043478260869566" fill="#1d2733" text-anchor="start" font-weight="700">NSXFederation_1.7.8.pak</text>
+<text x="710" y="214.0" font-size="12.5" fill="#5f6b78" text-anchor="start">registre fixé par repack.py</text>
+<rect x="352" y="330" width="266" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="352" y="330" width="5" height="78" rx="2.5" fill="#0b7a75"/>
+<circle cx="392" cy="369.0" r="22" fill="#0b7a75"/>
+<g transform="translate(380,357.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5 V19 C4 21 20 21 20 19 V5"/><path d="M4 12 C4 14 20 14 20 12"/></g>
+<text x="426" y="364.0" font-size="15.0" fill="#1d2733" text-anchor="start" font-weight="700">fedmp-registry :5000</text>
+<text x="426" y="384.0" font-size="12.5" fill="#5f6b78" text-anchor="start">registry:2 · HTTPS · autosigné</text>
+<rect x="636" y="330" width="266" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="636" y="330" width="5" height="78" rx="2.5" fill="#0b7a75"/>
+<circle cx="676" cy="369.0" r="22" fill="#0b7a75"/>
+<g transform="translate(664,357.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 9 L10 12 L6 15"/><path d="M12 15 H18"/></g>
+<text x="710" y="364.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">install_unsigned.sh</text>
+<text x="710" y="384.0" font-size="12.5" fill="#5f6b78" text-anchor="start">Chrome headless, ou à la main</text>
+<rect x="982" y="160" width="270" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="982" y="160" width="5" height="78" rx="2.5" fill="#1f4e9c"/>
+<circle cx="1022" cy="199.0" r="22" fill="#1f4e9c"/>
+<g transform="translate(1010,187.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="5"/><circle cx="17" cy="12" r="3" fill="#ffffff"/></g>
+<text x="1056" y="187.0" font-size="12.777777777777779" fill="#1d2733" text-anchor="start" font-weight="700">Console d'administration</text>
+<text x="1056" y="206.0" font-size="12" fill="#5f6b78" text-anchor="start">PAK non signé :</text>
+<text x="1056" y="222.0" font-size="12" fill="#5f6b78" text-anchor="start">activé, puis désactivé</text>
+<rect x="982" y="330" width="270" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="982" y="330" width="5" height="78" rx="2.5" fill="#1f4e9c"/>
+<circle cx="1022" cy="369.0" r="22" fill="#1f4e9c"/>
+<g transform="translate(1010,357.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L21 7 L21 17 L12 22 L3 17 L3 7 Z"/><path d="M8 12 L11 15 L16 9"/></g>
+<text x="1056" y="364.0" font-size="15.333333333333334" fill="#1d2733" text-anchor="start" font-weight="700">Repository et compte</text>
+<text x="1056" y="384.0" font-size="12.5" fill="#5f6b78" text-anchor="start">pack installé · compte créé</text>
+<rect x="1272" y="245" width="270" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="1272" y="245" width="5" height="78" rx="2.5" fill="#1f4e9c"/>
+<circle cx="1312" cy="284.0" r="22" fill="#1f4e9c"/>
+<g transform="translate(1300,272.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21 H21"/><path d="M6 17 V11"/><path d="M11 17 V6"/><path d="M16 17 V13"/><path d="M20 17 V8"/></g>
+<text x="1346" y="272.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">Nœud d'analyse</text>
+<text x="1346" y="291.0" font-size="12" fill="#5f6b78" text-anchor="start">métriques · alertes</text>
+<text x="1346" y="307.0" font-size="12" fill="#5f6b78" text-anchor="start">tableaux de bord</text>
+<rect x="62" y="640" width="330" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="62" y="640" width="5" height="78" rx="2.5" fill="#5b3fa0"/>
+<circle cx="102" cy="679.0" r="22" fill="#5b3fa0"/>
+<g transform="translate(90,667.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><path d="M2 12 H22"/></g>
+<text x="136" y="674.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">Global Managers</text>
+<text x="136" y="694.0" font-size="12.5" fill="#5f6b78" text-anchor="start">nsx-gm-01a actif · nsx-gm-01b secours</text>
+<rect x="412" y="640" width="268" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="412" y="640" width="5" height="78" rx="2.5" fill="#5b3fa0"/>
+<circle cx="452" cy="679.0" r="22" fill="#5b3fa0"/>
+<g transform="translate(440,667.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22 C12 22 4 14 4 9 A8 8 0 0 1 20 9 C20 14 12 22 12 22 Z"/><circle cx="12" cy="9" r="3"/></g>
+<text x="486" y="674.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">Local Managers</text>
+<text x="486" y="694.0" font-size="12.5" fill="#5f6b78" text-anchor="start">nsx-wld01-a · nsx-wld03-a</text>
+<rect x="902" y="640" width="300" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="902" y="640" width="5" height="78" rx="2.5" fill="#b25e00"/>
+<circle cx="942" cy="679.0" r="22" fill="#b25e00"/>
+<g transform="translate(930,667.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="11" rx="2"/><path d="M8 11 V7 A4 4 0 0 1 16 7 V11"/><circle cx="12" cy="16.5" r="1.5" fill="#ffffff"/></g>
+<text x="976" y="674.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">Confiance Docker</text>
+<text x="976" y="694.0" font-size="12.5" fill="#5f6b78" text-anchor="start">certs.d/10.0.6.27:5000/ca.crt</text>
+<rect x="1238" y="640" width="300" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
+<rect x="1238" y="640" width="5" height="78" rx="2.5" fill="#b25e00"/>
+<circle cx="1278" cy="679.0" r="22" fill="#b25e00"/>
+<g transform="translate(1266,667.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2 V5 M12 19 V22 M2 12 H5 M19 12 H22 M4.9 4.9 L7 7 M17 17 L19.1 19.1 M4.9 19.1 L7 17 M17 7 L19.1 4.9"/></g>
+<text x="1312" y="667.0" font-size="14.266666666666667" fill="#1d2733" text-anchor="start" font-weight="700">Adaptateur NSX Federation</text>
+<text x="1312" y="686.0" font-size="12" fill="#5f6b78" text-anchor="start">conteneur</text>
+<text x="1312" y="702.0" font-size="12" fill="#5f6b78" text-anchor="start">une collecte toutes les 5 min</text>
+<path d="M272,239 L352,199" fill="none" stroke="#0b7a75" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-jump)"/>
+<circle cx="312" cy="219" r="14" fill="#0b7a75" stroke="#ffffff" stroke-width="2.5"/>
+<text x="312" y="224" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">1</text>
+<path d="M618,199 L636,199" fill="none" stroke="#0b7a75" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-jump)"/>
+<path d="M485,238 L485,330" fill="none" stroke="#0b7a75" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-jump)"/>
+<circle cx="485" cy="284" r="14" fill="#0b7a75" stroke="#ffffff" stroke-width="2.5"/>
+<text x="485" y="289" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">2</text>
+<rect x="505" y="272" width="131.6" height="24" rx="12" fill="#ffffff" stroke="#0b7a75" stroke-opacity="0.5"/>
+<text x="570.8" y="288.5" font-size="12" fill="#0b7a75" text-anchor="middle" font-weight="600">envoi de l'image</text>
+<path d="M769,238 L769,330" fill="none" stroke="#0b7a75" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-jump)"/>
+<circle cx="769" cy="284" r="14" fill="#0b7a75" stroke="#ffffff" stroke-width="2.5"/>
+<text x="769" y="289" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">3</text>
+<rect x="789" y="272" width="60.599999999999994" height="24" rx="12" fill="#ffffff" stroke="#0b7a75" stroke-opacity="0.5"/>
+<text x="819.3" y="288.5" font-size="12" fill="#0b7a75" text-anchor="middle" font-weight="600">repack</text>
+<path d="M902,369 L940,369 L940,199 L982,199" fill="none" stroke="#1f4e9c" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-ops)"/>
+<circle cx="940" cy="284" r="14" fill="#1f4e9c" stroke="#ffffff" stroke-width="2.5"/>
+<text x="940" y="289" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">4</text>
+<path d="M1117,238 L1117,330" fill="none" stroke="#1f4e9c" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-ops)"/>
+<circle cx="1117" cy="284" r="14" fill="#1f4e9c" stroke="#ffffff" stroke-width="2.5"/>
+<text x="1117" y="289" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">4</text>
+<rect x="1137" y="272" width="103.19999999999999" height="24" rx="12" fill="#ffffff" stroke="#1f4e9c" stroke-opacity="0.5"/>
+<text x="1188.6" y="288.5" font-size="12" fill="#1f4e9c" text-anchor="middle" font-weight="600">installation</text>
+<path d="M1180,408 L1180,500 L1388,500 L1388,640" fill="none" stroke="#1f4e9c" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-ops)"/>
+<circle cx="1284" cy="500" r="14" fill="#1f4e9c" stroke="#ffffff" stroke-width="2.5"/>
+<text x="1284" y="505" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">5</text>
+<rect x="1304" y="488" width="96.1" height="24" rx="12" fill="#ffffff" stroke="#1f4e9c" stroke-opacity="0.5"/>
+<text x="1352.05" y="504.5" font-size="12" fill="#1f4e9c" text-anchor="middle" font-weight="600">déploiement</text>
+<path d="M485,408 L485,500 L840,500 L840,679 L902,679" fill="none" stroke="#b25e00" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="8 5" marker-end="url(#a-proxy)"/>
+<circle cx="485" cy="462" r="14" fill="#b25e00" stroke="#ffffff" stroke-width="2.5"/>
+<text x="485" y="467" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">6</text>
+<rect x="505" y="450" width="231.0" height="24" rx="12" fill="#ffffff" stroke="#b25e00" stroke-opacity="0.5"/>
+<text x="620.5" y="466.5" font-size="12" fill="#b25e00" text-anchor="middle" font-weight="600">image tirée par digest · HTTPS</text>
+<circle cx="680" cy="500" r="17" fill="#ffffff" stroke="#6b7785" stroke-width="2"/>
+<path d="M671,495 H689 M684,490 L689,495 L684,500 M689,505 H671 M676,500 L671,505 L676,510" fill="none" stroke="#6b7785" stroke-width="1.8" stroke-linecap="round"/>
+<text x="680" y="536" font-size="12" fill="#5f6b78" text-anchor="middle">routeur du lab · NAT</text>
+<path d="M1202,679 L1238,679" fill="none" stroke="#b25e00" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-proxy)"/>
+<path d="M1388,718 L1388,830 L546,830 L546,718" fill="none" stroke="#5b3fa0" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-nsx)"/>
+<path d="M546,830 L227,830 L227,718" fill="none" stroke="#5b3fa0" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-nsx)"/>
+<circle cx="960" cy="830" r="14" fill="#5b3fa0" stroke="#ffffff" stroke-width="2.5"/>
+<text x="960" y="835" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">7</text>
+<rect x="980" y="818" width="302.0" height="24" rx="12" fill="#ffffff" stroke="#5b3fa0" stroke-opacity="0.5"/>
+<text x="1131.0" y="834.5" font-size="12" fill="#5b3fa0" text-anchor="middle" font-weight="600">API REST · compte audit en lecture seule</text>
+<path d="M1538,679 L1556,679 L1556,284 L1542,284" fill="none" stroke="#1f4e9c" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#a-ops)"/>
+<circle cx="1556" cy="480" r="14" fill="#1f4e9c" stroke="#ffffff" stroke-width="2.5"/>
+<text x="1556" y="485" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="700">8</text>
+<rect x="1468.3" y="468" width="67.69999999999999" height="24" rx="12" fill="#ffffff" stroke="#1f4e9c" stroke-opacity="0.5"/>
+<text x="1502.1499999999999" y="484.5" font-size="12" fill="#1f4e9c" text-anchor="middle" font-weight="600">données</text>
+<rect x="40" y="880" width="1520" height="110" rx="14" fill="#f7f8fa" stroke="#d5dbe1"/>
+<circle cx="70" cy="914" r="13" fill="#0b7a75"/>
+<text x="70" y="919" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">1</text>
+<text x="94" y="919" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Cloner</text>
+<text x="156" y="919" font-size="13.5" fill="#5f6b78" text-anchor="start">le dépôt sur la machine de rebond</text>
+<circle cx="445" cy="914" r="13" fill="#0b7a75"/>
+<text x="445" y="919" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">2</text>
+<text x="469" y="919" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Construire</text>
+<text x="566" y="919" font-size="12.536687631027254" fill="#5f6b78" text-anchor="start">l'image et le .pak ; envoyer l'image</text>
+<circle cx="820" cy="914" r="13" fill="#0b7a75"/>
+<text x="820" y="919" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">3</text>
+<text x="844" y="919" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Repacker</text>
+<text x="923" y="919" font-size="13.5" fill="#5f6b78" text-anchor="start">écrire le registre dans le .pak</text>
+<circle cx="1195" cy="914" r="13" fill="#1f4e9c"/>
+<text x="1195" y="919" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">4</text>
+<text x="1219" y="919" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Installer</text>
+<text x="1307" y="919" font-size="13.5" fill="#5f6b78" text-anchor="start">option activée, puis désactivée</text>
+<circle cx="70" cy="960" r="13" fill="#1f4e9c"/>
+<text x="70" y="965" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">5</text>
+<text x="94" y="965" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Déployer</text>
+<text x="173" y="965" font-size="13.5" fill="#5f6b78" text-anchor="start">le compte démarre l'adaptateur</text>
+<circle cx="445" cy="960" r="13" fill="#b25e00"/>
+<text x="445" y="965" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">6</text>
+<text x="469" y="965" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Tirer</text>
+<text x="522" y="965" font-size="13.5" fill="#5f6b78" text-anchor="start">l'image par son digest, en HTTPS</text>
+<circle cx="820" cy="960" r="13" fill="#5b3fa0"/>
+<text x="820" y="965" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">7</text>
+<text x="844" y="965" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Collecter</text>
+<text x="932" y="965" font-size="13.5" fill="#5f6b78" text-anchor="start">sur les deux GM et les LM</text>
+<circle cx="1195" cy="960" r="13" fill="#1f4e9c"/>
+<text x="1195" y="965" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">8</text>
+<text x="1219" y="965" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Remonter</text>
+<text x="1298" y="965" font-size="13.5" fill="#5f6b78" text-anchor="start">métriques, propriétés, événements</text>
 </svg>

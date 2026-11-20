@@ -18,7 +18,7 @@ params:
 
 A VCF 9.1.1 lab. Two Global Managers, each a single node: `nsx-gm-01a` (`gm-site-a`) is active and `nsx-gm-01b` (`gm-site-b`) is its standby. They federate two locations, `site-a-wld01` and `site-a-wld03`, each with a two-node edge cluster. VCF Operations is 9.1.1 with one cloud proxy, `opscollector-01a`. The build runs on a Linux jump host with Docker, 10.0.6.27. The same host runs the image registry on port 5000.
 
-![The part 2 lab: the active Global Manager nsx-gm-01a and the standby nsx-gm-01b, the locations site-a-wld01 and site-a-wld03 with their Local Managers and two-node edge clusters linked by RTEP, VCF Operations with the cloud proxy opscollector-01a, and the jump host that builds the pack and serves its image through the lab router](/images/nsx-federation-mp/lab-topology.svg?v=2)
+![The part 2 lab: the active Global Manager nsx-gm-01a and the standby nsx-gm-01b, the locations site-a-wld01 and site-a-wld03 with their Local Managers and two-node edge clusters linked by RTEP, VCF Operations with the cloud proxy opscollector-01a, and the jump host that builds the pack and serves its image through the lab router](/images/nsx-federation-mp/lab-topology.svg?v=3)
 
 The standby was deployed from the same 9.1.1 appliance as the active Global Manager, in the Small size, on the cluster of `site-a-wld03`, with an address and a DNS record in the management network. It was registered on the active Global Manager through the API, as `gm-site-b` in STANDBY mode, with its address, admin credentials and certificate thumbprint (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). The first full sync completed within minutes.
 
@@ -26,16 +26,17 @@ The standby was deployed from the same 9.1.1 appliance as the active Global Mana
 
 The figure below shows the path from the source code to the adapter running on the cloud proxy. The build and install steps that follow take it in order.
 
-![Build and deployment of the pack: the GitHub repository is cloned on the jump host, the tooling container builds the image and the .pak, the image goes to the HTTPS registry on the jump host, the .pak is installed in VCF Operations with the unsigned PAK switch on, the account deploys the adapter on the cloud proxy, which pulls the image by digest through the lab router, reads the Global Managers and Local Managers over their REST API, and sends the data to the analytics node](/images/nsx-federation-mp/build-topology.svg)
+![Build and deployment of the pack: the GitHub repository is cloned on the jump host, the tooling container builds the image and the .pak, the image goes to the HTTPS registry on the jump host, the .pak is installed in VCF Operations with the unsigned PAK switch on, the account deploys the adapter on the cloud proxy, which pulls the image by digest through the lab router, reads the Global Managers and Local Managers over their REST API, and sends the data to the analytics node](/images/nsx-federation-mp/build-topology.svg?v=2)
 
 The pack uses the VCF Operations Integration SDK 1.3.1. The SDK tools (`mp-init`, `mp-test`, `mp-build`) need a Python version the jump host does not carry, so they run from a small tooling image:
 
-*Built on: the jump host, as the Dockerfile of the tooling image.*
+*Found in: `tooling/Dockerfile` in the repository, built on the jump host.*
 
 ```dockerfile
 FROM python:3.11-slim
-RUN apt-get update && apt-get install -y docker.io git && rm -rf /var/lib/apt/lists/*
-RUN pip install vmware-aria-operations-integration-sdk
+RUN apt-get update && apt-get install -y --no-install-recommends docker.io git && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir vmware-aria-operations-integration-sdk pytest
+WORKDIR /work
 ```
 
 The adapter code is in two Python files:
@@ -61,7 +62,7 @@ DIGEST=sha256:dd80...b4cb
 
 ## Install the pack
 
-The install has five steps, given here in the order that works. The failures met in the lab are kept as symptoms under the step that prevents them.
+The install has five steps, given here in the order that works. The failures met in the lab are kept as symptoms under the step that prevents them. The same steps, as a checklist with every command and the machine it runs on, are in [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.md).
 
 ### Step 1: serve the registry over HTTPS
 
@@ -556,6 +557,7 @@ The 1,253 alert definitions and 2,047 symptom definitions on the lab's VCF Opera
 
 - Lab: VCF 9.1.1, NSX 9.1.1 (Local Managers and Global Managers), VCF Operations 9.1.1. Build, install and tests from 17 to 19 November 2026.
 - Source of the pack: [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag [v1.7.8](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/tree/v1.7.8)
+- Install guide with a checklist: [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.md)
 - Objects, metrics and alerts of version 1.7.8: [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/FEATURES.md); account settings and sizing: [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/OPERATIONS.md)
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack

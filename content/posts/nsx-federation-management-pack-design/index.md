@@ -120,7 +120,7 @@ The full map, as verified:
 
 A management pack starts with an object model: which things exist, what identifies them, and which object is the parent of which. The first draft has 12 types in four chains, shown in the diagram below. It still models edge nodes, gateways and segments itself, and step 5 comes back to that. As built, the pack has 15 types ([part 2](/posts/nsx-federation-management-pack-install/)).
 
-![Object model: Global Manager to Manager node; Location to Edge cluster to Edge node to RTEP tunnel; Tier-0 gateway to Tier-1 gateway to Segment, with BGP neighbor under Tier-0; Global policy to Rule](/images/nsx-federation-mp/object-model.svg)
+![Object model: Global Manager to Manager node; Location to Edge cluster to Edge node to RTEP tunnel; Tier-0 gateway to Tier-1 gateway to Segment, with BGP neighbor under Tier-0; Global policy to Rule](/images/nsx-federation-mp/object-model.svg?v=2)
 
 Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over. As built, a sync channel is identified by the names NSX gives its two ends, a location or a Global Manager, as in `site-a-wld01 -> gm-site-a`.
 

@@ -18,7 +18,7 @@ La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur u
 
 Le lab est un environnement VCF 9.1.1. Il compte deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Global Manager de secours. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur une machine de rebond Linux équipée de Docker, 10.0.6.27. Cette même machine héberge le registre d'images, sur le port 5000.
 
-![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le secours nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le cloud proxy opscollector-01a, et l'hôte de rebond qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg?v=2)
+![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le secours nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le proxy cloud opscollector-01a, et la machine de rebond qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg?v=3)
 
 Le Global Manager de secours a été déployé à partir de la même appliance 9.1.1 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de gestion. Il a été enregistré sur le Global Manager actif par l'API, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants du compte admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes.
 
@@ -26,16 +26,17 @@ Le Global Manager de secours a été déployé à partir de la même appliance 9
 
 Le schéma ci-dessous montre le chemin du code source jusqu'à l'adaptateur qui tourne sur le proxy cloud. Les étapes de construction et d'installation qui suivent le reprennent dans l'ordre.
 
-![Construction et déploiement du pack : le dépôt GitHub est cloné sur la machine de rebond, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS de la machine de rebond, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg)
+![Construction et déploiement du pack : le dépôt GitHub est cloné sur la machine de rebond, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS de la machine de rebond, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg?v=2)
 
 Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente de la machine de rebond ; ils s'exécutent donc depuis une petite image d'outillage :
 
-*Construit sur : la machine de rebond, comme Dockerfile de l'image d'outillage.*
+*Se trouve dans : `tooling/Dockerfile` du dépôt, construit sur la machine de rebond.*
 
 ```dockerfile
 FROM python:3.11-slim
-RUN apt-get update && apt-get install -y docker.io git && rm -rf /var/lib/apt/lists/*
-RUN pip install vmware-aria-operations-integration-sdk
+RUN apt-get update && apt-get install -y --no-install-recommends docker.io git && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir vmware-aria-operations-integration-sdk pytest
+WORKDIR /work
 ```
 
 Le code de l'adaptateur tient en deux fichiers Python :
@@ -61,7 +62,7 @@ DIGEST=sha256:dd80...b4cb
 
 ## Installer le pack
 
-L'installation compte cinq étapes, présentées ici dans l'ordre qui fonctionne. Les échecs rencontrés dans le lab sont conservés comme symptômes, sous l'étape qui les évite.
+L'installation compte cinq étapes, présentées ici dans l'ordre qui fonctionne. Les échecs rencontrés dans le lab sont conservés comme symptômes, sous l'étape qui les évite. Les mêmes étapes, sous forme de liste de contrôle avec chaque commande et la machine sur laquelle elle s'exécute, sont dans [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.fr.md).
 
 ### Étape 1 : servir le registre en HTTPS
 
@@ -556,6 +557,7 @@ Les 1 253 définitions d'alerte et 2 047 définitions de symptôme présentes 
 
 - Lab : VCF 9.1.1, NSX 9.1.1 (Local Managers et Global Managers), VCF Operations 9.1.1. Construction, installation et tests du 17 au 19 novembre 2026.
 - Code source du pack : [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag [v1.7.8](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/tree/v1.7.8)
+- Guide d'installation avec liste de contrôle : [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.fr.md)
 - Objets, métriques et alertes de la version 1.7.8 : [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/FEATURES.md) (en anglais) ; réglages du compte et dimensionnement : [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/OPERATIONS.md) (en anglais)
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - KB Broadcom [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html) : « No signature found on PAK file » lors de l'installation d'un management pack

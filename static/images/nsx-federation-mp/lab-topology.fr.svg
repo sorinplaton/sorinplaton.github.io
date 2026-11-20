@@ -56,7 +56,7 @@
 <text x="1030" y="712" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">routeur du lab · NAT</text>
 <rect x="1120" y="610" width="440" height="150" rx="6" fill="#f7f8fa" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/><text letter-spacing="1" x="1134" y="632" font-size="13" fill="#6b7785" text-anchor="start" font-weight="bold">CONSTRUCTION</text>
 <rect x="1224" y="673" width="32" height="44" rx="3" fill="#ffffff" stroke="#1d2733" stroke-width="1.8"/><line x1="1229" y1="683" x2="1245" y2="683" stroke="#1d2733" stroke-width="1.2"/><circle cx="1250" cy="683" r="1.6" fill="#1d2733"/><line x1="1229" y1="693" x2="1245" y2="693" stroke="#1d2733" stroke-width="1.2"/><circle cx="1250" cy="693" r="1.6" fill="#1d2733"/><line x1="1229" y1="703" x2="1245" y2="703" stroke="#1d2733" stroke-width="1.2"/><circle cx="1250" cy="703" r="1.6" fill="#1d2733"/>
-<text x="1272" y="690" font-size="15" fill="#1d2733" text-anchor="start" font-weight="bold">machine de rebond</text><text x="1272" y="708" font-size="13" fill="#6b7785" text-anchor="start">build Docker · registre :5000</text>
+<text x="1272" y="690" font-size="15" fill="#1d2733" text-anchor="start" font-weight="bold">jumphost</text><text x="1272" y="708" font-size="13" fill="#6b7785" text-anchor="start">build Docker · registre :5000</text>
 <path d="M1240,717 L1240,740 L1050,740" fill="none" stroke="#0b7a75" stroke-width="1.6" marker-end="url(#mt)"/>
 <path d="M1010,740 L560,740 L560,715" fill="none" stroke="#0b7a75" stroke-width="1.6" marker-end="url(#mt)"/>
 <text x="800" y="732" font-size="13" fill="#0b7a75" text-anchor="middle">récupération de l'image</text>
@@ -88,7 +88,7 @@
 <text x="652" y="999" font-size="14" fill="#1d2733" text-anchor="start">un proxy cloud, opscollector-01a, porte le compte du pack</text>
 <rect x="40" y="1012" width="1520" height="36" fill="#f7f9fa"/>
 <line x1="40" y1="1048" x2="1560" y2="1048" stroke="#d8dee3"/>
-<text x="52" y="1035" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Machine de rebond</text>
+<text x="52" y="1035" font-size="14" fill="#1d2733" text-anchor="start" font-weight="bold">Jumphost</text>
 <text x="342" y="1035" font-size="14" fill="#1d2733" text-anchor="start">10.0.6.27</text>
 <text x="652" y="1035" font-size="14" fill="#1d2733" text-anchor="start">Linux avec Docker · construit le pack · registre d'images sur le port 5000</text>
 <line x1="40" y1="1084" x2="1560" y2="1084" stroke="#d8dee3"/>

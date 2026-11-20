@@ -16,9 +16,9 @@ La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur u
 
 ## Le lab
 
-Le lab est un environnement VCF 9.1.1. Il compte deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Global Manager de secours. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur une machine de rebond Linux équipée de Docker, 10.0.6.27. Cette même machine héberge le registre d'images, sur le port 5000.
+Le lab est un environnement VCF 9.1.1. Il compte deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Global Manager de secours. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur un jumphost Linux équipé de Docker, 10.0.6.27. Ce même jumphost héberge le registre d'images, sur le port 5000.
 
-![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le secours nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le proxy cloud opscollector-01a, et la machine de rebond qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg?v=3)
+![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le secours nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le proxy cloud opscollector-01a, et le jumphost qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg?v=4)
 
 Le Global Manager de secours a été déployé à partir de la même appliance 9.1.1 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de gestion. Il a été enregistré sur le Global Manager actif par l'API, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants du compte admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes.
 
@@ -26,11 +26,11 @@ Le Global Manager de secours a été déployé à partir de la même appliance 9
 
 Le schéma ci-dessous montre le chemin du code source jusqu'à l'adaptateur qui tourne sur le proxy cloud. Les étapes de construction et d'installation qui suivent le reprennent dans l'ordre.
 
-![Construction et déploiement du pack : le dépôt GitHub est cloné sur la machine de rebond, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS de la machine de rebond, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg?v=2)
+![Construction et déploiement du pack : le dépôt GitHub est cloné sur le jumphost, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS du jumphost, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg?v=3)
 
-Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente de la machine de rebond ; ils s'exécutent donc depuis une petite image d'outillage :
+Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente du jumphost ; ils s'exécutent donc depuis une petite image d'outillage :
 
-*Se trouve dans : `tooling/Dockerfile` du dépôt, construit sur la machine de rebond.*
+*Se trouve dans : `tooling/Dockerfile` du dépôt, construit sur le jumphost.*
 
 ```dockerfile
 FROM python:3.11-slim
@@ -52,7 +52,7 @@ Un pack SDK n'est pas autonome. Le fichier `.pak` contient les définitions d'ob
 
 `mp-build` construit le pack. Lorsque l'adresse de registre fournie a la forme `host:port`, il inscrit pourtant Docker Hub dans le pack. Un court script, `tools/repack.py`, réécrit deux valeurs, `REGISTRY` et `REPOSITORY`, dans le fichier `.conf` que contient `adapter.zip` :
 
-*Se trouve dans : le fichier `.conf` de `adapter.zip`, dans le `.pak`, réécrit par `tools/repack.py` sur la machine de rebond.*
+*Se trouve dans : le fichier `.conf` de `adapter.zip`, dans le `.pak`, réécrit par `tools/repack.py` sur le jumphost.*
 
 ```
 REGISTRY=10.0.6.27:5000
@@ -66,9 +66,9 @@ L'installation compte cinq étapes, présentées ici dans l'ordre qui fonctionne
 
 ### Étape 1 : servir le registre en HTTPS
 
-Le lab utilise un conteneur `registry:2` sur la machine de rebond. Le proxy cloud ne s'adresse à un registre qu'en HTTPS, et le conteneur a donc besoin d'un certificat :
+Le lab utilise un conteneur `registry:2` sur le jumphost. Le proxy cloud ne s'adresse à un registre qu'en HTTPS, et le conteneur a donc besoin d'un certificat :
 
-*À exécuter sur : la machine de rebond (10.0.6.27).*
+*À exécuter sur : le jumphost (10.0.6.27).*
 
 ```bash
 mkdir -p certs
@@ -88,7 +88,7 @@ Le premier registre du lab servait du HTTP en clair. Avec lui, l'instance d'adap
 
 Avec un certificat autosigné, le HTTPS ne suffit pas. Tant que le proxy cloud n'approuve pas le certificat, le journal du registre affiche l'erreur suivante (10.0.6.33 est le routeur du lab, qui masque le proxy cloud par NAT) :
 
-*Sortie : le journal du conteneur du registre sur la machine de rebond.*
+*Sortie : le journal du conteneur du registre sur le jumphost.*
 
 ```
 http: TLS handshake error from 10.0.6.33:56544: remote error: tls: bad certificate
@@ -110,7 +110,7 @@ Une mise à niveau ou un redéploiement du proxy cloud peut faire disparaître c
 
 Le pack n'est pas signé par Broadcom. L'envoi par l'API de l'appliance échoue :
 
-*Sortie : la réponse de l'API de l'appliance VCF Operations à un envoi depuis la machine de rebond.*
+*Sortie : la réponse de l'API de l'appliance VCF Operations à un envoi depuis le jumphost.*
 
 ```
 pak_manager.pakfile.no_signature
@@ -135,13 +135,13 @@ Le pack peut s'installer de deux façons. Toutes deux commencent par l'activatio
 
 L'API d'envoi de l'appliance (`/casa/upgrade/cluster/pak/reserved/operation/upload`) n'offre aucun paramètre pour ignorer le contrôle de signature, même lorsque l'option est activée. Un script doit donc passer par les mêmes appels que l'interface, et celle-ci les protège par un jeton anti-CSRF (`secureToken`) qu'un simple client HTTP ne reçoit jamais. Dans VCF Operations 9.1.1, ce jeton figure dans la page chargée sous `/vcf-operations/plug/ops/`, à l'intérieur de l'interface principale.
 
-Dans le lab, un Chrome sans interface graphique (headless), piloté par le Chrome DevTools Protocol, s'en est chargé depuis la machine de rebond :
+Dans le lab, un Chrome sans interface graphique (headless), piloté par le Chrome DevTools Protocol, s'en est chargé depuis le jumphost :
 
 1. Chrome ouvre une session sur la console d'administration et appelle `clusterManagement.action` avec `mainAction=enableUPI`. La même page propose aussi `getUPIStatus` et `disableUPI`.
 2. Chrome ouvre une session sur l'interface principale. Un court script lit dans la page les cookies de session et la valeur de `secureToken`.
 3. Un script Python réutilise cette session pour trois appels :
 
-*À exécuter sur : la machine de rebond, vers VCF Operations, dans la session ouverte par Chrome.*
+*À exécuter sur : le jumphost, vers VCF Operations, dans la session ouverte par Chrome.*
 
 ```
 POST admin/services/solution/upload?uploadId=<ms>&ignoreSignatureChecking=true&secureToken=<token>
@@ -452,7 +452,7 @@ La règle a été testée sur le lab sans provoquer de panne. Le compte étant a
 
 Un basculement planifié a été mené le 19 novembre, pour observer ce que le pack signale lorsque le rôle actif change de Global Manager. Le basculement tient en un seul appel sur le Global Manager de secours, l'équivalent, par l'API, de « Make Active » dans « Location Manager » :
 
-*À exécuter sur : la machine de rebond, vers l'API du Global Manager de secours.*
+*À exécuter sur : le jumphost, vers l'API du Global Manager de secours.*
 
 ```
 PATCH https://<standby-gm>/global-manager/api/v1/global-infra/global-managers/gm-site-b

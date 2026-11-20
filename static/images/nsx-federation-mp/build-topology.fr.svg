@@ -13,8 +13,8 @@
 <rect x="56" y="107" width="83.19999999999999" height="26" rx="13" fill="#3a4654"/>
 <text x="70" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">GITHUB</text>
 <rect x="330" y="120" width="590" height="330" rx="16" fill="#eef8f7" stroke="#0b7a75" stroke-opacity="0.35" stroke-width="1.5"/>
-<rect x="346" y="107" width="294.79999999999995" height="26" rx="13" fill="#0b7a75"/>
-<text x="360" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">MACHINE DE REBOND · 10.0.6.27</text>
+<rect x="346" y="107" width="212.0" height="26" rx="13" fill="#0b7a75"/>
+<text x="360" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">JUMPHOST · 10.0.6.27</text>
 <rect x="960" y="120" width="600" height="330" rx="16" fill="#eff4fc" stroke="#1f4e9c" stroke-opacity="0.35" stroke-width="1.5"/>
 <rect x="976" y="107" width="156.79999999999998" height="26" rx="13" fill="#1f4e9c"/>
 <text x="990" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">VCF OPERATIONS</text>
@@ -150,7 +150,7 @@
 <circle cx="70" cy="914" r="13" fill="#0b7a75"/>
 <text x="70" y="919" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">1</text>
 <text x="94" y="919" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Cloner</text>
-<text x="156" y="919" font-size="13.5" fill="#5f6b78" text-anchor="start">le dépôt sur la machine de rebond</text>
+<text x="156" y="919" font-size="13.5" fill="#5f6b78" text-anchor="start">le dépôt sur le jumphost</text>
 <circle cx="445" cy="914" r="13" fill="#0b7a75"/>
 <text x="445" y="919" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">2</text>
 <text x="469" y="919" font-size="14" fill="#1d2733" text-anchor="start" font-weight="700">Construire</text>

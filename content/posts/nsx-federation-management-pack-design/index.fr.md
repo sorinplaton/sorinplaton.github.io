@@ -28,7 +28,7 @@ La page « Location Manager » du Global Manager montre la fédération :
 
 Un pack qui referait le travail de l'intégration NSX native doublerait le nombre d'objets et déclencherait deux alertes pour une même panne. La première étape consiste donc à inventorier, par l'API de VCF Operations, ce qui est déjà collecté.
 
-*À exécuter sur : la machine de rebond, vers l'API de VCF Operations.*
+*À exécuter sur : le jumphost, vers l'API de VCF Operations.*
 
 ```bash
 OPS=ops-a.site-a.vcf.lab
@@ -61,7 +61,7 @@ Tous les appels ci-dessous sont des GET, envoyés aux managers du lab. Le Global
 
 **La fédération est-elle connectée ?** C'est le Global Manager qu'il faut interroger :
 
-*À exécuter sur : la machine de rebond, vers l'API du Global Manager actif.*
+*À exécuter sur : le jumphost, vers l'API du Global Manager actif.*
 
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" https://nsx-gm-01a.site-a.vcf.lab/api/v1/sites/status
@@ -80,7 +80,7 @@ Les adresses renvoyées, 10.1.1.25 et 10.1.1.81, sont les adresses de nœud des 
 
 **Un objet étendu est-il réalisé partout ?** Un appel par objet, sur le Global Manager :
 
-*À exécuter sur : la machine de rebond, vers l'API du Global Manager actif.*
+*À exécuter sur : le jumphost, vers l'API du Global Manager actif.*
 
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" \
@@ -91,7 +91,7 @@ La réponse contient un état consolidé et un état par emplacement (`SUCCESS` 
 
 **Les tunnels entre emplacements sont-ils actifs ?** L'information se trouve sur les Local Managers, par cluster Edge et par nœud Edge :
 
-*À exécuter sur : la machine de rebond, vers l'API du Local Manager `nsx-wld01-a`.*
+*À exécuter sur : le jumphost, vers l'API du Local Manager `nsx-wld01-a`.*
 
 ```bash
 curl -sk -u "$NSX_USER:$NSX_PW" \

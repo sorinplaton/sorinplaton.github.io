@@ -520,7 +520,7 @@ The lab had no open federation alarm. To test the definitions, two events were p
 
 The alarm alert carries the symptom, the text of the event and the recommendation:
 
-![Detail of the alert "NSX alarm: RTEP BGP neighbor down" on site-a-wld01: description, recommendation, and the symptom "Local Manager raised NSX alarm rtep_bgp_down" with the text of the test event](/images/nsx-federation-mp/ops-alarm-alert.webp)
+![Detail of the alert "NSX alarm: RTEP BGP neighbor down" on site-a-wld01: description, recommendation, and the symptom "Local Manager raised NSX alarm rtep_bgp_down" with the text of the test event](/images/nsx-federation-mp/ops-alarm-alert.webp?v=2)
 
 Posting the same events again with a cancel time cleared both alerts in the next cycle.
 

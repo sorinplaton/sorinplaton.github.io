@@ -24,6 +24,10 @@ The standby was deployed from the same 9.1.1 appliance as the active Global Mana
 
 ## Build the adapter
 
+The figure below shows the path from the source code to the adapter running on the cloud proxy. The build and install steps that follow take it in order.
+
+![Build and deployment of the pack: the GitHub repository is cloned on the jump host, the tooling container builds the image and the .pak, the image goes to the HTTPS registry on the jump host, the .pak is installed in VCF Operations with the unsigned PAK switch on, the account deploys the adapter on the cloud proxy, which pulls the image by digest through the lab router, reads the Global Managers and Local Managers over their REST API, and sends the data to the analytics node](/images/nsx-federation-mp/build-topology.svg)
+
 The pack uses the VCF Operations Integration SDK 1.3.1. The SDK tools (`mp-init`, `mp-test`, `mp-build`) need a Python version the jump host does not carry, so they run from a small tooling image:
 
 *Built on: the jump host, as the Dockerfile of the tooling image.*

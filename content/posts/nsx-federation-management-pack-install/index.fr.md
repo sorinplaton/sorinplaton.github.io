@@ -24,6 +24,10 @@ Le Global Manager de secours a été déployé à partir de la même appliance 9
 
 ## Construire l'adaptateur
 
+Le schéma ci-dessous montre le chemin du code source jusqu'à l'adaptateur qui tourne sur le proxy cloud. Les étapes de construction et d'installation qui suivent le reprennent dans l'ordre.
+
+![Construction et déploiement du pack : le dépôt GitHub est cloné sur la machine de rebond, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS de la machine de rebond, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg)
+
 Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente de la machine de rebond ; ils s'exécutent donc depuis une petite image d'outillage :
 
 *Construit sur : la machine de rebond, comme Dockerfile de l'image d'outillage.*

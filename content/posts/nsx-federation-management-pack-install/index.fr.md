@@ -73,7 +73,7 @@ Un pack SDK n'est pas autonome. Le fichier `.pak` contient les définitions d'ob
 *Se trouve dans : le fichier `.conf` de `adapter.zip`, dans le `.pak`, réécrit par `tools/repack.py` sur le jumphost.*
 
 ```
-REGISTRY=10.0.6.27:5000
+REGISTRY=<ip-jumphost>:5000
 REPOSITORY=/nsxfederation
 DIGEST=sha256:dd80...b4cb
 ```
@@ -86,15 +86,15 @@ L'installation compte cinq étapes, présentées ici dans l'ordre qui fonctionne
 
 Le lab utilise un conteneur `registry:2` sur le jumphost. Le proxy cloud ne s'adresse à un registre qu'en HTTPS, et le conteneur a donc besoin d'un certificat :
 
-*À exécuter sur : le jumphost (10.0.6.27).*
+*À exécuter sur : le jumphost.*
 
 ```bash
 mkdir -p certs
 openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
   -keyout certs/registry.key -out certs/registry.crt -subj "/CN=fedmp-registry" \
-  -addext "subjectAltName=IP:10.0.6.27"
+  -addext "subjectAltName=IP:<ip-jumphost>"
 
-docker run -d --name fedmp-registry -p 10.0.6.27:5000:5000 \
+docker run -d --name fedmp-registry -p <ip-jumphost>:5000:5000 \
   -v registry-data:/var/lib/registry -v $PWD/certs:/certs:ro \
   -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt \
   -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry:2
@@ -117,7 +117,7 @@ Le proxy cloud exécute Docker, et Docker approuve un registre privé dès lors 
 *Se trouve sur : le proxy cloud `opscollector-01a`.*
 
 ```
-/etc/docker/certs.d/10.0.6.27:5000/ca.crt
+/etc/docker/certs.d/<ip-jumphost>:5000/ca.crt
 ```
 
 SSH est désactivé sur le proxy cloud et l'est resté. Le fichier a été écrit au moyen des opérations invité de vCenter (`govc guest.run` avec le compte root de l'appliance).

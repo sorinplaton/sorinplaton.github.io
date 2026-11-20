@@ -73,7 +73,7 @@ An SDK pack is not self-contained. The `.pak` file carries the object definition
 *Found in: the `.conf` file inside `adapter.zip` in the `.pak`, rewritten by `tools/repack.py` on the jump host.*
 
 ```
-REGISTRY=10.0.6.27:5000
+REGISTRY=<jump-host-ip>:5000
 REPOSITORY=/nsxfederation
 DIGEST=sha256:dd80...b4cb
 ```
@@ -86,15 +86,15 @@ The install has five steps, given here in the order that works. The failures met
 
 The lab uses a `registry:2` container on the jump host. The cloud proxy only speaks HTTPS to a registry, so the container needs a certificate:
 
-*Run on: the jump host (10.0.6.27).*
+*Run on: the jump host.*
 
 ```bash
 mkdir -p certs
 openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
   -keyout certs/registry.key -out certs/registry.crt -subj "/CN=fedmp-registry" \
-  -addext "subjectAltName=IP:10.0.6.27"
+  -addext "subjectAltName=IP:<jump-host-ip>"
 
-docker run -d --name fedmp-registry -p 10.0.6.27:5000:5000 \
+docker run -d --name fedmp-registry -p <jump-host-ip>:5000:5000 \
   -v registry-data:/var/lib/registry -v $PWD/certs:/certs:ro \
   -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt \
   -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry:2
@@ -117,7 +117,7 @@ The cloud proxy runs Docker, and Docker trusts a private registry when its certi
 *Found on: the cloud proxy `opscollector-01a`.*
 
 ```
-/etc/docker/certs.d/10.0.6.27:5000/ca.crt
+/etc/docker/certs.d/<jump-host-ip>:5000/ca.crt
 ```
 
 SSH is disabled on the cloud proxy and stayed disabled. The file was written through vCenter guest operations (`govc guest.run` with the appliance root account).

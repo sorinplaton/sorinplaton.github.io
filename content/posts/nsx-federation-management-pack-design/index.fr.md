@@ -1,22 +1,22 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 1 : concevoir le management pack"
 date: 2026-11-17
-description: "VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX, mais ne voit rien d'une fédération NSX : ni Global Manager, ni synchronisation entre emplacements, ni tunnels RTEP, ni objets étendus. Cet article décrit la conception d'un management pack sur mesure dans un lab : ce que couvre l'intégration native, les appels d'API NSX qui donnent l'état de la fédération, le modèle d'objets, les alertes, et ce qu'a changé la relecture de la conception à l'échelle d'une grande entreprise."
-summary: "Une fédération NSX 9.1 à deux emplacements tourne dans le lab, et VCF Operations n'en montre rien. Cette première partie précède toute ligne de code : elle vérifie l'intégration NSX native, explore les API du Global Manager et des Local Managers, puis fixe un premier modèle à 12 types d'objets, la liste des métriques et des alertes, et les changements imposés par une relecture à l'échelle d'une grande entreprise."
+description: "VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX, mais ne voit rien d'une fédération NSX : ni Global Manager, ni synchronisation entre emplacements, ni tunnels RTEP, ni objets étendus. Cet article décrit la conception d'un management pack sur mesure dans un lab : ce que couvre l'intégration native, les appels d'API NSX qui donnent l'état de la fédération, le modèle d'objets, les métriques, et ce qu'a changé la relecture de la conception à l'échelle d'une grande entreprise."
+summary: "Une fédération NSX 9.1 à deux emplacements tourne dans le lab, et VCF Operations n'en montre rien. Cette première partie précède toute ligne de code : elle vérifie l'intégration NSX native, explore les API du Global Manager et des Local Managers, puis fixe un premier modèle à 12 types d'objets, la liste des métriques et des propriétés, et les changements imposés par une relecture à l'échelle d'une grande entreprise."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Lab"]
 categories: ["Notes"]
 showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/gm-location-manager.webp"]
 params:
-  seoDescription: "Concevoir un management pack VCF Operations pour NSX 9.1 Federation : appels d'API, modèle d'objets, alertes, et les changements imposés par une relecture à l'échelle d'une grande entreprise."
+  seoDescription: "Concevoir un management pack VCF Operations pour NSX 9.1 Federation : appels d'API, modèle d'objets, métriques, et les changements imposés par une relecture à l'échelle d'une grande entreprise."
 ---
 
 VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manager NSX du lab, mais ne montre rien de la fédération qui relie deux d'entre eux. Le Global Manager, l'état de synchronisation entre les emplacements (les « Locations » de NSX Federation), les tunnels RTEP et les passerelles étendues n'y ont ni objet, ni métrique, ni alerte. Cet article décrit la conception d'un management pack qui les ajoute. La construction et l'installation sont décrites dans la [partie 2](/fr/posts/nsx-federation-management-pack-install/).
 
 ## Le lab
 
-La fédération tourne dans un lab VCF 9.1.1. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), actif, à un seul nœud et sans Standby Global Manager. Deux emplacements en NSX 9.1.1 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-wld03-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`). Tel qu'il est construit, le lab compte un Standby Global Manager, `nsx-gm-01b`, ajouté avant l'installation, et le pack est testé avec les deux Global Managers ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
+La fédération tourne dans un lab VCF 9.1.1. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), actif, à un seul nœud et sans Standby Global Manager. Deux emplacements en NSX 9.1.1 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-wld03-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`). Un Standby Global Manager, `nsx-gm-01b`, a été ajouté plus tard, avant l'installation, et le pack est testé avec les deux Global Managers ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
 
 Les deux emplacements appartiennent à la même instance VCF : c'est un raccourci de lab, à ne pas reproduire dans une architecture de production. Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
 
@@ -124,7 +124,7 @@ Un management pack repose d'abord sur un modèle d'objets : quels éléments ex
 
 Les identifiants proviennent de NSX, jamais d'une adresse de manager : identifiant de fédération et identifiant de site pour les managers et les emplacements, emplacement et nom du nœud pour les nœuds Edge, adresses RTEP et adresses des pairs pour les tunnels et les sessions BGP, chemin de stratégie globale pour les passerelles, les segments et les stratégies. Un objet identifié par une adresse IP ou par un FQDN devient un second objet, sans historique, dès qu'une adresse IP virtuelle change ou qu'un Global Manager bascule. Tel qu'il est construit, le pack identifie un canal de synchronisation par les noms que NSX donne à ses deux extrémités, un emplacement ou un Global Manager, comme dans `site-a-wld01 -> gm-site-a`.
 
-## Étape 4 : métriques et alertes
+## Étape 4 : métriques et propriétés
 
 Chaque type d'objet reçoit une courte liste de métriques et de propriétés. Les métriques sont des valeurs numériques conservées dans le temps ; les propriétés décrivent l'état et la configuration.
 
@@ -140,7 +140,9 @@ Chaque type d'objet reçoit une courte liste de métriques et de propriétés. L
 
 ## Étape 5 : éprouver la conception à l'échelle d'une grande entreprise
 
-Réexaminée au regard d'une grande entreprise (clusters Global Manager à trois nœuds sur un site actif et un site de secours, de nombreux emplacements, des milliers d'objets étendus), la conception a gagné un adaptateur qui suit le Global Manager actif et le standby, avec l'état du standby dès la première version, la réutilisation des objets Edge natifs plutôt que des doublons, des totaux de règles par stratégie, un quota d'appels d'API par Local Manager et un indicateur de synchronisation fondé sur son état et sur les échecs de synchronisation complète plutôt que sur l'âge de la dernière. Elle a aussi gagné un regroupement des alertes sous leur cause première, pour que la perte d'un emplacement ne déclenche pas d'avalanche d'alertes, ainsi qu'une supervision du pack par lui-même, pour qu'une absence de données ne soit jamais lue comme un état sain ([partie 2](/fr/posts/nsx-federation-management-pack-install/) montre comment chaque point a été construit). Tel qu'il est construit, le pack conserve ses propres objets cluster Edge, nœud Edge, passerelle et segment, et relie ses objets Edge aux objets natifs, car l'intégration native ne collecte ni les objets globaux ni un Local Manager qu'elle ne supervise pas.
+La conception a ensuite été relue à l'échelle d'une grande entreprise : clusters Global Manager à trois nœuds sur un site actif et un site de secours, de nombreux emplacements et des milliers d'objets étendus. Cette relecture a changé la collecte. L'adaptateur suit le Global Manager actif et rend compte de l'état du standby dès la première version, les règles sont comptées par stratégie, chaque Local Manager a son quota d'appels d'API, et la santé de la synchronisation se lit dans son état et dans les échecs de synchronisation complète, au lieu de l'âge de la dernière. Elle a aussi changé les alertes : la perte d'un emplacement déclenche une seule alerte au lieu d'une avalanche, et le pack rend compte de sa propre collecte, pour qu'une absence de données ne soit jamais lue comme un état sain (la [partie 2](/fr/posts/nsx-federation-management-pack-install/) montre comment chaque point a été construit).
+
+La relecture demandait aussi de réutiliser les objets Edge natifs. Tel qu'il est construit, le pack conserve ses propres objets cluster Edge, nœud Edge, passerelle et segment, et relie ses objets Edge aux objets natifs, car l'intégration native ne collecte ni les objets globaux ni un Local Manager qu'elle ne supervise pas.
 
 ## Étape 6 : le mode de construction
 
@@ -165,7 +167,7 @@ Le Management Pack Builder est la voie sans code : un pack se conçoit dans des
 - Installer l'outillage du SDK et choisir le registre.
 - Décider jusqu'où le pack étend les objets NSX natifs.
 - Construire le cœur de la collecte sur le lab, avec un simulateur pour les cas que le lab ne peut pas reproduire : un Standby Global Manager, un basculement, vingt emplacements.
-- Trouver l'API de latence et un moyen de lire l'état du pare-feu sur les hôtes.
+- Trouver l'appel d'API derrière la latence qu'affiche la page « Location Manager ».
 
 La [partie 2](/fr/posts/nsx-federation-management-pack-install/) traite de la construction, de l'installation et de ce que le pack supervise.
 

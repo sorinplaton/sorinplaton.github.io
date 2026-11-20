@@ -12,7 +12,9 @@ params:
   seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : registre HTTPS, approbation du certificat, pack non signé, puis objets, métriques, alertes, groupes, tableaux de bord et vues qu'il fournit."
 ---
 
-La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. Cet article décrit la construction du pack, son installation dans VCF Operations 9.1.1 avec des captures d'écran, ce que le pack supervise (objets, métriques, alertes, groupes, tableaux de bord, vues), un basculement de Global Manager et l'envoi des alertes par e-mail. Le pack décrit ici est la version 1.7.8, et son code source est sur GitHub : [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/FEATURES.md) (en anglais) liste chaque type d'objet, métrique, propriété et alerte du pack, avec la condition et la recommandation de chaque alerte. L'écriture de l'adaptateur a demandé moins de temps que son installation : trois contrôles distincts de VCF Operations séparaient le fichier `.pak` d'une collecte opérationnelle.
+La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. L'écriture de l'adaptateur a demandé moins de temps que son installation : trois contrôles distincts de VCF Operations séparaient le fichier `.pak` d'une collecte opérationnelle. Cet article décrit la construction du pack, son installation dans VCF Operations 9.1.1 avec des captures d'écran, ce que le pack supervise (objets, métriques, alertes, groupes, tableaux de bord, vues), un basculement de Global Manager et l'envoi des alertes par e-mail.
+
+Le pack décrit ici est la version 1.7.8, et son code source est sur GitHub : [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/FEATURES.md) (en anglais) liste chaque type d'objet, métrique, propriété et alerte du pack, avec la condition et la recommandation de chaque alerte.
 
 ## Le lab
 
@@ -30,21 +32,23 @@ Le schéma ci-dessous montre le chemin du code source jusqu'à l'adaptateur qui 
 
 ### Prérequis du jumphost
 
-Le jumphost construit le pack, exécute les tests et sert l'image. Avant la construction, il lui faut :
+Le jumphost construit le pack, exécute les tests et sert l'image. Avant la construction, il lui faut :
 
 - **Linux avec Docker Engine**, et un utilisateur membre du groupe `docker`. Les outils du SDK, les tests et le registre d'images tournent tous dans des conteneurs.
 - **`git`**, pour cloner le dépôt.
-- **Python 3**, dans une version récente quelconque, pour les scripts qui tournent hors de l'image d'outillage : `tools/gen_*.py` (alertes, tableaux de bord, vues, groupes) et `tools/repack.py`.
+- **Python 3**, dans une version récente quelconque, pour les scripts qui tournent hors de l'image d'outillage : `tools/gen_*.py` (alertes, tableaux de bord, vues, groupes) et `tools/repack.py`.
 - **`openssl`**, pour créer le certificat du registre (étape 1).
 - **Un accès root**, une seule fois, pour copier ce certificat dans `/etc/docker/certs.d/<registre>/ca.crt`. Le Docker du jumphost doit lui aussi faire confiance au registre avant de pouvoir y pousser l'image.
 - **Un accès sortant** vers GitHub, Docker Hub et PyPI, pour le dépôt, les images `python:3.11-slim` et `registry:2` et le paquet du SDK.
 - **TCP 443 vers chaque manager NSX**, Global Managers et Local Managers, pour l'exécution locale des tests (`tools/localrun.py`).
 - **Le port du registre ouvert au proxy cloud**, 5000 dans le lab. Ici, le proxy cloud l'atteint à travers le routeur du lab.
 
-Deux autres outils ne servent qu'à certaines étapes et peuvent se trouver sur un autre hôte :
+Deux autres outils ne servent qu'à certaines étapes et peuvent se trouver sur un autre hôte :
 
 - `govc`, avec un accès au vCenter qui héberge la VM du proxy cloud, pour copier le certificat sur le proxy cloud (étape 2).
 - `google-chrome`, `node` et le module Python `requests`, pour l'installation scriptée du pack non signé (étape 3, méthode 2), avec un accès HTTPS à VCF Operations.
+
+### L'image d'outillage et le code de l'adaptateur
 
 Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente du jumphost ; ils s'exécutent donc depuis une petite image d'outillage :
 
@@ -65,6 +69,8 @@ Le code de l'adaptateur tient en deux fichiers Python :
 L'instance d'adaptateur reçoit une ou deux adresses de Global Manager et un seul jeu d'identifiants. Elle découvre les Local Managers à partir du Global Manager et compare le certificat de chacun d'eux à l'empreinte que le Global Manager a déjà enregistrée. Un Global Manager est approuvé d'après le certificat accepté sur le compte dans VCF Operations. Une fois un certificat vérifié, chaque connexion du cycle est liée à son empreinte : les identifiants ne sont donc pas envoyés à un serveur qui présente un autre certificat.
 
 Un compte supervise une seule fédération. Un Global Manager de la liste qui répond pour une autre fédération est signalé et écarté, et un réglage facultatif désigne l'objet fédération lorsque VCF Operations en supervise plusieurs.
+
+### Le fichier du pack et son image
 
 Un pack SDK n'est pas autonome. Le fichier `.pak` contient les définitions d'objets et une référence à une image de conteneur. Le proxy cloud récupère cette image dans un registre au démarrage de l'instance d'adaptateur.
 
@@ -174,7 +180,7 @@ L'ouverture de session sur l'interface principale (point 2) doit suivre celle su
 
 L'option ne peut pas être désactivée pendant l'installation. Lors d'une mise à niveau, la console d'administration a répondu `Cluster is in PAK installing state` jusqu'à la fin de l'installation. Un script doit donc répéter le dernier appel.
 
-Ces appels sont internes à l'interface : ils ne sont pas pris en charge et peuvent changer à chaque version. Quant à l'option des packs non signés, elle vaut pour toute l'instance ; dans le lab, elle n'est restée activée que le temps de l'envoi. Le dépôt contient ces étapes sous la forme des scripts `install/upi.sh` et `install/install_unsigned.sh`.
+Le dépôt contient ces étapes sous la forme des scripts `install/upi.sh` et `install/install_unsigned.sh`.
 
 Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK_NSXFederation` apparaissent dans VCF Operations. Le pack figure, avec sa version, sous « Administration > Integrations > Repository » :
 
@@ -184,7 +190,7 @@ Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK
 
 L'instance d'adaptateur, appelée compte dans l'interface, se crée sur le proxy cloud. Elle reçoit une ou deux adresses de Global Manager et un seul jeu d'identifiants. Avec les deux adresses, le pack suit le rôle actif lorsque les Global Managers basculent. Les autres réglages sont facultatifs : les stratégies de sécurité dont les règles deviennent des objets, la façon dont le pack fonctionne avec l'intégration NSX native (liens et alertes d'alarme, automatiques par défaut), et la suppression des objets qui ont quitté NSX (désactivée par défaut). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.8/docs/OPERATIONS.md) (en anglais) décrit chaque réglage.
 
-Lors de l'enregistrement du compte, il faut valider la connexion et accepter les certificats des Global Managers. Ce contrôle a deux modes : « enforce » arrête la collecte d'un manager dont le certificat ne correspond pas ou pour lequel aucun certificat approuvé n'est enregistré ; « report » poursuit la collecte et déclenche une alerte. Le mode par défaut est « enforce » : sans certificat accepté, aucun manager n'est interrogé. Le compte du lab a été créé par l'API, n'a aucun certificat accepté et fonctionne en mode « report ».
+Lors de l'enregistrement du compte, il faut valider la connexion et accepter les certificats des Global Managers. Le contrôle des certificats a deux modes : « enforce » arrête la collecte d'un manager dont le certificat ne correspond pas ou pour lequel aucun certificat approuvé n'est enregistré ; « report » poursuit la collecte et déclenche une alerte. Le mode par défaut est « enforce » : sans certificat accepté, aucun manager n'est interrogé. Le compte du lab a été créé par l'API, n'a aucun certificat accepté et fonctionne en mode « report ».
 
 Le compte accepte aussi un jeu d'identifiants distinct pour les Local Managers. Le pack ne fait que lire dans NSX : un compte en lecture seule suffit donc. Le compte du lab utilise le compte intégré `audit` de NSX sur les quatre managers et collecte les mêmes objets qu'avec `admin`, sans aucun appel en échec.
 
@@ -293,7 +299,7 @@ Le tableau ci-dessous donne la couverture de chaque type d'objet. La colonne Mé
 
 ### Alertes
 
-Le pack compte 63 définitions d'alerte, 98 symptômes et 34 recommandations. Onze recommandations se terminent par un lien vers l'article de la KB Broadcom ou la page de documentation qui traite de la panne. Ce contenu tient dans un seul fichier XML, placé dans `content/alertdefs`. Un script le génère à partir d'une table des symptômes, des alertes et des recommandations. Un symptôme est une condition portant sur une métrique, sur une propriété ou sur un événement. Deux symptômes utilisent un seuil dynamique. Une condition sur une propriété se présente ainsi :
+Le pack compte 63 définitions d'alerte, 98 symptômes et 34 recommandations. Onze recommandations se terminent par un lien vers l'article de la KB Broadcom ou la page de documentation qui traite de la panne. Ce contenu tient dans un seul fichier XML, placé dans `content/alertdefs`, qu'un script génère à partir d'une table des symptômes, des alertes et des recommandations. Un symptôme est une condition portant sur une métrique, sur une propriété ou sur un événement, et deux symptômes utilisent un seuil dynamique. Une condition sur une propriété se présente ainsi :
 
 *Se trouve dans : le fichier d'alertes du pack, dans `content/alertdefs`.*
 

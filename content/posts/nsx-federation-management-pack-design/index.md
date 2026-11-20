@@ -1,22 +1,22 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 1: designing the management pack"
 date: 2026-11-17
-description: "VCF Operations 9.1.1 has an adapter instance for each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the alerts, and what a review of the design against enterprise scale changed."
-summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a first object model of 12 types, the metric and alert list, and the changes that a review against enterprise scale forced before any code was written."
+description: "VCF Operations 9.1.1 has an adapter instance for each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the metrics, and what a review of the design against enterprise scale changed."
+summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a first object model of 12 types, the metric and property list, and the changes that a review against enterprise scale forced before any code was written."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Lab"]
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
 images: ["/images/nsx-federation-mp/gm-location-manager.webp"]
 params:
-  seoDescription: "Designing a VCF Operations management pack for NSX 9.1 Federation: API calls, object model, alerts and the changes a review against enterprise scale forced."
+  seoDescription: "Designing a VCF Operations management pack for NSX 9.1 Federation: API calls, object model, metrics and the changes a review against enterprise scale forced."
 ---
 
 VCF Operations 9.1.1 has an adapter instance for every NSX Local Manager in the lab and shows nothing of the federation that links two of them. The Global Manager, the sync state between locations, the RTEP tunnels and the stretched gateways have no object, no metric and no alert. This post describes the design of a management pack that adds them. The build and the install are in [part 2](/posts/nsx-federation-management-pack-install/).
 
 ## The lab
 
-The federation runs on a VCF 9.1.1 lab. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), is a single active node with no standby. The two locations run NSX 9.1.1: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-wld03-a`, cluster virtual IP 10.1.1.80). Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`. As built, a standby Global Manager, `nsx-gm-01b`, was added before the install, and the pack is tested with both Global Managers ([part 2](/posts/nsx-federation-management-pack-install/)).
+The federation runs on a VCF 9.1.1 lab. The Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), is a single active node with no standby. The two locations run NSX 9.1.1: `site-a-wld01` (Local Manager `nsx-wld01-a`, cluster virtual IP 10.1.1.24) and `site-a-wld03` (Local Manager `nsx-wld03-a`, cluster virtual IP 10.1.1.80). Each has a two-node edge cluster and its own RTEP VLAN. The Global Manager owns one active-active Tier-0 (`fed-t0`, four BGP sessions to the lab router), three Tier-1 gateways, five segments including the stretched `fed-stretched`, and one firewall policy, `fed-demo`. A standby Global Manager, `nsx-gm-01b`, was added later, before the install, and the pack is tested with both Global Managers ([part 2](/posts/nsx-federation-management-pack-install/)).
 
 Both locations sit inside one VCF instance, which is a lab shortcut and should not be copied into a real design. The lab has four NSX Local Managers in all, and two of them are in the federation.
 
@@ -124,7 +124,7 @@ A management pack starts with an object model: which things exist, what identifi
 
 Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over. As built, a sync channel is identified by the names NSX gives its two ends, a location or a Global Manager, as in `site-a-wld01 -> gm-site-a`.
 
-## Step 4: metrics and alerts
+## Step 4: metrics and properties
 
 Each object type gets a short list. Metrics are numbers kept over time; properties are state and configuration.
 
@@ -140,7 +140,9 @@ Each object type gets a short list. Metrics are numbers kept over time; properti
 
 ## Step 5: reviewing the design for enterprise scale
 
-Reviewed against an enterprise target (three-node Global Manager clusters in active and standby sites, many locations, thousands of stretched objects), the design gained an active/standby-aware adapter with standby readiness in the first release, reuse of the built-in Edge objects instead of duplicates, policy-level rule totals, a per-Local-Manager API budget and a sync signal based on status and full-sync failures rather than full-sync age. It also gained root-cause alert grouping so one lost location does not raise an alert storm, plus self-monitoring of the pack so that "no data" is never read as "healthy" ([part 2](/posts/nsx-federation-management-pack-install/) shows how each point was built). As built, the pack keeps its own edge cluster, edge node, gateway and segment objects and links its edge objects to the built-in ones, because the built-in integration does not collect the global objects or a Local Manager it does not monitor.
+The design was then reviewed against an enterprise target: three-node Global Manager clusters in an active and a standby site, many locations and thousands of stretched objects. The review changed the collection. The adapter follows the active Global Manager and reports standby readiness from the first release, rules are counted per policy, each Local Manager gets an API call budget, and sync health comes from the sync status and the full-sync failures instead of the age of the last full sync. It changed the alerts too: a lost location raises one alert instead of a storm, and the pack reports on its own collection so that "no data" is never read as "healthy" ([part 2](/posts/nsx-federation-management-pack-install/) shows how each point was built).
+
+The review also asked for reuse of the built-in Edge objects. As built, the pack keeps its own edge cluster, edge node, gateway and segment objects and links its edge objects to the built-in ones, because the built-in integration does not collect the global objects or a Local Manager it does not monitor.
 
 ## Step 6: the build route
 
@@ -165,7 +167,7 @@ The Management Pack Builder is the no-code route: a pack is designed in screens 
 - Install the SDK tooling and pick the registry.
 - Decide how far the pack extends the built-in NSX objects.
 - Build the collector core against the lab, with a mock for the cases the lab cannot show: a standby Global Manager, a switchover, twenty locations.
-- Find the latency API and a way to read the host firewall state.
+- Find the API call behind the latency that the Location Manager page shows.
 
 [Part 2](/posts/nsx-federation-management-pack-install/) covers the build, the install and what the pack monitors.
 

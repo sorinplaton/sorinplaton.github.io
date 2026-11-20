@@ -20,7 +20,7 @@
 <text x="520.0" y="161.0" font-size="15" fill="#0b7a75" text-anchor="middle" font-weight="bold">fedmp-tooling</text>
 <text x="520.0" y="180.0" font-size="12" fill="#6b7785" text-anchor="middle">conteneur du SDK · mp-build · pytest</text>
 <rect x="730" y="130" width="300" height="70" rx="5" fill="#ffffff" stroke="#0b7a75" stroke-width="1.6"/>
-<text x="880.0" y="161.0" font-size="15" fill="#0b7a75" text-anchor="middle" font-weight="bold">NSXFederation_1.7.7.pak</text>
+<text x="880.0" y="161.0" font-size="15" fill="#0b7a75" text-anchor="middle" font-weight="bold">NSXFederation_1.7.8.pak</text>
 <text x="880.0" y="180.0" font-size="12" fill="#6b7785" text-anchor="middle">tools/repack.py fixe REGISTRY</text>
 <rect x="370" y="250" width="300" height="70" rx="5" fill="#ffffff" stroke="#0b7a75" stroke-width="1.6"/>
 <text x="520.0" y="281.0" font-size="15" fill="#0b7a75" text-anchor="middle" font-weight="bold">fedmp-registry :5000</text>

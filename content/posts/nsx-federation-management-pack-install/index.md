@@ -251,7 +251,7 @@ NSX returns packets, bytes, drops and rule hits as running totals. The adapter k
 
 Three metrics are derived by the adapter, because a symptom compares a metric with a fixed value and cannot subtract two metrics: Global Managers not reachable, inter-site BGP sessions not established, locations not realized.
 
-Seven figures cover the whole federation, on the federation object: locations healthy, as a count and a percentage; RTEP tunnels; tunnels whose BGP session is down; RTEP drops per minute over all tunnels; days to the first certificate expiry on any manager; open critical alarms on all managers. A super metric could compute some of them, but it does nothing until a policy enables it, so the adapter computes all seven. In the lab they read two of two locations healthy (100 %), eight tunnels, none down, no drops, 330.9 days to the first certificate expiry (a Local Manager certificate) and no critical alarm.
+Seven figures cover the whole federation, on the federation object: locations healthy, as a count and a percentage; RTEP tunnels; tunnels whose BGP session is down; RTEP drops per minute over all tunnels; days to the first certificate expiry on any manager; open critical alarms on all managers. A super metric could compute some of them, but it does nothing until a policy enables it, so the adapter computes all seven. In the lab they read two of two locations healthy (100%), eight tunnels, none down, no drops, 330.9 days to the first certificate expiry (a Local Manager certificate) and no critical alarm.
 
 Each location also carries what the Location Manager page of NSX shows for it: the state of its three replication flows with the Global Manager, when the Global Manager last saw it, the round-trip time when NSX reports one, and its onboarding status. The NSX API reference does not list the call behind that page. It was read from the requests of the NSX UI: `GET /api/v1/federation/replication/gm/sites/<site-id>/status` on the active Global Manager. In the lab the three flows read SYNCHRONIZING and the round-trip time is empty.
 
@@ -430,7 +430,7 @@ Realization is the only part of the collection that costs one call per object. W
 
 ## Tests in the lab
 
-None of the tests sends synthetic traffic through NSX. The pack only reads, so the tests replace NSX with a mock, read the live managers, make chosen calls fail inside the adapter, or write values into VCF Operations as if the adapter had sent them. Only the local run and the fault injection call NSX, with the same read-only GET calls the adapter makes. One test, the switchover, changes NSX itself. The table lists each test and how to run it.
+None of the tests sends synthetic traffic through NSX. The pack only reads, so the tests replace NSX with a mock, read the live managers, make chosen calls fail inside the adapter, or write values into VCF Operations as if the adapter had sent them. Apart from the switchover, only the local run and the fault injection call NSX, with the same read-only GET calls the adapter makes. The switchover is the one test that changes NSX itself. The table lists each test and how to run it.
 
 | Test | What it does | What it changes | Run with |
 | --- | --- | --- | --- |

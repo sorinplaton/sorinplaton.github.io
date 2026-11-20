@@ -14,7 +14,7 @@
 <text x="24" y="166" font-size="11.5" fill="#6b7785">Emplacements</text>
 <text x="24" y="238" font-size="11.5" fill="#6b7785">Réseau étendu</text>
 <text x="24" y="382" font-size="11.5" fill="#6b7785">Sécurité globale</text>
-<rect x="140" y="64" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="152" y="86" font-weight="600">Global Manager</text><text x="152" y="104" font-size="11.5" fill="#6b7785">rôle, sync, sauvegarde</text>
+<rect x="140" y="64" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="152" y="86" font-weight="600">Global Manager</text><text x="152" y="104" font-size="10.5" fill="#6b7785" textLength="112" lengthAdjust="spacingAndGlyphs">rôle, synchro, sauvegarde</text>
 <rect x="294" y="64" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="306" y="86" font-weight="600">Nœud de manager</text><text x="306" y="104" font-size="11.5" fill="#6b7785">services, version</text>
 <rect x="140" y="136" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="152" y="158" font-weight="600">Emplacement</text><text x="152" y="176" font-size="11.5" fill="#6b7785">lien et synchro</text>
 <rect x="294" y="136" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="306" y="158" font-weight="600">Cluster Edge</text><text x="306" y="176" font-size="11.5" fill="#6b7785">état inter-sites</text>
@@ -25,5 +25,5 @@
 <rect x="448" y="208" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="460" y="230" font-weight="600">Segment</text><text x="460" y="248" font-size="11.5" fill="#6b7785">portée, réalisation</text>
 <rect x="140" y="280" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="152" y="302" font-weight="600">Voisin BGP</text><text x="152" y="320" font-size="11.5" fill="#6b7785">état, préfixes</text>
 <rect x="140" y="352" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="152" y="374" font-weight="600">Stratégie globale</text><text x="152" y="392" font-size="11.5" fill="#6b7785">réalisée par site</text>
-<rect x="294" y="352" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="306" y="374" font-weight="600">Règle</text><text x="306" y="392" font-size="11.5" fill="#6b7785">hits, appliquée</text>
+<rect x="294" y="352" width="134" height="52" rx="8" fill="none" stroke="#9aa5b1" stroke-width="1.25"/><text x="306" y="374" font-weight="600">Règle</text><text x="306" y="392" font-size="10.5" fill="#6b7785" textLength="112" lengthAdjust="spacingAndGlyphs">correspondances, appliquée</text>
 </svg>

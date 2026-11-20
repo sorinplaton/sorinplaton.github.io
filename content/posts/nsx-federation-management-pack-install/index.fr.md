@@ -430,7 +430,7 @@ La réalisation est la seule partie de la collecte qui coûte un appel par objet
 
 ## Tests dans le lab
 
-Aucun test n'envoie de trafic synthétique dans NSX. Le pack se contente de lire : les tests remplacent donc NSX par un simulateur, lisent les managers réels, font échouer certains appels à l'intérieur de l'adaptateur, ou écrivent des valeurs dans VCF Operations comme si l'adaptateur les avait envoyées. Seules l'exécution locale et l'injection de pannes appellent NSX, avec les mêmes appels GET en lecture seule que l'adaptateur. Un seul test, le basculement, modifie NSX lui-même. Le tableau indique chaque test et la façon de le lancer.
+Aucun test n'envoie de trafic synthétique dans NSX. Le pack se contente de lire : les tests remplacent donc NSX par un simulateur, lisent les managers réels, font échouer certains appels à l'intérieur de l'adaptateur, ou écrivent des valeurs dans VCF Operations comme si l'adaptateur les avait envoyées. En dehors du basculement, seules l'exécution locale et l'injection de pannes appellent NSX, avec les mêmes appels GET en lecture seule que l'adaptateur. Le basculement est le seul test qui modifie NSX lui-même. Le tableau indique chaque test et la façon de le lancer.
 
 | Test | Ce qu'il fait | Ce qu'il modifie | Lancé avec |
 | --- | --- | --- | --- |

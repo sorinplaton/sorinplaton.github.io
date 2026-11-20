@@ -2,7 +2,7 @@
 title: "Monitoring NSX Federation in VCF Operations, part 1: designing the management pack"
 date: 2026-11-17
 description: "VCF Operations 9.1.1 has an adapter instance for each NSX Local Manager but has no view of an NSX Federation: no Global Manager, no location sync, no RTEP tunnels, no stretched objects. This post documents the design of a custom management pack on a lab: what the built-in integration covers, which NSX API calls carry the federation state, the object model, the alerts, and what a review of the design against enterprise scale changed."
-summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a first object model of 12 types, the metric and alert list, and the eight changes that a review against enterprise scale forced before any code was written."
+summary: "A two-location NSX 9.1 Federation runs in the lab and VCF Operations shows none of it. Part 1 of the management pack build: checking the built-in NSX integration, probing the Global Manager and Local Manager APIs, a first object model of 12 types, the metric and alert list, and the changes that a review against enterprise scale forced before any code was written."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Lab"]
 categories: ["Field notes"]
 showToc: true
@@ -140,7 +140,7 @@ Each object type gets a short list. Metrics are numbers kept over time; properti
 
 ## Step 5: reviewing the design for enterprise scale
 
-Reviewed against an enterprise target (three-node Global Manager clusters in active and standby sites, many locations, thousands of stretched objects), the design gained an active/standby-aware adapter with standby readiness in the first release, reuse of the built-in Edge objects instead of duplicates, policy-level rule totals, a per-Local-Manager API budget and a sync signal based on status and full-sync failures rather than full-sync age. It also gained root-cause alert grouping so one lost location does not raise an alert storm, plus self-monitoring of the pack so that "no data" is never read as "healthy" ([part 2](/posts/nsx-federation-management-pack-install/) shows how each point was built).
+Reviewed against an enterprise target (three-node Global Manager clusters in active and standby sites, many locations, thousands of stretched objects), the design gained an active/standby-aware adapter with standby readiness in the first release, reuse of the built-in Edge objects instead of duplicates, policy-level rule totals, a per-Local-Manager API budget and a sync signal based on status and full-sync failures rather than full-sync age. It also gained root-cause alert grouping so one lost location does not raise an alert storm, plus self-monitoring of the pack so that "no data" is never read as "healthy" ([part 2](/posts/nsx-federation-management-pack-install/) shows how each point was built). As built, the pack keeps its own edge cluster, edge node, gateway and segment objects and links its edge objects to the built-in ones, because the built-in integration does not collect the global objects or a Local Manager it does not monitor.
 
 ## Step 6: the build route
 

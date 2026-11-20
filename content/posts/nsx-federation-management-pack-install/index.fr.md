@@ -430,9 +430,36 @@ La réalisation est la seule partie de la collecte qui coûte un appel par objet
 
 ## Tests dans le lab
 
-Le pack dispose d'une suite de tests qui se passe de NSX : un simulateur répond aux appels de l'adaptateur à partir d'un enregistrement anonymisé de la fédération du lab. Ses 69 tests couvrent un cycle normal, des appels en échec, la panne d'un emplacement, un Global Manager d'une autre fédération, la liste des emplacements en cache et celle relue dans VCF Operations, le quota d'appels, l'approbation des certificats, les versions et les mises à niveau, la réalisation par paliers sur 600 segments de plus, la suppression des objets qui ont quitté NSX, et la cohérence du contenu des alertes avec le modèle d'objets. Un workflow GitHub Actions les exécute à chaque push.
+Aucun test n'envoie de trafic synthétique dans NSX. Le pack se contente de lire : les tests remplacent donc NSX par un simulateur, lisent les managers réels, font échouer certains appels à l'intérieur de l'adaptateur, ou écrivent des valeurs dans VCF Operations comme si l'adaptateur les avait envoyées. Seules l'exécution locale et l'injection de pannes appellent NSX, avec les mêmes appels GET en lecture seule que l'adaptateur. Un seul test, le basculement, modifie NSX lui-même. Le tableau indique chaque test et la façon de le lancer.
 
-La collecte s'exécute aussi depuis le conteneur d'outillage, directement sur les managers du lab, sans VCF Operations :
+| Test | Ce qu'il fait | Ce qu'il modifie | Lancé avec |
+| --- | --- | --- | --- |
+| Suite de tests | Exécute l'adaptateur face à un simulateur NSX qui répond à partir d'un enregistrement anonymisé de la fédération du lab, et face à une API VCF Operations simulée | Rien | `pytest` dans le conteneur d'outillage ; GitHub Actions à chaque push et à chaque pull request |
+| Exécution locale | Exécute un cycle de collecte sur les managers réels, avec les mêmes appels GET en lecture seule que l'adaptateur dans VCF Operations | Rien | `tools/localrun.py` dans le conteneur d'outillage |
+| Injection de pannes | L'exécution locale, avec certains appels NSX forcés en échec HTTP 500 à l'intérieur du processus de l'adaptateur | Rien côté NSX | `tools/test_gaps.py` dans le conteneur d'outillage |
+| Tests d'alertes | Écrit des métriques, des propriétés ou des événements dans VCF Operations par son API Suite, sous la forme qu'envoie l'adaptateur, puis rétablit les valeurs | Des données de VCF Operations, pendant quelques cycles | Appels à l'API Suite |
+| Basculement | Transfère le rôle actif au Standby Global Manager, puis le rend | La fédération NSX, comme opération planifiée | API NSX du Standby Global Manager |
+
+La suite de tests se passe du lab. Ses 69 tests couvrent un cycle normal, des appels en échec, la panne d'un emplacement, un Global Manager d'une autre fédération, la liste des emplacements en cache et celle relue dans VCF Operations, le quota d'appels, l'approbation des certificats, les versions et les mises à niveau, la réalisation par paliers sur 600 segments de plus, la suppression des objets qui ont quitté NSX, et la cohérence du contenu des alertes avec le modèle d'objets.
+
+*À exécuter sur : le jumphost, à la racine d'un clone du dépôt.*
+
+```bash
+docker build -t fedmp-tooling tooling
+docker run --rm -u $(id -u):$(id -g) -v $PWD:/work -w /work fedmp-tooling \
+  python -m pytest -q tests -p no:cacheprovider
+```
+
+L'exécution locale demande un accès réseau aux managers et un compte NSX en lecture seule. Elle affiche les objets, les métriques et les propriétés d'un cycle. `LM_USER` et `LM_PASSWORD` définissent un compte distinct pour les Local Managers.
+
+*À exécuter sur : le jumphost, à la racine d'un clone du dépôt.*
+
+```bash
+docker run --rm --network host -v $PWD:/work -e GM_HOSTS=<gm1>,<gm2> \
+  -e NSX_USER=audit -e NSX_PASSWORD='<password>' fedmp-tooling python tools/localrun.py
+```
+
+Résultats sur le lab :
 
 | Test | Résultat |
 | --- | --- |
@@ -442,7 +469,16 @@ La collecte s'exécute aussi depuis le conteneur d'outillage, directement sur le
 
 ### Appels en échec
 
-Ce comportement a été vérifié par injection de pannes lors d'une exécution locale : les appels d'état, de sauvegarde, d'alarmes et de cluster ont été forcés à renvoyer un code HTTP 500 sur chaque manager. L'exécution a signalé 15 appels sans réponse et n'a envoyé aucune des valeurs qui en dépendent.
+`tools/test_gaps.py` enveloppe l'exécution locale et force certains appels à renvoyer un code HTTP 500 à l'intérieur du processus de l'adaptateur ; NSX ne voit aucune erreur. Par défaut, les appels d'état des emplacements, de synthèse des sauvegardes, d'alarmes et d'état du cluster échouent sur chaque manager. La variable `FAIL` remplace cette liste par d'autres fragments de chemin, séparés par des virgules.
+
+*À exécuter sur : le jumphost, à la racine d'un clone du dépôt.*
+
+```bash
+docker run --rm --network host -v $PWD:/work -e GM_HOSTS=<gm1>,<gm2> \
+  -e NSX_USER=audit -e NSX_PASSWORD='<password>' fedmp-tooling python tools/test_gaps.py
+```
+
+Sur le lab, avec les valeurs par défaut, l'exécution a signalé 15 appels sans réponse et n'a envoyé aucune des valeurs qui en dépendent.
 
 ### Panne d'un emplacement
 

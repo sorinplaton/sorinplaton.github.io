@@ -430,9 +430,36 @@ Realization is the only part of the collection that costs one call per object. W
 
 ## Tests in the lab
 
-The pack has a test suite that needs no NSX: a mock answers the adapter's calls from an anonymised recording of the lab federation. Its 69 tests cover a normal cycle, failed calls, a location outage, a Global Manager of another federation, the cached location list and the one read back from VCF Operations, the call budget, certificate trust, versions and upgrades, tiered realization on 600 more segments, the deletion of objects that left NSX, and the consistency of the alert content with the object model. A GitHub Actions workflow runs them on every push.
+None of the tests sends synthetic traffic through NSX. The pack only reads, so the tests replace NSX with a mock, read the live managers, make chosen calls fail inside the adapter, or write values into VCF Operations as if the adapter had sent them. Only the local run and the fault injection call NSX, with the same read-only GET calls the adapter makes. One test, the switchover, changes NSX itself. The table lists each test and how to run it.
 
-The collection also runs against the live managers from the tooling container, without VCF Operations:
+| Test | What it does | What it changes | Run with |
+| --- | --- | --- | --- |
+| Test suite | Runs the adapter against a mock NSX that answers from an anonymised recording of the lab federation, and against a mock VCF Operations API | Nothing | `pytest` in the tooling container; GitHub Actions on every push and pull request |
+| Local run | Runs one collection cycle against the live managers, with the same read-only GET calls the adapter makes inside VCF Operations | Nothing | `tools/localrun.py` in the tooling container |
+| Fault injection | The local run, with chosen NSX calls made to fail with HTTP 500 inside the adapter process | Nothing on NSX | `tools/test_gaps.py` in the tooling container |
+| Alert tests | Writes metrics, properties or events into VCF Operations through its suite API, in the form the adapter sends, then restores them | VCF Operations data, for a few cycles | Suite API calls |
+| Switchover | Moves the active role to the standby Global Manager and back | The NSX federation, as a planned operation | NSX API on the standby Global Manager |
+
+The test suite needs no lab. Its 69 tests cover a normal cycle, failed calls, a location outage, a Global Manager of another federation, the cached location list and the one read back from VCF Operations, the call budget, certificate trust, versions and upgrades, tiered realization on 600 more segments, the deletion of objects that left NSX, and the consistency of the alert content with the object model.
+
+*Run on: the jump host, from the root of a clone of the repository.*
+
+```bash
+docker build -t fedmp-tooling tooling
+docker run --rm -u $(id -u):$(id -g) -v $PWD:/work -w /work fedmp-tooling \
+  python -m pytest -q tests -p no:cacheprovider
+```
+
+The local run needs network access to the managers and a read-only NSX account. It prints the objects, metrics and properties of one cycle. `LM_USER` and `LM_PASSWORD` set a separate account for the Local Managers.
+
+*Run on: the jump host, from the root of a clone of the repository.*
+
+```bash
+docker run --rm --network host -v $PWD:/work -e GM_HOSTS=<gm1>,<gm2> \
+  -e NSX_USER=audit -e NSX_PASSWORD='<password>' fedmp-tooling python tools/localrun.py
+```
+
+Results on the lab:
 
 | Test | Result |
 | --- | --- |
@@ -442,7 +469,16 @@ The collection also runs against the live managers from the tooling container, w
 
 ### Failed calls
 
-This was tested by fault injection in a local run: the status, backup, alarm and cluster calls were made to answer HTTP 500 on every manager. The run reported 15 calls without an answer and sent none of the values behind them.
+`tools/test_gaps.py` wraps the local run and makes chosen calls answer HTTP 500 inside the adapter process; NSX itself sees no error. By default the location status, backup overview, alarm and cluster status calls fail on every manager. The variable `FAIL` replaces that list with other path fragments, separated by commas.
+
+*Run on: the jump host, from the root of a clone of the repository.*
+
+```bash
+docker run --rm --network host -v $PWD:/work -e GM_HOSTS=<gm1>,<gm2> \
+  -e NSX_USER=audit -e NSX_PASSWORD='<password>' fedmp-tooling python tools/test_gaps.py
+```
+
+On the lab, with the defaults, the run reported 15 calls without an answer and sent none of the values behind them.
 
 ### Location outage
 

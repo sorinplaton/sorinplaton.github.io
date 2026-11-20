@@ -28,6 +28,24 @@ The figure below shows the path from the source code to the adapter running on t
 
 ![Build and deployment of the pack: the GitHub repository is cloned on the jump host, the tooling container builds the image and the .pak, the image goes to the HTTPS registry on the jump host, the .pak is installed in VCF Operations with the unsigned PAK switch on, the account deploys the adapter on the cloud proxy, which pulls the image by digest through the lab router, reads the Global Managers and Local Managers over their REST API, and sends the data to the analytics node](/images/nsx-federation-mp/build-topology.svg?v=2)
 
+### Jump host prerequisites
+
+The jump host builds the pack, runs the tests and serves the image. Before the build it needs:
+
+- **Linux with Docker Engine**, and a user in the `docker` group. The SDK tools, the tests and the image registry all run in containers.
+- **`git`**, to clone the repository.
+- **Python 3**, any recent version, for the scripts that run outside the tooling image: `tools/gen_*.py` (alerts, dashboards, views, groups) and `tools/repack.py`.
+- **`openssl`**, to create the registry certificate (step 1).
+- **Root access**, once, to copy that certificate to `/etc/docker/certs.d/<registry>/ca.crt`. The jump host's own Docker must trust the registry before it can push the image.
+- **Outbound access** to GitHub, Docker Hub and PyPI, for the repository, the `python:3.11-slim` and `registry:2` images and the SDK package.
+- **TCP 443 to every NSX manager**, the Global Managers and the Local Managers, for the local test run (`tools/localrun.py`).
+- **The registry port open to the cloud proxy**, 5000 in the lab. Here the cloud proxy reaches it through the lab router.
+
+Two more tools are only needed for some steps, and can sit on another host:
+
+- `govc` and access to the vCenter that runs the cloud proxy VM, to copy the certificate to the cloud proxy (step 2).
+- `google-chrome`, `node` and the Python `requests` module, for the scripted install of the unsigned pack (step 3, method 2), with HTTPS access to VCF Operations.
+
 The pack uses the VCF Operations Integration SDK 1.3.1. The SDK tools (`mp-init`, `mp-test`, `mp-build`) need a Python version the jump host does not carry, so they run from a small tooling image:
 
 *Found in: `tooling/Dockerfile` in the repository, built on the jump host.*

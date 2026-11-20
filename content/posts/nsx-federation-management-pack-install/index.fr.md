@@ -28,6 +28,24 @@ Le schéma ci-dessous montre le chemin du code source jusqu'à l'adaptateur qui 
 
 ![Construction et déploiement du pack : le dépôt GitHub est cloné sur le jumphost, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS du jumphost, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg?v=4)
 
+### Prérequis du jumphost
+
+Le jumphost construit le pack, exécute les tests et sert l'image. Avant la construction, il lui faut :
+
+- **Linux avec Docker Engine**, et un utilisateur membre du groupe `docker`. Les outils du SDK, les tests et le registre d'images tournent tous dans des conteneurs.
+- **`git`**, pour cloner le dépôt.
+- **Python 3**, dans une version récente quelconque, pour les scripts qui tournent hors de l'image d'outillage : `tools/gen_*.py` (alertes, tableaux de bord, vues, groupes) et `tools/repack.py`.
+- **`openssl`**, pour créer le certificat du registre (étape 1).
+- **Un accès root**, une seule fois, pour copier ce certificat dans `/etc/docker/certs.d/<registre>/ca.crt`. Le Docker du jumphost doit lui aussi faire confiance au registre avant de pouvoir y pousser l'image.
+- **Un accès sortant** vers GitHub, Docker Hub et PyPI, pour le dépôt, les images `python:3.11-slim` et `registry:2` et le paquet du SDK.
+- **TCP 443 vers chaque manager NSX**, Global Managers et Local Managers, pour l'exécution locale des tests (`tools/localrun.py`).
+- **Le port du registre ouvert au proxy cloud**, 5000 dans le lab. Ici, le proxy cloud l'atteint à travers le routeur du lab.
+
+Deux autres outils ne servent qu'à certaines étapes et peuvent se trouver sur un autre hôte :
+
+- `govc`, avec un accès au vCenter qui héberge la VM du proxy cloud, pour copier le certificat sur le proxy cloud (étape 2).
+- `google-chrome`, `node` et le module Python `requests`, pour l'installation scriptée du pack non signé (étape 3, méthode 2), avec un accès HTTPS à VCF Operations.
+
 Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente du jumphost ; ils s'exécutent donc depuis une petite image d'outillage :
 
 *Se trouve dans : `tooling/Dockerfile` du dépôt, construit sur le jumphost.*

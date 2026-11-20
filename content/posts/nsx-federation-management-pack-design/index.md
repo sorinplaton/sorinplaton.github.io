@@ -148,6 +148,18 @@ VCF Operations offers two ways to build a pack: the no-code Management Pack Buil
 
 The cost is on the build side. An SDK adapter is a container image, so the build needs Python tooling and Docker, and the collector pulls the image from a container registry it can reach.
 
+## The Integration SDK in short
+
+The [Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction) is a set of tools and a Python library for writing a management pack in code. The library models the objects that the pack sends to VCF Operations, with their metrics, properties, events and relationships. Each adapter is a container image with an HTTP server that calls the pack's code, and it runs on a cloud proxy. Three commands cover the work: `mp-init` creates the project, `mp-test` runs the adapter locally against a simulated VCF Operations, and `mp-build` packages the adapter, its metadata and its content into a `.pak` file.
+
+## The limits of the Management Pack Builder
+
+The Management Pack Builder is the no-code route: a pack is designed in screens of VCF Operations, "without writing a single line of code" ([VMware blog](https://blogs.vmware.com/cloud-foundation/2026/02/04/extending-visibility-with-vmware-cloud-foundations-management-pack-builder/)). For this pack, three of its limits weigh more than the build cost of the SDK.
+
+- **No code.** Detecting the active Global Manager in every cycle, checking certificate thumbprints and computing a version gap or a storm-safe location state all need logic that the designer screens do not hold.
+- **The version break.** After an upgrade of VCF Operations to 9.1.1, custom packs built with an earlier version of the builder stop collecting, and their objects show stale or missing metrics, properties and alerts. The fix is per pack: open each design in the updated builder, make a small change so that the builder registers a modification, run the upgrade in the install step and check that the adapter instances return to "Data Receiving" (Broadcom KB [454434](https://knowledge.broadcom.com/external/article/454434)). Some of Broadcom's own packs also needed their 9.1.1 versions after the same upgrade (KB [454432](https://knowledge.broadcom.com/external/article/454432)). A builder pack is repaired in the builder, one design at a time; an SDK pack is rebuilt from its own source.
+- **Events and alerts.** The builder shipped with VCF 9.0 dropped the direct mapping of polled events to alerts. A Broadcom employee answered on the [community forum](https://community.broadcom.com/vmware-cloud-foundation/discussion/vcf-ops-v9-built-in-pack-builder-is-inferior) that VCF Operations has other means to raise alerts from events and that there are no plans to bring the mapping back, though he would raise it with the team.
+
 ## Open at the end of part 1
 
 - Install the SDK tooling and pick the registry.
@@ -161,6 +173,10 @@ The cost is on the build side. An SDK adapter is a container image, so the build
 
 - Lab: VCF 9.1.1, NSX 9.1.1 (Local Managers and Global Manager), VCF Operations 9.1.1. All API calls in this post were run on 17 November 2026.
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
+- Broadcom KB [454434](https://knowledge.broadcom.com/external/article/454434): packs built with Management Pack Builder do not collect after the upgrade to VCF Operations 9.1.1
+- Broadcom KB [454432](https://knowledge.broadcom.com/external/article/454432): management packs not collecting data after the upgrade to VCF Operations 9.1.1
+- [VMware blog: extending visibility with the Management Pack Builder](https://blogs.vmware.com/cloud-foundation/2026/02/04/extending-visibility-with-vmware-cloud-foundations-management-pack-builder/)
+- [Broadcom community: the built-in pack builder in VCF Operations 9](https://community.broadcom.com/vmware-cloud-foundation/discussion/vcf-ops-v9-built-in-pack-builder-is-inferior)
 - Broadcom KB [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html): split-brain after a Global Manager switchover
 - Broadcom KB [378126](https://knowledge.broadcom.com/external/article/378126/nsx-apis-throws-error-message-client-ex.html): NSX API client rate limits
 - Broadcom KB [345822](https://knowledge.broadcom.com/external/article/345822/gm-to-lm-network-latency-threshold-excee.html): Global Manager to Local Manager latency alarm

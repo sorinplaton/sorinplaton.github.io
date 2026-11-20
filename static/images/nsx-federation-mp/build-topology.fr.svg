@@ -79,7 +79,7 @@
 <circle cx="102" cy="679.0" r="22" fill="#5b3fa0"/>
 <g transform="translate(90,667.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><path d="M2 12 H22"/></g>
 <text x="136" y="674.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">Global Managers</text>
-<text x="136" y="694.0" font-size="12.5" fill="#5f6b78" text-anchor="start">nsx-gm-01a actif · nsx-gm-01b secours</text>
+<text x="136" y="694.0" font-size="12.5" fill="#5f6b78" text-anchor="start">nsx-gm-01a actif · nsx-gm-01b standby</text>
 <rect x="412" y="640" width="268" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
 <rect x="412" y="640" width="5" height="78" rx="2.5" fill="#5b3fa0"/>
 <circle cx="452" cy="679.0" r="22" fill="#5b3fa0"/>

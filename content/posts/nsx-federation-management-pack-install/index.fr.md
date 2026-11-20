@@ -16,17 +16,17 @@ La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur u
 
 ## Le lab
 
-Le lab est un environnement VCF 9.1.1. Il compte deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Global Manager de secours. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur un jumphost Linux équipé de Docker, 10.0.6.27. Ce même jumphost héberge le registre d'images, sur le port 5000.
+Le lab est un environnement VCF 9.1.1. Il compte deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Standby Global Manager. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur un jumphost Linux équipé de Docker, 10.0.6.27. Ce même jumphost héberge le registre d'images, sur le port 5000.
 
-![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le secours nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le proxy cloud opscollector-01a, et le jumphost qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg?v=4)
+![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le standby nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le proxy cloud opscollector-01a, et le jumphost qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg?v=5)
 
-Le Global Manager de secours a été déployé à partir de la même appliance 9.1.1 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de gestion. Il a été enregistré sur le Global Manager actif par l'API, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants du compte admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes.
+Le Standby Global Manager a été déployé à partir de la même appliance 9.1.1 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de gestion. Il a été enregistré sur le Global Manager actif par l'API, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants du compte admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes.
 
 ## Construire l'adaptateur
 
 Le schéma ci-dessous montre le chemin du code source jusqu'à l'adaptateur qui tourne sur le proxy cloud. Les étapes de construction et d'installation qui suivent le reprennent dans l'ordre.
 
-![Construction et déploiement du pack : le dépôt GitHub est cloné sur le jumphost, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS du jumphost, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg?v=3)
+![Construction et déploiement du pack : le dépôt GitHub est cloné sur le jumphost, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS du jumphost, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg?v=4)
 
 Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente du jumphost ; ils s'exécutent donc depuis une petite image d'outillage :
 
@@ -203,7 +203,7 @@ Le pack définit 15 types d'objets. Dans le lab, il crée 72 objets de 14 types.
 | Type d'objet | Nombre dans le lab | Exemples de données collectées |
 | --- | --- | --- |
 | Fédération | 1 | Global Managers actifs, emplacements en bonne santé et interrogés, agrégats RTEP, erreurs d'API, managers ayant dépassé leur quota d'appels |
-| Global Manager | 2 | Global Manager de secours synchronisé ou non et depuis combien de temps il ne l'est plus, entrées restant à lui envoyer, dernière synchronisation complète, version comparée à celle du Global Manager actif, état de la mise à niveau, état de la sauvegarde, alarmes ouvertes, jours restants avant la première expiration de certificat |
+| Global Manager | 2 | Standby Global Manager synchronisé ou non et depuis combien de temps il ne l'est plus, entrées restant à lui envoyer, dernière synchronisation complète, version comparée à celle du Global Manager actif, état de la mise à niveau, état de la sauvegarde, alarmes ouvertes, jours restants avant la première expiration de certificat |
 | Nœud de manager | 4 | État en ligne de chaque nœud de Global Manager et de Local Manager |
 | Emplacement | 2 | Connexion au Global Manager, flux de réplication, dernier contact avec le Global Manager, état de l'onboarding, joignable ou non depuis le proxy cloud et temps écoulé depuis la dernière collecte, nœuds en ligne, échecs et durée de la synchronisation complète, sessions BGP intersites, alarmes, version, état de la mise à niveau |
 | Canal de synchronisation | 9 | État de la connexion entre deux managers |
@@ -243,7 +243,7 @@ Les métriques sont rangées en groupes, comme dans les intégrations natives :
 
 ![Onglet « Metrics » du Global Manager gm-site-a : les groupes Alarms, Certificates, Cluster, Connectivity et Sync, et la courbe de « Standby sync healthy (1 = in sync) » à 1](/images/nsx-federation-mp/ops-metric-groups.webp)
 
-Dix-huit métriques sont marquées comme indicateurs clés, trois au plus par type d'objet : les Global Managers actifs et la part d'emplacements en bonne santé sur la fédération, les nœuds hors ligne et la synchronisation du Global Manager de secours sur un Global Manager, la connexion et la synchronisation complète d'un emplacement, BGP et les paquets rejetés sur un tunnel, etc. VCF Operations les affiche en premier dans le résumé de l'objet :
+Dix-huit métriques sont marquées comme indicateurs clés, trois au plus par type d'objet : les Global Managers actifs et la part d'emplacements en bonne santé sur la fédération, les nœuds hors ligne et la synchronisation du Standby Global Manager sur un Global Manager, la connexion et la synchronisation complète d'un emplacement, BGP et les paquets rejetés sur un tunnel, etc. VCF Operations les affiche en premier dans le résumé de l'objet :
 
 ![Résumé de gm-site-a : l'alerte de sauvegarde ouverte et, à droite, les indicateurs clés « Nodes offline 0 » et « Standby sync healthy (1 = in sync) 1 »](/images/nsx-federation-mp/ops-key-attributes.webp)
 
@@ -302,8 +302,8 @@ Les 63 définitions se répartissent ainsi par type d'objet :
 
 | Type d'objet | Définitions | Alertes |
 | --- | --- | --- |
-| Fédération | 9 | Aucun Global Manager actif ; split-brain (deux Global Managers actifs) ; Global Manager injoignable depuis le proxy cloud ; aucun Global Manager de secours configuré ; collecte partielle (quota d'appels d'API épuisé) ; collecte avec des données manquantes ; collecte lente ou bridée ; collecte sans Global Manager ; Global Manager de la liste appartenant à une autre fédération |
-| Global Manager | 20 | Cluster dégradé ; sauvegarde absente, trop ancienne ou en échec ; certificat proche de l'expiration ; Global Manager de secours non synchronisé ; aucun rôle dans la fédération (mode NONE) ; version différente de celle du Global Manager actif ; mise à niveau NSX en cours, en pause ou en échec ; 13 alarmes de fédération NSX (voir ci-dessous) |
+| Fédération | 9 | Aucun Global Manager actif ; split-brain (deux Global Managers actifs) ; Global Manager injoignable depuis le proxy cloud ; aucun Standby Global Manager configuré ; collecte partielle (quota d'appels d'API épuisé) ; collecte avec des données manquantes ; collecte lente ou bridée ; collecte sans Global Manager ; Global Manager de la liste appartenant à une autre fédération |
+| Global Manager | 20 | Cluster dégradé ; sauvegarde absente, trop ancienne ou en échec ; certificat proche de l'expiration ; Standby Global Manager non synchronisé ; aucun rôle dans la fédération (mode NONE) ; version différente de celle du Global Manager actif ; mise à niveau NSX en cours, en pause ou en échec ; 13 alarmes de fédération NSX (voir ci-dessous) |
 | Emplacement | 21 | Connexion au Global Manager actif perdue ; Local Manager injoignable depuis le proxy cloud ; certificat non approuvé ; synchronisation complète non terminée ; sessions BGP intersites tombées ; release NSX différente de celle du Global Manager ; sauvegarde absente, trop ancienne ou en échec ; certificat proche de l'expiration ; cluster du Local Manager dégradé ; flux de réplication en erreur ; release NSX plus récente que celle du Global Manager ; mise à niveau NSX en cours, en pause ou en échec ; 9 alarmes de fédération NSX |
 | Canal de synchronisation | 1 | Canal interrompu |
 | Cluster Edge | 1 | État intersite différent de UP |
@@ -317,9 +317,9 @@ L'alerte du nœud Edge ne se déclenche que lorsque le nœud a perdu toutes ses 
 
 Chaque alerte définit aussi le badge sur lequel elle pèse et la vitesse à laquelle elle réagit :
 
-- **Badge.** Quatorze alertes font baisser le badge « Risk » au lieu du badge « Health » : les deux alertes de sauvegarde, les deux alertes d'expiration de certificat, le certificat non approuvé, l'absence de Global Manager de secours, l'écart de release, le quota d'appels, les données manquantes, la collecte lente ou bridée, les Global Managers de versions différentes, l'emplacement en avance sur le Global Manager et les deux alertes de mise à niveau. Ces conditions poseront problème plus tard ; « Health » reste réservé à ce qui est déjà en panne.
-- **Cycles d'attente et d'annulation.** Dix symptômes susceptibles d'osciller exigent deux cycles de collecte, soit 10 minutes, pour déclencher une alerte, et deux pour l'effacer : flux de réplication en erreur ; canal de synchronisation interrompu ; sessions BGP intersites tombées, ou aucune établie, sur l'emplacement ; aucune session intersite sur le nœud Edge ; BGP intersite tombé sur le tunnel ; paquets rejetés sur le tunnel, en réception et en émission ; voisin BGP du Tier-0 tombé ; aucun préfixe reçu. Les données manquantes et la collecte lente attendent aussi deux cycles, tout comme une synchronisation complète non terminée et un objet étendu non réalisé : une synchronisation ou une modification en cours ne déclenche donc rien. Le seuil dynamique, la synchronisation du Global Manager de secours et le bridage en attendent trois. Les symptômes de panne s'effacent après trois cycles (voir « Comportement de la collecte »).
-- **Sous-type Compliance.** Six alertes portent le sous-type Compliance : l'absence de Global Manager de secours, les deux alertes de sauvegarde, les Global Managers de versions différentes et les deux alertes de release d'un emplacement. Dans VCF Operations 9.1, la page « Compliance » affiche un bandeau qui indique que l'ancienne fonction Compliance est obsolète dans VCF 9.1 et qui renvoie vers Security Posture Management : le sous-type ne sert donc qu'à classer les alertes.
+- **Badge.** Quatorze alertes font baisser le badge « Risk » au lieu du badge « Health » : les deux alertes de sauvegarde, les deux alertes d'expiration de certificat, le certificat non approuvé, l'absence de Standby Global Manager, l'écart de release, le quota d'appels, les données manquantes, la collecte lente ou bridée, les Global Managers de versions différentes, l'emplacement en avance sur le Global Manager et les deux alertes de mise à niveau. Ces conditions poseront problème plus tard ; « Health » reste réservé à ce qui est déjà en panne.
+- **Cycles d'attente et d'annulation.** Dix symptômes susceptibles d'osciller exigent deux cycles de collecte, soit 10 minutes, pour déclencher une alerte, et deux pour l'effacer : flux de réplication en erreur ; canal de synchronisation interrompu ; sessions BGP intersites tombées, ou aucune établie, sur l'emplacement ; aucune session intersite sur le nœud Edge ; BGP intersite tombé sur le tunnel ; paquets rejetés sur le tunnel, en réception et en émission ; voisin BGP du Tier-0 tombé ; aucun préfixe reçu. Les données manquantes et la collecte lente attendent aussi deux cycles, tout comme une synchronisation complète non terminée et un objet étendu non réalisé : une synchronisation ou une modification en cours ne déclenche donc rien. Le seuil dynamique, la synchronisation du Standby Global Manager et le bridage en attendent trois. Les symptômes de panne s'effacent après trois cycles (voir « Comportement de la collecte »).
+- **Sous-type Compliance.** Six alertes portent le sous-type Compliance : l'absence de Standby Global Manager, les deux alertes de sauvegarde, les Global Managers de versions différentes et les deux alertes de release d'un emplacement. Dans VCF Operations 9.1, la page « Compliance » affiche un bandeau qui indique que l'ancienne fonction Compliance est obsolète dans VCF 9.1 et qui renvoie vers Security Posture Management : le sous-type ne sert donc qu'à classer les alertes.
 - **Seuils.** L'ancienneté maximale de la sauvegarde (24 heures) et le délai d'avertissement avant expiration d'un certificat (30 jours) sont fixés dans les symptômes. Une politique VCF Operations peut remplacer le seuil d'un symptôme par une autre valeur.
 - **Seuil dynamique.** L'alerte de trafic du tunnel compare les débits en réception et en émission à la plage que VCF Operations apprend pour chaque tunnel. Elle a besoin de plusieurs jours d'historique avant de pouvoir se déclencher.
 
@@ -351,7 +351,7 @@ Trois tableaux de bord sont regroupés dans un dossier nommé « NSX Federation
 
 Dans chaque tableau de bord, une liste alimente un widget « Scoreboard ». Dans Federation Overview et Inter-site Connectivity, un clic sur l'une des valeurs de ce widget en affiche la courbe de tendance.
 
-Federation Overview avec gm-site-a sélectionné. Le widget « Scoreboard » d'un Global Manager commence par la synchronisation du Global Manager de secours, et les alertes ouvertes sont celles de la sauvegarde et de la mise à niveau en pause :
+Federation Overview avec gm-site-a sélectionné. Le widget « Scoreboard » d'un Global Manager commence par la synchronisation du Standby Global Manager, et les alertes ouvertes sont celles de la sauvegarde et de la mise à niveau en pause :
 
 ![Le tableau de bord Federation Overview : deux définitions d'alerte ouvertes (sauvegarde, mise à niveau en pause), la liste avec gm-site-a et gm-site-b, et le widget « Scoreboard » de gm-site-a avec Standby in sync à 1, les nœuds hors ligne à 0 et l'expiration des certificats](/images/nsx-federation-mp/ops-dashboard-standby.webp)
 
@@ -410,13 +410,13 @@ Les canaux de synchronisation ont une seconde propriété du même type. Les can
 
 Une seconde panne sans rapport, sur les objets de l'emplacement touché, ne déclenche aucune alerte tant que la première dure. Ses métriques et ses propriétés restent collectées.
 
-### Le Global Manager de secours
+### Le Standby Global Manager
 
-Quatre métriques décrivent le Global Manager de secours : synchronisation en bon état (1 lorsqu'il est synchronisé), entrées restant à envoyer, minutes sans synchronisation et heures écoulées depuis la dernière synchronisation complète. Le Global Manager actif les expose pour chacun de ses secours, et chaque secours expose son propre état de synchronisation. Le secours compte comme synchronisé lorsque NSX le signale comme tel, ou lorsqu'une synchronisation différentielle fonctionne après une synchronisation complète terminée. Tout autre état compte comme non synchronisé. NSX 9.1 indique ONGOING comme état normal du secours, avec une synchronisation différentielle, une synchronisation complète terminée et aucune entrée restant à envoyer : le libellé de l'état ne peut donc pas servir de test à lui seul. L'alerte « Standby Global Manager is not in sync » se déclenche après trois cycles et s'efface après deux. Dans le lab, la métrique vaut 1 et aucune entrée ne reste à envoyer.
+Quatre métriques décrivent le Standby Global Manager : synchronisation en bon état (1 lorsqu'il est synchronisé), entrées restant à envoyer, minutes sans synchronisation et heures écoulées depuis la dernière synchronisation complète. Le Global Manager actif les expose pour chacun de ses standby, et chaque standby expose son propre état de synchronisation. Le standby compte comme synchronisé lorsque NSX le signale comme tel, ou lorsqu'une synchronisation différentielle fonctionne après une synchronisation complète terminée. Tout autre état compte comme non synchronisé. NSX 9.1 indique ONGOING comme état normal du standby, avec une synchronisation différentielle, une synchronisation complète terminée et aucune entrée restant à envoyer : le libellé de l'état ne peut donc pas servir de test à lui seul. L'alerte « Standby Global Manager is not in sync » se déclenche après trois cycles et s'efface après deux. Dans le lab, la métrique vaut 1 et aucune entrée ne reste à envoyer.
 
 ### Versions et mises à niveau
 
-NSX Federation se met à niveau dans un ordre fixe : le Global Manager de secours, le Global Manager actif, puis les Local Managers. Trois conditions rompent cet ordre ou bloquent des opérations, et chacune a son alerte : les Global Managers exécutent des versions différentes, auquel cas NSX refuse un basculement ; un emplacement exécute une release plus récente que celle du Global Manager ; une mise à niveau est en cours, en pause ou en échec sur un manager. L'état de la mise à niveau provient du coordinateur de mise à niveau de chaque manager (`/api/v1/upgrade/summary`).
+NSX Federation se met à niveau dans un ordre fixe : le Standby Global Manager, le Global Manager actif, puis les Local Managers. Trois conditions rompent cet ordre ou bloquent des opérations, et chacune a son alerte : les Global Managers exécutent des versions différentes, auquel cas NSX refuse un basculement ; un emplacement exécute une release plus récente que celle du Global Manager ; une mise à niveau est en cours, en pause ou en échec sur un manager. L'état de la mise à niveau provient du coordinateur de mise à niveau de chaque manager (`/api/v1/upgrade/summary`).
 
 L'alerte de release compare les trois premiers nombres de la version NSX. Les Local Managers et les Global Managers du lab exécutent la même release, 9.1.1, à deux niveaux de correctif, ce qui ne déclenche aucune alerte.
 
@@ -450,9 +450,9 @@ La règle a été testée sur le lab sans provoquer de panne. Le compte étant a
 
 ### Test de basculement
 
-Un basculement planifié a été mené le 19 novembre, pour observer ce que le pack signale lorsque le rôle actif change de Global Manager. Le basculement tient en un seul appel sur le Global Manager de secours, l'équivalent, par l'API, de « Make Active » dans « Location Manager » :
+Un basculement planifié a été mené le 19 novembre, pour observer ce que le pack signale lorsque le rôle actif change de Global Manager. Le basculement tient en un seul appel sur le Standby Global Manager, l'équivalent, par l'API, de « Make Active » dans « Location Manager » :
 
-*À exécuter sur : le jumphost, vers l'API du Global Manager de secours.*
+*À exécuter sur : le jumphost, vers l'API du Standby Global Manager.*
 
 ```
 PATCH https://<standby-gm>/global-manager/api/v1/global-infra/global-managers/gm-site-b
@@ -465,16 +465,16 @@ Le même appel en PUT, avec l'objet complet, a été refusé avec `Global Manage
 | --- | --- | --- |
 | 07:26:31 | Basculement vers gm-site-b demandé ; vérification préalable | |
 | 07:27 | | Cycle pendant la vérification préalable : gm-site-a actif, un seul Global Manager actif |
-| 07:28 | gm-site-a passe en secours | |
+| 07:28 | gm-site-a passe en standby | |
 | 07:29:10 | Basculement terminé | |
-| 07:32 | | Premier cycle complet : gm-site-b actif, gm-site-a en secours, tous deux joignables, les deux emplacements connectés, secours synchronisé |
+| 07:32 | | Premier cycle complet : gm-site-b actif, gm-site-a en standby, tous deux joignables, les deux emplacements connectés, standby synchronisé |
 | 07:42:32 | Retour vers gm-site-a demandé | |
 | 07:44:35 | Retour terminé | |
-| 07:52 | | gm-site-a de nouveau actif, secours synchronisé |
+| 07:52 | | gm-site-a de nouveau actif, standby synchronisé |
 
 Chaque basculement a duré environ deux minutes. Le pack a suivi le rôle actif dès son premier cycle après le changement, sans modification du compte, puisque celui-ci contient les deux adresses. Aucune alerte ne s'est ouverte ni fermée pendant le test. Pendant environ une minute, au cours de la vérification préalable, le nouveau Global Manager actif a présenté les deux Global Managers comme actifs. Le pack a tout de même compté un seul Global Manager actif et n'a déclenché aucune alerte de split-brain.
 
-Après un basculement, l'ancien Global Manager actif devient le Global Manager de secours et expose sa propre valeur de synchronisation, comme le décrit la section « Le Global Manager de secours ».
+Après un basculement, l'ancien Global Manager actif devient le Standby Global Manager et expose sa propre valeur de synchronisation, comme le décrit la section « Le Standby Global Manager ».
 
 Un basculement planifié ne laisse jamais la fédération sans Global Manager actif : les alertes « aucun Global Manager actif » et « Global Manager injoignable » ne se sont donc pas déclenchées, comme prévu.
 

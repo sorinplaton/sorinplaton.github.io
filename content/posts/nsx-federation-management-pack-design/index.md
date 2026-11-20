@@ -66,7 +66,7 @@ Every call below is a GET and was run against the live managers. The Global Mana
 curl -sk -u "$NSX_USER:$NSX_PW" https://nsx-gm-01a.site-a.vcf.lab/api/v1/sites/status
 ```
 
-*Output: the answer of the Global Manager to the call above.*
+*Output: the Global Manager's response to the call above.*
 
 ```json
 {"remote_connections": [
@@ -75,7 +75,7 @@ curl -sk -u "$NSX_USER:$NSX_PW" https://nsx-gm-01a.site-a.vcf.lab/api/v1/sites/s
  "active_standby_sync_statuses": []}
 ```
 
-The addresses in the answer, 10.1.1.25 and 10.1.1.81, are the node addresses of the two Local Managers. The same call on a Local Manager returns its view of the Global Manager and of the other location. Collected from every manager, it tells "the Global Manager lost a location" apart from "two locations lost each other".
+The addresses in the response, 10.1.1.25 and 10.1.1.81, are the node addresses of the two Local Managers. The same call on a Local Manager returns its view of the Global Manager and of the other location. Collected from every manager, it tells "the Global Manager lost a location" apart from "two locations lost each other".
 
 **Is a stretched object realized everywhere?** One call per object, on the Global Manager:
 
@@ -86,7 +86,7 @@ curl -sk -u "$NSX_USER:$NSX_PW" \
  "https://nsx-gm-01a.site-a.vcf.lab/global-manager/api/v1/global-infra/realized-state/status?intent_path=/global-infra/segments/fed-stretched"
 ```
 
-The answer carries a consolidated status and one status per location (`SUCCESS` for both here). The companion call `/global-infra/span?intent_path=...` lists the locations the object is supposed to reach.
+The response carries a consolidated status and one status per location (`SUCCESS` for both here). The companion call `/global-infra/span?intent_path=...` lists the locations the object is supposed to reach.
 
 **Are the cross-location tunnels up?** This lives on the Local Managers, per edge cluster and per edge node:
 
@@ -117,11 +117,11 @@ The full map, as verified:
 
 ## Step 3: the object model
 
-A management pack starts with an object model: which things exist, what identifies them, and which object is the parent of which. The first draft has 12 types in four chains, shown in the diagram below. It still models edge nodes, gateways and segments itself, and step 5 comes back to that. As built, the pack has 15 types ([part 2](/posts/nsx-federation-management-pack-install/)).
+A management pack starts with an object model: which things exist, what identifies them, and which object is the parent of which. The first draft has 12 types in four chains, shown in the diagram below. It models edge nodes, gateways and segments itself, and step 5 explains why the pack as built still does. The pack as built has 15 types: these 12, plus the federation itself, the sync channel between two managers and the realization of a stretched object at each location ([part 2](/posts/nsx-federation-management-pack-install/)).
 
 ![Object model: Global Manager to Manager node; Location to Edge cluster to Edge node to RTEP tunnel; Tier-0 gateway to Tier-1 gateway to Segment, with BGP neighbor under Tier-0; Global policy to Rule](/images/nsx-federation-mp/object-model.svg?v=2)
 
-Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over. As built, a sync channel is identified by the names NSX gives its two ends, a location or a Global Manager, as in `site-a-wld01 -> gm-site-a`.
+Identifiers come from NSX, never from a manager address: the federation id and site id for managers and locations, the location and node name for edge nodes, the RTEP and peer addresses for tunnels and BGP sessions, the global policy path for gateways, segments and policies. An object keyed on an IP address or FQDN becomes a second object, with no history, the day a virtual IP changes or a Global Manager fails over. In the pack as built, a sync channel is identified by the names NSX gives its two ends, a location or a Global Manager, as in `site-a-wld01 -> gm-site-a` (`gm-site-a` is the name of `nsx-gm-01a` in the federation).
 
 ## Step 4: metrics and properties
 
@@ -139,13 +139,13 @@ Each object type gets a short list. Metrics are numbers kept over time; properti
 
 ## Step 5: reviewing the design for enterprise scale
 
-The design was then reviewed against an enterprise target: three-node Global Manager clusters in an active and a standby site, many locations and thousands of stretched objects. The review changed the collection. The adapter follows the active Global Manager and reports standby readiness from the first release, rules are counted per policy, each Local Manager gets an API call budget, and sync health comes from the sync status and the full-sync failures instead of the age of the last full sync. It changed the alerts too: a lost location raises one alert instead of a storm, and the pack reports on its own collection so that "no data" is never read as "healthy" ([part 2](/posts/nsx-federation-management-pack-install/) shows how each point was built).
+The design was then reviewed against an enterprise target: three-node Global Manager clusters in an active and a standby site, many locations and thousands of stretched objects. The review changed the collection. The adapter follows the active Global Manager and reports standby readiness from the first release, rules are counted on their policy and become objects only for the policies selected on the account, each Local Manager gets an API call budget, and sync health comes from the sync status and the full-sync failures. It changed the alerts too: a lost location raises one alert instead of a storm, and the pack reports on its own collection so that "no data" is never read as "healthy" ([part 2](/posts/nsx-federation-management-pack-install/) shows how each point was built).
 
-The review also asked for reuse of the built-in Edge objects. As built, the pack keeps its own edge cluster, edge node, gateway and segment objects and links its edge objects to the built-in ones, because the built-in integration does not collect the global objects or a Local Manager it does not monitor.
+The review also asked for reuse of the built-in Edge objects. The pack as built keeps its own edge cluster, edge node, gateway and segment objects and links its edge objects to the built-in ones, because the built-in integration does not collect the global objects and covers only the Local Managers that have an account in it.
 
 ## Step 6: the build route
 
-VCF Operations offers two ways to build a pack: the no-code Management Pack Builder and the Integration SDK. The SDK was chosen because one adapter instance has to query several managers, discover the Local Managers from the Global Manager and follow a Global Manager failover. The derived values, such as a version gap or a storm-safe location state, also need code.
+VCF Operations offers two ways to build a pack: the no-code Management Pack Builder and the Integration SDK. The SDK was chosen because one adapter instance has to query several managers, discover the Local Managers from the Global Manager and follow a Global Manager failover. The derived values, such as a version gap or a location state that does not set off an alert storm, and the check of certificate thumbprints also need code.
 
 The cost is on the build side. An SDK adapter is a container image, so the build needs Python tooling and Docker, and the collector pulls the image from a container registry it can reach.
 
@@ -155,17 +155,15 @@ The [Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration
 
 ## The limits of the Management Pack Builder
 
-The Management Pack Builder is the no-code route: a pack is designed in screens of VCF Operations, "without writing a single line of code" ([VMware blog](https://blogs.vmware.com/cloud-foundation/2026/02/04/extending-visibility-with-vmware-cloud-foundations-management-pack-builder/)). For this pack, three of its limits weigh more than the build cost of the SDK.
+The Management Pack Builder is the no-code route: a pack is designed in screens of VCF Operations, "without writing a single line of code" ([VMware blog](https://blogs.vmware.com/cloud-foundation/2026/02/04/extending-visibility-with-vmware-cloud-foundations-management-pack-builder/)). Beyond the lack of code, two of its limits weigh more than the build cost of the SDK.
 
-- **No code.** Detecting the active Global Manager in every cycle, checking certificate thumbprints and computing a version gap or a storm-safe location state all need logic that the designer screens do not hold.
 - **The version break.** After an upgrade of VCF Operations to 9.1.1, custom packs built with an earlier version of the builder stop collecting, and their objects show stale or missing metrics, properties and alerts. The fix is per pack: open each design in the updated builder, make a small change so that the builder registers a modification, run the upgrade in the install step and check that the adapter instances return to "Data Receiving" (Broadcom KB [454434](https://knowledge.broadcom.com/external/article/454434)). Some of Broadcom's own packs also needed their 9.1.1 versions after the same upgrade (KB [454432](https://knowledge.broadcom.com/external/article/454432)). A builder pack is repaired in the builder, one design at a time; an SDK pack is rebuilt from its own source.
 - **Events and alerts.** The builder shipped with VCF 9.0 dropped the direct mapping of polled events to alerts. A Broadcom employee answered on the [community forum](https://community.broadcom.com/vmware-cloud-foundation/discussion/vcf-ops-v9-built-in-pack-builder-is-inferior) that VCF Operations has other means to raise alerts from events and that there are no plans to bring the mapping back, though he would raise it with the team.
 
 ## Open at the end of part 1
 
 - Install the SDK tooling and pick the registry.
-- Decide how far the pack extends the built-in NSX objects.
-- Build the collector core against the lab, with a mock for the cases the lab cannot show: a standby Global Manager, a switchover, twenty locations.
+- Build the collector core against the lab, with a mock for what a two-location lab cannot show, such as hundreds of stretched objects.
 - Find the API call behind the latency that the Location Manager page shows.
 
 [Part 2](/posts/nsx-federation-management-pack-install/) covers the build, the install and what the pack monitors.
@@ -178,6 +176,3 @@ The Management Pack Builder is the no-code route: a pack is designed in screens 
 - Broadcom KB [454432](https://knowledge.broadcom.com/external/article/454432): management packs not collecting data after the upgrade to VCF Operations 9.1.1
 - [VMware blog: extending visibility with the Management Pack Builder](https://blogs.vmware.com/cloud-foundation/2026/02/04/extending-visibility-with-vmware-cloud-foundations-management-pack-builder/)
 - [Broadcom community: the built-in pack builder in VCF Operations 9](https://community.broadcom.com/vmware-cloud-foundation/discussion/vcf-ops-v9-built-in-pack-builder-is-inferior)
-- Broadcom KB [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html): split-brain after a Global Manager switchover
-- Broadcom KB [378126](https://knowledge.broadcom.com/external/article/378126/nsx-apis-throws-error-message-client-ex.html): NSX API client rate limits
-- Broadcom KB [345822](https://knowledge.broadcom.com/external/article/345822/gm-to-lm-network-latency-threshold-excee.html): Global Manager to Local Manager latency alarm

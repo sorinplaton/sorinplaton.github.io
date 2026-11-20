@@ -13,8 +13,8 @@
 <rect x="56" y="107" width="83.19999999999999" height="26" rx="13" fill="#3a4654"/>
 <text x="70" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">GITHUB</text>
 <rect x="330" y="120" width="590" height="330" rx="16" fill="#eef8f7" stroke="#0b7a75" stroke-opacity="0.35" stroke-width="1.5"/>
-<rect x="346" y="107" width="221.2" height="26" rx="13" fill="#0b7a75"/>
-<text x="360" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">JUMP HOST · 10.0.6.27</text>
+<rect x="346" y="107" width="110.8" height="26" rx="13" fill="#0b7a75"/>
+<text x="360" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">JUMP HOST</text>
 <rect x="960" y="120" width="600" height="330" rx="16" fill="#eff4fc" stroke="#1f4e9c" stroke-opacity="0.35" stroke-width="1.5"/>
 <rect x="976" y="107" width="156.79999999999998" height="26" rx="13" fill="#1f4e9c"/>
 <text x="990" y="125" font-size="12.5" fill="#ffffff" text-anchor="start" font-weight="700" letter-spacing="1">VCF OPERATIONS</text>
@@ -91,7 +91,7 @@
 <circle cx="942" cy="679.0" r="22" fill="#b25e00"/>
 <g transform="translate(930,667.0)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="11" rx="2"/><path d="M8 11 V7 A4 4 0 0 1 16 7 V11"/><circle cx="12" cy="16.5" r="1.5" fill="#ffffff"/></g>
 <text x="976" y="674.0" font-size="15.5" fill="#1d2733" text-anchor="start" font-weight="700">Docker trust</text>
-<text x="976" y="694.0" font-size="12.5" fill="#5f6b78" text-anchor="start">certs.d/10.0.6.27:5000/ca.crt</text>
+<text x="976" y="694.0" font-size="12.5" fill="#5f6b78" text-anchor="start">certs.d/&lt;registry&gt;/ca.crt</text>
 <rect x="1238" y="640" width="300" height="78" rx="12" fill="#ffffff" stroke="#d5dbe1" filter="url(#sh)"/>
 <rect x="1238" y="640" width="5" height="78" rx="2.5" fill="#b25e00"/>
 <circle cx="1278" cy="679.0" r="22" fill="#b25e00"/>

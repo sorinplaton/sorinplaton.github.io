@@ -28,7 +28,7 @@ The standby was deployed from the same 9.1.1 appliance as the active Global Mana
 
 The figure below shows the path from the source code to the adapter running on the cloud proxy.
 
-![Build and deployment of the pack: the GitHub repository is cloned on the jump host, the tooling container builds the image and the .pak, the image goes to the HTTPS registry on the jump host, the .pak is installed in VCF Operations with the unsigned PAK switch on, the account deploys the adapter on the cloud proxy, which pulls the image by digest through the lab router, reads the Global Managers and Local Managers over their REST API, and sends the data to the analytics node](/images/nsx-federation-mp/build-topology.svg?v=4)
+![Build and deployment of the pack: the GitHub repository is cloned on the jump host, the tooling container builds the image and the .pak, the image goes to the HTTPS registry on the jump host, the .pak is installed in VCF Operations with the unsigned PAK switch on, the account deploys the adapter on the cloud proxy, which pulls the image by digest through the lab router, reads the Global Managers and Local Managers over their REST API, and sends the data to the analytics node](/images/nsx-federation-mp/build-topology.svg?v=5)
 
 ### Jump host prerequisites
 
@@ -74,7 +74,7 @@ One account monitors one federation. A listed Global Manager that answers for an
 
 An SDK pack is not self-contained. The `.pak` file carries the object definitions and a pointer to a container image. The cloud proxy pulls that image from a registry when the adapter instance starts.
 
-`mp-build` builds the pack and pushes the adapter image to the registry, so the registry of install step 1 must be running, and trusted by the jump host's Docker, before the build. The full command is in step 4 of [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.md). When the registry address is given as `host:port`, `mp-build` writes Docker Hub into the pack instead of that address. A short script, `tools/repack.py`, rewrites two values, `REGISTRY` and `REPOSITORY`, in the `.conf` file inside `adapter.zip`:
+`mp-build` builds the pack and pushes the adapter image to the registry, so the registry of install step 1 must be running, and trusted by the jump host's Docker, before the build. The full command is in step 4 of [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.10/docs/INSTALL.md). When the registry address is given as `host:port`, `mp-build` writes Docker Hub into the pack instead of that address. A short script, `tools/repack.py`, rewrites two values, `REGISTRY` and `REPOSITORY`, in the `.conf` file inside `adapter.zip`:
 
 *Found in: the `.conf` file inside `adapter.zip` in the `.pak`, rewritten by `tools/repack.py` on the jump host.*
 
@@ -86,7 +86,7 @@ DIGEST=sha256:dd80...b4cb
 
 ## Install the pack
 
-The install has five steps, given here in the order that works. The failures met in the lab are kept as symptoms under the step that prevents them. The same steps, as a checklist with every command and the machine it runs on, are in [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.md).
+The install has five steps, given here in the order that works. The failures met in the lab are kept as symptoms under the step that prevents them. The same steps, as a checklist with every command and the machine it runs on, are in [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.10/docs/INSTALL.md).
 
 ### Step 1: serve the registry over HTTPS
 
@@ -153,7 +153,7 @@ The install turns the switch on first and off again after:
 4. Upload, accept the warning about the unsigned file, and let the install finish.
 5. Back in the admin console, deactivate unsigned PAK installation again. The console refuses while the install is still running.
 
-The repository also holds a scripted version of these steps, `install/upi.sh` and `install/install_unsigned.sh`; [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.md) describes it.
+The repository also holds a scripted version of these steps, `install/upi.sh` and `install/install_unsigned.sh`; [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.10/docs/INSTALL.md) describes it.
 
 After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFederation` appear in VCF Operations. The pack shows under Administration, Integrations, Repository with its version:
 
@@ -250,13 +250,13 @@ Twenty metrics are flagged as key indicators, up to five per object type: the ac
 
 ![Summary of gm-site-a: the open backup alert and, on the right, the key indicators "Nodes offline 0" and "Standby sync healthy (1 = in sync) 1"](/images/nsx-federation-mp/ops-key-attributes.webp)
 
-NSX returns packets, bytes, drops and rule hits as running totals. The adapter keeps the counters of the previous cycle and adds rates: packets, drops and blocked packets per minute and bytes per second on RTEP tunnels, rule hits per minute on policies, realizations and rules, and connection drops per hour on Tier-0 BGP neighbors and on the inter-site BGP session of each RTEP tunnel. From the same counters it computes the share of packets an RTEP tunnel dropped in each direction. NSX counts a dropped packet in the packet total. In the lab, the received total of a tunnel matched the sent total of its peer exactly while its drop counter read 1. The share is therefore the drops divided by the total. It needs at least 50 packets since the previous cycle, so a single lost packet on an idle tunnel does not show as a large percentage. Units are declared: seconds, minutes, hours, days, milliseconds, bytes, bytes per second, packets, calls, errors, percentages and per-minute rates.
+NSX returns packets, bytes, drops and rule hits as running totals. The adapter keeps the counters of the previous cycle and adds rates: packets, drops and blocked packets per minute and bytes per second on RTEP tunnels, rule hits per minute on policies, realizations and rules, and connection drops per hour on Tier-0 BGP neighbors and on the inter-site BGP session of each RTEP tunnel. From the same counters it computes the share of packets an RTEP tunnel dropped in each direction. NSX counts a dropped packet in the packet total. In the lab, the received total of a tunnel matched the sent total of its peer exactly while its drop counter read 1. The share is therefore the drops divided by the total. It needs at least 50 packets since the previous cycle, so a single lost packet on an idle tunnel does not show as a large percentage. Units are declared: seconds, minutes, hours, days, milliseconds, bytes, bytes per second, packets, calls, errors, percentages, per-minute and per-hour rates.
 
 Three metrics are derived by the adapter, because a symptom compares a metric with a fixed value and cannot subtract two metrics: Global Managers not reachable, inter-site BGP sessions not established, locations not realized.
 
 Seven figures cover the whole federation, on the federation object: locations healthy, as a count and a percentage; RTEP tunnels; tunnels whose BGP session is down; RTEP drops per minute over all tunnels; days to the first certificate expiry on any manager; open critical alarms on all managers. A super metric could compute some of them, but it does nothing until a policy enables it, so the adapter computes all seven. In the lab they read two of two locations healthy (100%), eight tunnels, none down, no drops, 330.9 days to the first certificate expiry (a Local Manager certificate) and no critical alarm.
 
-Each location also carries what the Location Manager page of NSX shows for it: the state of its three replication flows with the Global Manager, when the Global Manager last saw it, the latency, how full its sync queues are, and its onboarding status. The pack makes the same calls as that page on the active Global Manager. The replication flows come from `GET /api/v1/federation/replication/gm/sites/<site-id>/status`, whose round-trip time field NSX 9.1 leaves empty. The "Latest Latency" column of the page comes from another call, `GET /global-manager/api/v1/observability/flow-details`, which returns, for each direction between the Global Manager and a location, the latency NSX measured and the current and maximum size of its sync queues. The pack keeps the higher latency of the two directions and compares it with the maximum RTT set for the location in NSX (250 ms by default). For the queues, it reports how full the fullest one is, as a percentage. NSX measures no latency between the two Global Managers, and its own page shows NA there.
+Each location also carries what the Location Manager page of NSX shows for it: the state of its three replication flows with the Global Manager, when the Global Manager last saw it, the latency, how full its sync queues are, and its onboarding status. The pack makes the same calls as that page on the active Global Manager. The replication flows come from `GET /api/v1/federation/replication/gm/sites/<site-id>/status`, whose round-trip time field NSX 9.1.1 leaves empty. The "Latest Latency" column of the page comes from another call, `GET /global-manager/api/v1/observability/flow-details`, which returns, for each direction between the Global Manager and a location, the latency NSX measured and the current and maximum size of its sync queues. The pack keeps the higher latency of the two directions and compares it with the maximum RTT set for the location in NSX (250 ms by default). For the queues, it reports how full the fullest one is, as a percentage. NSX measures no latency between the two Global Managers, and its own page shows NA there.
 
 The table below gives the coverage of each object type. The Metrics column counts the metric keys defined for the type. Not every object sends every key (only policy realizations carry counters, for example), so the column multiplied by the object counts does not give 501.
 
@@ -322,7 +322,7 @@ Each alert also sets which badge it lowers and how fast it reacts:
 
 - **Badge.** Fourteen alerts lower the Risk badge instead of Health: both backup alerts, both certificate expiry alerts, the certificate not trusted, no standby, the release mismatch, the call budget, the data gaps, the slow or throttled collection, the Global Managers on different versions, the location ahead of the Global Manager and both upgrade alerts. These conditions cause trouble later, and Health is kept for what is broken now.
 - **Wait and cancel cycles.** The symptoms that can flap need two collection cycles, 10 minutes, to raise an alert and two to clear it: a replication flow in error; sync channel down; inter-site BGP sessions down and none established on the location; no inter-site session on the edge node; inter-site BGP down on the tunnel; dropped and blocked packets on a tunnel; latency to the Global Manager; Tier-0 BGP neighbor down; no prefixes received. A BGP flap, on a Tier-0 neighbor or on the inter-site session of a tunnel, is the exception: one session drop raises the alert at the next cycle, and the alert clears after two cycles, so a flap stays visible for 10 minutes. The data gaps and the slow collection also wait two cycles, and so do a full sync that did not complete and a stretched object that is not realized, so a sync or a change in progress raises nothing. The dynamic threshold, the standby sync and the throttling wait three. The outage symptoms clear after three cycles (see One alert for a location outage).
-- **Compliance subtype.** Six alerts carry the compliance subtype: no standby, both backup alerts, the Global Managers on different versions, and both release alerts of a location. The Compliance page of VCF Operations 9.1 shows a banner that the older Compliance feature is deprecated in VCF 9.1 and points to Security Posture Management, so the subtype only classifies the alerts.
+- **Compliance subtype.** Six alerts carry the compliance subtype: no standby, both backup alerts, the Global Managers on different versions, and both release alerts of a location. The Compliance page of VCF Operations 9.1.1 shows a banner that the older Compliance feature is deprecated in VCF 9.1 and points to Security Posture Management, so the subtype only classifies the alerts.
 - **Thresholds.** Most symptoms test a state: a session down, a node offline, an object in error. Those that compare a metric with a number are listed in the [Thresholds table of FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.10/docs/FEATURES.md#thresholds): the backup age (24 hours), the certificate expiry (30 and 7 days), the collection duration (4 minutes), the latency to the Global Manager (150 ms, or 80% and 100% of the maximum RTT set in NSX), and on RTEP tunnels the dropped packets (more than 1%, or 5% for Immediate, together with more than 10 per minute) and the blocked packets (more than 10 per minute). The drop alert needs both the share and the count: a fixed count alone means a lot on a quiet tunnel and nothing on a busy one. A VCF Operations policy can override a threshold without a new build: Policy Definition, edit the policy, Alerts and Symptoms, Symptom Definitions, select the symptom and change the value under Override Symptoms.
 - **Dynamic threshold.** The tunnel traffic alert compares the receive and send rates with the range VCF Operations learns for each tunnel. The latency alert does the same with the round-trip time of each location, so a link that goes from 1 ms to 40 ms is reported long before it reaches 150 ms. Both need days of history before they can fire.
 
@@ -396,7 +396,7 @@ A call that times out or loses its connection is retried once before it counts a
 
 A location that loses its connection to the Global Manager takes many objects with it: the tunnels and BGP sessions of the other locations towards it, the sync channels, and every stretched object that spans it. Each of them has an alert, and all of them would fire next to the alert of the location.
 
-While the active Global Manager reports a location as not connected, the adapter writes the name of that location to a property, "Locations in outage", on the objects that depend on it: the location, its edge cluster, edge nodes and BGP neighbors, the tunnels and sync channels with one end there, the stretched objects whose span includes it with their realization there, and the Global Managers. A fault at another location still raises its alert. Thirteen alert definitions require that this property reads "none", and so do the alarm alerts, except the alarms between Global Managers. They stay quiet during the outage, and "Location lost its connection to the active Global Manager" is the alert to act on. In the alert XML this is a second symptom with `negateCondition="true"`:
+While the active Global Manager reports a location as not connected, the adapter writes the name of that location to a property, "Locations in outage", on the objects that depend on it: the location, its edge cluster, edge nodes and BGP neighbors, the tunnels and sync channels with one end there, the stretched objects whose span includes it with their realization there, and the Global Managers. A fault at another location still raises its alert. Seventeen alert definitions require that this property reads "none", and so do the alarm alerts, except the alarms between Global Managers. They stay quiet during the outage, and "Location lost its connection to the active Global Manager" is the alert to act on. In the alert XML this is a second symptom with `negateCondition="true"`:
 
 *Found in: the alert file of the pack, in `content/alertdefs`.*
 
@@ -415,7 +415,7 @@ A second, unrelated fault on the objects of the location in outage raises no ale
 
 ### The standby Global Manager
 
-Four metrics describe the standby: sync healthy (1 when in sync), entries left to send, minutes out of sync and hours since the last full sync. The active Global Manager carries them for all its standbys, and each standby carries its own sync state. A standby counts as in sync when NSX reports it in sync, or when a delta sync runs after a completed full sync. Any other state counts as out of sync. NSX 9.1 reports the normal state of a standby as ONGOING, together with a delta sync, a completed full sync and no entries left to send, so the status text alone cannot be the test. The alert "Standby Global Manager is not in sync" fires after three cycles and clears after two. In the lab the metric reads 1 with no entries left.
+Four metrics describe the standby: sync healthy (1 when in sync), entries left to send, minutes out of sync and hours since the last full sync. The active Global Manager carries them for all its standbys, and each standby carries its own sync state. A standby counts as in sync when NSX reports it in sync, or when a delta sync runs after a completed full sync. Any other state counts as out of sync. NSX 9.1.1 reports the normal state of a standby as ONGOING, together with a delta sync, a completed full sync and no entries left to send, so the status text alone cannot be the test. The alert "Standby Global Manager is not in sync" fires after three cycles and clears after two. In the lab the metric reads 1 with no entries left.
 
 ### Versions and upgrades
 
@@ -493,7 +493,7 @@ Two checks back these metrics. The first read the packet counters of every RTEP 
 
 During the test, the Inter-site Connectivity dashboard showed the values written to the selected tunnel. The scoreboard colors follow the alert thresholds:
 
-![The RTEP tunnels list of the Inter-site Connectivity dashboard with one tunnel selected, and its key values during the alert test: Rx drops per minute at 20 in orange, Rx dropped at 6% in red, Tx blocked per minute at 30 and BGP drops per hour at 12 in orange, the other values in green](/images/nsx-federation-mp/ops-dashboard-loss.webp)
+![The RTEP tunnels list of the Inter-site Connectivity dashboard with one tunnel selected, and its key values during the alert test: Rx drops per minute at 20 in orange, Rx dropped at 6% in red, Tx blocked per minute at 30 and BGP drops per hour at 12 in orange, the other values with a threshold in green](/images/nsx-federation-mp/ops-dashboard-loss.webp)
 
 The alert lists each symptom with the observed value and its threshold:
 
@@ -529,7 +529,7 @@ Each switchover took two to three minutes. The pack followed the active role in 
 
 After a switchover the former active Global Manager is a standby and carries its own sync value, as described under The standby Global Manager.
 
-A planned switchover never leaves the federation without an active Global Manager, so the alerts "no active Global Manager" and "Global Manager not reachable" did not fire, as expected.
+A planned switchover never leaves the federation without an active Global Manager, so the alerts "NSX Federation has no active Global Manager" and "Global Manager is not reachable by the collector" did not fire, as expected.
 
 ### NSX alarm events
 
@@ -610,11 +610,11 @@ The 1,253 alert definitions and 2,047 symptom definitions on the lab's VCF Opera
 
 - Lab: VCF 9.1.1, NSX 9.1.1 (Local Managers and Global Managers), VCF Operations 9.1.1. Build, install and tests from 17 to 20 November 2026.
 - Source of the pack: [github.com/sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp), tag [v1.7.10](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/tree/v1.7.10)
-- Install guide with a checklist: [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/main/docs/INSTALL.md)
+- Install guide with a checklist: [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.10/docs/INSTALL.md)
 - Objects, metrics and alerts of version 1.7.10: [docs/FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.10/docs/FEATURES.md); account settings and sizing: [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.7.10/docs/OPERATIONS.md)
 - [VCF Operations Integration SDK](https://vmware.github.io/vmware-vcf-operations-integration-sdk/introduction)
 - Broadcom KB [415279](https://knowledge.broadcom.com/external/article/415279/error-no-signature-found-on-pak-file-wh.html): "No signature found on PAK file" while installing a management pack
 - [Docker: verify repository client with certificates](https://docs.docker.com/engine/security/certificates/)
-- Broadcom KB [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html): split-brain after a Global Manager switchover
+- Broadcom KB [324244](https://knowledge.broadcom.com/external/article/324244/split-brain-condition-after-a-global-man.html): split-brain after a Global Manager failover
 - Broadcom KB [378126](https://knowledge.broadcom.com/external/article/378126/nsx-apis-throws-error-message-client-ex.html): NSX API client rate limits
 - Broadcom KB [345822](https://knowledge.broadcom.com/external/article/345822/gm-to-lm-network-latency-threshold-excee.html): Global Manager to Local Manager latency alarm

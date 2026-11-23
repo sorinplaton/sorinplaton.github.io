@@ -1,8 +1,8 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 2 : construction, installation et données collectées par le pack"
 date: 2026-11-18
-description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : l'adaptateur construit avec l'Integration SDK, l'installation pas à pas avec captures d'écran (registre en HTTPS, approbation du certificat sur le proxy cloud, pack non signé, compte), et ce que le pack supervise sur une fédération de lab à deux emplacements : 76 objets, 586 métriques, 87 définitions d'alerte, quatre groupes personnalisés, cinq tableaux de bord, treize vues, deux rapports et une politique pour les fédérations de lab. L'article couvre aussi un basculement de Global Manager et l'envoi des alertes par courriel."
-summary: "L'adaptateur collecte les données d'une fédération NSX 9.1 à deux emplacements en 25 à 45 secondes. Pour qu'il fonctionne dans VCF Operations 9.1.1, il faut un registre d'images servi en HTTPS, un proxy cloud qui approuve le certificat du registre et le réglage qui autorise un pack non signé. Cet article détaille chaque étape de l'installation avec des captures d'écran, liste ce que supervise le pack (objets, métriques, alertes, groupes, tableaux de bord, vues), teste un basculement de Global Manager et montre comment envoyer les alertes par courriel."
+description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : ce que le pack supervise sur une fédération de lab à deux emplacements (76 objets, 586 métriques, 87 définitions d'alerte, quatre groupes personnalisés, cinq tableaux de bord, treize vues, deux rapports et une politique pour les fédérations de lab), la construction de l'adaptateur avec l'Integration SDK, l'installation pas à pas avec captures d'écran (registre en HTTPS, approbation du certificat sur le proxy cloud, pack non signé, compte) et l'envoi des alertes par courriel."
+summary: "L'adaptateur collecte les données d'une fédération NSX 9.1 à deux emplacements en 25 à 45 secondes. Pour qu'il fonctionne dans VCF Operations 9.1.1, il faut un registre d'images servi en HTTPS, un proxy cloud qui approuve le certificat du registre et le réglage qui autorise un pack non signé. Cet article liste ce que supervise le pack (objets, métriques, alertes, groupes, tableaux de bord, vues), détaille chaque étape de l'installation avec des captures d'écran, puis montre comment envoyer les alertes par courriel et comment le pack a été testé dans le lab."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Lab"]
 categories: ["Notes"]
 showToc: true
@@ -12,19 +12,260 @@ params:
   seoDescription: "Construire et installer un management pack NSX Federation sur mesure dans VCF Operations 9.1.1 : registre HTTPS, approbation du certificat, pack non signé, puis objets, métriques, alertes, groupes, tableaux de bord et vues qu'il fournit."
 ---
 
-La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. L'écriture de l'adaptateur a demandé moins de temps que son installation : VCF Operations effectue trois contrôles avant qu'un fichier `.pak` ne devienne une collecte qui fonctionne. Cet article décrit la construction, l'installation dans VCF Operations 9.1.1, ce que le pack supervise, un basculement de Global Manager et l'envoi des alertes par courriel.
+La [partie 1](/fr/posts/nsx-federation-management-pack-design/) s'achevait sur une conception, sans une ligne de code. Le pack tourne désormais dans VCF Operations 9.1.1, et l'écriture de l'adaptateur a pris moins de temps que son installation. Avant qu'un fichier `.pak` collecte quoi que ce soit, VCF Operations exige un registre d'images servi en HTTPS, un proxy cloud qui approuve son certificat et l'autorisation d'installer un pack non signé.
 
-Le pack décrit ici est la version 1.13.0, et son code source est sur GitHub : [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). [docs/FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md) liste chaque type d'objet, métrique, propriété et alerte, avec la condition et la recommandation de chaque alerte.
+Le pack décrit ici est la version 1.13.0. Son code source est sur GitHub : [sorinplaton/vcf-ops-nsx-federation-mp](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp). Trois fichiers du dépôt constituent la référence complète :
+
+| Fichier | Contenu |
+| --- | --- |
+| [docs/FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md) | Chaque type d'objet, métrique, propriété et alerte, avec la condition, le seuil et la recommandation de chaque alerte |
+| [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.fr.md) | L'installation sous forme de liste de contrôle, avec chaque commande et la machine où elle s'exécute |
+| [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/OPERATIONS.md) (en anglais) | Réglages du compte, approbation des certificats, dimensionnement, mise à niveau, dépannage et tests |
 
 ## Le lab
 
-Le lab tourne sous VCF 9.1.1, avec deux Global Managers, chacun à un seul nœud : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Standby Global Manager. Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur un jumphost Linux équipé de Docker, qui héberge aussi le registre d'images sur le port 5000.
+Le lab tourne sous VCF 9.1.1, avec deux Global Managers, chacun à un seul nœud. `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Standby Global Manager.
+
+Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur un jumphost Linux équipé de Docker, qui héberge aussi le registre d'images sur le port 5000.
 
 ![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le standby nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le proxy cloud opscollector-01a, et le jumphost qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg?v=7)
 
-Le Standby Global Manager a été déployé à partir de la même appliance 9.1.1 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de gestion. Il a été enregistré sur le Global Manager actif par l'API, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants du compte admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes.
+Le Standby Global Manager a été déployé à partir de la même appliance 9.1.1 que le Global Manager actif, en taille Small, sur le cluster de `site-a-wld03`, avec une adresse et un enregistrement DNS dans le réseau de gestion.
 
-## Construire l'adaptateur
+Il a été enregistré sur le Global Manager actif par l'API, sous le nom `gm-site-b` en mode STANDBY, avec son adresse, les identifiants du compte admin et l'empreinte de son certificat (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). La première synchronisation complète s'est terminée en quelques minutes.
+
+## Ce que le pack supervise
+
+Le pack fournit :
+
+| Contenu | Nombre |
+| --- | --- |
+| Types d'objets | 16 (76 objets de 15 types dans le lab) |
+| Métriques par cycle dans le lab | 586, en 25 groupes |
+| Définitions d'alerte | 87, avec 153 symptômes et 53 recommandations |
+| Groupes personnalisés | 4 |
+| Tableaux de bord | 5 |
+| Vues de type liste | 13 |
+| Rapports | 2 |
+| Politique | 1, pour les fédérations de lab et de test |
+
+La liste complète des objets, des métriques et des alertes se trouve dans [FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md).
+
+### Objets
+
+Dans le lab, le pack crée 76 objets de 15 types. Le seizième type, la règle de pare-feu globale, s'active stratégie par stratégie et est resté désactivé pour cette installation.
+
+| Type d'objet | Nombre dans le lab | Exemples de données collectées |
+| --- | --- | --- |
+| Fédération | 1 | Global Managers actifs, emplacements en bonne santé, capacité à basculer, agrégats RTEP, les dix derniers changements, erreurs d'API |
+| Global Manager | 2 | Prêt ou non à prendre le relais, synchronisation du standby, sauvegarde, version, état de la mise à niveau, expiration des certificats, écart d'horloge |
+| Nœud de manager | 4 | État en ligne de chaque nœud de Global Manager et de Local Manager |
+| Emplacement | 2 | Santé, connexion au Global Manager, flux de réplication, latence et files de synchronisation, synchronisation complète, BGP intersite, alarmes, version, limites de configuration |
+| Canal de synchronisation | 9 | État de la connexion entre deux managers |
+| Cluster Edge | 2 | État intersite, membres, adresses RTEP |
+| Nœud Edge | 4 | Tunnels RTEP, sessions BGP intersites, état, CPU, mémoire et système de fichiers |
+| Service router du Tier-0 | 4 | État HA, état du routage, voisins BGP établis et tombés |
+| Tunnel RTEP | 8 | État BGP et coupures de session par heure, paquets, paquets rejetés et paquets bloqués dans chaque sens |
+| Voisin BGP du Tier-0 | 16 | État, préfixes reçus et annoncés, durée d'établissement, coupures de session par heure |
+| Passerelle Tier-0 | 1 | Portée, emplacements réalisés et en erreur, service routers actifs |
+| Passerelle Tier-1 | 3 | Mêmes données que la passerelle Tier-0 |
+| Segment | 5 | Mêmes données, plus les sous-réseaux et la passerelle connectée |
+| Stratégie de sécurité globale | 1 | Portée, réalisation, nombre total de règles et de règles désactivées |
+| Objet étendu sur un emplacement (réalisation) | 14 | Réalisé ou non, libellé de l'état |
+
+Le pack rend compte de son propre fonctionnement sur l'objet fédération : appels effectués, appels bridés, erreurs, et épuisement éventuel du quota d'appels d'un manager.
+
+Un nœud Edge, un tunnel, un canal de synchronisation et un service router du Tier-0 sont identifiés par des ID NSX, et non par des noms. Un nœud Edge renommé ou redéployé conserve ainsi ses objets et leur historique, tout comme un emplacement ou un Global Manager renommé.
+
+Dans l'inventaire, les types d'objets forment une arborescence et chaque objet a une page de résumé, ici celle d'un emplacement :
+
+![Inventaire de VCF Operations : les types d'objets NSX Federation dans l'arborescence, et le résumé de l'emplacement site-a-wld01 avec ses objets associés, ses indicateurs clés et l'alerte sur une mise à niveau NSX en pause](/images/nsx-federation-mp/ops-inventory-location.webp)
+
+Le pack fournit aussi une arborescence d'inventaire. Pour l'ouvrir, aller dans « Inventory », cliquer sur « Detailed View », choisir le dernier onglet (l'icône en forme de pièce de puzzle), puis sélectionner « NSX Federation » dans la liste déroulante.
+
+L'arborescence part de la fédération. En dessous se trouvent les segments, les passerelles, la stratégie globale, les Global Managers et les emplacements. Un emplacement contient son nœud de manager, ses canaux de synchronisation et son cluster Edge, avec les nœuds Edge et leurs tunnels. Un Tier-0 contient ses voisins BGP, et chaque objet étendu contient sa réalisation par emplacement.
+
+![L'arborescence d'inventaire NSX Federation dans VCF Operations : la fédération, ses segments, passerelles et stratégie, et l'emplacement site-a-wld01 déplié sur son nœud de manager, ses canaux de synchronisation et son cluster Edge](/images/nsx-federation-mp/ops-inventory-tree.webp)
+
+### Groupes personnalisés
+
+Le pack fournit quatre groupes personnalisés (custom groups), sous « Inventory > Custom Groups > Environment » :
+
+| Groupe | Membres dans le lab |
+| --- | --- |
+| Tous les objets du pack | 76 |
+| Managers et emplacements | 9 |
+| Connectivité intersite | 43 |
+| Objets étendus | 24 |
+
+Un groupe réunit les alertes et les badges de ses membres, et une politique ou une règle de notification peut le prendre pour périmètre. L'appartenance dépend du type d'objet : un nouvel emplacement ou un nouveau tunnel rejoint donc son groupe sans modification.
+
+Ces quatre groupes contiennent les objets de toutes les fédérations. Le script `install/federation_groups.py` ajoute un groupe par fédération, « NSX Federation - <fédération> ». Chaque objet du pack porte l'ID de sa fédération dans une propriété, et le groupe s'appuie dessus : il ne prend donc jamais les objets d'une autre fédération. Dans le lab, ce groupe contient les 76 objets de la fédération.
+
+![Groupe personnalisé « NSX Federation - Managers and locations » : les deux Global Managers, la fédération, les deux emplacements et les quatre nœuds de manager](/images/nsx-federation-mp/ops-custom-groups.webp)
+
+### Métriques
+
+Les 586 métriques du lab sont rangées en 25 groupes, comme dans les intégrations natives (Sync, Connectivity, Certificates, Alarms, Rates, Capacity, Time, Availability, etc.). L'arborescence des métriques d'un objet reste ainsi courte. La clé d'une métrique contient son groupe, par exemple `sync|standby_in_sync`.
+
+![Onglet « Metrics » du Global Manager gm-site-a : les groupes Alarms, Certificates, Cluster, Connectivity et Sync, et la courbe de « Standby sync healthy (1 = in sync) » à 1](/images/nsx-federation-mp/ops-metric-groups.webp)
+
+Vingt-six métriques sont marquées comme indicateurs clés, cinq au plus par type d'objet. VCF Operations les affiche en premier dans le résumé de l'objet :
+
+![Résumé de gm-site-a : l'alerte de sauvegarde ouverte et, à droite, les indicateurs clés « Nodes offline 0 » et « Standby sync healthy (1 = in sync) 1 »](/images/nsx-federation-mp/ops-key-attributes.webp)
+
+NSX renvoie les paquets, les octets, les rejets et les correspondances de règles sous forme de totaux cumulés. L'adaptateur conserve les compteurs du cycle précédent et les convertit en taux, comme les rejets par minute sur un tunnel RTEP ou les coupures de session par heure sur une session BGP.
+
+À partir des mêmes compteurs, il calcule la part des paquets rejetés par un tunnel RTEP dans chaque sens. Le calcul exige au moins 50 paquets depuis le cycle précédent, pour qu'un seul paquet perdu sur un tunnel inactif n'apparaisse pas comme un pourcentage élevé.
+
+L'objet fédération porte aussi des valeurs qui couvrent toute la fédération. Le 22 novembre, elles indiquent :
+
+| Valeur | Dans le lab |
+| --- | --- |
+| Emplacements en bonne santé | 2 sur 2 (100 %) |
+| Tunnels RTEP, BGP tombé, rejets | 8, aucun tombé, aucun rejet |
+| Jours avant la première expiration de certificat | 328,5 (certificat d'un Local Manager) |
+| Alarmes critiques ouvertes | 1 |
+| Plus grand écart d'horloge | 0,07 seconde |
+| Limite de configuration la plus utilisée | 97,6 % |
+| Objets surchargés | Aucun |
+| Jours avant la première expiration de mot de passe | 35 |
+| Règles de pare-feu à revoir | Aucune |
+
+Chaque emplacement expose aussi ce que la page « Location Manager » de NSX affiche pour lui : l'état de ses trois flux de réplication avec le Global Manager, la latence, le remplissage de ses files de synchronisation et l'état de son onboarding. Le pack fait les mêmes appels que cette page. Il compare la latence au RTT maximal défini pour l'emplacement dans NSX (250 ms par défaut).
+
+### Alertes
+
+Les 87 définitions d'alerte couvrent chaque type d'objet :
+
+| Type d'objet | Définitions | Exemples |
+| --- | --- | --- |
+| Fédération | 9 | Aucun Global Manager actif ; split-brain ; aucun standby ; collecte partielle ou lente |
+| Global Manager | 24 | Cluster dégradé ; sauvegarde absente ; standby non synchronisé ; versions différentes ; mise à niveau en pause ou en échec ; 15 alarmes de fédération NSX |
+| Emplacement | 28 | Connexion au Global Manager perdue ; synchronisation complète non terminée ; BGP intersite tombé ; latence élevée ; limite de configuration proche de son maximum ; 11 alarmes de fédération NSX |
+| Canal de synchronisation | 1 | Canal interrompu |
+| Cluster Edge | 1 | État intersite différent de UP |
+| Nœud Edge | 6 | Toutes les sessions BGP intersites tombées ; CPU datapath, mémoire ou système de fichiers élevés |
+| Service router du Tier-0 | 1 | Routage ou état HA tombé |
+| Tunnel RTEP | 5 | BGP intersite tombé ou instable ; paquets rejetés ou bloqués |
+| Voisin BGP du Tier-0 | 3 | Session tombée ou instable ; liaison montante sans aucun préfixe reçu |
+| Tier-0 | 3 | Emplacements en erreur ; aucun service router actif ; changement d'état HA |
+| Tier-1, segment | 1 chacun | Emplacements en erreur |
+| Stratégie de sécurité globale | 3 | Emplacements en erreur ; règles jamais atteintes ; une règle qui autorise tout le trafic |
+| Objet étendu sur un emplacement | 1 | Non réalisé |
+
+Un symptôme est une condition portant sur une métrique, sur une propriété ou sur un événement. Une condition sur une propriété se présente ainsi :
+
+*Se trouve dans : le fichier d'alertes du pack, dans `content/alertdefs`.*
+
+```xml
+<SymptomDefinition adapterKind="NSXFederation" id="SymptomDefinition-NSXFederation-gm_backup_off"
+                   name="Backup is not configured on the Global Manager" resourceKind="global_manager">
+    <State severity="immediate">
+        <Condition key="backup_enabled" operator="=" thresholdType="static" type="property"
+                   value="False" valueType="string"/>
+    </State>
+</SymptomDefinition>
+```
+
+Vingt et une alertes font baisser le badge « Risk » au lieu du badge « Health » : les sauvegardes, l'expiration des certificats, les versions, les mises à niveau, les limites de configuration, les mots de passe et la revue des règles de pare-feu, par exemple. Ces conditions poseront problème plus tard ; « Health » reste réservé à ce qui est déjà en panne.
+
+Les symptômes susceptibles d'osciller, comme une session BGP ou un flux de réplication, exigent deux cycles de collecte (10 minutes) pour déclencher une alerte, et deux pour l'effacer. L'instabilité BGP fait exception : une seule coupure de session déclenche l'alerte au cycle suivant.
+
+Trois alertes utilisent un seuil dynamique : le trafic d'un tunnel RTEP, la latence d'un emplacement et le CPU datapath d'un nœud Edge. Elles comparent la valeur à la plage que VCF Operations apprend pour chaque objet, et ont donc besoin de plusieurs jours d'historique avant de pouvoir se déclencher.
+
+Les seuils fixes figurent dans le [tableau des seuils de FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md#seuils). Une politique VCF Operations peut remplacer un seuil sans reconstruire le pack : « Policy Definition », modifier la politique, « Alerts and Symptoms », onglet « Symptom Definitions », sélectionner le symptôme et changer la valeur sous « Override Symptoms ».
+
+Dans le lab, quatre alertes se déclenchent, issues de trois définitions :
+
+- l'absence de sauvegarde sur les deux Global Managers ;
+- une mise à niveau NSX en pause sur le Local Manager de site-a-wld01, dont le coordinateur de mise à niveau conserve une version cible qu'il n'a pas appliquée ;
+- une limite de configuration NSX sur site-a-wld03, où 830 des 850 services que supporte le Local Manager sont utilisés (97,6 %, classé WARNING par NSX).
+
+Toutes les quatre sont justifiées dans le lab et pèsent sur « Risk ». Une alerte affiche sa recommandation et le symptôme qui l'a déclenchée :
+
+![Détail de l'alerte « Global Manager backup is missing, old or failed » sur gm-site-a : la description, la recommandation et le symptôme « Backup is not configured on the Global Manager »](/images/nsx-federation-mp/ops-alert-recommendation.webp)
+
+### Les alarmes NSX et l'intégration NSX native
+
+L'adaptateur relaie les alarmes de fédération du Global Manager, et celles de chaque Local Manager, sous forme d'événements dont le texte est `NSX alarm <event_type>: <summary>`. L'intégration NSX native utilise la même forme.
+
+Le pack donne aux 15 types d'alarme de fédération de NSX 9.1.1 une alerte et une recommandation propres, entre autres pour le split-brain et RTEP BGP tombé. Le Global Manager reçoit les 15. Un emplacement en reçoit 11, car les quatre alarmes entre Global Managers ne le concernent pas.
+
+L'intégration NSX native ne couvre que les managers qui y sont ajoutés comme comptes NSX. Les alarmes du Global Manager n'arrivent dans VCF Operations que par ce pack.
+
+Pour un Local Manager, les deux intégrations déclencheraient chacune une alerte pour la même alarme. L'adaptateur demande donc à VCF Operations quels clusters NSX l'intégration native supervise, et lui laisse les alarmes, les alertes de nœud Edge et l'alerte de limite de configuration de ces Local Managers. Un réglage force l'un ou l'autre comportement pour les alarmes.
+
+Dans le lab, site-a-wld01 a dans l'intégration native un compte qui collecte, et le compte natif de site-a-wld03 ne collecte pas. Une propriété de chaque emplacement vaut « the built-in NSX integration » pour le premier et « this pack » pour le second.
+
+L'adaptateur relie aussi chaque nœud Edge et chaque cluster Edge à l'objet correspondant de l'intégration native, pour chaque Local Manager que cette intégration supervise. Dans le lab, les alertes natives des nœuds Edge de site-a-wld01, comme « RTEP Connectivity Lost », sont alors accessibles depuis l'objet fédération. Les nœuds Edge de site-a-wld03 n'ont reçu aucun lien, et les alertes de tunnel et de nœud Edge du pack les couvrent.
+
+Une alarme de fédération sans définition, ainsi que chaque alarme critique du Global Manager (dans la limite de 20 par manager), arrive sous la forme d'une alerte « Notification event », sans recommandation.
+
+### Tableaux de bord
+
+Cinq tableaux de bord sont regroupés dans un dossier nommé « NSX Federation » :
+
+| Tableau de bord | Contenu |
+| --- | --- |
+| Federation Overview | Alertes ouvertes sur les objets du pack ; liste regroupant la fédération, les Global Managers et les emplacements ; valeurs clés, propriétés et objets associés de l'élément sélectionné |
+| Location Matrix | Une ligne par emplacement avec les contrôles qui décident de sa santé ; les chiffres de la fédération ; valeurs clés et propriétés de l'emplacement sélectionné |
+| Switchover Readiness | Les Global Managers avec leur mode, leur capacité à basculer, leur état de synchronisation, leur version et l'âge de leur sauvegarde ; valeurs clés du Global Manager sélectionné, avec les raisons qui l'empêchent de prendre le relais |
+| Inter-site Connectivity | Canaux de synchronisation, nœuds Edge avec leur CPU et leur mémoire, service routers du Tier-0, tunnels RTEP, voisins BGP du Tier-0 ; valeurs clés de la ligne sélectionnée |
+| Stretched Objects | Passerelles, segments et stratégies étendus, avec leur portée ; réalisation de chaque objet sur chaque emplacement |
+
+Dans chaque tableau de bord, une liste alimente un widget « Scoreboard ». Dans tous sauf Stretched Objects, un clic sur l'une des valeurs de ce widget en affiche la courbe de tendance.
+
+Federation Overview avec gm-site-a sélectionné. Les alertes ouvertes sont celles de la sauvegarde et de la mise à niveau en pause :
+
+![Le tableau de bord Federation Overview : deux définitions d'alerte ouvertes (sauvegarde, mise à niveau en pause), la liste avec gm-site-a et gm-site-b, et le widget « Scoreboard » de gm-site-a avec Standby in sync à 1, les nœuds hors ligne à 0 et l'expiration des certificats](/images/nsx-federation-mp/ops-dashboard-standby.webp)
+
+Avec la fédération sélectionnée, le widget « Scoreboard » se termine par les agrégats de fédération :
+
+![Le tableau de bord Federation Overview avec la fédération sélectionnée : le widget « Scoreboard » affiche les erreurs d'API, le quota d'appels, les emplacements en bonne santé à 100, RTEP BGP tombé à 0, les paquets RTEP rejetés par minute à 0, l'expiration des certificats à 330,9 jours et les alarmes critiques à 0](/images/nsx-federation-mp/ops-dashboard-rollups.webp)
+
+Inter-site Connectivity montre les taux d'un tunnel RTEP :
+
+![Le tableau de bord Inter-site Connectivity : canaux de synchronisation et nœuds Edge, tunnels RTEP, voisins BGP du Tier-0 et les taux du tunnel RTEP sélectionné](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
+
+Location Matrix, avec site-a-wld03 sélectionné. Les deux emplacements sont en bonne santé et la fédération a un standby prêt à prendre le relais :
+
+![Le tableau de bord Location Matrix : les deux emplacements avec Healthy 1 et GM connection 1, les chiffres de la fédération (2 emplacements, 2 en bonne santé, 100 %, RTEP BGP down 0, Ready to take over 1), ainsi que les valeurs clés et les propriétés de site-a-wld03](/images/nsx-federation-mp/ops-dashboard-matrix.webp)
+
+Switchover Readiness, avec le standby gm-site-b sélectionné. Il est prêt à prendre le relais, synchronisé et dans la même version que le Global Manager actif :
+
+![Le tableau de bord Switchover Readiness : gm-site-a actif et gm-site-b en standby, la fédération avec Ready to take over 1, ainsi que les valeurs clés et les propriétés de gm-site-b avec la capacité à basculer « ready »](/images/nsx-federation-mp/ops-dashboard-switchover.webp)
+
+Stretched Objects, avec le segment fed-stretched sélectionné :
+
+![Le tableau de bord Stretched Objects : les passerelles, segments et stratégies étendus, la réalisation par emplacement, ainsi que les valeurs clés et les propriétés du segment fed-stretched](/images/nsx-federation-mp/ops-dashboard-stretched.webp)
+
+### Vues et rapports
+
+Neuf vues de type liste portent sur les emplacements, les canaux de synchronisation, les tunnels RTEP, les voisins BGP du Tier-0, la capacité des nœuds Edge, les service routers du Tier-0, la revue des règles de pare-feu, les changements récents et la réalisation des objets étendus. Quatre autres montrent la disponibilité sur les 30 derniers jours pour la fédération, les Global Managers, les emplacements et les passerelles Tier-0 étendues.
+
+Deux rapports les réunissent en PDF :
+
+- « NSX Federation - Health report », avec les neuf premières vues ;
+- « NSX Federation - Availability report », avec les quatre autres, à planifier chaque mois sur l'objet fédération.
+
+La vue Locations :
+
+![La vue de type liste « NSX Federation - Locations » : les deux emplacements avec leur version, la connexion au Global Manager, l'état joignable ou non depuis le proxy cloud, les sessions BGP intersites et les échecs de synchronisation complète](/images/nsx-federation-mp/ops-view-locations.webp)
+
+### Une politique pour les fédérations de lab et de test
+
+Certaines alertes sont attendues sur une fédération de lab. Dans celle-ci, les Global Managers n'ont pas de sauvegarde et un Local Manager atteint 97,6 % d'une limite de configuration.
+
+Le dépôt contient une politique VCF Operations, « NSX Federation - Non-production », qui désactive onze alertes de ce genre : sauvegardes, absence de Standby Global Manager, revue des règles de pare-feu, surcharges, limites de configuration et capacité des nœuds Edge. Les alertes sur les pannes, la synchronisation, le basculement et la réalisation restent actives.
+
+La politique ne fait pas partie du pack. Elle s'importe sous « Administration > Configurations > Policy Definition > Import », ou avec `install/import_policy.py`, puis s'affecte au groupe de la fédération de lab, ce que `install/federation_groups.py --policy` fait dans la commande qui crée le groupe. Les autres fédérations gardent la politique par défaut.
+
+Dans le lab, l'affectation de la politique a annulé les deux alertes de sauvegarde au cycle suivant, et son retrait les a fait revenir.
+
+## Installer le pack
+
+L'installation se fait en deux temps : construire l'adaptateur sur le jumphost, puis l'installer dans VCF Operations en cinq étapes.
 
 ![Construction et déploiement du pack : le dépôt GitHub est cloné sur le jumphost, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS du jumphost, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg?v=13)
 
@@ -46,7 +287,7 @@ Deux autres outils ne servent qu'à certaines étapes et peuvent se trouver sur 
 - `govc`, avec un accès au vCenter qui héberge la VM du proxy cloud, pour copier le certificat sur le proxy cloud (étape 2).
 - `google-chrome`, `node` et le module Python `requests`, pour l'installation scriptée du pack non signé (facultative, voir docs/INSTALL.fr.md dans le dépôt), avec un accès HTTPS à VCF Operations.
 
-### L'image d'outillage et le code de l'adaptateur
+### Construire l'adaptateur
 
 Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente du jumphost ; ils s'exécutent donc depuis une petite image d'outillage :
 
@@ -61,18 +302,16 @@ WORKDIR /work
 
 Le code de l'adaptateur tient en deux fichiers Python :
 
-- `nsxclient.py` : un client REST NSX en lecture seule, avec pagination par curseur, quota d'appels par manager, nouvelle tentative après attente sur les codes HTTP 429 et 503, contrôle du certificat par empreinte SHA-256 ou par chaîne de certification avec contrôle du nom d'hôte, et petit cache sur disque pour les données qui changent peu.
-- `adapter.py` : le modèle d'objets, la logique de collecte et les événements.
-
-L'instance d'adaptateur, que l'interface de VCF Operations appelle un compte, reçoit une ou deux adresses de Global Manager et un jeu d'identifiants (un second jeu, pour les Local Managers, est facultatif). Elle découvre les Local Managers à partir du Global Manager et compare le certificat de chacun d'eux à l'empreinte que le Global Manager a déjà enregistrée. Un Global Manager est approuvé d'après le certificat accepté sur le compte dans VCF Operations ou, en mode de confiance « ca », d'après sa chaîne de certification. Une fois un certificat vérifié, chaque connexion du cycle est liée à son empreinte : les identifiants ne sont donc pas envoyés à un serveur qui présente un autre certificat.
-
-Un compte supervise une seule fédération. Un Global Manager de la liste qui répond pour une autre fédération est signalé et écarté, et un réglage facultatif désigne l'objet fédération lorsque VCF Operations en supervise plusieurs.
-
-### Le fichier du pack et son image
+| Fichier | Rôle |
+| --- | --- |
+| `nsxclient.py` | Un client REST NSX en lecture seule, avec pagination par curseur, quota d'appels par manager, nouvelle tentative après attente sur les codes HTTP 429 et 503, contrôle du certificat par empreinte SHA-256 ou par chaîne de certification et nom d'hôte, et petit cache sur disque pour les données qui changent peu |
+| `adapter.py` | Le modèle d'objets, la logique de collecte et les événements |
 
 Un pack SDK n'est pas autonome. Le fichier `.pak` contient les définitions d'objets et une référence à une image de conteneur. Le proxy cloud récupère cette image dans un registre au démarrage de l'instance d'adaptateur.
 
-`mp-build` construit le pack et pousse l'image de l'adaptateur vers le registre : le registre de l'étape 1 de l'installation doit donc déjà tourner, et le Docker du jumphost doit lui faire confiance, avant la construction. La commande complète figure à l'étape 4 de [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.fr.md). Lorsque l'adresse de registre fournie a la forme `host:port`, `mp-build` inscrit pourtant Docker Hub dans le pack. Un court script, `tools/repack.py`, réécrit deux valeurs, `REGISTRY` et `REPOSITORY`, dans le fichier `.conf` que contient `adapter.zip` :
+`mp-build` construit le pack et pousse l'image de l'adaptateur vers le registre. Le registre de l'étape 1 de l'installation doit donc déjà tourner, et le Docker du jumphost doit lui faire confiance, avant la construction. La commande complète figure à l'étape 4 de [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.fr.md).
+
+Lorsque l'adresse du registre est donnée sous la forme `host:port`, `mp-build` inscrit Docker Hub dans le pack au lieu de cette adresse. Un court script, `tools/repack.py`, réécrit deux valeurs, `REGISTRY` et `REPOSITORY`, dans le fichier `.conf` que contient `adapter.zip` :
 
 *Se trouve dans : le fichier `.conf` de `adapter.zip`, dans le `.pak`, réécrit par `tools/repack.py` sur le jumphost.*
 
@@ -82,13 +321,13 @@ REPOSITORY=/nsxfederation
 DIGEST=sha256:dd80...b4cb
 ```
 
-## Installer le pack
-
-L'installation compte cinq étapes, dans l'ordre qui fonctionne. Lorsque le lab a rencontré un échec, son symptôme figure sous l'étape qui l'évite. [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.fr.md) reprend ces étapes sous forme de liste de contrôle, avec chaque commande et la machine où elle s'exécute.
+Les cinq étapes ci-dessous suivent l'ordre qui fonctionne. Chaque échec rencontré dans le lab est décrit sous l'étape qui l'évite.
 
 ### Étape 1 : servir le registre en HTTPS
 
-Le proxy cloud récupère l'image de l'adaptateur dans un registre, et il ne s'y adresse qu'en HTTPS. En production, l'image va dans le registre déjà en place (Harbor, par exemple). Si son certificat est émis par une autorité que le proxy cloud approuve déjà, l'étape 2 est inutile. Le lab n'a pas de tel registre : il utilise donc un conteneur `registry:2` sur le jumphost, avec un certificat autosigné :
+Le proxy cloud ne s'adresse au registre qu'en HTTPS.
+
+En production, l'image va dans le registre déjà en place (Harbor, par exemple). Si son certificat est émis par une autorité que le proxy cloud approuve déjà, l'étape 2 est inutile. Le lab n'a pas de tel registre : il utilise donc un conteneur `registry:2` sur le jumphost, avec un certificat autosigné :
 
 *À exécuter sur : le jumphost.*
 
@@ -104,7 +343,9 @@ docker run -d --name fedmp-registry -p <ip-jumphost>:5000:5000 \
   -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry:2
 ```
 
-Le premier registre du lab servait du HTTP en clair. Avec lui, l'instance d'adaptateur, créée sur le proxy cloud, est passée de `STARTING` à `FAILED` avec un message d'état vide. Le journal du registre ne contenait aucune requête. Une capture de paquets sur le port du registre en a donné la raison : le proxy cloud ouvrait une connexion et envoyait un ClientHello TLS. Il ne se rabat pas sur HTTP, et le registre a donc été recréé avec le certificat ci-dessus.
+Le premier registre du lab servait du HTTP en clair. Avec lui, l'instance d'adaptateur est passée de `STARTING` à `FAILED` avec un message d'état vide, et le journal du registre ne contenait aucune requête.
+
+Une capture de paquets sur le port du registre en a donné la raison : le proxy cloud ouvrait une connexion et envoyait un ClientHello TLS. Il ne se rabat pas sur HTTP, et le registre a donc été recréé avec le certificat ci-dessus.
 
 ### Étape 2 : faire approuver le certificat du registre par le proxy cloud
 
@@ -124,7 +365,9 @@ Le proxy cloud exécute Docker, et Docker approuve un registre privé dès lors 
 /etc/docker/certs.d/<ip-jumphost>:5000/ca.crt
 ```
 
-SSH est désactivé sur le proxy cloud et l'est resté : le fichier a été écrit par les opérations invité de vCenter (`govc guest.run` avec le compte root de l'appliance). Une mise à niveau ou un redéploiement du proxy cloud peut le faire disparaître.
+SSH est désactivé sur le proxy cloud et l'est resté. Le fichier a été écrit par les opérations invité de vCenter (`govc guest.run` avec le compte root de l'appliance).
+
+Une mise à niveau ou un redéploiement du proxy cloud peut faire disparaître ce fichier.
 
 ### Étape 3 : installer le pack non signé
 
@@ -137,11 +380,13 @@ pak_manager.pakfile.no_signature
 The PAK file ... is not signed. It is missing required signature files signature.mf and signature.cert
 ```
 
-Par défaut, VCF Operations 9 bloque les packs non signés, et la case « Ignore the PAK file signature checking » reste masquée dans la boîte de dialogue d'envoi tant que ce blocage n'est pas levé. L'option qui le lève, « Allow unsigned PAK installation », se trouve dans la console d'administration (`https://<vcf-operations>/admin`), sous « Administrator Settings > Security Settings », et Broadcom la décrit dans la KB 415279. Avant son activation, la page se présente ainsi :
+Par défaut, VCF Operations 9 bloque les packs non signés. La case « Ignore the PAK file signature checking » reste masquée dans la boîte de dialogue d'envoi tant que ce blocage n'est pas levé.
+
+L'option qui le lève, « Allow unsigned PAK installation », se trouve dans la console d'administration (`https://<vcf-operations>/admin`), sous « Administrator Settings > Security Settings ». Broadcom la décrit dans la KB 415279. Avant son activation, la page se présente ainsi :
 
 ![La console d'administration de VCF Operations, Administrator Settings > Security Settings : l'option « Allow unsigned PAK installation » est désactivée, avec le bouton qui permet de l'activer](/images/nsx-federation-mp/ops-admin-unsigned-pak.webp)
 
-L'installation commence par l'activation de l'option et se termine par sa désactivation :
+L'option ne reste activée que le temps de l'installation :
 
 1. Dans la console d'administration, cliquer sur « Activate unsigned PAK installation ».
 2. Dans l'interface principale de VCF Operations, ouvrir « Administration > Integrations > Repository », puis choisir d'ajouter un pack.
@@ -157,11 +402,27 @@ Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK
 
 ### Étape 4 : créer le compte
 
-Le compte se crée sous « Administration > Integrations > Accounts », avec le type NSX Federation et le proxy cloud comme collecteur. Il reçoit une ou deux adresses de Global Manager et un jeu d'identifiants, plus un second, facultatif, pour les Local Managers. Avec les deux adresses, le pack suit le rôle actif lorsque les Global Managers basculent. Les autres réglages sont facultatifs : les stratégies de sécurité dont les règles deviennent des objets, la façon dont le pack fonctionne avec l'intégration NSX native (liens et alertes d'alarme, automatiques par défaut), et la suppression des objets qui ont quitté NSX (désactivée par défaut). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/OPERATIONS.md) (en anglais) décrit chaque réglage.
+L'interface de VCF Operations appelle l'instance d'adaptateur un compte. Le compte se crée sous « Administration > Integrations > Accounts », avec le type NSX Federation et le proxy cloud comme collecteur.
 
-Lors de l'enregistrement du compte, il faut valider la connexion et accepter les certificats des Global Managers. Le contrôle des certificats a trois modes. « enforce » arrête la collecte d'un manager dont le certificat ne correspond pas ou pour lequel aucun certificat approuvé n'est enregistré. « ca » fonctionne comme « enforce » et approuve en plus un certificat rattaché à une autorité de certification de confiance et valide pour l'adresse qu'utilise le compte : cette adresse doit donc être un nom ou une adresse IP inscrits dans le certificat. Les autorités de confiance sont celles du réglage du compte Trusted CA certificates (PEM), qui accepte un texte PEM collé sur une seule ligne, tout certificat d'autorité accepté sur le compte et le magasin de certificats de l'image de l'adaptateur. Une autorité importée dans le proxy cloud ne fait pas partie de ce magasin. « report » poursuit la collecte et déclenche une alerte. Le mode par défaut est « enforce » : sans certificat accepté, aucun manager n'est interrogé.
+Il reçoit une ou deux adresses de Global Manager et un jeu d'identifiants, plus un second, facultatif, pour les Local Managers. Avec les deux adresses, le pack suit le rôle actif lorsque les Global Managers basculent. Un compte supervise une seule fédération.
 
-Le pack ne fait que lire dans NSX : un compte en lecture seule suffit donc. Dans le lab, le compte se connecte avec l'utilisateur intégré `audit` de NSX sur les deux Global Managers et les deux Local Managers de la fédération, et collecte les mêmes objets qu'avec `admin`, sans aucun appel en échec.
+Les autres réglages sont facultatifs : les stratégies de sécurité dont les règles deviennent des objets, la façon dont le pack fonctionne avec l'intégration NSX native, et la suppression des objets qui ont quitté NSX (désactivée par défaut). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/OPERATIONS.md) (en anglais) décrit chaque réglage.
+
+Lors de l'enregistrement du compte, il faut valider la connexion et accepter les certificats des Global Managers. L'adaptateur découvre les Local Managers à partir du Global Manager et compare le certificat de chacun d'eux à l'empreinte que le Global Manager a déjà enregistrée pour lui. Une fois un certificat vérifié, chaque connexion du cycle est liée à son empreinte : les identifiants ne sont donc pas envoyés à un serveur qui présente un autre certificat.
+
+Le contrôle des certificats a trois modes :
+
+| Mode | Comportement |
+| --- | --- |
+| enforce (par défaut) | Arrête la collecte d'un manager dont le certificat ne correspond pas ou pour lequel aucun certificat approuvé n'est enregistré |
+| ca | Fonctionne comme « enforce » et approuve en plus un certificat rattaché à une autorité de certification de confiance et valide pour l'adresse qu'utilise le compte |
+| report | Poursuit la collecte et déclenche une alerte |
+
+Avec le mode par défaut, aucun manager n'est collecté tant qu'un certificat n'a pas été accepté.
+
+En mode « ca », l'adresse du compte doit être un nom ou une adresse IP inscrits dans le certificat. Les autorités de confiance sont celles du réglage du compte Trusted CA certificates (PEM), qui accepte un texte PEM collé sur une seule ligne, tout certificat d'autorité accepté sur le compte et le magasin de certificats de l'image de l'adaptateur. Une autorité importée dans le proxy cloud ne fait pas partie de ce magasin.
+
+Le pack ne fait que lire dans NSX : un compte en lecture seule suffit donc. Dans le lab, le compte se connecte avec l'utilisateur intégré `audit` de NSX sur les deux Global Managers et les deux Local Managers, et collecte les mêmes objets qu'avec `admin`, sans aucun appel en échec.
 
 Une fois le registre approuvé, le proxy cloud récupère l'image au démarrage de l'instance, qui passe à l'état `STARTED`, puis `DATA_RECEIVING`. L'onglet « Accounts » affiche l'instance avec l'état « Collecting » :
 
@@ -187,230 +448,80 @@ Une mise à niveau se fait en trois étapes :
 2. Arrêter puis redémarrer le compte, pour que l'instance d'adaptateur exécute la nouvelle image.
 3. Vérifier que le compte atteint l'état « Collecting », et le démarrer de nouveau s'il reste arrêté.
 
-Les métriques reviennent après trois cycles, et les taux après quatre. Une installation conserve les définitions d'alertes, de symptômes et de recommandations que la nouvelle version ne fournit plus. `install_unsigned.sh` lance `install/cleanup_content.py` après l'installation pour supprimer ces définitions orphelines. Après une installation dans l'interface, il faut lancer le script à la main avec `--delete`. Le script ne supprime que des ID générés par le pack, et il garde une définition orpheline qu'utilise encore une définition d'alerte extérieure au pack.
+Les métriques reviennent après trois cycles, et les taux après quatre.
+
+Une installation conserve les définitions d'alertes, de symptômes et de recommandations que la nouvelle version ne fournit plus. `install_unsigned.sh` lance `install/cleanup_content.py` après l'installation pour supprimer ces définitions orphelines. Après une installation dans l'interface, il faut lancer le script à la main avec `--delete`. Le script ne supprime que des ID générés par le pack, et il garde une définition orpheline qu'utilise encore une définition d'alerte extérieure au pack.
 
 Une modification de la façon dont l'adaptateur identifie un objet crée un nouvel objet. L'ancien reste dans l'inventaire, sans données, jusqu'à sa suppression, qui efface aussi son historique. `cleanup_content.py --legacy-objects` liste les nœuds Edge, les tunnels RTEP et les canaux de synchronisation encore identifiés par un nom, et `--legacy-objects --delete` les supprime.
 
-## Ce que le pack supervise
+## Envoyer les alertes
 
-La liste complète des objets, des métriques et des alertes se trouve dans [FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md).
+Le pack déclenche les alertes, VCF Operations les envoie. Deux réglages sont nécessaires, tous deux sous « Administration > Configurations », dans le groupe « Alerts » :
 
-### Objets
+- une instance sortante, qui connaît le serveur de messagerie ;
+- une règle de notification, qui sélectionne les alertes.
 
-Le pack définit 16 types d'objets. Dans le lab, il crée 76 objets de 15 types. Le seizième type, la règle de pare-feu globale, s'active stratégie par stratégie et est resté désactivé pour cette installation.
+Le lab n'a pas de serveur de messagerie : les captures du courriel montrent donc les formulaires avant enregistrement. Un webhook a été testé de bout en bout à la place, avec un script.
 
-| Type d'objet | Nombre dans le lab | Exemples de données collectées |
-| --- | --- | --- |
-| Fédération | 1 | Global Managers actifs, emplacements en bonne santé et interrogés, capacité à basculer, agrégats RTEP, plus grand écart d'horloge, limite de configuration NSX la plus utilisée, changements constatés et les dix derniers d'entre eux, erreurs d'API, managers ayant dépassé leur quota d'appels |
-| Global Manager | 2 | Prêt ou non à devenir le Global Manager actif, avec les raisons, Standby Global Manager synchronisé ou non et depuis combien de temps il ne l'est plus, entrées restant à lui envoyer, dernière synchronisation complète, version comparée à celle du Global Manager actif, état de la mise à niveau, état de la sauvegarde, alarmes ouvertes, jours restants avant la première expiration de certificat, écart d'horloge avec le Global Manager actif et état NTP |
-| Nœud de manager | 4 | État en ligne de chaque nœud de Global Manager et de Local Manager |
-| Emplacement | 2 | En bonne santé ou non, connexion au Global Manager, flux de réplication, latence et files de synchronisation, dernier contact avec le Global Manager, état de l'onboarding, joignable ou non depuis le proxy cloud et temps écoulé depuis la dernière collecte, nœuds en ligne, échecs et durée de la synchronisation complète, sessions BGP intersites, alarmes, version, état de la mise à niveau, écart d'horloge avec le Global Manager et état NTP, utilisation des limites de configuration NSX, objets globaux surchargés sur l'emplacement |
-| Canal de synchronisation | 9 | État de la connexion entre deux managers |
-| Cluster Edge | 2 | État intersite, membres, adresses RTEP |
-| Nœud Edge | 4 | Tunnels RTEP, sessions BGP intersites, état, CPU des cœurs datapath et des cœurs de services, mémoire système et datapath, pool de mémoire et système de fichiers les plus remplis |
-| Service router du Tier-0 | 4 | État HA, état du routage, voisins BGP établis et tombés, dernier changement d'état HA |
-| Tunnel RTEP | 8 | État BGP et coupures de session par heure, paquets, paquets rejetés, part des paquets rejetés et paquets bloqués dans chaque sens |
-| Voisin BGP du Tier-0 | 16 | État, préfixes reçus et annoncés, messages, durée d'établissement, coupures de session par heure ; 4 sessions de liaison montante et 12 sessions internes entre nœuds Edge |
-| Passerelle Tier-0 | 1 | Portée, emplacements réalisés, emplacements en erreur, service routers actifs et service routers dont le routage est tombé, emplacements sans service router actif |
-| Passerelle Tier-1 | 3 | Mêmes données que la passerelle Tier-0 |
-| Segment | 5 | Mêmes données, plus les sous-réseaux et la passerelle connectée |
-| Stratégie de sécurité globale | 1 | Portée, réalisation, nombre total de règles et de règles désactivées |
-| Objet étendu sur un emplacement (réalisation) | 14 | Réalisé ou non, libellé de l'état |
+### L'instance sortante
 
-Le pack rend compte de son propre fonctionnement sur l'objet fédération : appels effectués, appels bridés, erreurs, et épuisement éventuel du quota d'appels d'un manager.
+1. Ouvrir « Administration > Configurations > Outbound Settings » et cliquer sur « Add ».
+2. Choisir le type de plug-in « Standard Email Plugin » et donner un nom à l'instance.
+3. Renseigner « SMTP Host » et « SMTP Port », ainsi que l'adresse et le nom de l'expéditeur. Cocher « Use Secure Connection » et « Requires Authentication » si le serveur de messagerie l'exige. Le formulaire comporte aussi un champ d'identifiants et une adresse de destinataire.
+4. Cliquer sur « Test », puis sur « Save ».
 
-Un nœud Edge est identifié par l'ID NSX de son transport node, et chacun de ses tunnels par cet ID et ses deux adresses RTEP. Un canal de synchronisation est identifié par les ID de site de ses deux extrémités. Un service router du Tier-0 est identifié par les ID NSX de sa passerelle et de son nœud Edge. Un nœud Edge renommé ou redéployé conserve ainsi ses objets et leur historique, tout comme un emplacement ou un Global Manager renommé.
+Le formulaire, tel qu'il a été ouvert dans le lab :
 
-Dans l'inventaire, les types d'objets forment une arborescence et chaque objet a une page de résumé, ici celle d'un emplacement :
+![Create New Outbound Instance avec le Standard Email Plugin : hôte et port SMTP, connexion sécurisée, adresse et nom de l'expéditeur, identifiants et adresse du destinataire](/images/nsx-federation-mp/ops-email-plugin.webp)
 
-![Inventaire de VCF Operations : les types d'objets NSX Federation dans l'arborescence, et le résumé de l'emplacement site-a-wld01 avec ses objets associés, ses indicateurs clés et l'alerte sur une mise à niveau NSX en pause](/images/nsx-federation-mp/ops-inventory-location.webp)
+La même liste propose des plug-ins Webhook, Slack, ServiceNow et SNMP trap. La règle de notification décrite ci-dessous fonctionne avec chacun d'eux.
 
-Le pack fournit aussi une arborescence d'inventaire. Pour l'ouvrir, aller dans « Inventory », cliquer sur « Detailed View », choisir le dernier onglet (l'icône en forme de pièce de puzzle), puis sélectionner « NSX Federation » dans la liste déroulante. L'arborescence part de la fédération. En dessous se trouvent les segments, les passerelles Tier-1 et Tier-0, la stratégie de sécurité globale, les Global Managers et les deux emplacements. Un Global Manager contient son nœud de manager et ses canaux de synchronisation. Un emplacement contient son nœud de manager, ses canaux de synchronisation et son cluster Edge, avec les nœuds Edge et leurs tunnels. Un Tier-0 contient ses voisins BGP, et chaque objet étendu contient sa réalisation par emplacement :
+### La règle de notification
 
-![L'arborescence d'inventaire NSX Federation dans VCF Operations : la fédération, ses segments, passerelles et stratégie, et l'emplacement site-a-wld01 déplié sur son nœud de manager, ses canaux de synchronisation et son cluster Edge](/images/nsx-federation-mp/ops-inventory-tree.webp)
+1. Ouvrir « Administration > Configurations > Notifications » et cliquer sur « Add ». L'assistant compte cinq étapes, qui correspondent aux points 2 à 6 ci-dessous.
+2. **Notification :** saisir un nom, par exemple « NSX Federation alerts by email ».
+3. **Define Criteria :** sous « Object Scope », choisir « Object Type » et sélectionner les types d'objets de l'adaptateur NSX Federation. Sous « Alert Scope », laisser « Category » sur toutes les alertes ou le restreindre à « Alert Definition » pour choisir des définitions précises. « Criticality » limite la règle, par exemple à Immediate et Critical. « Notify On » détermine les changements d'état d'une alerte qui déclenchent un message.
+4. **Set Outbound Method :** choisir le plug-in de courriel et l'instance sortante créée plus haut.
+5. **Select Payload Template :** choisir le modèle qui met en forme le message. Les modèles se gèrent sous « Payload Templates », sur la même page « Configurations ».
+6. **Test Notification :** lancer le test, puis cliquer sur « Create ».
 
-### Groupes personnalisés
+L'étape « Define Criteria » se présente ainsi :
 
-Le pack fournit quatre groupes personnalisés (custom groups) : tous les objets du pack (76 dans le lab), managers et emplacements (9), connectivité intersite (43) et objets étendus (24). Un groupe réunit les alertes et les badges de ses membres, et une politique ou une règle de notification peut le prendre pour périmètre. Les groupes se trouvent sous « Inventory > Custom Groups > Environment ». L'appartenance dépend du type d'objet : un nouvel emplacement ou un nouveau tunnel rejoint donc son groupe sans modification. Ces quatre groupes contiennent les objets de toutes les fédérations. Un script du dépôt, `install/federation_groups.py`, ajoute un groupe par fédération, « NSX Federation - <fédération> ». Chaque objet du pack porte l'ID de sa fédération dans une propriété, et le groupe s'appuie dessus : il ne prend donc jamais les objets d'une autre fédération. Dans le lab, ce groupe contient les 76 objets de la fédération. Les 21 autres objets du pack présents dans le lab ne reçoivent plus de données et ne portent pas d'ID : ils restent donc en dehors.
+![L'étape Define Criteria d'une règle de notification : périmètre des objets, périmètre des alertes avec catégorie, criticité et état de contrôle, et changements d'état à notifier](/images/nsx-federation-mp/ops-notification-rule.webp)
 
-![Groupe personnalisé « NSX Federation - Managers and locations » : les deux Global Managers, la fédération, les deux emplacements et les quatre nœuds de manager](/images/nsx-federation-mp/ops-custom-groups.webp)
+Une règle limitée à Immediate et Critical n'envoie par courriel que les alertes de ces deux niveaux. Les alertes de niveau Information et Warning restent visibles dans l'interface. Une seconde règle, sans limite de criticité et adressée à la boîte aux lettres d'une équipe, permet de les recevoir aussi.
 
-### Métriques
+### La même règle avec un script
 
-Une fois les taux disponibles, le pack envoie 586 métriques par cycle dans le lab. Elles sont rangées en 25 groupes, comme dans les intégrations natives (Sync, Connectivity, Certificates, Alarms, Rates, Capacity, Time, Availability, etc.), ce qui garde courte l'arborescence des métriques d'un objet. La clé d'une métrique contient son groupe, par exemple `sync|standby_in_sync`.
+`install/notification_rules.py` crée la même règle pour une instance sortante qui existe déjà, avec le modèle par défaut de son type de plug-in.
 
-![Onglet « Metrics » du Global Manager gm-site-a : les groupes Alarms, Certificates, Cluster, Connectivity et Sync, et la courbe de « Standby sync healthy (1 = in sync) » à 1](/images/nsx-federation-mp/ops-metric-groups.webp)
+La règle prend les alertes de tous les types d'objets du pack, Immediate et Critical par défaut (`--min-criticality warning` ajoute les Warning). Elle les envoie lorsqu'elles sont nouvelles, mises à jour ou annulées : un ticket ou un fil de discussion apprend ainsi que l'alerte a disparu. `--group` la limite aux membres d'un groupe, par exemple celui d'une fédération.
 
-Vingt-six métriques sont marquées comme indicateurs clés, cinq au plus par type d'objet : les Global Managers actifs, la part d'emplacements en bonne santé et la capacité à basculer sur la fédération, les nœuds hors ligne et la synchronisation du Standby Global Manager sur un Global Manager, la santé, la connexion et la synchronisation complète d'un emplacement, BGP, les paquets rejetés et leur part sur un tunnel, le CPU datapath d'un nœud Edge, le routage d'un service router du Tier-0, les service routers actifs d'un Tier-0, etc. VCF Operations les affiche en premier dans le résumé de l'objet :
+Dans le lab, l'instance sortante était un webhook vers un petit serveur HTTP sur le jumphost, et la règle était limitée au groupe de la fédération. L'affectation de la politique « NSX Federation - Non-production » à ce groupe a annulé les deux alertes de sauvegarde des Global Managers, et le serveur a reçu deux messages avec le statut « Canceled ». Au retrait de la politique, deux messages avec le statut « Active » sont arrivés environ trois secondes plus tard.
 
-![Résumé de gm-site-a : l'alerte de sauvegarde ouverte et, à droite, les indicateurs clés « Nodes offline 0 » et « Standby sync healthy (1 = in sync) 1 »](/images/nsx-federation-mp/ops-key-attributes.webp)
-
-NSX renvoie les paquets, les octets, les rejets et les correspondances de règles sous forme de totaux cumulés. L'adaptateur conserve les compteurs du cycle précédent et ajoute des taux : paquets, rejets et paquets bloqués par minute et octets par seconde sur les tunnels RTEP, correspondances de règles par minute sur les stratégies, les réalisations et les règles, et coupures de session par heure sur les voisins BGP du Tier-0 et sur la session BGP intersite de chaque tunnel RTEP. À partir des mêmes compteurs, il calcule la part des paquets rejetés par un tunnel RTEP dans chaque sens. NSX compte un paquet rejeté dans le total des paquets (voir « Latence, perte de paquets et instabilité BGP ») : la part est donc le nombre de rejets divisé par le total. Le calcul exige au moins 50 paquets depuis le cycle précédent, pour qu'un seul paquet perdu sur un tunnel presque inactif n'apparaisse pas comme un pourcentage élevé. Les unités sont déclarées : secondes, minutes, heures, jours, millisecondes, octets, octets par seconde, paquets, appels, erreurs, pourcentages, taux par minute et taux par heure.
-
-Trois métriques sont dérivées par l'adaptateur (Global Managers injoignables, sessions BGP intersites non établies, emplacements non réalisés), car un symptôme compare une métrique à une valeur fixe et ne sait pas soustraire deux métriques.
-
-Douze valeurs, portées par l'objet fédération, couvrent toute la fédération : emplacements en bonne santé, en nombre et en pourcentage ; tunnels RTEP ; tunnels dont la session BGP est tombée ; paquets RTEP rejetés par minute sur l'ensemble des tunnels ; jours restants avant la première expiration de certificat, tous managers confondus ; alarmes critiques ouvertes sur l'ensemble des managers ; plus grand écart d'horloge avec le Global Manager actif ; limite de configuration NSX la plus utilisée, tous emplacements confondus ; objets globaux surchargés sur l'ensemble des emplacements ; nombre de jours le plus faible avant l'expiration d'un mot de passe du compte de collecte ; règles de pare-feu globales à revoir. Une super métrique pourrait en calculer une partie, mais elle reste inactive tant qu'une politique ne l'active pas : l'adaptateur calcule donc les douze. Le 22 novembre, elles indiquent deux emplacements en bonne santé sur deux (100 %), 8 tunnels, aucun tombé, aucun paquet rejeté, 328,5 jours avant la première expiration de certificat (celui d'un Local Manager), une alarme critique, un écart d'horloge de 0,07 seconde, 97,6 % pour la limite la plus utilisée, aucun objet surchargé, 35 jours avant l'expiration du premier mot de passe et aucune règle à revoir.
-
-Chaque emplacement expose aussi ce que la page « Location Manager » de NSX affiche pour lui : l'état de ses trois flux de réplication avec le Global Manager, le moment où le Global Manager l'a vu pour la dernière fois, la latence, le remplissage de ses files de synchronisation et l'état de son onboarding. Le pack fait les mêmes appels que cette page sur le Global Manager actif. Les flux de réplication viennent de `GET /api/v1/federation/replication/gm/sites/<site-id>/status`, dont NSX 9.1.1 laisse vide le champ de temps d'aller-retour. La colonne « Latest Latency » de la page vient d'un autre appel, `GET /global-manager/api/v1/observability/flow-details`, qui renvoie, pour chaque sens entre le Global Manager et un emplacement, la latence mesurée par NSX ainsi que la taille actuelle et la taille maximale de ses files de synchronisation. Le pack retient la plus forte latence des deux sens et la compare au RTT maximal défini pour l'emplacement dans NSX (250 ms par défaut). Pour les files, il indique en pourcentage le remplissage de la plus pleine. NSX ne mesure aucune latence entre les deux Global Managers, et sa propre page affiche NA à cet endroit.
-
-Dans le tableau de couverture ci-dessous, la colonne Métriques compte les clés de métrique définies pour chaque type. Tous les objets n'envoient pas toutes les clés (seules les réalisations de stratégie portent des compteurs, par exemple) : la colonne multipliée par le nombre d'objets ne donne donc pas 586.
-
-| Type d'objet | Métriques | Définitions d'alerte | Tableau de bord |
-| --- | --- | --- | --- |
-| Fédération | 36 | 9 | Federation Overview, Location Matrix, Switchover Readiness |
-| Global Manager | 18 | 24 | Federation Overview, Switchover Readiness |
-| Nœud de manager | 1 | Aucune, le nœud est couvert par l'alerte de cluster de son Global Manager ou de son emplacement | Objets associés uniquement |
-| Emplacement | 31 | 28 | Federation Overview, Location Matrix |
-| Canal de synchronisation | 1 | 1 | Inter-site Connectivity |
-| Cluster Edge | 4 | 1 | Inter-site Connectivity |
-| Nœud Edge | 11 | 6 | Inter-site Connectivity |
-| Service router du Tier-0 | 4 | 1 | Inter-site Connectivity |
-| Tunnel RTEP | 21 | 5 | Inter-site Connectivity |
-| Voisin BGP du Tier-0 | 8 | 3 | Inter-site Connectivity |
-| Tier-0 étendu | 10 | 3 | Stretched Objects |
-| Tier-1 et segment étendus | 4 chacun | 1 chacun | Stretched Objects |
-| Stratégie de sécurité globale | 11 | 3 | Stretched Objects |
-| Objet étendu sur un emplacement | 6 | 1 | Stretched Objects |
-| Règle de pare-feu globale (optionnelle) | 5 | Aucune | Aucun |
-
-### Alertes
-
-Le pack compte 87 définitions d'alerte, 153 symptômes et 53 recommandations. Douze recommandations se terminent par un lien vers l'article de la KB Broadcom ou la page de documentation qui traite de la panne. Ce contenu tient dans un seul fichier XML, placé dans `content/alertdefs`, qu'un script génère à partir d'une table des symptômes, des alertes et des recommandations. Un symptôme est une condition portant sur une métrique, sur une propriété ou sur un événement, et quatre symptômes utilisent un seuil dynamique. Une condition sur une propriété se présente ainsi :
-
-*Se trouve dans : le fichier d'alertes du pack, dans `content/alertdefs`.*
-
-```xml
-<SymptomDefinition adapterKind="NSXFederation" id="SymptomDefinition-NSXFederation-gm_backup_off"
-                   name="Backup is not configured on the Global Manager" resourceKind="global_manager">
-    <State severity="immediate">
-        <Condition key="backup_enabled" operator="=" thresholdType="static" type="property"
-                   value="False" valueType="string"/>
-    </State>
-</SymptomDefinition>
-```
-
-Une condition sur un événement compare le texte de l'événement à une expression régulière :
-
-*Se trouve dans : le fichier d'alertes du pack, dans `content/alertdefs`.*
-
-```xml
-<Condition eventMsg="NSX alarm rtep_bgp_down:(?s).*" eventSubType="5" eventType="11"
-           operator="regex" type="msg_event"/>
-```
-
-Les 87 définitions se répartissent ainsi par type d'objet :
-
-| Type d'objet | Définitions | Alertes |
-| --- | --- | --- |
-| Fédération | 9 | Aucun Global Manager actif ; split-brain (deux Global Managers actifs) ; Global Manager injoignable depuis le proxy cloud ; aucun Standby Global Manager configuré ; collecte partielle (quota d'appels d'API épuisé) ; collecte avec des données manquantes ; collecte lente ou bridée ; collecte sans Global Manager ; Global Manager de la liste appartenant à une autre fédération |
-| Global Manager | 24 | Cluster dégradé ; sauvegarde absente, trop ancienne ou en échec ; certificat proche de l'expiration ; Standby Global Manager non synchronisé ; aucun rôle dans la fédération (mode NONE) ; version différente de celle du Global Manager actif ; mise à niveau NSX en cours, en pause ou en échec ; horloge décalée par rapport au Global Manager actif ; mot de passe du compte de collecte bientôt expiré ; 15 alarmes de fédération NSX (voir ci-dessous) |
-| Emplacement | 28 | Connexion au Global Manager actif perdue ; Local Manager injoignable depuis le proxy cloud ; certificat non approuvé ; synchronisation complète non terminée ; sessions BGP intersites tombées ; latence élevée vers le Global Manager ; release NSX différente de celle du Global Manager ; sauvegarde absente, trop ancienne ou en échec ; certificat proche de l'expiration ; cluster du Local Manager dégradé ; flux de réplication en erreur ; release NSX plus récente que celle du Global Manager ; mise à niveau NSX en cours, en pause ou en échec ; horloge décalée par rapport au Global Manager ; objets globaux surchargés ; limite de configuration NSX proche de son maximum ; mot de passe du compte de collecte bientôt expiré ; 11 alarmes de fédération NSX |
-| Canal de synchronisation | 1 | Canal interrompu |
-| Cluster Edge | 1 | État intersite différent de UP |
-| Nœud Edge | 6 | Toutes les sessions BGP intersites tombées ; état différent de UP ; CPU datapath élevé ; CPU datapath au-dessus de sa plage habituelle (seuil dynamique) ; mémoire élevée ; système de fichiers en cours de remplissage |
-| Service router du Tier-0 | 1 | Routage ou état HA tombé |
-| Tunnel RTEP | 5 | Session BGP intersite tombée sur le tunnel ; session BGP intersite instable ; paquets rejetés dans un sens ; paquets bloqués dans un sens ; trafic au-dessus de sa plage habituelle (seuil dynamique) |
-| Voisin BGP du Tier-0 | 3 | Session tombée ; session instable (coupée depuis le cycle précédent puis rétablie) ; session de liaison montante établie sans aucun préfixe reçu |
-| Tier-0 | 3 | Emplacements en erreur ; aucun service router actif (dans la fédération, ou sur un emplacement pour une passerelle actif-actif) ; un service router a changé d'état HA |
-| Tier-1, segment | 1 chacun | Emplacements en erreur |
-| Stratégie de sécurité globale | 3 | Emplacements en erreur ; règles jamais atteintes (masquées ou inutilisées) ; une règle qui autorise tout le trafic |
-| Objet étendu sur un emplacement | 1 | Non réalisé |
-
-L'alerte du nœud Edge ne se déclenche que lorsque le nœud a perdu toutes ses sessions intersites, car la perte d'une seule session déclenche l'alerte du tunnel. « Stretched object is not realized at a location » est de niveau Warning, car les alertes d'erreur sur l'objet lui-même sont de niveau Immediate.
-
-Chaque alerte définit aussi le badge sur lequel elle pèse et la vitesse à laquelle elle réagit :
-
-- **Badge.** Vingt et une alertes font baisser le badge « Risk » au lieu du badge « Health » : les deux alertes de sauvegarde, les deux alertes d'expiration de certificat, le certificat non approuvé, l'absence de Standby Global Manager, l'écart de release, le quota d'appels, les données manquantes, la collecte lente ou bridée, les Global Managers de versions différentes, l'emplacement en avance sur le Global Manager, les deux alertes de mise à niveau, le système de fichiers d'un nœud Edge en cours de remplissage, les objets globaux surchargés, la limite de configuration NSX, les deux alertes de mot de passe et les deux alertes de revue des règles de pare-feu. Ces conditions poseront problème plus tard ; « Health » reste réservé à ce qui est déjà en panne.
-- **Cycles d'attente et d'annulation.** Les symptômes susceptibles d'osciller exigent deux cycles de collecte, soit 10 minutes, pour déclencher une alerte, et deux pour l'effacer : flux de réplication en erreur ; canal de synchronisation interrompu ; sessions BGP intersites tombées, ou aucune établie, sur l'emplacement ; aucune session intersite sur le nœud Edge ; BGP intersite tombé sur le tunnel ; paquets rejetés et bloqués sur un tunnel ; latence vers le Global Manager ; voisin BGP du Tier-0 tombé ; aucun préfixe reçu ; état d'un nœud Edge différent de UP ; service router du Tier-0 tombé ; Tier-0 sans service router actif. L'instabilité BGP, sur un voisin du Tier-0 ou sur la session intersite d'un tunnel, fait exception : une seule coupure déclenche l'alerte au cycle suivant, et l'alerte s'efface après deux cycles, ce qui laisse une instabilité visible 10 minutes. Les données manquantes et la collecte lente attendent aussi deux cycles, tout comme une synchronisation complète non terminée et un objet étendu non réalisé : une synchronisation ou une modification en cours ne déclenche donc rien. Le seuil dynamique, la synchronisation du Standby Global Manager, le bridage et les alertes de CPU, de mémoire et de disque des nœuds Edge en attendent trois. Un écart d'horloge en attend deux, car une seule mesure peut être faussée de la durée de l'appel ; un service NTP arrêté déclenche l'alerte immédiatement. Un symptôme qui fait taire une alerte, comme le mode maintenance d'un nœud Edge, s'efface un cycle après les symptômes qu'il couvre : la sortie du mode maintenance ne déclenche donc rien. Les symptômes de panne d'emplacement s'effacent après trois cycles (voir « Une seule alerte pour la panne d'un emplacement »).
-- **Sous-type Compliance.** Huit alertes portent le sous-type Compliance : l'absence de Standby Global Manager, les deux alertes de sauvegarde, les Global Managers de versions différentes, les deux alertes de release d'un emplacement et les deux alertes de revue des règles de pare-feu. Dans VCF Operations 9.1.1, la page « Compliance » affiche un bandeau qui indique que l'ancienne fonction Compliance est obsolète dans VCF 9.1 et qui renvoie vers Security Posture Management : le sous-type ne sert donc qu'à classer les alertes.
-- **Seuils.** La plupart des symptômes testent un état : une session tombée, un nœud hors ligne, un objet en erreur. Ceux qui comparent une métrique à un nombre figurent dans le [tableau des seuils de FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md#seuils) : l'ancienneté de la sauvegarde (24 heures), l'expiration des certificats (30 et 7 jours), la durée de la collecte (4 minutes), la latence vers le Global Manager (150 ms, ou 80 % et 100 % du RTT maximal défini dans NSX) et, sur les tunnels RTEP, les paquets rejetés (plus de 1 %, ou 5 % pour Immediate, avec plus de 10 par minute) et les paquets bloqués (plus de 10 par minute), puis le CPU datapath d'un nœud Edge (75 %, 85 % pour Immediate), sa mémoire (80 % et 90 %), son pool de mémoire le plus rempli (85 %) et son système de fichiers le plus rempli (80 % et 90 %), puis l'écart d'horloge avec le Global Manager actif (5 secondes, 60 pour Immediate), et enfin le nombre de jours restants avant l'expiration du mot de passe du compte de collecte (30 et 7). Les limites de configuration NSX reprennent les seuils que NSX applique lui-même (70 % et 100 % par défaut). L'alerte sur les rejets exige à la fois la part et le nombre : un nombre fixe seul pèse lourd sur un tunnel peu chargé et ne signifie rien sur un tunnel très chargé. Une politique VCF Operations peut remplacer un seuil sans reconstruire le pack : « Policy Definition », modifier la politique, « Alerts and Symptoms », onglet « Symptom Definitions », sélectionner le symptôme et changer la valeur sous « Override Symptoms ».
-- **Seuil dynamique.** L'alerte de trafic du tunnel compare les débits en réception et en émission à la plage que VCF Operations apprend pour chaque tunnel. L'alerte de latence fait de même avec le temps d'aller-retour de chaque emplacement : un lien qui passe de 1 ms à 40 ms est ainsi signalé bien avant d'atteindre 150 ms. Une troisième fait de même avec le CPU datapath de chaque nœud Edge. Les trois ont besoin de plusieurs jours d'historique avant de pouvoir se déclencher.
-
-Dans le lab, quatre alertes se déclenchent, issues de trois définitions : l'absence de sauvegarde sur les deux Global Managers ; une mise à niveau NSX en pause sur le Local Manager de site-a-wld01, dont le coordinateur de mise à niveau conserve une version cible qu'il n'a pas appliquée ; et une limite de configuration NSX sur site-a-wld03, où 830 des 850 services que supporte le Local Manager sont utilisés (97,6 %, classé WARNING par NSX). Le Local Manager de site-a-wld01 est au même niveau, et cette alerte-là est laissée à l'intégration NSX native, qui le supervise. Toutes les quatre sont justifiées dans le lab et pèsent sur « Risk ». Les autres définitions n'ont rien à signaler ici ; la section « Tests dans le lab » décrit comment elles ont été vérifiées.
-
-Une alerte issue d'une définition affiche sa recommandation et le symptôme qui l'a déclenchée :
-
-![Détail de l'alerte « Global Manager backup is missing, old or failed » sur gm-site-a : la description, la recommandation et le symptôme « Backup is not configured on the Global Manager »](/images/nsx-federation-mp/ops-alert-recommendation.webp)
-
-#### Les alarmes NSX comme alertes nommées
-
-L'adaptateur relaie les alarmes de fédération du Global Manager, et celles de chaque Local Manager, sous forme d'événements dont le texte est `NSX alarm <event_type>: <summary>`. L'intégration NSX native utilise la même forme et s'en sert pour donner à 381 types d'alarme une alerte propre.
-
-Le pack donne aux 15 types d'alarme de fédération de NSX 9.1.1 un symptôme, une alerte et une recommandation propres : split-brain entre Global Managers ; erreurs et avertissements de synchronisation entre les Global Managers, entre le Global Manager et un emplacement, et entre emplacements ; les deux avertissements de latence ; la file de synchronisation au-dessus de son seuil ; un Local Manager restauré pendant l'import de sa configuration ; RTEP BGP tombé ; connectivité RTEP perdue ; et deux alarmes sur la synchronisation des groupes Active Directory utilisés par l'Identity Firewall : échec de la synchronisation différentielle avec l'annuaire et connexion au serveur LDAP perdue. Le Global Manager reçoit les 15. Un emplacement en reçoit 11, car les quatre alarmes entre Global Managers ne le concernent pas. NSX déclenche une alarme de latence lorsque la latence entre deux managers reste au-dessus de son seuil pendant deux minutes.
-
-L'intégration NSX native dispose des mêmes alarmes, mais uniquement pour les managers qui y sont ajoutés comme comptes NSX. Les alarmes du Global Manager n'arrivent dans VCF Operations que par ce pack. Pour un Local Manager, l'intégration native et le pack déclencheraient chacun une alerte pour la même alarme. L'adaptateur demande donc à VCF Operations quels clusters NSX l'intégration native supervise, et lui laisse les alarmes de fédération de ces Local Managers. Dans le lab, site-a-wld01 a dans l'intégration native un compte qui collecte, et le compte natif de site-a-wld03 existe mais ne collecte pas : une propriété de chaque emplacement vaut « the built-in NSX integration » pour le premier et « this pack » pour le second. Un réglage force l'un ou l'autre comportement. NSX lève ses propres alarmes pour l'état, le CPU, la mémoire et le système de fichiers d'un nœud Edge et pour ses limites de configuration, et l'intégration native les relaie. Les alertes d'état, de CPU, de mémoire et de système de fichiers d'un nœud Edge, et l'alerte sur les limites de configuration NSX, sont donc laissées à l'intégration native pour les Local Managers qu'elle supervise. Pour ces alertes, seule cette liste décide, et le réglage ne s'applique pas.
-
-Certaines conditions sans définition arrivent tout de même sous forme d'événements : une alarme de fédération dont le type n'a pas de définition, sur un Local Manager ou sur le Global Manager, et toutes les alarmes critiques du Global Manager, dans la limite de 20 par manager. Un tel événement apparaît sous la forme d'une alerte « Notification event » sur l'objet concerné, sans recommandation. Les autres alarmes NSX d'un emplacement sont comptées dans ses métriques et ne sont pas transmises. Une condition dotée d'une définition d'alerte portant sur une métrique ou une propriété n'émet pas d'événement : elle n'apparaît donc jamais deux fois, comme alerte et comme « Notification event ».
-
-### Tableaux de bord
-
-Cinq tableaux de bord sont regroupés dans un dossier nommé « NSX Federation » :
-
-| Tableau de bord | Contenu |
-| --- | --- |
-| Federation Overview | Alertes ouvertes sur les objets du pack ; liste regroupant la fédération, les Global Managers et les emplacements ; valeurs clés, propriétés et objets associés de l'élément sélectionné |
-| Location Matrix | Une ligne par emplacement avec les contrôles qui décident de sa santé : connexion au Global Manager, accès depuis le proxy cloud, nœuds hors ligne, BGP intersites, synchronisation complète, flux de réplication, latence, file de synchronisation, sauvegarde, certificats, alarmes critiques, version ; les chiffres de la fédération ; valeurs clés et propriétés de l'emplacement sélectionné |
-| Switchover Readiness | Les Global Managers avec leur mode, leur capacité à basculer, leur joignabilité, leur état de synchronisation, leurs nœuds hors ligne, leur version et l'âge de leur sauvegarde ; les chiffres de la fédération ; valeurs clés et propriétés du Global Manager sélectionné, avec les raisons qui l'empêchent de prendre le relais |
-| Inter-site Connectivity | Canaux de synchronisation, nœuds Edge avec leur CPU et leur mémoire, service routers du Tier-0, tunnels RTEP, voisins BGP du Tier-0 ; valeurs clés de la ligne sélectionnée |
-| Stretched Objects | Passerelles, segments et stratégies étendus, avec leur portée ; réalisation de chaque objet sur chaque emplacement |
-
-Dans chaque tableau de bord, une liste alimente un widget « Scoreboard ». Dans tous sauf Stretched Objects, un clic sur l'une des valeurs de ce widget en affiche la courbe de tendance.
-
-Federation Overview avec gm-site-a sélectionné. Le widget « Scoreboard » d'un Global Manager commence par la synchronisation du Standby Global Manager, et les alertes ouvertes sont celles de la sauvegarde et de la mise à niveau en pause :
-
-![Le tableau de bord Federation Overview : deux définitions d'alerte ouvertes (sauvegarde, mise à niveau en pause), la liste avec gm-site-a et gm-site-b, et le widget « Scoreboard » de gm-site-a avec Standby in sync à 1, les nœuds hors ligne à 0 et l'expiration des certificats](/images/nsx-federation-mp/ops-dashboard-standby.webp)
-
-Avec la fédération sélectionnée, le widget « Scoreboard » se termine par les agrégats de fédération : emplacements en bonne santé, RTEP BGP tombé, paquets RTEP rejetés par minute, expiration des certificats et alarmes critiques :
-
-![Le tableau de bord Federation Overview avec la fédération sélectionnée : le widget « Scoreboard » affiche les erreurs d'API, le quota d'appels, les emplacements en bonne santé à 100, RTEP BGP tombé à 0, les paquets RTEP rejetés par minute à 0, l'expiration des certificats à 330,9 jours et les alarmes critiques à 0](/images/nsx-federation-mp/ops-dashboard-rollups.webp)
-
-Inter-site Connectivity montre les taux d'un tunnel RTEP :
-
-![Le tableau de bord Inter-site Connectivity : canaux de synchronisation et nœuds Edge, tunnels RTEP, voisins BGP du Tier-0 et les taux du tunnel RTEP sélectionné](/images/nsx-federation-mp/ops-dashboard-connectivity.webp)
-
-Location Matrix, avec site-a-wld03 sélectionné. Les deux emplacements sont en bonne santé et la fédération a un standby prêt à prendre le relais :
-
-![Le tableau de bord Location Matrix : les deux emplacements avec Healthy 1 et GM connection 1, les chiffres de la fédération (2 emplacements, 2 en bonne santé, 100 %, RTEP BGP down 0, Ready to take over 1), ainsi que les valeurs clés et les propriétés de site-a-wld03](/images/nsx-federation-mp/ops-dashboard-matrix.webp)
-
-Switchover Readiness, avec le standby gm-site-b sélectionné. Il est prêt à prendre le relais, synchronisé et dans la même version que le Global Manager actif :
-
-![Le tableau de bord Switchover Readiness : gm-site-a actif et gm-site-b en standby, la fédération avec Ready to take over 1, ainsi que les valeurs clés et les propriétés de gm-site-b avec la capacité à basculer « ready »](/images/nsx-federation-mp/ops-dashboard-switchover.webp)
-
-Stretched Objects, avec le segment fed-stretched sélectionné :
-
-![Le tableau de bord Stretched Objects : les passerelles, segments et stratégies étendus, la réalisation par emplacement, ainsi que les valeurs clés et les propriétés du segment fed-stretched](/images/nsx-federation-mp/ops-dashboard-stretched.webp)
-
-### Vues et rapports
-
-Neuf vues de type liste portent sur les emplacements, les canaux de synchronisation, les tunnels RTEP, les voisins BGP du Tier-0, la capacité des nœuds Edge, les service routers du Tier-0, la revue des règles de pare-feu, les changements récents et la réalisation des objets étendus par emplacement. Quatre autres montrent la disponibilité sur les 30 derniers jours, une pour la fédération, une pour les Global Managers, une pour les emplacements et une pour les passerelles Tier-0 étendues, avec les valeurs les plus basses, les chiffres de BGP intersite et de latence, et le nombre de changements HA du Tier-0. Deux rapports les réunissent en PDF : « NSX Federation - Health report » avec les neuf premières vues, et « NSX Federation - Availability report » avec les quatre autres, à planifier chaque mois sur l'objet fédération. Les treize vues et les deux rapports tiennent dans un seul fichier XML, qu'un script génère, comme pour les alertes et les tableaux de bord. La vue Locations :
-
-![La vue de type liste « NSX Federation - Locations » : les deux emplacements avec leur version, la connexion au Global Manager, l'état joignable ou non depuis le proxy cloud, les sessions BGP intersites et les échecs de synchronisation complète](/images/nsx-federation-mp/ops-view-locations.webp)
-
-### Une politique pour les fédérations de lab et de test
-
-Certaines alertes sont attendues sur une fédération de lab. Dans celle-ci, les Global Managers n'ont pas de sauvegarde et un Local Manager atteint 97,6 % d'une limite de configuration. Le dépôt contient une politique VCF Operations, « NSX Federation - Non-production », qui désactive onze alertes de ce genre : sauvegardes, absence de Standby Global Manager, revue des règles de pare-feu, surcharges, limites de configuration et capacité des nœuds Edge. Les alertes sur les pannes, la synchronisation, le basculement et la réalisation restent actives. Le fichier d'export de la politique s'importe sous « Administration > Configurations > Policy Definition > Import », ou avec `install/import_policy.py`, puis s'affecte au groupe de la fédération de lab, ce que `install/federation_groups.py --policy` fait dans la commande qui crée le groupe. Dans le lab, l'affectation de la politique a annulé les deux alertes de sauvegarde au cycle suivant, et son retrait les a fait revenir. Les autres fédérations gardent la politique par défaut. La politique ne fait pas partie du pack : dans un pack, une politique est un fragment du fichier describe, et le SDK supprime un attribut obligatoire de ce fragment pendant la construction du pack, si bien que la construction échoue.
-
-### Lien avec l'intégration NSX native
-
-L'adaptateur relie chaque nœud Edge et chaque cluster Edge à l'objet correspondant de l'intégration NSX native, pour chaque Local Manager que cette intégration supervise. Un réglage désactive les liens ou les impose.
-
-Dans le lab, le cluster Edge de site-a-wld01 et ses deux nœuds Edge ont pour enfants les objets natifs Edge Cluster et Transport Node. Leurs alertes, comme l'alerte native « RTEP Connectivity Lost », sont alors accessibles depuis l'objet fédération. Les nœuds Edge de site-a-wld03 n'ont reçu aucun lien : le compte natif de ce Local Manager ne collecte pas, si bien que les objets natifs n'existent pas. Le pack conserve donc ses propres alertes de tunnel et de nœud Edge. Pour un emplacement dont le Local Manager n'est pas ajouté à l'intégration native, elles constituent la seule couverture.
+Chaque message contient l'objet, son type, le nom de l'alerte, la criticité, les dates de début et d'annulation, et la recommandation. L'instance sortante et la règle de test ont été supprimées ensuite.
 
 ## Comportement de la collecte
 
+Les comportements ci-dessous changent la façon de lire une alerte. [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/OPERATIONS.md) (en anglais) les décrit en détail.
+
 ### Un appel en échec laisse la valeur inconnue
 
-La collecte se compose surtout d'appels secondaires : état du cluster, alarmes, sauvegardes, certificats, état de synchronisation. Lorsque l'un d'eux échoue (erreur HTTP ou dépassement de délai), l'adaptateur n'envoie rien pour les valeurs qui en dépendent. Un appel d'état en échec n'est pas interprété comme « emplacement non connecté », et un appel de sauvegarde en échec n'est pas interprété comme « sauvegarde non configurée ». VCF Operations conserve la dernière valeur connue, et aucune alerte ne se déclenche sur des données qui n'ont jamais été reçues.
+La collecte se compose surtout d'appels secondaires : état du cluster, alarmes, sauvegardes, certificats, état de synchronisation. Lorsque l'un d'eux échoue, l'adaptateur n'envoie rien pour les valeurs qui en dépendent.
 
-L'objet fédération compte ces appels dans la métrique « NSX API calls without an answer » et les liste dans une propriété, avec le manager, l'appel et le code HTTP. Quatre alertes surveillent la collecte elle-même : des données manquantes pendant deux cycles, une collecte qui dure plus de quatre minutes ou que NSX bride, une collecte sans aucun Global Manager, et un manager qui a épuisé tout son quota d'appels.
+Un appel d'état en échec n'est pas interprété comme « emplacement non connecté », et un appel de sauvegarde en échec n'est pas interprété comme « sauvegarde non configurée ». VCF Operations conserve la dernière valeur connue, et aucune alerte ne se déclenche sur des données qui n'ont jamais été reçues.
 
-Un appel qui dépasse le délai ou perd sa connexion est retenté une fois avant d'être compté comme en échec. Un manager qui dépasse le délai trois fois de suite, ou qui répond systématiquement par HTTP 429 ou 503, est ignoré jusqu'à la fin du cycle. Un Local Manager dont l'appel d'état du cluster échoue en même temps que la plupart de ses autres appels est signalé comme injoignable. L'adaptateur ne demande les statistiques d'une stratégie à un Local Manager que si cet emplacement fait partie de la portée connue de la stratégie. Si la stratégie y est réalisée et que l'appel de statistiques renvoie un code 404, l'appel compte comme en échec et les compteurs ne sont pas envoyés pour ce cycle. Si la portée n'est pas encore connue, un 404 signifie que la stratégie n'existe pas sur ce Local Manager, et l'appel n'est pas compté comme en échec.
+L'objet fédération compte ces appels dans la métrique « NSX API calls without an answer » et les liste dans une propriété, avec le manager, l'appel et le code HTTP. Quatre alertes surveillent la collecte elle-même : des données manquantes, une collecte lente ou bridée, une collecte sans aucun Global Manager, et un manager qui a épuisé tout son quota d'appels.
+
+Un appel qui dépasse le délai est retenté une fois avant d'être compté comme en échec. Un manager qui dépasse le délai trois fois de suite, ou qui répond systématiquement par HTTP 429 ou 503, est ignoré jusqu'à la fin du cycle.
 
 ### Une seule alerte pour la panne d'un emplacement
 
-Un emplacement qui perd sa connexion au Global Manager entraîne de nombreux objets avec lui : les tunnels et les sessions BGP des autres emplacements vers lui, les canaux de synchronisation et tous les objets étendus qui le couvrent. Chacun d'eux a une alerte, et toutes se déclencheraient en plus de celle de l'emplacement.
+Un emplacement qui perd sa connexion au Global Manager entraîne de nombreux objets avec lui : tunnels, sessions BGP, canaux de synchronisation et tous les objets étendus qui le couvrent. Chacun d'eux a une alerte.
 
-Tant que le Global Manager actif signale un emplacement comme non connecté, l'adaptateur écrit le nom de cet emplacement dans une propriété, « Locations in outage », sur les objets qui en dépendent : l'emplacement, son cluster Edge, ses nœuds Edge et ses voisins BGP, les tunnels et les canaux de synchronisation dont une extrémité s'y trouve, les objets étendus dont la portée l'inclut, avec leur réalisation sur cet emplacement, et les Global Managers. Une panne sur un autre emplacement continue de déclencher son alerte. Vingt-deux définitions d'alerte exigent que cette propriété vaille « none », de même que les alertes d'alarme, à l'exception des alarmes entre Global Managers. Elles restent muettes pendant la panne, et « Location lost its connection to the active Global Manager » est l'alerte à traiter. Dans le XML des alertes, cette condition est un second symptôme avec `negateCondition="true"` :
+Tant que le Global Manager actif signale un emplacement comme non connecté, l'adaptateur écrit le nom de cet emplacement dans une propriété, « Locations in outage », sur les objets qui en dépendent. Vingt-deux définitions d'alerte exigent que cette propriété vaille « none », de même que les alertes d'alarme, à l'exception des alarmes entre Global Managers. Elles restent muettes pendant la panne, et « Location lost its connection to the active Global Manager » est l'alerte à traiter.
+
+Dans le XML des alertes, cette condition est un second symptôme avec `negateCondition="true"` :
 
 *Se trouve dans : le fichier d'alertes du pack, dans `content/alertdefs`.*
 
@@ -421,82 +532,75 @@ Tant que le Global Manager actif signale un emplacement comme non connecté, l'a
 </SymptomSet>
 ```
 
-Le symptôme de panne s'efface trois cycles après le retour de l'emplacement, soit au moins un cycle après les symptômes qu'il fait taire : la fin d'une panne ne déclenche donc pas d'alerte non plus.
-
-Les canaux de synchronisation ont une seconde propriété du même type. Les canaux d'un Global Manager qui ne répond pas, ou de tous les Global Managers lorsqu'aucun n'est actif, restent muets derrière l'alerte de la fédération.
-
-Un autre problème, sans rapport, sur les objets de l'emplacement en panne ne déclenche aucune alerte tant que la panne dure. Ses métriques et ses propriétés restent collectées.
+Le symptôme de panne s'efface trois cycles après le retour de l'emplacement : la fin d'une panne ne déclenche donc pas d'alerte non plus. Une panne sur un autre emplacement continue de déclencher son alerte.
 
 ### Le Standby Global Manager
 
-Quatre métriques décrivent le Standby Global Manager : synchronisation en bon état (1 lorsqu'il est synchronisé), entrées restant à envoyer, minutes sans synchronisation et heures écoulées depuis la dernière synchronisation complète. Le Global Manager actif les expose pour chacun de ses standby, et chaque standby expose son propre état de synchronisation. Le standby est considéré comme synchronisé lorsque NSX le signale comme tel, ou lorsqu'une synchronisation différentielle tourne après une synchronisation complète terminée. Dans tout autre état, il est considéré comme non synchronisé. NSX 9.1.1 indique ONGOING comme état normal du standby, avec une synchronisation différentielle, une synchronisation complète terminée et aucune entrée restant à envoyer : le libellé de l'état ne peut donc pas servir de test à lui seul. L'alerte « Standby Global Manager is not in sync » se déclenche après trois cycles et s'efface après deux. Dans le lab, la métrique vaut 1 et aucune entrée ne reste à envoyer.
+Le standby expose son état de synchronisation : synchronisation en bon état (1 lorsqu'il est synchronisé), entrées restant à envoyer, minutes sans synchronisation et heures écoulées depuis la dernière synchronisation complète. NSX 9.1.1 indique ONGOING comme état normal d'un standby : le pack vérifie donc aussi qu'une synchronisation différentielle tourne après une synchronisation complète terminée. Dans le lab, la métrique de synchronisation vaut 1 et aucune entrée ne reste à envoyer.
 
-Chaque standby indique aussi s'il peut devenir le Global Manager actif tout de suite. La métrique vaut 1 (prêt), ou 0 (pas prêt) avec les raisons dans une propriété : non synchronisé, état du cluster autre que STABLE, nœuds hors ligne, groupes de services instables, version différente de celle du Global Manager actif, certificat expiré, ou mise à niveau en cours, en pause ou en cours de mise en pause. Quand une valeur n'a pas pu être lue, par exemple quand le proxy cloud ne joint pas le standby ou que le Global Manager actif ne donne pas d'état de synchronisation pour lui, la métrique vaut aussi 0 et la propriété indique ce qui est inconnu. La fédération est prête dès qu'un de ses standby l'est. Aucune alerte n'est liée à cette capacité, car les conditions qui la déterminent ont déjà leurs propres alertes. Dans le lab, gm-site-b est prêt.
+Chaque standby indique aussi s'il peut devenir le Global Manager actif tout de suite. La métrique vaut 1 (prêt), ou 0 (pas prêt) avec les raisons dans une propriété : non synchronisé, cluster instable, nœuds hors ligne, version différente, certificat expiré ou mise à niveau en cours. Quand une valeur n'a pas pu être lue, la métrique vaut aussi 0 et la propriété indique ce qui est inconnu. Dans le lab, gm-site-b est prêt.
 
 ### Versions et mises à niveau
 
-NSX Federation se met à niveau dans un ordre fixe : le Standby Global Manager, le Global Manager actif, puis les Local Managers. Trois conditions rompent cet ordre ou bloquent des opérations, et chacune a son alerte : les Global Managers exécutent des versions différentes, auquel cas NSX refuse un basculement ; un emplacement exécute une release plus récente que celle du Global Manager ; une mise à niveau est en cours, en pause ou en échec sur un manager. L'état de la mise à niveau provient du coordinateur de mise à niveau de chaque manager (`/api/v1/upgrade/summary`).
+NSX Federation se met à niveau dans un ordre fixe : le Standby Global Manager, le Global Manager actif, puis les Local Managers. Trois conditions rompent cet ordre ou bloquent des opérations, et chacune a son alerte :
 
-L'alerte de release compare les trois premiers nombres de la version NSX. Les Local Managers et les Global Managers du lab exécutent la même release, 9.1.1, à deux niveaux de correctif, ce qui ne déclenche aucune alerte.
+- les Global Managers exécutent des versions différentes, auquel cas NSX refuse un basculement ;
+- un emplacement exécute une release plus récente que celle du Global Manager ;
+- une mise à niveau est en cours, en pause ou en échec sur un manager.
 
-### Ce que l'adaptateur lit dans VCF Operations
+L'alerte de release compare les trois premiers nombres de la version NSX. Les managers du lab exécutent la 9.1.1 à deux niveaux de correctif, ce qui ne déclenche aucune alerte.
 
-Le proxy cloud donne à un adaptateur une connexion à VCF Operations lui-même. Le pack s'en sert pour trois choses : la liste des clusters NSX que supervise l'intégration NSX native (pour les alertes d'alarme, de nœud Edge et de limite de configuration), la liste des emplacements des cycles précédents lorsqu'aucun Global Manager ne répond et que le cache du conteneur de l'adaptateur est vide, et, lorsque le réglage est activé, la suppression des objets que NSX ne renvoie plus et qui n'ont reçu aucune donnée depuis un nombre de jours défini. Une propriété de l'objet fédération indique si la connexion fonctionne. Elle vaut « ok » dans le lab. Sans cette connexion, et avec les réglages par défaut, le pack déclenche lui-même toutes les alertes d'alarme, de nœud Edge et de limite de configuration, ne crée aucun lien et ne supprime aucun objet. Lorsque la connexion échoue pendant un certain temps, l'adaptateur conserve la dernière liste lue : ces alertes ne passent donc pas d'une intégration à l'autre.
+### Nœuds Edge, service routers du Tier-0 et changements
 
-### Capacité des nœuds Edge et basculement du Tier-0
+Un appel par nœud Edge de la fédération fournit l'utilisation de son CPU, de sa mémoire et de son système de fichiers, ainsi que l'état de chaque service router de Tier-0 étendu qu'il porte. Dans le lab, les cœurs datapath sont presque inactifs (moins de 1 %).
 
-Un appel par nœud Edge de la fédération, `GET /api/v1/transport-nodes/<id>/status` sur son Local Manager, fournit deux informations.
+L'état considéré comme sain pour un Tier-0 dépend de son mode HA. Une passerelle actif-actif a besoin d'un service router actif sur chaque emplacement de sa portée. Une passerelle actif-standby a besoin d'un service router actif dans la fédération. Lorsqu'un service router change d'état HA entre deux cycles, lors d'un basculement par exemple, la passerelle déclenche un avertissement pendant deux cycles. Dans le lab, fed-t0 est en actif-actif avec quatre service routers, tous actifs avec le routage établi.
 
-La première est la charge du nœud Edge : le CPU des cœurs datapath (moyenne et cœur le plus chargé), le CPU des autres cœurs, qui exécutent les services, la mémoire système et datapath, le pool de mémoire datapath le plus rempli et le système de fichiers le plus rempli. NSX donne chacune sous forme de valeur instantanée, et VCF Operations en conserve l'historique. Dans le lab, les cœurs datapath sont presque inactifs (moins de 1 %). Les cœurs de services des deux nœuds Edge de site-a-wld01 indiquaient entre 50 % et 100 % dans les relevés faits pour cet article, ceux de site-a-wld03 entre 13 % et 50 %.
+L'adaptateur compare chaque cycle aux précédents et enregistre les changements : le Global Manager actif, les versions, les emplacements, les nœuds Edge, l'état HA des service routers, et les objets étendus créés, modifiés ou supprimés, avec l'utilisateur enregistré par NSX. Chaque changement est un événement d'information sur l'objet concerné. La fédération liste les dix derniers, du plus récent au plus ancien : l'historique de ses propriétés sert ainsi d'historique des changements.
 
-La seconde est l'état de chaque passerelle Tier-0 étendue sur le nœud Edge, c'est-à-dire son service router. Chacun devient un objet, avec son état HA, l'état de son routage et le nombre de voisins BGP établis et tombés. Sur la passerelle, l'adaptateur compte les service routers, les actifs et ceux dont le routage est tombé, sur les emplacements de sa portée. L'état considéré comme sain dépend du mode HA. Une passerelle actif-actif a besoin d'un service router actif sur chaque emplacement de sa portée : l'adaptateur compte donc aussi les emplacements qui n'en ont pas. Une passerelle actif-standby a besoin d'un service router actif dans la fédération. Lorsqu'un service router change d'état HA entre deux cycles, lors d'un basculement par exemple, la passerelle déclenche un avertissement pendant deux cycles. Un service router qu'un nœud Edge cesse de signaler, alors que le nœud Edge lui-même répond, passe à l'état ABSENT : un basculement causé par le redémarrage d'un nœud Edge reste donc visible. Lorsqu'un nœud Edge de la portée ne répond pas, les totaux de la passerelle ne sont pas envoyés pour ce cycle, mais un emplacement dont tous les nœuds Edge ont répondu et qui n'a aucun service router actif est tout de même compté.
-
-Dans le lab, fed-t0 est en actif-actif avec quatre service routers, deux par emplacement, tous actifs avec le routage établi.
-
-### Historique des changements
-
-L'adaptateur garde dans son cache ce qu'il a vu lors des cycles précédents et compare chaque nouveau cycle à ce contenu. Il enregistre les changements suivants :
-
-- le Global Manager actif, ainsi que le rôle et la version de chaque Global Manager ;
-- les emplacements que liste le Global Manager actif, ajoutés, retirés ou renommés, et leurs versions ;
-- les nœuds Edge des clusters Edge RTEP de chaque emplacement ;
-- l'état HA de chaque service router du Tier-0 ;
-- les passerelles, segments et stratégies de sécurité globales étendus, créés, modifiés (nouvelle révision dans NSX, avec l'utilisateur enregistré par NSX) ou supprimés, ainsi que l'emplacement principal d'une passerelle ;
-- les objets globaux surchargés sur un emplacement.
-
-Chaque changement est un événement d'information sur l'objet concerné, que VCF Operations affiche comme une notification sur cet objet pendant un cycle. La fédération compte les changements de chaque cycle et liste les dix derniers, du plus récent au plus ancien, avec l'heure en UTC. L'historique des propriétés de la fédération sert ainsi d'historique des changements. Un réglage désactive les événements et conserve la liste.
-
-Le premier cycle après un cache vide, pour un nouveau conteneur ou un nouveau compte, ne fait qu'enregistrer l'état. Un cycle au cours duquel un appel a échoué ne signale aucun retrait, et un objet n'est considéré comme ajouté que par rapport à une lecture précédente complète : un trou dans les données n'apparaît donc pas comme un changement. Les objets étendus viennent de l'inventaire du Global Manager, que l'adaptateur lit toutes les 30 minutes : une modification de ces objets apparaît donc dans les 30 minutes.
+Un cycle au cours duquel un appel a échoué ne signale aucun retrait : un trou dans les données n'apparaît donc pas comme un changement. Les objets étendus sont lus toutes les 30 minutes : une modification peut donc mettre jusqu'à 30 minutes à apparaître.
 
 ### Horloges, limites de configuration et surcharges
 
-L'horloge de chaque manager est lue à chaque cycle à partir de l'heure système que renvoie NSX (`GET /api/v1/node/status`), comparée à l'instant situé au milieu de l'appel. L'horloge du proxy cloud s'annule dans l'écart entre deux managers lus au cours du même cycle, et les appels sont chronométrés sur une horloge monotone : un saut de cette horloge pendant le cycle ne change donc rien. Chaque Global Manager et chaque emplacement reçoit son écart avec le Global Manager actif, et une propriété indique s'il est en avance ou en retard, et avec quelle précision la mesure a été faite. L'alerte se déclenche au-delà de 5 secondes, 60 pour Immediate, ou lorsque le service NTP du manager ne tourne pas. Dans le lab, les trois autres managers sont à moins d'un dixième de seconde du Global Manager actif.
+À chaque cycle, l'horloge de chaque manager est comparée à celle du Global Manager actif, à partir de l'heure système que renvoie NSX. L'alerte se déclenche au-delà de 5 secondes, ou lorsque le service NTP du manager ne tourne pas. Dans le lab, les trois autres managers sont à moins d'un dixième de seconde du Global Manager actif.
 
-Chaque Local Manager indique la part de chaque limite de configuration NSX qu'il utilise, comme sur sa page « Capacity » (`GET /policy/api/v1/infra/capacity/dashboard/usage`), et classe chaque limite selon ses propres seuils. Le Global Manager n'a pas d'appel équivalent, mais les objets globaux comptent sur chaque emplacement de leur portée : les emplacements reflètent donc aussi la fédération. Une limite dont le maximum vaut 1, comme l'unique compute manager d'un Local Manager, est pleine par construction et n'est pas prise en compte. Une limite à 100 % ou plus est traitée comme critique, quel que soit le classement que lui donne NSX : dans le lab, NSX a classé en avertissement la limite des compute managers, à 100 %.
+Chaque Local Manager indique la part de chaque limite de configuration NSX qu'il utilise, comme sur sa page « Capacity », classée selon les seuils que NSX applique. Les objets globaux comptent sur chaque emplacement de leur portée : les emplacements reflètent donc aussi la fédération. Une limite à 100 % ou plus est traitée comme critique, quel que soit le classement que lui donne NSX.
 
-Une recherche sur chaque Local Manager (`overridden:true`) liste les objets globaux modifiés localement. L'emplacement exécute alors une configuration qui diffère de celle du Global Manager : chaque surcharge est donc comptée sur l'emplacement et constitue un changement de l'historique. Le lab n'en a aucune.
+Une recherche sur chaque Local Manager liste les objets globaux modifiés localement. Chaque surcharge est comptée sur l'emplacement et constitue un changement de l'historique. Le lab n'en a aucune.
 
 ### Expiration des mots de passe, revue des règles de pare-feu et disponibilité
 
-Une fois par heure, chaque manager est interrogé sur ses utilisateurs locaux (`GET /api/v1/node/users`, que le compte `audit` a le droit de lire). Pour chaque utilisateur, NSX donne le nombre de jours écoulés depuis le dernier changement du mot de passe et la durée de validité d'un mot de passe, 90 jours par défaut. Pour le compte avec lequel le pack collecte, la différence donne le nombre de jours avant l'expiration de son mot de passe. Une fois ce mot de passe expiré, NSX refuse la connexion et la collecte de ce manager s'arrête : l'alerte arrive donc avant, en avertissement sous 30 jours, en critique sous 7 jours et en Immediate le dernier jour. Un mot de passe qui n'expire jamais affiche 9999 jours. NSX ne gère pas les comptes LDAP ou VIDM : pour un tel compte, une propriété indique que l'expiration relève de son annuaire. Dans le lab, le mot de passe `audit` expire dans 35 jours sur site-a-wld01 et dans 85 à 87 jours sur les trois autres managers.
+Une fois par heure, chaque manager est interrogé sur ses utilisateurs locaux, que le compte `audit` a le droit de lire. Le pack calcule le nombre de jours restants avant l'expiration du mot de passe de son compte de collecte. Une fois ce mot de passe expiré, NSX refuse la connexion et la collecte de ce manager s'arrête : l'alerte arrive donc avant, en avertissement sous 30 jours, en critique sous 7 jours. Dans le lab, le mot de passe `audit` expire dans 35 jours sur site-a-wld01 et dans 85 à 87 jours sur les trois autres managers.
 
-Chaque stratégie de sécurité globale est examinée à la recherche de trois sortes de règles. Une règle masquée se trouve après une règle active de la même stratégie qui couvre tout son trafic : des sources, destinations, services, profils de contexte et Applied To identiques ou plus larges, et, pour le sens comme pour la version IP, la même valeur ou les deux. NSX n'atteint jamais une telle règle. L'appartenance aux groupes n'est pas développée, et une liste de sources ou de destinations inversée doit être la même dans les deux règles : la vérification ne signale donc que des règles qui ne peuvent jamais être atteintes, et une règle couverte par l'intermédiaire d'un groupe imbriqué n'est pas détectée. Une règle inutilisée est une règle dont le nombre de correspondances, additionné sur les emplacements de sa portée, n'a pas augmenté depuis 30 jours, une durée réglable dans le compte. Pour une règle qui n'a jamais eu de correspondance, le délai court à partir du jour où le pack l'a vue pour la première fois : aucune règle n'apparaît donc inutilisée le premier mois. Un nombre plus petit, après une remise à zéro des statistiques, relance la période, et un cycle au cours duquel un emplacement ne répond pas n'envoie aucune valeur. La troisième sorte est une règle ALLOW de n'importe quelle source vers n'importe quelle destination sur n'importe quel service, dans une règle et une stratégie qui s'appliquent partout. Les règles masquées et inutilisées déclenchent une alerte d'information, une règle qui autorise tout déclenche un avertissement, les deux sur le badge Risk. Les stratégies par défaut de NSX sont ignorées.
+Chaque stratégie de sécurité globale est examinée à la recherche de trois sortes de règles :
 
-Chaque cycle envoie aussi une valeur de disponibilité, 100 ou 0. La fédération est disponible lorsqu'exactement un Global Manager répond dans le rôle actif, un Global Manager lorsqu'il répond sans nœud hors ligne, un emplacement lorsqu'il est en bonne santé, et un Tier-0 étendu lorsqu'il a un service router actif partout où son mode HA en demande un. En moyenne sur une période, la valeur donne la part de cette période pendant laquelle l'objet était disponible. Un cycle au cours duquel l'adaptateur n'a pas tourné n'envoie rien : il ne compte donc ni dans un sens ni dans l'autre.
+| Règle | Signification | Alerte |
+| --- | --- | --- |
+| Masquée | Se trouve après une règle active de la même stratégie qui couvre tout son trafic : NSX ne l'atteint donc jamais | Information |
+| Inutilisée | Son nombre de correspondances, additionné sur les emplacements de sa portée, n'a pas augmenté depuis 30 jours (un réglage du compte) | Information |
+| Autorise tout | ALLOW de n'importe quelle source vers n'importe quelle destination sur n'importe quel service, appliquée partout | Warning |
 
-### Réalisation des objets étendus
+Ces alertes pèsent sur le badge « Risk ». La vérification ne développe pas l'appartenance aux groupes : elle ne signale donc que des règles qui ne peuvent jamais être atteintes. Les stratégies par défaut de NSX sont ignorées.
 
-La réalisation est la seule partie de la collecte qui coûte un appel par objet. Jusqu'à 200 objets étendus, chacun est lu à chaque cycle. Au-delà, l'adaptateur relit un objet lorsqu'il est nouveau, modifié dans NSX, incomplètement réalisé, ou lorsque vient son tour dans un balayage qui couvre tous les objets en six cycles ; sinon, il conserve le dernier état. Sur le simulateur NSX, une fédération de 610 objets étendus coûte 610 appels de réalisation au premier cycle et environ 100 à chacun des suivants.
+Chaque cycle envoie aussi une valeur de disponibilité, 100 ou 0, pour la fédération, chaque Global Manager, chaque emplacement et chaque Tier-0 étendu. En moyenne sur une période, elle donne la part de cette période pendant laquelle l'objet était disponible. Le rapport de disponibilité s'appuie sur elle.
 
-### Diagnostic et dépendances
+### Grandes fédérations
 
-`install/diagnostics.py` rassemble dans un fichier JSON ce dont une demande de support a besoin, sans rien modifier : les versions, chaque compte avec ses réglages, son état et son collecteur, les objets par type, la santé de la collecte de chaque fédération et les alertes ouvertes. Il liste ensuite les problèmes trouvés, chacun avec ce qu'il faut vérifier. Il ne lit aucun identifiant. Dans le lab, il a signalé un seul problème : 21 objets du pack qui ne reçoivent plus de données, à savoir des nœuds Edge, des tunnels RTEP et des canaux de synchronisation qui ne correspondent plus à aucun objet dans NSX. `docs/OPERATIONS.md` contient un tableau de dépannage pour les cas courants.
+La réalisation est la seule partie de la collecte qui coûte un appel par objet. Jusqu'à 200 objets étendus, chacun est lu à chaque cycle. Au-delà, l'adaptateur relit un objet lorsqu'il est nouveau, modifié, incomplètement réalisé, ou lorsque vient son tour dans un balayage qui couvre tous les objets en six cycles.
 
-Une analyse Trivy de l'image de l'adaptateur a trouvé deux paquets Python qui ont des vulnérabilités connues et une version corrigée. La bibliothèque du SDK fixe `cryptography` en version 44.0.0, qui a plusieurs vulnérabilités publiées, et ne s'en sert que pour charger un certificat PEM. Le Dockerfile la remplace par la 50.0.2, avec laquelle le certificat d'un Global Manager se charge toujours. Il met aussi à jour `setuptools` de l'image de base en version 84.2.1. Les 101 autres résultats de gravité élevée ou critique (99 élevés, 2 critiques) concernent des paquets Debian de l'image de base du SDK que Debian 12 n'a pas corrigés. Le dépôt enregistre les paquets Python de l'image construite, et la CI les compare aux vulnérabilités publiées à chaque push et chaque semaine. La CI produit aussi un SBOM. `SECURITY.md` décrit ce que le pack peut faire sur NSX et sur VCF Operations.
+Sur le simulateur NSX, une fédération de 610 objets étendus coûte 610 appels de réalisation au premier cycle et environ 100 à chacun des suivants. Les chiffres de dimensionnement des fédérations plus grandes figurent dans [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/OPERATIONS.md) (en anglais).
+
+### Diagnostic
+
+`install/diagnostics.py` rassemble dans un fichier JSON ce dont une demande de support a besoin, sans rien modifier. Il couvre les versions, chaque compte avec ses réglages et son état, les objets par type, la santé de la collecte et les alertes ouvertes, puis liste les problèmes trouvés, chacun avec ce qu'il faut vérifier. Il ne lit aucun identifiant.
+
+Dans le lab, il a signalé un seul problème : 21 objets du pack qui ne reçoivent plus de données. Ce sont des nœuds Edge, des tunnels RTEP et des canaux de synchronisation qui ne correspondent plus à aucun objet dans NSX. `docs/OPERATIONS.md` contient un tableau de dépannage pour les cas courants.
+
+La bibliothèque du SDK fixe `cryptography` en version 44.0.0, qui a plusieurs vulnérabilités publiées, et l'image de l'adaptateur la remplace par la 50.0.2. La CI compare les paquets Python de l'image aux vulnérabilités publiées à chaque push et chaque semaine, et produit un SBOM. `SECURITY.md` décrit ce que le pack peut faire sur NSX et sur VCF Operations.
 
 ## Tests dans le lab
 
-Le pack ne fait que lire dans NSX, et aucun test n'y fait donc passer de trafic : les tests remplacent NSX par un simulateur, lisent les managers réels, font échouer certains appels à l'intérieur de l'adaptateur, ou écrivent des valeurs dans VCF Operations comme si l'adaptateur les avait envoyées. Seuls cinq tests appellent NSX : l'exécution locale et l'injection de pannes, avec les mêmes appels GET en lecture seule que l'adaptateur, puis le basculement, le test de l'historique des changements et le test de la revue des règles de pare-feu, les seuls à modifier NSX lui-même.
+Le pack ne fait que lire dans NSX, et aucun test n'y fait donc passer de trafic. Les tests remplacent NSX par un simulateur, lisent les managers réels, font échouer certains appels à l'intérieur de l'adaptateur, ou écrivent des valeurs dans VCF Operations comme si l'adaptateur les avait envoyées.
 
 | Test | Ce qu'il fait | Ce qu'il modifie | Lancé avec |
 | --- | --- | --- | --- |
@@ -504,11 +608,13 @@ Le pack ne fait que lire dans NSX, et aucun test n'y fait donc passer de trafic�
 | Exécution locale | Exécute un cycle de collecte sur les managers réels, avec les mêmes appels GET en lecture seule que l'adaptateur dans VCF Operations | Rien | `tools/localrun.py` dans le conteneur d'outillage |
 | Injection de pannes | L'exécution locale, avec certains appels NSX forcés en échec HTTP 500 à l'intérieur du processus de l'adaptateur | Rien côté NSX | `tools/test_gaps.py` dans le conteneur d'outillage |
 | Tests d'alertes | Écrit des métriques, des propriétés ou des événements dans VCF Operations par son API Suite, sous la forme qu'envoie l'adaptateur, puis rétablit les valeurs | Des données de VCF Operations, pendant quelques cycles | Appels à l'API Suite |
-| Basculement | Transfère le rôle actif au Standby Global Manager, puis le ramène sur le Global Manager d'origine | La fédération NSX, comme opération planifiée | API NSX du Standby Global Manager |
 | Historique des changements | Définit la description d'un segment étendu, puis la retire | Un segment, rétabli ensuite | API NSX du Global Manager actif |
-| Revue des règles de pare-feu | Ajoute deux règles ALLOW identiques à une stratégie de sécurité globale, puis les supprime | Une stratégie, rétablie ensuite | API NSX du Global Manager actif |
 
-La suite de tests se passe du lab. Ses 162 tests couvrent un cycle normal, des appels en échec, la panne d'un emplacement, la part des paquets rejetés par un tunnel (sans valeur sur un tunnel presque inactif ou après une remise à zéro des compteurs), l'instabilité BGP sur les voisins du Tier-0 et sur les tunnels RTEP, la latence et les files de synchronisation lues dans les détails des flux, un Global Manager d'une autre fédération, la liste des emplacements en cache et celle relue dans VCF Operations, le quota d'appels, l'approbation des certificats, les versions et les mises à niveau, la réalisation par paliers sur 600 segments de plus, la suppression des objets qui ont quitté NSX, la capacité des nœuds Edge, les service routers du Tier-0 dans les deux modes HA, l'historique des changements (premier cycle, basculement, lectures partielles), les écarts d'horloge (y compris un saut de l'horloge du proxy cloud), les limites de configuration et les surcharges, l'expiration des mots de passe, la revue des règles de pare-feu (règles masquées, règles qui autorisent tout et règles inutilisées, lectures partielles, remises à zéro des compteurs), la disponibilité, une fédération de 1 310 objets étendus, la cohérence du contenu des alertes et de la politique avec le modèle d'objets, l'ID de fédération sur chaque objet, et les scripts des groupes, de la règle de notification et du diagnostic. Sur le simulateur, cette grande fédération (1 000 segments de plus, 200 passerelles Tier-1 de plus et 100 stratégies de plus, de 50 règles chacune) demande 1 440 appels sur le Global Manager actif au premier cycle après un démarrage, dans la limite du quota de 2 000 appels par manager, puis 233 aux cycles suivants. Le Local Manager le plus sollicité en reçoit environ 120.
+### Suite de tests et exécution locale
+
+La suite de tests se passe du lab. Ses 162 tests couvrent la collecte, le contenu des alertes et les scripts ; la liste figure dans la section Tests de [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/OPERATIONS.md) (en anglais).
+
+Sur le simulateur, une grande fédération (1 000 segments de plus, 200 passerelles Tier-1 de plus et 100 stratégies de plus, de 50 règles chacune) demande 1 440 appels sur le Global Manager actif au premier cycle après un démarrage, dans la limite du quota de 2 000 appels par manager, puis 233 aux cycles suivants.
 
 *À exécuter sur : le jumphost, à la racine d'un clone du dépôt.*
 
@@ -532,8 +638,8 @@ Résultats sur le lab :
 | Test | Résultat |
 | --- | --- |
 | Exécution normale, les deux adresses de Global Manager | 76 objets, environ 60 appels d'API (environ 100 lorsque l'inventaire en cache est rechargé), 25 à 45 secondes |
-| Seconde adresse de Global Manager injoignable | La collecte se poursuit. « Global Managers not reachable » vaut 1 sur l'objet fédération, et un Global Manager collecté lors d'un cycle précédent affiche 0 pour « Reachable by the collector » |
-| Aucun Global Manager joignable | Les deux Local Managers restent collectés à partir de la liste d'emplacements en cache. La propriété « Collection mode » de l'objet fédération indique degraded, ce qui déclenche l'alerte « NSX Federation collection runs without a Global Manager ». Le cache se trouve dans le conteneur de l'adaptateur. Lorsqu'un redémarrage le vide, la liste est relue dans VCF Operations |
+| Seconde adresse de Global Manager injoignable | La collecte se poursuit. « Global Managers not reachable » vaut 1 sur l'objet fédération |
+| Aucun Global Manager joignable | Les deux Local Managers restent collectés à partir de la liste d'emplacements en cache, et l'alerte « NSX Federation collection runs without a Global Manager » se déclenche. Lorsqu'un redémarrage vide le cache, la liste est relue dans VCF Operations |
 
 ### Injection de pannes
 
@@ -550,11 +656,23 @@ Sur le lab, avec les valeurs par défaut, l'exécution a signalé 15 appels sans
 
 ### Panne d'un emplacement
 
-La règle qui fait taire les alertes dépendantes pendant la panne d'un emplacement (voir « Une seule alerte pour la panne d'un emplacement ») a été testée sur le lab sans provoquer de panne. Le compte étant arrêté, l'API Suite a écrit « un emplacement en erreur » sur le segment fed-stretched (`POST /api/resources/{id}/stats`), et l'alerte « Stretched segment is in error at a location » s'est déclenchée. L'écriture du nom d'un emplacement dans la propriété « Locations in outage » (`POST /api/resources/{id}/properties`) a annulé l'alerte alors que le symptôme d'erreur du segment restait actif. Les valeurs ont ensuite été rétablies et le compte redémarré.
+La règle de panne a été testée sans provoquer de panne. Le compte étant arrêté, l'API Suite a écrit « un emplacement en erreur » sur le segment fed-stretched (`POST /api/resources/{id}/stats`), et l'alerte « Stretched segment is in error at a location » s'est déclenchée.
+
+L'écriture du nom d'un emplacement dans la propriété « Locations in outage » (`POST /api/resources/{id}/properties`) a annulé l'alerte alors que le symptôme d'erreur du segment restait actif. Les valeurs ont ensuite été rétablies et le compte redémarré.
 
 ### Latence, perte de paquets et instabilité BGP
 
-Deux vérifications appuient ces métriques. La première a relevé les compteurs de paquets de chaque tunnel RTEP sur les deux nœuds Edge presque au même instant, quatre fois, à deux minutes d'intervalle. Sur les deux tunnels qui avaient rejeté un paquet, le total reçu correspondait exactement au total envoyé par le pair. NSX compte donc un paquet rejeté dans le total, et le pack calcule la part des rejets sur cette base. La seconde a testé les alertes de la même façon que la règle de panne. Le compte étant arrêté, l'API Suite a écrit des valeurs hors seuil chaque minute pendant 14 minutes, puis le compte a été redémarré. Un tunnel à 6 % et 20 rejets par minute a déclenché « RTEP tunnel is dropping packets » en Immediate. Un tunnel à 30 paquets bloqués par minute a déclenché « RTEP tunnel is blocking packets ». Une coupure sur une liaison montante établie a déclenché l'alerte d'instabilité du voisin BGP du Tier-0, et une coupure sur la session intersite d'un tunnel a déclenché « RTEP tunnel inter-site BGP session is flapping ». À 160 ms vers le Global Manager, l'alerte de latence est apparue en Warning par la condition à 150 ms, puisque 160 ms ne représentent que 64 % du réglage de 250 ms.
+La première vérification a relevé les compteurs de paquets de chaque tunnel RTEP sur les deux nœuds Edge presque au même instant, quatre fois, à deux minutes d'intervalle. Sur les deux tunnels qui avaient rejeté un paquet, le total reçu correspondait exactement au total envoyé par le pair. NSX compte donc un paquet rejeté dans le total, et le pack calcule la part des rejets sur cette base.
+
+La seconde a testé les alertes. Le compte étant arrêté, l'API Suite a écrit des valeurs hors seuil chaque minute pendant 14 minutes, puis le compte a été redémarré :
+
+| Valeur écrite | Alerte déclenchée |
+| --- | --- |
+| 6 % et 20 rejets par minute sur un tunnel | « RTEP tunnel is dropping packets », en Immediate |
+| 30 paquets bloqués par minute sur un tunnel | « RTEP tunnel is blocking packets » |
+| Une coupure sur une liaison montante établie | L'alerte d'instabilité du voisin BGP du Tier-0 |
+| Une coupure sur la session intersite d'un tunnel | « RTEP tunnel inter-site BGP session is flapping » |
+| 160 ms vers le Global Manager | L'alerte de latence, en Warning, par la condition à 150 ms (160 ms ne représentent que 64 % du réglage de 250 ms) |
 
 Pendant le test, le tableau de bord « Inter-site Connectivity » affichait les valeurs écrites sur le tunnel sélectionné. Les couleurs du widget « Scoreboard » suivent les seuils des alertes :
 
@@ -568,41 +686,9 @@ En fonctionnement normal, le lab mesure 1 ms vers le Global Manager, des files d
 
 ### Test de l'historique des changements
 
-Le 22 novembre à 01:48 UTC, la description du segment étendu fed-stretched a été définie sur le Global Manager actif par un PATCH. La lecture suivante de l'inventaire, à 02:13 UTC, a enregistré « Stretched Segment fed-stretched changed by admin (revision 0 -> 1) ». Le changement est apparu sur le segment comme une notification, effacée au cycle suivant, et il est resté dans les dix derniers changements de la fédération. Le rétablissement du segment a demandé une seconde tentative : un PATCH avec une description vide a laissé la description en place, et un PUT du segment complet sans la description l'a rétabli, en révision 2.
+Le 22 novembre à 01:48 UTC, la description du segment étendu fed-stretched a été définie sur le Global Manager actif par un PATCH. La lecture suivante de l'inventaire, à 02:13 UTC, a enregistré « Stretched Segment fed-stretched changed by admin (revision 0 -> 1) ».
 
-### Test de la revue des règles de pare-feu
-
-Le 22 novembre à 14:10 UTC, deux règles ALLOW ont été ajoutées à la stratégie de sécurité globale fed-demo sur le Global Manager actif : fedmp-test-allow, du groupe fed-vm-str-a vers le groupe fed-vm-str-b en ICMP, et fedmp-test-allow-again, la même règle placée juste après. La règle par défaut des deux Local Managers autorise déjà ce trafic : rien n'a donc changé sur le réseau. Le premier cycle après la réinstallation du pack a lu le nouvel inventaire, à 14:37 UTC. La stratégie affichait trois règles, dont une masquée, avec la propriété « fedmp-test-allow-again (by fedmp-test-allow) ». « Global firewall rules to review » valait 1 sur la fédération, et l'alerte d'information « Global security policy has rules that are never hit » s'est ouverte sur fed-demo. Les deux règles ont été supprimées à 14:38 UTC. La lecture suivante de l'inventaire a constaté leur disparition : à 15:12 UTC, la stratégie ne comptait plus qu'une règle et l'alerte s'était effacée.
-
-### Test de basculement
-
-Un basculement planifié a été mené le 19 novembre, pour observer ce que le pack signale lorsque le rôle actif change de Global Manager. Le basculement tient en un seul appel sur le Standby Global Manager, l'équivalent, par l'API, de « Make Active » dans « Location Manager » :
-
-*À exécuter sur : le jumphost, vers l'API du Standby Global Manager.*
-
-```
-PATCH https://<standby-gm>/global-manager/api/v1/global-infra/global-managers/gm-site-b
-{"display_name": "gm-site-b", "mode": "ACTIVE"}
-```
-
-Le même appel en PUT, avec l'objet complet, a été refusé avec `Global Manager can only be activated locally`. Le PATCH limité au nom et au mode a été accepté. La progression s'affiche en six étapes dans `GET /api/v1/sites/switchover-status` sur le nouveau Global Manager actif.
-
-| Heure | NSX | Pack |
-| --- | --- | --- |
-| 07:26:31 | Basculement vers gm-site-b demandé ; vérification préalable | |
-| 07:27 | | Cycle pendant la vérification préalable : gm-site-a actif, un seul Global Manager actif |
-| 07:28 | gm-site-a passe en standby | |
-| 07:29:10 | Basculement terminé | |
-| 07:32 | | Premier cycle complet : gm-site-b actif, gm-site-a en standby, tous deux joignables, les deux emplacements connectés, standby synchronisé |
-| 07:42:32 | Retour vers gm-site-a demandé | |
-| 07:44:35 | Retour terminé | |
-| 07:52 | | gm-site-a de nouveau actif, standby synchronisé |
-
-Chaque basculement a duré de deux à trois minutes. Le pack a suivi le rôle actif dès son premier cycle après le changement, sans modification du compte, puisque celui-ci contient les deux adresses. Aucune alerte ne s'est ouverte ni fermée pendant le test. Pendant environ une minute, au cours de la vérification préalable, le nouveau Global Manager actif a présenté les deux Global Managers comme actifs. Le pack a tout de même compté un seul Global Manager actif et n'a déclenché aucune alerte de split-brain.
-
-Après un basculement, l'ancien Global Manager actif devient le Standby Global Manager et expose sa propre valeur de synchronisation, comme le décrit la section « Le Standby Global Manager ».
-
-Un basculement planifié ne laisse jamais la fédération sans Global Manager actif : les alertes « NSX Federation has no active Global Manager » et « Global Manager is not reachable by the collector » ne se sont donc pas déclenchées.
+Le changement est apparu sur le segment comme une notification, effacée au cycle suivant, et il est resté dans les dix derniers changements de la fédération. Le rétablissement du segment a demandé un PUT du segment complet sans la description, en révision 2, car un PATCH avec une description vide avait laissé la description en place.
 
 ### Événements d'alarme NSX
 
@@ -613,77 +699,6 @@ L'alerte issue de l'alarme affiche le symptôme, le texte de l'événement et la
 ![Détail de l'alerte « NSX alarm: RTEP BGP neighbor down » sur site-a-wld01 : la description, la recommandation et le symptôme « Local Manager raised NSX alarm rtep_bgp_down » avec le texte de l'événement de test](/images/nsx-federation-mp/ops-alarm-alert.webp?v=2)
 
 Les mêmes événements, envoyés de nouveau avec une heure d'annulation, ont effacé les deux alertes au cycle suivant.
-
-## Envoyer les alertes
-
-Le pack déclenche les alertes, VCF Operations les envoie. Deux réglages sont nécessaires : une instance sortante, qui connaît le serveur de messagerie, et une règle de notification, qui sélectionne les alertes. Les deux se trouvent sous « Administration > Configurations », dans le groupe « Alerts ». Le lab n'a pas de serveur de messagerie : les captures du courriel montrent donc les formulaires avant enregistrement. Un webhook a été testé de bout en bout à la place, avec un script (étape 3).
-
-### 1. L'instance sortante
-
-1. Ouvrir « Administration > Configurations > Outbound Settings » et cliquer sur « Add ».
-2. Choisir le type de plug-in « Standard Email Plugin » et donner un nom à l'instance.
-3. Renseigner « SMTP Host » et « SMTP Port », ainsi que l'adresse et le nom de l'expéditeur. Cocher « Use Secure Connection » et « Requires Authentication » si le serveur de messagerie l'exige. Le formulaire comporte aussi un champ d'identifiants et une adresse de destinataire.
-4. Cliquer sur « Test », puis sur « Save ».
-
-Le formulaire, tel qu'il a été ouvert dans le lab :
-
-![Create New Outbound Instance avec le Standard Email Plugin : hôte et port SMTP, connexion sécurisée, adresse et nom de l'expéditeur, identifiants et adresse du destinataire](/images/nsx-federation-mp/ops-email-plugin.webp)
-
-La même liste propose des plug-ins Webhook, Slack, ServiceNow et SNMP trap. La règle de notification décrite ci-dessous fonctionne avec chacun d'eux.
-
-### 2. La règle de notification
-
-1. Ouvrir « Administration > Configurations > Notifications » et cliquer sur « Add ». L'assistant compte cinq étapes, qui correspondent aux points 2 à 6 ci-dessous.
-2. **Notification :** saisir un nom, par exemple « NSX Federation alerts by email ».
-3. **Define Criteria :** sous « Object Scope », choisir « Object Type » et sélectionner les types d'objets de l'adaptateur NSX Federation. Sous « Alert Scope », laisser « Category » sur toutes les alertes ou le restreindre à « Alert Definition » pour choisir des définitions précises. « Criticality » limite la règle, par exemple à Immediate et Critical. « Notify On » détermine les changements d'état d'une alerte qui déclenchent un message.
-4. **Set Outbound Method :** choisir le plug-in de courriel et l'instance sortante créée plus haut.
-5. **Select Payload Template :** choisir le modèle qui met en forme le message. Les modèles se gèrent sous « Payload Templates », sur la même page « Configurations ».
-6. **Test Notification :** lancer le test, puis cliquer sur « Create ».
-
-L'étape « Define Criteria » se présente ainsi :
-
-![L'étape Define Criteria d'une règle de notification : périmètre des objets, périmètre des alertes avec catégorie, criticité et état de contrôle, et changements d'état à notifier](/images/nsx-federation-mp/ops-notification-rule.webp)
-
-Une règle portant sur les types d'objets du pack et limitée à Immediate et Critical envoie par courriel les alertes de ces deux niveaux. Les alertes de niveau Information et Warning ne sont alors visibles que dans l'interface. Une seconde règle, sans limite de criticité et adressée à la boîte aux lettres d'une équipe, permet de les recevoir aussi.
-
-### 3. La même règle avec un script
-
-`install/notification_rules.py` crée la règle de l'étape 2 pour une instance sortante qui existe déjà, avec le modèle par défaut de son type de plug-in. La règle prend les alertes de tous les types d'objets du pack, Immediate et Critical par défaut (`--min-criticality warning` ajoute les Warning), et les envoie lorsqu'elles sont nouvelles, mises à jour ou annulées : un ticket ou un fil de discussion apprend aussi que l'alerte a disparu. `--group` la limite aux membres d'un groupe, par exemple celui d'une fédération.
-
-Dans le lab, l'instance sortante était un webhook vers un petit serveur HTTP sur le jumphost, et la règle était limitée au groupe de la fédération. L'affectation de la politique « NSX Federation - Non-production » à ce groupe a annulé les deux alertes de sauvegarde des Global Managers, et le serveur a reçu deux messages avec le statut « Canceled ». Au retrait de la politique, les alertes sont revenues, et deux messages avec le statut « Active » sont arrivés environ trois secondes plus tard. Chaque message contient l'objet, son type, le nom de l'alerte, la criticité, les dates de début et d'annulation, et la recommandation. L'instance sortante et la règle de test ont été supprimées ensuite.
-
-## Notes pour les développeurs de packs
-
-### Les pièges du SDK
-
-Cinq points ont coûté du temps pendant la construction. Les quatre premiers ne figurent pas dans la documentation du SDK :
-
-- **Les événements dotés d'une clé de défaut sont écartés.** VCF Operations n'affiche un événement d'adaptateur doté d'une clé de défaut (fault key) que si le pack fournit la définition de symptôme correspondante. Sans elle, l'événement disparaît sans qu'aucune erreur n'apparaisse, ni d'un côté ni de l'autre. Le pack envoie ses événements sans clé de défaut.
-- **Identifiants de recommandation.** L'identifiant d'une recommandation doit commencer par `Recommendation-df-`. Le schéma du SDK ne le vérifie pas, et sans ce préfixe VCF Operations rejette l'intégralité du fichier d'alertes alors que l'installation indique un succès.
-- **Fichiers de schéma dans les dossiers de contenu.** Le modèle de projet place `traversalSpecsSchema.xsd` dans `content/traversalspecs`. Le programme d'installation lit chaque fichier de ce dossier comme une spécification de parcours (traversal specification), échoue sur le schéma avec `Traversal specs root tag should be "AdapterKind"`, et l'arborescence d'inventaire ne se charge jamais. Les fichiers de schéma doivent rester hors du pack.
-- **`CollectResult.get_objects_by_type`** compare le type d'adaptateur de chaque objet au type d'objet demandé et renvoie donc toujours une liste vide. L'adaptateur filtre lui-même les objets.
-- **Tableaux de bord.** La documentation du SDK recommande de créer un tableau de bord dans l'interface puis de l'exporter. Le pack, lui, génère le JSON de ses tableaux de bord par un script, à partir du même modèle d'objets que l'adaptateur. Le format a été déduit des tableaux de bord exportés par l'API Suite (`/api/content/operations/export`). Dans le fichier, un type d'objet est représenté par un marqueur tel que `resourceKind:id:3_::_`, et une table placée en tête de fichier associe chaque marqueur à un type d'adaptateur et à un type d'objet.
-
-Les définitions d'alerte, les vues et les tableaux de bord peuvent être testés avant toute construction du pack : l'API Suite les importe à partir d'un fichier zip (`POST /suite-api/api/content/operations/import`), sans installation de pack ni activation de l'option des packs non signés.
-
-### Import des tableaux de bord
-
-Deux comportements ont fait perdre du temps après l'import d'un tableau de bord :
-
-- Un tableau de bord importé affiche d'abord des widgets vides. Les listes d'objets montrent tous les objets de l'instance et les widgets « Scoreboard » n'affichent rien. Une tâche de fond de VCF Operations achève l'import quelques minutes plus tard, et les widgets reçoivent alors leurs paramètres.
-- Les listes d'objets conservent leurs colonnes par défaut. Les colonnes de métriques ajoutées se retrouvent à droite, derrière une barre de défilement. La disposition des colonnes enregistrée dans le fichier n'a pas été appliquée à l'import.
-
-### Comparaison avec les intégrations natives
-
-Les 1 253 définitions d'alerte et 2 047 définitions de symptôme présentes dans l'instance VCF Operations du lab ont été comparées au pack, en comptant les définitions de chaque type d'adaptateur. Le choix des badges, des délais de réaction et du nommage des alarmes dans le pack découle de cette comparaison :
-
-| | NSX natif | vCenter natif | vSAN natif | Pack NSX Federation |
-| --- | --- | --- | --- | --- |
-| Définitions d'alerte | 423 | 185 | 225 | 87 |
-| Définitions de symptôme par condition | Alarmes NSX sous forme d'événements (381), propriétés (99), seuils de métrique (12) | Propriétés (329), défauts vCenter (76), seuils de métrique (57), événements (33), seuils dynamiques (4) | Défauts (430), propriétés (20), seuils de métrique (2) | Seuils de métrique (78), propriétés (45), alarmes NSX sous forme d'événements (26), seuils dynamiques (4) |
-| Badge | 405 Health, 18 Risk | 129 Health, 55 Risk, 1 Efficiency | 206 Health, 15 Risk, 4 Efficiency | 66 Health, 21 Risk |
-| Symptômes avec cycles d'attente ou d'annulation supérieurs à 1 | Aucun | 45 | 2 | 66 |
-| Alertes du sous-type Compliance | 22 | 42 | 12 | 8 |
 
 ## Sources
 

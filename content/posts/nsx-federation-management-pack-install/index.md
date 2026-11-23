@@ -24,9 +24,7 @@ The pack described here is version 1.13.0. Its source is on GitHub: [sorinplaton
 
 ## The lab
 
-The lab runs VCF 9.1.1 with two Global Managers, each a single node. `nsx-gm-01a` (`gm-site-a`) is active and `nsx-gm-01b` (`gm-site-b`) is its standby.
-
-They federate two locations, `site-a-wld01` and `site-a-wld03`, each with a two-node edge cluster. VCF Operations is 9.1.1 with one cloud proxy, `opscollector-01a`. The build runs on a Linux jump host with Docker, which also runs the image registry on port 5000.
+The lab is the federation described in [part 1](/posts/nsx-federation-management-pack-design/): two locations, `site-a-wld01` and `site-a-wld03`, and VCF Operations 9.1.1 with one cloud proxy, `opscollector-01a`. For this part it also has a standby Global Manager: `nsx-gm-01a` (`gm-site-a`) is active and `nsx-gm-01b` (`gm-site-b`) is its standby. The build runs on a Linux jump host with Docker, which also runs the image registry on port 5000.
 
 ![The part 2 lab: the active Global Manager nsx-gm-01a and the standby nsx-gm-01b, the locations site-a-wld01 and site-a-wld03 with their Local Managers and two-node edge clusters linked by RTEP, VCF Operations with the cloud proxy opscollector-01a, and the jump host that builds the pack and serves its image through the lab router](/images/nsx-federation-mp/lab-topology.svg?v=7)
 
@@ -289,7 +287,7 @@ Two more tools are only needed for some steps, and can sit on another host:
 
 ### Build the adapter
 
-The pack uses the VCF Operations Integration SDK 1.3.1. The SDK tools (`mp-init`, `mp-test`, `mp-build`) need a Python version the jump host does not carry, so they run from a small tooling image:
+The pack uses the VCF Operations Integration SDK 1.3.1, introduced in [part 1](/posts/nsx-federation-management-pack-design/). Its tools need a Python version the jump host does not carry, so they run from a small tooling image:
 
 *Found in: `tooling/Dockerfile` in the repository, built on the jump host.*
 
@@ -307,9 +305,7 @@ The adapter code is in two Python files:
 | `nsxclient.py` | A read-only NSX REST client with cursor paging, a call budget per manager, back-off on HTTP 429 and 503, a certificate check by SHA-256 fingerprint or by CA chain and host name, and a small on-disk cache for slow-moving data |
 | `adapter.py` | The object model, the collection logic and the events |
 
-An SDK pack is not self-contained. The `.pak` file carries the object definitions and a pointer to a container image. The cloud proxy pulls that image from a registry when the adapter instance starts.
-
-`mp-build` builds the pack and pushes the adapter image to the registry. The registry of install step 1 must therefore be running, and trusted by the jump host's Docker, before the build. The full command is in step 4 of [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.md).
+The `.pak` file carries the object definitions and a pointer to the adapter image, which the cloud proxy pulls from the registry when the adapter instance starts. `mp-build` builds the pack and pushes the adapter image to the registry. The registry of install step 1 must therefore be running, and trusted by the jump host's Docker, before the build. The full command is in step 4 of [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.md).
 
 When the registry address is given as `host:port`, `mp-build` writes Docker Hub into the pack instead of that address. A short script, `tools/repack.py`, rewrites two values, `REGISTRY` and `REPOSITORY`, in the `.conf` file inside `adapter.zip`:
 

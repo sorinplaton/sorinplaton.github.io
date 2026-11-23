@@ -24,9 +24,7 @@ Le pack décrit ici est la version 1.13.0. Son code source est sur GitHub : [so
 
 ## Le lab
 
-Le lab tourne sous VCF 9.1.1, avec deux Global Managers, chacun à un seul nœud. `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son Standby Global Manager.
-
-Ils fédèrent deux emplacements (les « Locations » de NSX Federation), `site-a-wld01` et `site-a-wld03`, dotés chacun d'un cluster Edge à deux nœuds. VCF Operations est en version 9.1.1, avec un seul proxy cloud, `opscollector-01a`. La construction se fait sur un jumphost Linux équipé de Docker, qui héberge aussi le registre d'images sur le port 5000.
+Le lab est la fédération décrite dans la [partie 1](/fr/posts/nsx-federation-management-pack-design/) : deux emplacements, `site-a-wld01` et `site-a-wld03`, et VCF Operations 9.1.1 avec un seul proxy cloud, `opscollector-01a`. Pour cette partie, il dispose aussi d'un Standby Global Manager : `nsx-gm-01a` (`gm-site-a`) est actif et `nsx-gm-01b` (`gm-site-b`) est son standby. La construction se fait sur un jumphost Linux équipé de Docker, qui héberge aussi le registre d'images sur le port 5000.
 
 ![Le lab de la partie 2 : le Global Manager actif nsx-gm-01a et le standby nsx-gm-01b, les emplacements site-a-wld01 et site-a-wld03 avec leurs Local Managers et leurs clusters Edge à deux nœuds reliés par RTEP, VCF Operations avec le proxy cloud opscollector-01a, et le jumphost qui construit le pack et sert son image à travers le routeur du lab](/images/nsx-federation-mp/lab-topology.fr.svg?v=7)
 
@@ -289,7 +287,7 @@ Deux autres outils ne servent qu'à certaines étapes et peuvent se trouver sur 
 
 ### Construire l'adaptateur
 
-Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1. Les outils du SDK (`mp-init`, `mp-test`, `mp-build`) exigent une version de Python absente du jumphost ; ils s'exécutent donc depuis une petite image d'outillage :
+Le pack s'appuie sur le VCF Operations Integration SDK 1.3.1, présenté dans la [partie 1](/fr/posts/nsx-federation-management-pack-design/). Ses outils exigent une version de Python absente du jumphost ; ils s'exécutent donc depuis une petite image d'outillage :
 
 *Se trouve dans : `tooling/Dockerfile` du dépôt, construit sur le jumphost.*
 
@@ -307,9 +305,7 @@ Le code de l'adaptateur tient en deux fichiers Python :
 | `nsxclient.py` | Un client REST NSX en lecture seule, avec pagination par curseur, quota d'appels par manager, nouvelle tentative après attente sur les codes HTTP 429 et 503, contrôle du certificat par empreinte SHA-256 ou par chaîne de certification et nom d'hôte, et petit cache sur disque pour les données qui changent peu |
 | `adapter.py` | Le modèle d'objets, la logique de collecte et les événements |
 
-Un pack SDK n'est pas autonome. Le fichier `.pak` contient les définitions d'objets et une référence à une image de conteneur. Le proxy cloud récupère cette image dans un registre au démarrage de l'instance d'adaptateur.
-
-`mp-build` construit le pack et pousse l'image de l'adaptateur vers le registre. Le registre de l'étape 1 de l'installation doit donc déjà tourner, et le Docker du jumphost doit lui faire confiance, avant la construction. La commande complète figure à l'étape 4 de [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.fr.md).
+Le fichier `.pak` contient les définitions d'objets et une référence à l'image de l'adaptateur, que le proxy cloud récupère dans le registre au démarrage de l'instance d'adaptateur. `mp-build` construit le pack et pousse l'image de l'adaptateur vers le registre. Le registre de l'étape 1 de l'installation doit donc déjà tourner, et le Docker du jumphost doit lui faire confiance, avant la construction. La commande complète figure à l'étape 4 de [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.fr.md).
 
 Lorsque l'adresse du registre est donnée sous la forme `host:port`, `mp-build` inscrit Docker Hub dans le pack au lieu de cette adresse. Un court script, `tools/repack.py`, réécrit deux valeurs, `REGISTRY` et `REPOSITORY`, dans le fichier `.conf` que contient `adapter.zip` :
 

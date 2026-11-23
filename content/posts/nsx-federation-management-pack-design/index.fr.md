@@ -16,7 +16,7 @@ VCF Operations 9.1.1 dispose d'une instance d'adaptateur pour chaque Local Manag
 
 ## Le lab
 
-La fédération tourne dans un lab VCF 9.1.1. Elle comprend un seul Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), actif, à un seul nœud et sans Standby Global Manager. Deux emplacements en NSX 9.1.1 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-wld03-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`). Un Standby Global Manager, `nsx-gm-01b`, a été ajouté plus tard, avant l'installation, et le pack est testé avec les deux Global Managers ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
+La fédération tourne dans un lab VCF 9.1.1. Son Global Manager, `nsx-gm-01a` (10.1.1.37, NSX 9.1.1), est actif, à un seul nœud, sans Standby Global Manager. Deux emplacements en NSX 9.1.1 y sont rattachés : `site-a-wld01` (Local Manager `nsx-wld01-a`, adresse IP virtuelle du cluster 10.1.1.24) et `site-a-wld03` (Local Manager `nsx-wld03-a`, adresse IP virtuelle du cluster 10.1.1.80). Chacun dispose d'un cluster Edge à deux nœuds et de son propre VLAN RTEP. Sur le Global Manager sont définis une passerelle Tier-0 en mode actif-actif (`fed-t0`, quatre sessions BGP vers le routeur du lab), trois passerelles Tier-1, cinq segments (dont le segment étendu `fed-stretched`) et une stratégie de pare-feu (`fed-demo`). Un Standby Global Manager, `nsx-gm-01b`, a été ajouté plus tard, avant l'installation, et le pack est testé avec les deux Global Managers ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
 
 Le lab compte quatre Local Managers NSX en tout, dont deux font partie de la fédération.
 
@@ -48,17 +48,17 @@ curl -sk -H "Authorization: OpsToken $TOKEN" -H 'Accept: application/json' \
 Résultat :
 
 - Version : VCF Operations 9.1.1.
-- Collecteur (proxy cloud) : `opscollector-01a`, de type `UNIFIED_CLOUD_PROXY`, à l'état `UP`. Ce point compte pour la construction, car un adaptateur écrit avec l'Integration SDK s'exécute dans un conteneur sur un proxy cloud, jamais sur le nœud d'analyse.
+- Collecteur (proxy cloud) : `opscollector-01a`, de type `UNIFIED_CLOUD_PROXY`, à l'état `UP`. Ce point compte pour la construction : un adaptateur écrit avec l'Integration SDK s'exécute dans un conteneur sur un proxy cloud, jamais sur le nœud d'analyse.
 - Intégration NSX : le type d'adaptateur `NSXTAdapter` compte 50 types d'objets et 4 instances, une par Local Manager NSX du lab, y compris les deux qui ne font pas partie de la fédération. Aucun de ces 50 types ne correspond à un Global Manager, à un emplacement ou à un tunnel RTEP, et aucune instance ne pointe vers le Global Manager.
 - Objets de la fédération : l'instance de `nsx-wld01-a` liste le cluster Edge `fed-ec-a` et le pool d'adresses IP RTEP, car ce sont des objets locaux. La recherche des objets globaux (`fed-t0`, `fed-stretched`) dans son inventaire n'a rien donné.
 
-L'intégration native couvre les objets locaux de chaque emplacement et aucun objet de la fédération. Le pack doit fournir les objets de la fédération et les relier à ceux de l'intégration native.
+L'intégration native s'arrête aux objets locaux de chaque emplacement. Le pack doit ajouter les objets de la fédération et les relier à ceux de l'intégration native.
 
 ## Étape 2 : trouver les appels d'API qui donnent l'état de la fédération
 
 Tous les appels ci-dessous sont des GET, envoyés aux managers du lab. Le Global Manager publie son arborescence Policy sous `/global-manager/api/v1/global-infra` ; un Local Manager expose les objets qu'il a reçus sous `/policy/api/v1/global-infra`.
 
-**La fédération est-elle connectée ?** C'est le Global Manager qu'il faut interroger :
+**La fédération est-elle connectée ?** Question posée au Global Manager :
 
 *À exécuter sur : le jumphost, vers l'API du Global Manager actif.*
 
@@ -101,7 +101,7 @@ curl -sk -u "$NSX_USER:$NSX_PW" \
 
 Le premier appel renvoie les sessions BGP intersites de chaque nœud Edge (2 au total, 2 établies sur `edge-wld01-01a`), avec les adresses RTEP source et voisine. Le second renvoie, pour chaque tunnel, les octets, les paquets, les paquets rejetés et les paquets bloqués.
 
-Le tableau suivant récapitule les appels vérifiés :
+Les appels vérifiés :
 
 | Question | Manager | Chemin d'API |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ Le tableau suivant récapitule les appels vérifiés :
 
 ## Étape 3 : le modèle d'objets
 
-Un management pack repose d'abord sur un modèle d'objets : quels éléments existent, comment ils sont identifiés et lequel est le parent de l'autre. La première ébauche compte 12 types répartis en 4 chaînes, comme le montre le schéma ci-dessous. Elle modélise elle-même les nœuds Edge, les passerelles et les segments ; l'étape 5 explique pourquoi le pack livré le fait toujours. Le pack livré compte 16 types : ces 12, plus la fédération elle-même, le canal de synchronisation entre deux managers, le routeur de service Tier-0 sur un nœud Edge et la réalisation d'un objet étendu sur chaque emplacement ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
+Un management pack commence par un modèle d'objets : quels éléments existent, ce qui les identifie et lequel est le parent de l'autre. La première ébauche compte 12 types répartis en 4 chaînes. Elle modélise elle-même les nœuds Edge, les passerelles et les segments ; l'étape 5 explique pourquoi le pack livré le fait toujours. Le pack livré compte 16 types : ces 12, plus la fédération elle-même, le canal de synchronisation entre deux managers, le routeur de service Tier-0 sur un nœud Edge et la réalisation d'un objet étendu sur chaque emplacement ([partie 2](/fr/posts/nsx-federation-management-pack-install/)).
 
 ![Modèle d'objets : du Global Manager au nœud de manager ; de l'emplacement au cluster Edge, au nœud Edge puis au tunnel RTEP ; de la passerelle Tier-0 à la passerelle Tier-1 puis au segment, avec le voisin BGP sous le Tier-0 ; de la stratégie globale à la règle](/images/nsx-federation-mp/object-model.fr.svg?v=2)
 
@@ -125,7 +125,7 @@ Les identifiants proviennent de NSX, jamais d'une adresse de manager : identifi
 
 ## Étape 4 : métriques et propriétés
 
-Chaque type d'objet reçoit une courte liste de métriques et de propriétés. Les métriques sont des valeurs numériques conservées dans le temps ; les propriétés décrivent l'état et la configuration.
+Chaque type d'objet reçoit une courte liste. Les métriques sont des valeurs numériques conservées dans le temps ; les propriétés décrivent l'état et la configuration.
 
 | Type d'objet | Métriques | Propriétés |
 | --- | --- | --- |
@@ -139,7 +139,9 @@ Chaque type d'objet reçoit une courte liste de métriques et de propriétés. L
 
 ## Étape 5 : éprouver la conception à l'échelle d'une grande entreprise
 
-La conception a ensuite été relue à l'échelle d'une grande entreprise : clusters Global Manager à trois nœuds sur un site actif et un site de secours, de nombreux emplacements et des milliers d'objets étendus. Cette relecture a changé la collecte. L'adaptateur suit le Global Manager actif et indique dès la première version si le standby est prêt à prendre le relais, les règles sont comptées sur leur stratégie et ne deviennent des objets que pour les stratégies choisies sur le compte, chaque Local Manager a son quota d'appels d'API, et la santé de la synchronisation se lit dans son état et dans les échecs de synchronisation complète. Elle a aussi changé les alertes : la perte d'un emplacement déclenche une seule alerte, et les alertes des objets qui en dépendent restent silencieuses. Le pack rend compte de sa propre collecte, pour qu'une absence de données ne soit jamais lue comme un état sain (la [partie 2](/fr/posts/nsx-federation-management-pack-install/) montre comment chaque point a été construit).
+La conception a ensuite été relue à l'échelle d'une grande entreprise : clusters Global Manager à trois nœuds sur un site actif et un site de secours, de nombreux emplacements et des milliers d'objets étendus. Cette relecture a changé la collecte. L'adaptateur suit le Global Manager actif et indique dès la première version si le standby est prêt à prendre le relais. Les règles sont comptées sur leur stratégie, et ne deviennent des objets que pour les stratégies choisies sur le compte. Chaque Local Manager a son quota d'appels d'API. La santé de la synchronisation se lit dans son état et dans les échecs de synchronisation complète.
+
+Les alertes ont changé aussi. La perte d'un emplacement déclenche une seule alerte, et les objets qui en dépendent restent silencieux. Le pack rend aussi compte de sa propre collecte, pour qu'une absence de données ne passe jamais pour un état sain. La [partie 2](/fr/posts/nsx-federation-management-pack-install/) montre comment chaque point a été construit.
 
 La relecture demandait aussi de réutiliser les objets Edge natifs. Le pack livré conserve ses propres objets cluster Edge, nœud Edge, passerelle et segment, et relie ses objets Edge aux objets natifs, car l'intégration native ne collecte pas les objets globaux et ne couvre que les Local Managers qui y ont un compte.
 
@@ -147,7 +149,7 @@ La relecture demandait aussi de réutiliser les objets Edge natifs. Le pack livr
 
 VCF Operations offre deux manières de construire un pack : le Management Pack Builder, sans code, et l'Integration SDK. Le SDK a été retenu parce qu'une même instance d'adaptateur doit interroger plusieurs managers, découvrir les Local Managers à partir du Global Manager et suivre le basculement d'un Global Manager. Les valeurs dérivées, comme un écart de version ou un état d'emplacement qui ne provoque pas d'avalanche d'alertes, et la vérification des empreintes de certificat exigent elles aussi du code.
 
-Ce choix alourdit la construction. Un adaptateur SDK est une image de conteneur : il faut donc un outillage Python et Docker pour le construire, et le proxy cloud récupère l'image dans un registre de conteneurs qu'il doit pouvoir joindre. La [partie 2](/fr/posts/nsx-federation-management-pack-install/) détaille ce dont le jumphost a besoin pour la construction et l'installation.
+Ce choix alourdit la construction. Un adaptateur SDK est une image de conteneur : il faut un outillage Python et Docker pour le construire, et le proxy cloud récupère l'image dans un registre qu'il doit pouvoir joindre. La [partie 2](/fr/posts/nsx-federation-management-pack-install/) détaille ce dont le jumphost a besoin pour la construction et l'installation.
 
 ## L'Integration SDK en bref
 

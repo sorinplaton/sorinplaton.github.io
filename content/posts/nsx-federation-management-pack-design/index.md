@@ -48,11 +48,11 @@ curl -sk -H "Authorization: OpsToken $TOKEN" -H 'Accept: application/json' \
 What came back:
 
 - Version: VCF Operations 9.1.1.
-- Collector (cloud proxy): `opscollector-01a`, type `UNIFIED_CLOUD_PROXY`, state `UP`. This matters for the build, because adapters written with the Integration SDK run as containers on a collector and never on the analytics node.
+- Collector (cloud proxy): `opscollector-01a`, type `UNIFIED_CLOUD_PROXY`, state `UP`. That matters for the build: adapters written with the Integration SDK run as containers on a collector, never on the analytics node.
 - NSX integration: adapter kind `NSXTAdapter` with 50 object types and four instances, one per NSX Local Manager in the lab, including the two that are not in the federation. None of the 50 types is a Global Manager, a location or an RTEP tunnel, and no instance points at the Global Manager.
 - Federation objects: the instance for `nsx-wld01-a` lists the edge cluster `fed-ec-a` and the RTEP IP pool, because those are local objects. A search of its inventory for the global objects (`fed-t0`, `fed-stretched`) returned nothing.
 
-The built-in integration covers the local objects of each location and none of the federation objects. The pack has to provide the federation objects and link them to the built-in ones.
+The built-in integration stops at the local objects of each location. The pack has to add the federation objects and link them to the built-in ones.
 
 ## Step 2: find the API calls that carry federation state
 
@@ -101,7 +101,7 @@ curl -sk -u "$NSX_USER:$NSX_PW" \
 
 The first returns the inter-site BGP sessions of each edge node (2 total, 2 established on `edge-wld01-01a`) with source and neighbor RTEP addresses. The second returns bytes, packets, dropped and blocked packets per tunnel.
 
-The full map, as verified:
+The verified calls:
 
 | Question | Manager | API path |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ The full map, as verified:
 
 ## Step 3: the object model
 
-A management pack starts with an object model: which things exist, what identifies them, and which object is the parent of which. The first draft has 12 types in four chains, shown in the diagram below. It models edge nodes, gateways and segments itself, and step 5 explains why the pack as built still does. The pack as built has 16 types: these 12, plus the federation itself, the sync channel between two managers, the Tier-0 service router on an edge node and the realization of a stretched object at each location ([part 2](/posts/nsx-federation-management-pack-install/)).
+A management pack starts with an object model: which things exist, what identifies them and which object is the parent of which. The first draft has 12 types in four chains. It models edge nodes, gateways and segments itself, and step 5 explains why the pack as built still does. The pack as built has 16 types: these 12, plus the federation itself, the sync channel between two managers, the Tier-0 service router on an edge node and the realization of a stretched object at each location ([part 2](/posts/nsx-federation-management-pack-install/)).
 
 ![Object model: Global Manager to Manager node; Location to Edge cluster to Edge node to RTEP tunnel; Tier-0 gateway to Tier-1 gateway to Segment, with BGP neighbor under Tier-0; Global policy to Rule](/images/nsx-federation-mp/object-model.svg?v=2)
 
@@ -139,15 +139,17 @@ Each object type gets a short list. Metrics are numbers kept over time; properti
 
 ## Step 5: reviewing the design for enterprise scale
 
-The design was then reviewed against an enterprise target: three-node Global Manager clusters in an active and a standby site, many locations and thousands of stretched objects. The review changed the collection. The adapter follows the active Global Manager and reports standby readiness from the first release, rules are counted on their policy and become objects only for the policies selected on the account, each Local Manager gets an API call budget, and sync health comes from the sync status and the full-sync failures. It changed the alerts too: a lost location raises one alert, with the alerts of the objects that depend on it kept quiet, and the pack reports on its own collection so that "no data" is never read as "healthy" ([part 2](/posts/nsx-federation-management-pack-install/) shows how each point was built).
+The design was then reviewed against an enterprise target: three-node Global Manager clusters in an active and a standby site, many locations and thousands of stretched objects. The review changed the collection. The adapter follows the active Global Manager and reports standby readiness from the first release. Rules are counted on their policy, and become objects only for the policies selected on the account. Each Local Manager gets an API call budget. Sync health comes from the sync status and the full-sync failures.
+
+The alerts changed too. A lost location raises one alert, and the objects that depend on it stay quiet. The pack also reports on its own collection, so "no data" is never read as "healthy". [Part 2](/posts/nsx-federation-management-pack-install/) shows how each point was built.
 
 The review also asked for reuse of the built-in Edge objects. The pack as built keeps its own edge cluster, edge node, gateway and segment objects and links its edge objects to the built-in ones, because the built-in integration does not collect the global objects and covers only the Local Managers that have an account in it.
 
 ## Step 6: the build route
 
-VCF Operations offers two ways to build a pack: the no-code Management Pack Builder and the Integration SDK. The SDK was chosen because one adapter instance has to query several managers, discover the Local Managers from the Global Manager and follow a Global Manager failover. The derived values, such as a version gap or a location state that does not set off an alert storm, and the check of certificate thumbprints also need code.
+VCF Operations offers two ways to build a pack: the no-code Management Pack Builder and the Integration SDK. The SDK won because one adapter instance has to query several managers, discover the Local Managers from the Global Manager and follow a Global Manager failover. Derived values, such as a version gap or a location state that does not set off an alert storm, and the check of certificate thumbprints also need code.
 
-The cost is on the build side. An SDK adapter is a container image, so the build needs Python tooling and Docker, and the collector pulls the image from a container registry it can reach. [Part 2](/posts/nsx-federation-management-pack-install/) lists what the jump host needs for the build and the install.
+The cost is on the build side. An SDK adapter is a container image: the build needs Python tooling and Docker, and the collector pulls the image from a registry it can reach. [Part 2](/posts/nsx-federation-management-pack-install/) lists what the jump host needs for the build and the install.
 
 ## The Integration SDK in short
 

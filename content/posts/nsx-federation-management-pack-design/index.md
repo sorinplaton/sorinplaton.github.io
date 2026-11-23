@@ -147,7 +147,7 @@ The review also asked for reuse of the built-in Edge objects. The pack as built 
 
 VCF Operations offers two ways to build a pack: the no-code Management Pack Builder and the Integration SDK. The SDK was chosen because one adapter instance has to query several managers, discover the Local Managers from the Global Manager and follow a Global Manager failover. The derived values, such as a version gap or a location state that does not set off an alert storm, and the check of certificate thumbprints also need code.
 
-The cost is on the build side. An SDK adapter is a container image, so the build needs Python tooling and Docker, and the collector pulls the image from a container registry it can reach.
+The cost is on the build side. An SDK adapter is a container image, so the build needs Python tooling and Docker, and the collector pulls the image from a container registry it can reach. [Part 2](/posts/nsx-federation-management-pack-install/) lists what the jump host needs for the build and the install.
 
 ## The Integration SDK in short
 

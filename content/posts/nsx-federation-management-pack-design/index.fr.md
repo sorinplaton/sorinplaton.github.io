@@ -147,7 +147,7 @@ La relecture demandait aussi de réutiliser les objets Edge natifs. Le pack livr
 
 VCF Operations offre deux manières de construire un pack : le Management Pack Builder, sans code, et l'Integration SDK. Le SDK a été retenu parce qu'une même instance d'adaptateur doit interroger plusieurs managers, découvrir les Local Managers à partir du Global Manager et suivre le basculement d'un Global Manager. Les valeurs dérivées, comme un écart de version ou un état d'emplacement qui ne provoque pas d'avalanche d'alertes, et la vérification des empreintes de certificat exigent elles aussi du code.
 
-Ce choix alourdit la construction. Un adaptateur SDK est une image de conteneur : il faut donc un outillage Python et Docker pour le construire, et le proxy cloud récupère l'image dans un registre de conteneurs qu'il doit pouvoir joindre.
+Ce choix alourdit la construction. Un adaptateur SDK est une image de conteneur : il faut donc un outillage Python et Docker pour le construire, et le proxy cloud récupère l'image dans un registre de conteneurs qu'il doit pouvoir joindre. La [partie 2](/fr/posts/nsx-federation-management-pack-install/) détaille ce dont le jumphost a besoin pour la construction et l'installation.
 
 ## L'Integration SDK en bref
 

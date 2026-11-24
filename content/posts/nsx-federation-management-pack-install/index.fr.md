@@ -1,7 +1,7 @@
 ---
 title: "Superviser NSX Federation dans VCF Operations, partie 2 : construction, installation et données collectées par le pack"
 date: 2026-11-18
-description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : ce que le pack supervise sur une fédération de lab à deux emplacements (76 objets, 586 métriques, 87 définitions d'alerte, quatre groupes personnalisés, cinq tableaux de bord, treize vues, deux rapports et une politique pour les fédérations de lab), la construction de l'adaptateur avec l'Integration SDK, l'installation pas à pas avec captures d'écran (registre en HTTPS, approbation du certificat sur le proxy cloud, pack non signé, compte) et l'envoi des alertes par courriel."
+description: "Partie 2 du management pack NSX Federation pour VCF Operations 9.1.1 : ce que le pack supervise sur une fédération de lab à deux emplacements (76 objets, 586 métriques, 87 définitions d'alerte, quatre groupes personnalisés, cinq tableaux de bord, treize vues et deux rapports), la construction de l'adaptateur avec l'Integration SDK, l'installation pas à pas avec captures d'écran (registre en HTTPS, approbation du certificat sur le proxy cloud, pack non signé, compte) et l'envoi des alertes par courriel."
 summary: "L'adaptateur collecte les données d'une fédération NSX 9.1 à deux emplacements en 25 à 45 secondes. Pour qu'il fonctionne dans VCF Operations 9.1.1, il faut un registre d'images servi en HTTPS, un proxy cloud qui approuve le certificat du registre et le réglage qui autorise un pack non signé. Cet article liste ce que supervise le pack (objets, métriques, alertes, groupes, tableaux de bord, vues), détaille chaque étape de l'installation avec des captures d'écran, puis montre comment envoyer les alertes par courriel et comment le pack a été testé dans le lab."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Lab"]
 categories: ["Notes"]
@@ -52,7 +52,6 @@ Le pack fournit :
 | Tableaux de bord | 5 |
 | Vues de type liste | 13 |
 | Rapports | 2 |
-| Politique | 1, pour les fédérations de lab et de test |
 
 La liste complète des objets, des métriques et des alertes se trouve dans [FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md).
 
@@ -136,10 +135,6 @@ Stretched Objects, avec le segment fed-stretched sélectionné :
 
 Neuf vues de type liste portent sur les emplacements, les canaux de synchronisation, les tunnels RTEP, les voisins BGP du Tier-0, la capacité des nœuds Edge, les service routers du Tier-0, la revue des règles de pare-feu, les changements récents et la réalisation des objets étendus, et quatre autres montrent la disponibilité sur les 30 derniers jours. Deux rapports les réunissent en PDF : « NSX Federation - Health report », avec les neuf premières vues, et « NSX Federation - Availability report », avec les quatre autres, à planifier chaque mois sur l'objet fédération. Les noms des vues figurent dans [FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md#tableaux-de-bord-vues-rapports-et-groupes).
 
-### Une politique pour les fédérations de lab et de test
-
-Le dépôt contient une politique VCF Operations, « NSX Federation - Non-production », qui désactive onze alertes attendues sur une fédération de lab, comme les sauvegardes, les limites de configuration et la capacité des nœuds Edge. Les alertes sur les pannes, la synchronisation, le basculement et la réalisation restent actives. La politique ne fait pas partie du pack : `install/import_policy.py` l'importe, et `install/federation_groups.py --policy` l'affecte au groupe de la fédération de lab. Dans le lab, l'affectation de la politique a annulé les deux alertes de sauvegarde au cycle suivant, et son retrait les a fait revenir. Ce qu'elle désactive est listé dans [FEATURES.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.fr.md#tableaux-de-bord-vues-rapports-et-groupes).
-
 ## Installer le pack
 
 L'installation se fait en deux temps : construire l'adaptateur sur le jumphost, puis l'installer dans VCF Operations en cinq étapes.
@@ -152,7 +147,7 @@ Le jumphost construit le pack, exécute les tests et sert l'image. Avant la cons
 
 - **Linux avec Docker Engine**, et un utilisateur membre du groupe `docker`. Les outils du SDK, les tests et le registre tournent dans des conteneurs.
 - **`git`**, pour cloner le dépôt.
-- **Python 3**, dans une version récente quelconque, pour les scripts qui tournent hors de l'image d'outillage : `tools/gen_*.py` (alertes, tableaux de bord, vues, groupes, politique) et `tools/repack.py`.
+- **Python 3**, dans une version récente quelconque, pour les scripts qui tournent hors de l'image d'outillage : `tools/gen_*.py` (alertes, tableaux de bord, vues, groupes) et `tools/repack.py`.
 - **`openssl`**, pour créer le certificat du registre (étape 1).
 - **Un accès root**, une seule fois, pour copier ce certificat dans `/etc/docker/certs.d/<registre>/ca.crt`. Le Docker du jumphost doit lui aussi faire confiance au registre avant de pouvoir y pousser l'image.
 - **Un accès sortant** vers GitHub, Docker Hub et PyPI, pour le dépôt, les images `python:3.11-slim` et `registry:2` et le paquet du SDK.
@@ -336,7 +331,7 @@ Le pack déclenche les alertes, VCF Operations les envoie. Deux réglages sont n
 - une instance sortante, qui connaît le serveur de messagerie ;
 - une règle de notification, qui sélectionne les alertes.
 
-Le lab n'a pas de serveur de messagerie : les captures du courriel montrent donc les formulaires avant enregistrement. Un webhook a été testé de bout en bout à la place, avec un script.
+Le lab n'a pas de serveur de messagerie : les captures du courriel montrent donc les formulaires avant enregistrement. La règle a été testée avec un webhook à la place.
 
 ### L'instance sortante
 
@@ -372,7 +367,7 @@ Une règle limitée à Immediate et Critical n'envoie par courriel que les alert
 
 La règle prend les alertes de tous les types d'objets du pack, Immediate et Critical par défaut (`--min-criticality warning` ajoute les Warning). Elle les envoie lorsqu'elles sont nouvelles, mises à jour ou annulées : un ticket ou un fil de discussion apprend ainsi que l'alerte a disparu. `--group` la limite aux membres d'un groupe, par exemple celui d'une fédération.
 
-Dans le lab, l'instance sortante était un webhook vers un petit serveur HTTP sur le jumphost, et la règle était limitée au groupe de la fédération. L'affectation de la politique « NSX Federation - Non-production » à ce groupe a annulé les deux alertes de sauvegarde des Global Managers, et le serveur a reçu deux messages avec le statut « Canceled ». Au retrait de la politique, deux messages avec le statut « Active » sont arrivés environ trois secondes plus tard.
+Dans le lab, l'instance sortante était un webhook vers un petit serveur HTTP sur le jumphost, et la règle était limitée au groupe de la fédération.
 
 Chaque message contient l'objet, son type, le nom de l'alerte, la criticité, les dates de début et d'annulation, et la recommandation. L'instance sortante et la règle de test ont été supprimées ensuite.
 
@@ -577,7 +572,7 @@ Les mêmes événements, envoyés de nouveau avec une heure d'annulation, ont ef
 
 ## Ce que le lab a montré
 
-Dans le lab, un cycle de collecte a couvert 76 objets en 25 à 45 secondes. La collecte des Local Managers a continué avec la seconde adresse de Global Manager injoignable, puis sans aucun Global Manager joignable. Avec 15 appels mis en échec, le pack n'a envoyé aucune des valeurs qui en dépendaient. Pendant la panne d'emplacement simulée, l'alerte du segment étendu s'est annulée et le symptôme de la panne est resté actif. Les rejets, blocages, instabilités et latences écrits ont déclenché leurs alertes, et les deux événements d'alarme NSX du test leurs alertes nommées en un cycle. Le webhook a reçu un message « Canceled » pour chaque alerte de sauvegarde désactivée par la politique, puis un message « Active » pour chacune au retrait de la politique.
+Dans le lab, un cycle de collecte a couvert 76 objets en 25 à 45 secondes. La collecte des Local Managers a continué avec la seconde adresse de Global Manager injoignable, puis sans aucun Global Manager joignable. Avec 15 appels mis en échec, le pack n'a envoyé aucune des valeurs qui en dépendaient. Pendant la panne d'emplacement simulée, l'alerte du segment étendu s'est annulée et le symptôme de la panne est resté actif. Les rejets, blocages, instabilités et latences écrits ont déclenché leurs alertes, et les deux événements d'alarme NSX du test leurs alertes nommées en un cycle.
 
 ## Sources
 

@@ -1,7 +1,7 @@
 ---
 title: "Monitoring NSX Federation in VCF Operations, part 2: building, installing and what the pack captures"
 date: 2026-11-18
-description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: what the pack monitors on a two-location lab federation (76 objects, 586 metrics, 87 alert definitions, four custom groups, five dashboards, thirteen views, two reports and a policy for lab federations), the build of the adapter with the Integration SDK, the install step by step with screenshots (HTTPS registry, certificate trust on the cloud proxy, unsigned pack, account), and how to send the alerts by email."
+description: "Part 2 of the NSX Federation management pack for VCF Operations 9.1.1: what the pack monitors on a two-location lab federation (76 objects, 586 metrics, 87 alert definitions, four custom groups, five dashboards, thirteen views and two reports), the build of the adapter with the Integration SDK, the install step by step with screenshots (HTTPS registry, certificate trust on the cloud proxy, unsigned pack, account), and how to send the alerts by email."
 summary: "The adapter collects a two-location NSX 9.1 Federation in 25 to 45 seconds. Running it inside VCF Operations 9.1.1 takes an image registry served over HTTPS, a cloud proxy that trusts the registry certificate, and the setting that allows an unsigned pack. This post lists what the pack monitors (objects, metrics, alerts, groups, dashboards, views), documents each install step with screenshots, and shows how to send the alerts by email and how the pack was tested in the lab."
 tags: ["VCF 9.1.1", "NSX Federation", "VCF Operations", "Management pack", "Integration SDK", "Lab"]
 categories: ["Field notes"]
@@ -52,7 +52,6 @@ The pack provides:
 | Dashboards | 5 |
 | List views | 13 |
 | Reports | 2 |
-| Policy | 1, for lab and test federations |
 
 The complete list of objects, metrics and alerts is in [FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.md).
 
@@ -136,10 +135,6 @@ Stretched Objects, with the segment fed-stretched selected:
 
 Nine list views cover locations, sync channels, RTEP tunnels, Tier-0 BGP neighbors, edge capacity, Tier-0 service routers, the firewall rule review, the recent changes and the realization of stretched objects, and four more show availability over the last 30 days. Two reports put them in a PDF: "NSX Federation - Health report", with the first nine views, and "NSX Federation - Availability report", with the four others, meant to be scheduled monthly on the federation object. The view names are in [FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.md#dashboards-views-reports-and-groups).
 
-### A policy for lab and test federations
-
-The repository holds a VCF Operations policy, "NSX Federation - Non-production", that turns off eleven alerts expected on a lab federation, such as backups, configuration limits and edge capacity. The alerts for outages, sync, failover and realization stay on. The policy is not inside the pack: `install/import_policy.py` imports it, and `install/federation_groups.py --policy` assigns it to the group of the lab federation. In the lab, assigning it cancelled the two backup alerts at the next cycle, and removing it brought them back. What it turns off is listed in [FEATURES.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/FEATURES.md#dashboards-views-reports-and-groups).
-
 ## Install the pack
 
 The install has two parts: build the adapter on the jump host, then install it in VCF Operations in five steps.
@@ -152,7 +147,7 @@ The jump host builds the pack, runs the tests and serves the image. Before the b
 
 - **Linux with Docker Engine**, and a user in the `docker` group. The SDK tools, the tests and the registry run in containers.
 - **`git`**, to clone the repository.
-- **Python 3**, any recent version, for the scripts that run outside the tooling image: `tools/gen_*.py` (alerts, dashboards, views, groups, policy) and `tools/repack.py`.
+- **Python 3**, any recent version, for the scripts that run outside the tooling image: `tools/gen_*.py` (alerts, dashboards, views, groups) and `tools/repack.py`.
 - **`openssl`**, to create the registry certificate (step 1).
 - **Root access**, once, to copy that certificate to `/etc/docker/certs.d/<registry>/ca.crt`. The jump host's own Docker must trust the registry before it can push the image.
 - **Outbound access** to GitHub, Docker Hub and PyPI, for the repository, the `python:3.11-slim` and `registry:2` images and the SDK package.
@@ -336,7 +331,7 @@ The pack raises the alerts and VCF Operations sends them. That takes two setting
 - an outbound instance that knows the mail server;
 - a notification rule that picks the alerts.
 
-The lab has no mail server, so the email screenshots show the forms before saving. A webhook was tested end to end instead, with a script.
+The lab has no mail server, so the email screenshots show the forms before saving. The rule was tested with a webhook instead.
 
 ### The outbound instance
 
@@ -372,7 +367,7 @@ A rule limited to Immediate and Critical sends only those two levels by email. T
 
 It takes the alerts on every object type of the pack, at Immediate and Critical by default (`--min-criticality warning` adds the warnings). It sends them when they are new, updated and cancelled, so a ticket or a chat thread also learns that the alert cleared. `--group` limits it to the members of a group, for example the group of one federation.
 
-In the lab, the outbound instance was a webhook pointing to a small HTTP listener on the jump host, and the rule was limited to the group of the federation. Assigning the "NSX Federation - Non-production" policy to that group cancelled the two Global Manager backup alerts, and the listener received two payloads with the status "Canceled". When the policy was removed, two payloads with the status "Active" arrived about three seconds later.
+In the lab, the outbound instance was a webhook pointing to a small HTTP listener on the jump host, and the rule was limited to the group of the federation.
 
 Each payload carries the object, its type, the alert name, the criticality, the start and cancel dates, and the recommendation. The test outbound instance and the rule were deleted afterwards.
 
@@ -577,7 +572,7 @@ Posting the same events again with a cancel time cleared both alerts in the next
 
 ## What the lab showed
 
-In the lab, one collection cycle covered 76 objects in 25 to 45 seconds. The Local Managers were still collected when the second Global Manager address was unreachable and when no Global Manager answered. With 15 calls made to fail, the pack sent none of the values behind them. During the simulated location outage, the alert on the stretched segment cancelled while its fault symptom stayed active. The written drop, blocking, flap and latency values raised their alerts, and the two test NSX alarm events raised their named alerts within one cycle. The webhook listener received a "Canceled" payload for each backup alert the policy turned off, and an "Active" payload for each when the policy was removed.
+In the lab, one collection cycle covered 76 objects in 25 to 45 seconds. The Local Managers were still collected when the second Global Manager address was unreachable and when no Global Manager answered. With 15 calls made to fail, the pack sent none of the values behind them. During the simulated location outage, the alert on the stretched segment cancelled while its fault symptom stayed active. The written drop, blocking, flap and latency values raised their alerts, and the two test NSX alarm events raised their named alerts within one cycle.
 
 ## Sources
 

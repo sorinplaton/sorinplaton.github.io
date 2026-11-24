@@ -1,8 +1,8 @@
 ---
 title: "NSX Enhanced Datapath Performance : l'activer et le retirer un hôte à la fois"
 date: 2026-11-14
-description: "Comment faire passer un cluster NSX 4.2.4 du datapath standard à Enhanced Datapath – Performance, puis revenir en arrière, sans retirer NSX des hôtes. NSX refuse le saut direct : chaque hôte passe d'abord par EDP Standard. Chemin dans l'interface et chemin par l'API."
-summary: "NSX 4.2.4 refuse de faire passer un hôte directement de Standard à Enhanced Datapath – Performance ; il demande de supprimer le host switch. On peut l'éviter en procédant hôte par hôte en mode maintenance, en passant par EDP Standard, puis on attache le nouveau profil au cluster. Même chemin au retour. Interface et API."
+description: "Comment faire passer un cluster NSX 4.2.4 du datapath standard à Enhanced Datapath – Performance, puis revenir en arrière, sans retirer NSX des hôtes. NSX refuse le passage direct, donc chaque hôte passe d'abord par EDP Standard. Étapes dans l'interface et par l'API."
+summary: "NSX 4.2.4 refuse de faire passer un hôte directement de Standard à Enhanced Datapath – Performance ; il demande plutôt de supprimer le host switch. On l'évite en procédant hôte par hôte en mode maintenance, en passant par EDP Standard, et on attache le nouveau profil au cluster à la fin. Le retour suit le même chemin. Étapes dans l'interface et par l'API."
 tags: ["NSX", "Enhanced Datapath", "EDP", "ENS", "vSphere 8", "Transport Node Profile", "Holodeck"]
 categories: ["Notes"]
 showToc: true
@@ -12,9 +12,9 @@ params:
   seoDescription: "Activer puis retirer NSX Enhanced Datapath – Performance hôte par hôte, via EDP Standard, en mode maintenance. Interface et API."
 ---
 
-Ce test active Enhanced Datapath – Performance (EDP Performance, l'ancien mode « ENS ») sur un cluster qui tourne déjà avec NSX en mode standard, puis le retire. Sur le papier, c'est une liste déroulante dans le Transport Node Profile. En pratique, NSX 4.2.4 refuse le changement et vous demande de supprimer le host switch, ce qui, sur un cluster en production, revient à retirer l'overlay sous chaque VM.
+Ce test active Enhanced Datapath – Performance (EDP Performance, l'ancien mode « ENS ») sur un cluster qui tourne déjà avec NSX en mode standard, puis le retire. Le mode n'est qu'une liste déroulante dans le Transport Node Profile, mais NSX 4.2.4 refuse le changement et vous demande de supprimer le host switch, ce qui, sur un cluster en production, revient à retirer l'overlay sous chaque VM.
 
-Gabe Rosas décrit une manière beaucoup plus douce sur [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) pour EDP Standard : on change un hôte à la fois pendant qu'il est en mode maintenance, et on n'attache le nouveau profil au cluster qu'à la fin. La même méthode permet d'aller jusqu'à Performance et d'en revenir, à condition d'ajouter une étape. Ce billet décrit cette procédure, dans l'interface et par l'API.
+Gabe Rosas décrit une méthode bien moins brutale sur [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) pour EDP Standard : on change un hôte à la fois pendant qu'il est en mode maintenance, et on n'attache le nouveau profil au cluster qu'à la fin. Avec une étape de plus, la même méthode mène jusqu'à Performance et permet d'en revenir. Ce billet la détaille, dans l'interface et par l'API.
 
 *Novembre 2026 · NSX 4.2.4.1 · vCenter 8.0 U3 · ESX 8.0 U3i · les noms des exemples viennent du lab*
 
@@ -23,14 +23,14 @@ Gabe Rosas décrit une manière beaucoup plus douce sur [vcfcore.tech](https://v
 - NSX connaît trois modes de host switch : `STANDARD`, `ENS_INTERRUPT` (EDP Standard) et `ENS` (EDP Performance).
 - `STANDARD` ⇄ `ENS` en une seule étape est refusé avec l'erreur 9544, au niveau du cluster comme hôte par hôte.
 - `STANDARD` → `ENS_INTERRUPT` → `ENS` est accepté, un hôte à la fois, environ 10 secondes par étape. Le retrait suit le chemin inverse.
-- Avec l'hôte en mode maintenance, les workloads ne voient pas le changement de datapath. Ils ne voient que le vMotion qui vide chaque hôte.
+- Avec l'hôte en mode maintenance, le changement de datapath n'atteint pas les workloads. Ils ne voient que le vMotion qui vide chaque hôte.
 - Une fois tous les hôtes convertis, on attache le Transport Node Profile correspondant au cluster. NSX n'a plus rien à changer et passe directement à `SUCCESS`.
 
 ![Les trois modes de host switch NSX. STANDARD vers ENS_INTERRUPT et retour : accepté ; ENS_INTERRUPT vers ENS et retour : accepté ; STANDARD vers ENS en direct, dans un sens comme dans l'autre : refusé avec l'erreur 9544.](/images/edp-perf/fig-01-mode-transitions.svg)
 
 ## Le déroulé en un coup d'œil
 
-Tout l'exercice tient sur une page. L'activation et le retrait d'EDP Performance suivent les mêmes trois étapes. Seuls changent le sens des étapes de mode et le profil qu'on attache à la fin.
+L'activation et le retrait d'EDP Performance suivent les mêmes trois étapes. Seuls changent le sens des étapes de mode et le profil qu'on attache à la fin.
 
 1. **Préparer une fois.** Cloner le Transport Node Profile du cluster et régler le mode cible sur la copie (`edp-tnp-ens`, EDP Performance avec 2 lcores sur le NUMA 0). Dans vCenter, autoriser le vMotion entre hôtes de modes différents. Pour le retour, rien à préparer : le profil Standard `edp-tnp` existe toujours.
 2. **Un hôte à la fois.** Migrer les VM hors de l'hôte par vMotion et le passer en mode maintenance. Changer son host switch en deux étapes, `STANDARD → ENS_INTERRUPT → ENS` (ou l'inverse), environ 10 secondes chacune. Vérifier l'hôte, sortir du mode maintenance, passer au suivant.
@@ -40,7 +40,7 @@ Tout l'exercice tient sur une page. L'activation et le retrait d'EDP Performance
 
 ## Trois modes, trois noms
 
-L'interface, l'API et le shell ESX donnent chacun un nom différent à la même chose, ce qui n'aide pas.
+L'interface, l'API et le shell ESX donnent chacun un nom différent au même mode.
 
 | Interface (Advanced Configuration › Mode) | API `host_switch_mode` | Ce qui change sur l'hôte |
 |---|---|---|
@@ -48,7 +48,7 @@ L'interface, l'API et le shell ESX donnent chacun un nom différent à la même 
 | Enhanced Datapath – Standard | `ENS_INTERRUPT` | Driver ENS (`nvmxnet3_ens`), piloté par interruptions, pas de cœurs dédiés |
 | Enhanced Datapath – Performance | `ENS` | Driver ENS, polling sur des cœurs logiques dédiés ; `cpu_config` est obligatoire |
 
-`cpu_config` est une liste de paires `{numa_node_index, num_lcores}`. Ces cœurs sont retirés aux VM et tournent en boucle pour le datapath : sur du vrai matériel, dimensionnez-les avec soin.
+`cpu_config` est une liste de paires `{numa_node_index, num_lcores}`. Ces cœurs sont retirés aux VM et tournent en boucle pour le datapath, donc sur du vrai matériel, dimensionnez la liste avec soin.
 
 ## Avant de commencer
 
@@ -69,7 +69,7 @@ Commencez avec l'hôte vide et en mode maintenance.
 
 ![Étape Prepare Host : le host switch edp-vds en édition, Advanced Configuration déplié et Mode sur Standard.](/images/edp-perf/gui-02-edit-host-switch-standard.webp)
 
-**3. Première étape.** Ouvrir la liste Mode. Depuis Standard, l'interface ne propose que Standard et Enhanced Datapath – Standard. Performance est absent de la liste : c'est la règle des deux étapes, telle que l'interface la montre. Choisir **Enhanced Datapath – Standard**, **Add**, **Finish**. Une dizaine de secondes plus tard, l'hôte est réalisé en `ENS_INTERRUPT`.
+**3. Première étape.** Ouvrir la liste Mode. Depuis Standard, l'interface ne propose que Standard et Enhanced Datapath – Standard. Performance n'apparaît pas dans la liste : c'est ainsi que l'interface applique la règle des deux étapes. Choisir **Enhanced Datapath – Standard**, **Add**, **Finish**. Une dizaine de secondes plus tard, l'hôte est réalisé en `ENS_INTERRUPT`.
 
 ![Liste Mode quand l'hôte est en Standard : seuls Standard et Enhanced Datapath – Standard sont proposés.](/images/edp-perf/gui-03-modes-from-standard.webp)
 
@@ -87,7 +87,7 @@ Commencez avec l'hôte vide et en mode maintenance.
 
 ![nsxdp-cli ens switch list montre DvsPortset-0 avec un MTU de 9000 et 2 lcores ; esxcfg-nics -e montre vmnic1 et vmnic2 sur nvmxnet3_ens avec ENS Driven True.](/images/edp-perf/cli-02-host-ens-verified.webp)
 
-Pendant qu'on avance hôte par hôte, le cluster pointe toujours vers l'ancien profil et NSX marque les hôtes convertis en *Mismatch*. C'est attendu, et cela disparaît à la dernière étape.
+Pendant qu'on avance hôte par hôte, le cluster pointe toujours vers l'ancien profil et NSX marque les hôtes convertis en *Mismatch*. C'est attendu, et l'état se corrige à la dernière étape.
 
 ![Vue Hosts de NSX pendant le déploiement : un hôte affiche Mismatch dans la colonne NSX Configuration.](/images/edp-perf/gui-09-mismatch-during-rollout.webp)
 
@@ -97,9 +97,9 @@ Pendant qu'on avance hôte par hôte, le cluster pointe toujours vers l'ancien p
 
 ## Activer EDP Performance par l'API
 
-L'assistant de l'interface écrit le même objet, le *host transport node* de l'API policy. Le chemin API consiste donc à le lire, changer le mode, le réécrire, attendre, et recommencer une seconde fois.
+L'assistant de l'interface écrit l'objet *host transport node* de l'API policy, et le chemin API travaille sur ce même objet : le lire, changer le mode, le réécrire, attendre, puis recommencer pour la seconde étape.
 
-On prépare la session une fois. Elle demande le NSX Manager et ses identifiants, gardés uniquement dans des variables du shell :
+On prépare la session une fois. Le bloc demande le NSX Manager et ses identifiants, et ne les garde que dans des variables du shell :
 
 ```bash
 read -rp  "NSX Manager FQDN or IP: " NSX
@@ -119,6 +119,21 @@ TN=$(nsx "https://$NSX$EP/host-transport-nodes" | jq -r --arg h "$HOST" '.result
 echo "transport node: $TN"
 ```
 
+Le mode maintenance relève de vCenter. `govc` ne pose aucune question de lui-même, donc ses variables sont aussi saisies par des questions :
+
+```bash
+read -rp  "vCenter FQDN or IP: " VC
+read -rp  "vCenter user [administrator@vsphere.local]: " VC_USER; VC_USER=${VC_USER:-administrator@vsphere.local}
+read -rsp "vCenter password: " VC_PASS; echo
+export GOVC_URL="https://$VC" GOVC_USERNAME="$VC_USER" GOVC_PASSWORD="$VC_PASS" GOVC_INSECURE=1
+```
+
+On vide l'hôte et on le met en mode maintenance avant la première étape (avec DRS entièrement automatisé, `govc` attend que DRS déplace les VM) :
+
+```bash
+govc host.maintenance.enter "$HOST"
+```
+
 Première étape, `ENS_INTERRUPT`. On garde l'objet entier, on ne change que le mode, et on le renvoie par PUT (le `_revision` lu doit repartir avec) :
 
 ```bash
@@ -135,7 +150,7 @@ nsx "https://$NSX$EP/host-transport-nodes/$TN/state" \
   | jq -r '.state, .node_deployment_state.state'      # success / success
 ```
 
-Deuxième étape, `ENS` avec ses cœurs. On demande le nœud NUMA et le nombre de lcores, puis on relit le node, car la révision a changé :
+Deuxième étape, `ENS` avec ses cœurs. Le bloc demande le nœud NUMA et le nombre de lcores, puis relit le node, car la révision a changé :
 
 ```bash
 read -rp "NUMA node index [0]: " NUMA; NUMA=${NUMA:-0}
@@ -147,15 +162,12 @@ nsx "https://$NSX$EP/host-transport-nodes/$TN" \
 nsx -X PUT "https://$NSX$EP/host-transport-nodes/$TN" -d @tn-hop2.json
 ```
 
-Le mode maintenance relève de vCenter, pas de NSX. `govc` ne demande rien de lui-même, donc on renseigne ses variables par des questions aussi :
+On attend la deuxième étape de la même façon, puis on sort l'hôte du mode maintenance et on passe au suivant :
 
 ```bash
-read -rp  "vCenter FQDN or IP: " VC
-read -rp  "vCenter user [administrator@vsphere.local]: " VC_USER; VC_USER=${VC_USER:-administrator@vsphere.local}
-read -rsp "vCenter password: " VC_PASS; echo
-export GOVC_URL="https://$VC" GOVC_USERNAME="$VC_USER" GOVC_PASSWORD="$VC_PASS" GOVC_INSECURE=1
-govc host.maintenance.enter "$HOST"     # before hop 1
-govc host.maintenance.exit  "$HOST"     # after hop 2
+nsx "https://$NSX$EP/host-transport-nodes/$TN/state" \
+  | jq -r '.state, .node_deployment_state.state'      # success / success
+govc host.maintenance.exit "$HOST"
 ```
 
 Une fois tous les hôtes faits, on attache le profil au cluster en mettant à jour sa transport node collection :
@@ -171,6 +183,8 @@ nsx -X PUT "https://$NSX$EP/transport-node-collections/$TNC" -d @tnc.json
 nsx "https://$NSX$EP/transport-node-collections/$TNC/state" | jq -r .state   # SUCCESS
 ```
 
+### Toute la boucle avec un script
+
 Un petit script Python enchaîne toute la boucle (évacuation, mode maintenance, les deux étapes, attente, sortie, hôte suivant, puis attache du profil), avec pyVmomi pour vCenter et l'API policy de NSX : [edp_per_host.py](/files/edp-perf/edp_per_host.py) (`pip install pyvmomi requests`). Lancé sans argument, il demande tout : adresses de vCenter et de NSX, utilisateurs et mots de passe (saisis masqués, jamais enregistrés), puis le cluster, le mode visé, les lcores pour Performance et le profil à attacher, choisis dans des listes lues dans votre environnement. Il vérifie le paramètre vMotion de vCenter, affiche le plan et ne démarre qu'après que vous avez tapé `YES`. Il peut faire une pause avant chaque hôte, et `--dry-run` s'arrête après le plan.
 
 ![Démarrage interactif d'edp_per_host.py : questions sur les adresses et mots de passe de vCenter et NSX, choix du cluster dans une liste, mode actuel de chaque hôte, choix parmi les trois modes, nœud NUMA et lcores, Transport Node Profile correspondant proposé, puis plan hôte par hôte.](/images/edp-perf/cli-07-script-prompts.webp)
@@ -181,7 +195,7 @@ Il calcule lui-même les étapes et ignore les hôtes déjà dans le mode visé.
 
 ## Le retrait : retour à Standard
 
-Même route dans l'autre sens : `ENS` → `ENS_INTERRUPT` → `STANDARD`, hôte par hôte, en mode maintenance, puis on attache le profil Standard. Passer directement de `ENS` à `STANDARD` donne la même erreur 9544.
+Le retrait suit le même chemin en sens inverse : `ENS` → `ENS_INTERRUPT` → `STANDARD`, hôte par hôte, en mode maintenance, puis on attache le profil Standard. Passer directement de `ENS` à `STANDARD` donne la même erreur 9544.
 
 **Dans l'interface** (esx-edp-02) : Configure NSX sur l'hôte, Edit sur le host switch, Advanced Configuration. Depuis Performance, la liste ne propose qu'EDP Standard et Performance, pas Standard.
 
@@ -201,12 +215,12 @@ Choisir **Enhanced Datapath – Standard**, Finish. Relancer Configure NSX et ch
 
 ![edp-cluster revenu sur Applied Profile edp-tnp, NSX Configuration Success sur chaque hôte.](/images/edp-perf/gui-11-cluster-back-to-standard.webp)
 
-Un des hôtes du lab est apparu *Degraded* juste après le retrait : NSX voyait `uplink2` down alors qu'ESX voyait les deux liens up. C'était un état pNIC en cache, resté du changement de driver : l'état en temps réel (`GET /api/v1/transport-nodes/<id>/status?source=realtime`) répondait `UP`, et l'interface a suivi peu après. Vérifiez-le avant d'ouvrir un ticket.
+Un des hôtes du lab est apparu *Degraded* juste après le retrait : NSX voyait `uplink2` down alors qu'ESX voyait les deux liens up. C'était un état pNIC en cache, resté du changement de driver : l'état en temps réel (`GET /api/v1/transport-nodes/<id>/status?source=realtime`) répondait `UP`, et l'interface a suivi peu après. Vérifiez l'état en temps réel avant d'ouvrir un ticket.
 
 ## À garder en tête
 
 Clonez le Transport Node Profile au lieu de modifier celui qui est attaché au cluster, car modifier le profil attaché, c'est le chemin « tous les hôtes à la fois ». N'attachez le clone qu'une fois que tous les hôtes y correspondent. D'ici là, *Mismatch* sur les hôtes convertis est normal, tout comme un *Degraded* périmé juste après le changement de driver.
 
-Les lcores du mode Performance sont de vrais cœurs : `cpu_config` retire des cœurs logiques aux VM sur chaque nœud NUMA listé : dimensionnez-le selon le trafic que vous attendez vraiment. Mesurez ce qu'EDP Performance vous apporte sur le matériel et les drivers sur lesquels il tournera.
+En mode Performance, `cpu_config` retire des cœurs logiques aux VM sur chaque nœud NUMA listé, donc dimensionnez-le selon le trafic que vous attendez vraiment. Mesurez ce qu'EDP Performance vous apporte sur le matériel et les drivers sur lesquels il tournera.
 
 La méthode par hôte en mode maintenance vient du billet de Gabe Rosas [How to Enable EDP Standard with Zero Impact in VCF 5.2](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) et de sa [suite sur enable_uens.py](https://vcfcore.tech/2026/02/25/using-enable_uens-py-for-edp-transitions-in-vcf-5-2/). Ce billet n'ajoute que la seconde étape vers Performance et le chemin du retour.

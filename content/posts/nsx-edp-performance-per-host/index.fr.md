@@ -22,7 +22,7 @@ EDP reprend des idées de DPDK. Le datapath standard analyse et classe chaque pa
 
 EDP Standard fonctionne par interruptions et ne réserve aucun cœur. Il convient donc aux clusters généralistes, où il consomme moins de CPU pour le même trafic. EDP Performance dédie des cœurs logiques qui interrogent les cartes réseau en permanence. La latence baisse, et ce mode vise les fonctions réseau télécom (NFV) et les autres workloads qui traitent beaucoup de paquets. Le prix, ce sont ces cœurs, que les VM ne peuvent pas utiliser même sans trafic. Le lab est en nested : ce billet ne mesure rien de tout cela et montre seulement comment changer de mode sans risque.
 
-### Trois modes, trois noms
+### Trois modes de host switch, trois noms
 
 L'interface, l'API et le shell ESX donnent chacun un nom différent au même mode.
 
@@ -44,7 +44,7 @@ Gabe Rosas décrit sur [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-ena
 
 ## En bref
 
-- Des trois modes, le passage direct `STANDARD` ⇄ `ENS` est refusé avec l'erreur 9544, au niveau du cluster comme hôte par hôte.
+- Le passage direct `STANDARD` ⇄ `ENS` est refusé avec l'erreur 9544, au niveau du cluster comme hôte par hôte.
 - En passant par le mode du milieu, c'est accepté : `STANDARD` → `ENS_INTERRUPT` → `ENS`, un hôte à la fois, environ 10 secondes par étape. Le retrait suit le chemin inverse.
 - Avec l'hôte en mode maintenance, le changement de datapath n'atteint pas les workloads. Ils ne voient que le vMotion qui vide chaque hôte.
 - Une fois tous les hôtes convertis, on attache le Transport Node Profile correspondant au cluster. NSX n'a plus rien à changer et passe directement à `SUCCESS`.

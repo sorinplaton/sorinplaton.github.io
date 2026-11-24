@@ -22,7 +22,7 @@ EDP borrows ideas from DPDK. The standard datapath parses and classifies every p
 
 EDP Standard runs on interrupts and reserves no cores, so it suits general-purpose clusters, where it uses less CPU for the same traffic. EDP Performance dedicates logical cores that poll the NICs all the time. Latency goes down, and the mode is meant for telco network functions (NFV) and other packet-heavy workloads. The price is those cores, which VMs cannot use even when no traffic flows. The lab is nested, so this post measures none of this and only shows how to change the mode safely.
 
-### Three modes, three names
+### Three host switch modes, three names
 
 The UI, the API and the ESX shell each use a different name for the same mode.
 
@@ -44,7 +44,7 @@ Gabe Rosas describes a far less disruptive method for EDP Standard on [vcfcore.t
 
 ## The short version
 
-- Of the three modes, a direct `STANDARD` ⇄ `ENS` change is rejected with error 9544, both at cluster level and per host.
+- A direct `STANDARD` ⇄ `ENS` change is rejected with error 9544, both at cluster level and per host.
 - Going through the middle mode is accepted: `STANDARD` → `ENS_INTERRUPT` → `ENS`, one host at a time, about 10 seconds per hop. Removal is the mirror image.
 - With the host in maintenance mode, the datapath change does not reach the workloads. They only see the vMotion that empties each host.
 - Once every host is converted, attach the matching Transport Node Profile to the cluster. NSX has nothing left to change and goes straight to `SUCCESS`.

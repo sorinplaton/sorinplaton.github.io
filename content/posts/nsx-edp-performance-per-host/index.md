@@ -1,18 +1,18 @@
 ---
-title: "NSX Enhanced Datapath Performance: turning it on and off one host at a time"
+title: "NSX Enhanced Datapath: what it is, how to enable it, how to change modes"
 date: 2026-11-14
-description: "How to move an NSX 4.2.4 cluster from the standard datapath to Enhanced Datapath – Performance and back again, without removing NSX from the hosts. NSX rejects the direct change, so every host goes through EDP Standard first. Steps for the GUI and the API."
-summary: "NSX 4.2.4 will not switch a host straight from Standard to Enhanced Datapath – Performance; it asks you to delete the host switch instead. Going one host at a time in maintenance mode, through EDP Standard, avoids that, and the new profile is attached to the cluster at the end. The way back follows the same path. Steps for the UI and the API."
+description: "What EDP Standard and EDP Performance do on NSX 4.2.4, how to enable EDP Performance one host at a time through EDP Standard on a cluster that already runs NSX, and how to change modes or go back to Standard, from the UI and the API."
+summary: "NSX Enhanced Datapath (EDP) adds a flow cache to the ESX host switch and has two modes, EDP Standard and EDP Performance. The post enables EDP Performance on a cluster that already runs NSX 4.2.4, one host at a time in maintenance mode, from the UI, the API or a script. NSX rejects a direct switch from Standard to Performance, so every mode change goes through EDP Standard, the way back included."
 tags: ["NSX", "Enhanced Datapath", "EDP", "ENS", "vSphere 8", "Transport Node Profile", "Holodeck"]
 categories: ["Field notes"]
 showToc: true
 tocOpen: false
 images: ["/images/edp-perf/fig-01-mode-transitions.svg"]
 params:
-  seoDescription: "Enable and remove NSX Enhanced Datapath – Performance per host, through EDP Standard, in maintenance mode. GUI and API steps."
+  seoDescription: "NSX Enhanced Datapath explained: the two EDP modes, enabling EDP Performance host by host, and changing modes through EDP Standard. UI and API steps."
 ---
 
-NSX Enhanced Datapath (EDP) is a faster packet path in the ESX host switch. It comes in two modes, EDP Standard and EDP Performance (the old "ENS" mode). This post turns EDP Performance on for a cluster that already runs NSX in standard mode, then takes it back off, one host at a time, from the UI and with the API.
+NSX Enhanced Datapath (EDP) is a faster packet path in the ESX host switch. It comes in two modes, EDP Standard and EDP Performance (the old "ENS" mode). This guide explains what EDP does, then enables EDP Performance on a cluster that already runs NSX in Standard mode, from the UI, with the API and with a script. A later part covers moving between modes, the way back to Standard included, and the post closes with a few things to keep in mind.
 
 *November 2026 · NSX 4.2.4.1 · vCenter 8.0 U3 · ESX 8.0 U3i · names in the examples are from the lab*
 
@@ -20,11 +20,11 @@ NSX Enhanced Datapath (EDP) is a faster packet path in the ESX host switch. It c
 
 EDP borrows ideas from DPDK. The standard datapath parses and classifies every packet through the full switching and firewall pipeline. EDP adds a flow cache: the first packet of a flow takes the full path, and the packets after it reuse the result. It is also NUMA aware and tries to keep packet processing on the NUMA node of the NIC. Both EDP modes need NICs and drivers certified for them.
 
-EDP Standard runs on interrupts and reserves no cores, so it suits general-purpose clusters, where it uses less CPU for the same traffic. EDP Performance dedicates logical cores that poll the NICs all the time. Latency goes down, and the mode is meant for telco network functions (NFV) and other packet-heavy workloads. The price is those cores, which VMs cannot use even when no traffic flows. The lab is nested, so this post measures none of this and only shows how to change the mode safely.
+EDP Standard runs on interrupts and reserves no cores, so it suits general-purpose clusters, where it uses less CPU for the same traffic. EDP Performance dedicates logical cores that poll the NICs all the time. Latency goes down, and the mode is meant for telco network functions (NFV) and other packet-heavy workloads. The price is those cores, which VMs cannot use even when no traffic flows. The lab is nested, so none of this is measured here; the post only shows how to set the mode and change it safely.
 
 ### Three host switch modes, three names
 
-The UI, the API and the ESX shell each use a different name for the same mode.
+The UI and the API use different names for the same mode. The last column shows what changes on the host.
 
 | UI (Advanced Configuration › Mode) | API `host_switch_mode` | What changes on the host |
 |---|---|---|
@@ -34,26 +34,11 @@ The UI, the API and the ESX shell each use a different name for the same mode.
 
 `cpu_config` is a list of `{numa_node_index, num_lcores}` pairs. Those cores are taken away from VMs and spin for the datapath, so on real hardware size the list carefully.
 
-Newer Broadcom documentation, including KB 402229, calls EDP Performance "EDP Dedicated". The mode is the same and is still `ENS` in the API. The NSX 4.2.4 UI in this lab shows "Enhanced Datapath – Performance", so this post uses that name.
+Newer Broadcom documentation, including KB 402229, calls EDP Performance "EDP Dedicated". The mode is the same and is still `ENS` in the API. The NSX 4.2.4 UI in this lab shows "Enhanced Datapath – Performance", and the post uses that name.
 
-## Why a direct switch is a problem
+## How to enable EDP
 
-In the Transport Node Profile the mode is a single dropdown. Change it from Standard to Performance and NSX 4.2.4 refuses, telling you to delete the host switch. On a live cluster that means pulling the overlay out from under every VM.
-
-Gabe Rosas describes a far less disruptive method for EDP Standard on [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/): change one host at a time while it sits in maintenance mode, and attach the new profile to the cluster only at the end. With one extra hop the same method reaches Performance, and it works for the way back too. This post adds those two parts.
-
-## The short version
-
-- A direct `STANDARD` ⇄ `ENS` change is rejected with error 9544, both at cluster level and per host.
-- Going through the middle mode is accepted: `STANDARD` → `ENS_INTERRUPT` → `ENS`, one host at a time, about 10 seconds per hop. Removal is the mirror image.
-- With the host in maintenance mode, the datapath change does not reach the workloads. They only see the vMotion that empties each host.
-- Once every host is converted, attach the matching Transport Node Profile to the cluster. NSX has nothing left to change and goes straight to `SUCCESS`.
-
-![The three NSX host switch modes. STANDARD to ENS_INTERRUPT and back is accepted; ENS_INTERRUPT to ENS and back is accepted; STANDARD to ENS directly, in either direction, is rejected with error 9544.](/images/edp-perf/fig-01-mode-transitions.svg)
-
-## Enabling EDP
-
-Enabling EDP Performance means moving every host to it without taking NSX off the cluster. The vcfcore.tech method stops after the first hop, at EDP Standard; the steps below carry on to Performance.
+Enabling EDP Performance means moving every host to it without taking NSX off the cluster. It is done host by host, each host in maintenance mode, and each one goes through EDP Standard on its way to Performance. NSX rejects the direct change; the section on moving between modes, further down, explains why.
 
 ### Before you start
 
@@ -84,7 +69,7 @@ Start with the host empty and in maintenance mode.
 
 ![Prepare Host step: the edp-vds host switch in edit mode, with Advanced Configuration expanded and Mode set to Standard.](/images/edp-perf/gui-02-edit-host-switch-standard.webp)
 
-**3. First hop.** Open the Mode list. From Standard the UI offers only Standard and Enhanced Datapath – Standard. Performance is not in the list, which is how the UI applies the two-hop rule. Pick **Enhanced Datapath – Standard**, **Add**, **Finish**. About ten seconds later the host is realized as `ENS_INTERRUPT`.
+**3. First hop.** Open the Mode list. From Standard the UI offers only Standard and Enhanced Datapath – Standard. Performance is not in the list: that is how the UI enforces the two-hop rule explained in *Why a direct switch fails*, further down. Pick **Enhanced Datapath – Standard**, **Add**, **Finish**. About ten seconds later the host is realized as `ENS_INTERRUPT`.
 
 ![Mode dropdown when the host is in Standard: only Standard and Enhanced Datapath – Standard are offered.](/images/edp-perf/gui-03-modes-from-standard.webp)
 
@@ -208,9 +193,26 @@ It works out the hops by itself and skips hosts that are already in the target m
 
 ![Script output: esx-edp-01 already ENS and skipped; esx-edp-02 and 03 each get a vMotion, maintenance mode, ENS_INTERRUPT realized in 10 s, ENS realized in 10 s, exit maintenance mode; then the TNP edp-tnp-ens is attached and the cluster state is SUCCESS.](/images/edp-perf/cli-03-api-install.webp)
 
-## Changing modes
+## How to transition between modes
 
-Any other change of mode follows the same rule, one hop at a time with EDP Standard in the middle: Standard ⇄ EDP Standard ⇄ EDP Performance. It runs the same per-host loop as enabling and ends with the matching profile on the cluster, and the script accepts any target mode. The example here is the way back from Performance to Standard.
+The enable steps above take each host from Standard to Performance in two hops. The sections below explain why NSX needs the middle hop and which rules apply to any change of mode, then walk through the way back to Standard.
+
+### Why a direct switch fails
+
+In the Transport Node Profile the mode is a single dropdown. Change it from Standard to Performance and NSX 4.2.4 refuses, telling you to delete the host switch. On a live cluster that means pulling the overlay out from under every VM.
+
+Gabe Rosas describes a far less disruptive method for EDP Standard on [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/): change one host at a time while it sits in maintenance mode, and attach the new profile to the cluster only at the end. With one extra hop the same method reaches Performance, and it works for the way back too.
+
+### The rules in short
+
+- A direct `STANDARD` ⇄ `ENS` change is rejected with error 9544, both at cluster level and per host.
+- Going through the middle mode is accepted: `STANDARD` → `ENS_INTERRUPT` → `ENS`, one host at a time, about 10 seconds per hop. Removal is the mirror image.
+- With the host in maintenance mode, the datapath change does not reach the workloads. They only see the vMotion that empties each host.
+- Once every host is converted, attach the matching Transport Node Profile to the cluster. NSX has nothing left to change and goes straight to `SUCCESS`.
+
+![The three NSX host switch modes. STANDARD to ENS_INTERRUPT and back is accepted; ENS_INTERRUPT to ENS and back is accepted; STANDARD to ENS directly, in either direction, is rejected with error 9544.](/images/edp-perf/fig-01-mode-transitions.svg)
+
+The same rules hold for any change of mode, Standard ⇄ EDP Standard ⇄ EDP Performance: the per-host loop is the one used for enabling, and the script accepts any target mode. The next section uses the way back from Performance to Standard as the example.
 
 ### Back to Standard
 
@@ -238,8 +240,8 @@ One of the lab hosts showed *Degraded* right after the removal, with NSX reporti
 
 ## Things to keep in mind
 
-Clone the Transport Node Profile instead of editing the one attached to the cluster, because editing the attached profile is the all-hosts-at-once path. Attach the clone only once every host already matches it. Until then, *Mismatch* on the converted hosts is normal, and so is a stale *Degraded* right after the driver changes.
+Clone the Transport Node Profile instead of editing the one attached to the cluster, because a change to the attached profile hits every host at once. Attach the clone only once every host already matches it. Until then, *Mismatch* on the converted hosts is normal, and so is a stale *Degraded* right after the driver changes.
 
 In Performance mode, `cpu_config` takes logical cores away from VMs on every NUMA node you list, so size it against the traffic you actually expect. Measure what EDP Performance brings on the hardware and drivers you will run it on.
 
-The per-host, maintenance-mode method comes from Gabe Rosas' [How to Enable EDP Standard with Zero Impact in VCF 5.2](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) and the [enable_uens.py follow-up](https://vcfcore.tech/2026/02/25/using-enable_uens-py-for-edp-transitions-in-vcf-5-2/). This post only adds the second hop to Performance and the way back.
+The per-host, maintenance-mode method comes from Gabe Rosas' [How to Enable EDP Standard with Zero Impact in VCF 5.2](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) and the [enable_uens.py follow-up](https://vcfcore.tech/2026/02/25/using-enable_uens-py-for-edp-transitions-in-vcf-5-2/), which cover EDP Standard. This guide adds the second hop to Performance and the way back.

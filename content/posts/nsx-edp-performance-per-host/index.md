@@ -12,27 +12,15 @@ params:
   seoDescription: "Enable and remove NSX Enhanced Datapath – Performance per host, through EDP Standard, in maintenance mode. GUI and API steps."
 ---
 
-This test turns on Enhanced Datapath – Performance (EDP Performance, the old "ENS" mode) on a cluster that already runs NSX in standard mode, and then takes it back off. The mode is a single dropdown in the Transport Node Profile, but NSX 4.2.4 refuses the change and tells you to delete the host switch, which on a live cluster means pulling the overlay out from under every VM.
-
-Gabe Rosas describes a far less disruptive method on [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/) for EDP Standard: change one host at a time while it sits in maintenance mode, and only attach the new profile to the cluster at the end. With one extra hop, the same method reaches Performance and comes back. This post walks through it in the UI and with the API.
+NSX Enhanced Datapath (EDP) is a faster packet path in the ESX host switch. It comes in two modes, EDP Standard and EDP Performance (the old "ENS" mode). This post turns EDP Performance on for a cluster that already runs NSX in standard mode, then takes it back off, one host at a time, from the UI and with the API.
 
 *November 2026 · NSX 4.2.4.1 · vCenter 8.0 U3 · ESX 8.0 U3i · names in the examples are from the lab*
 
-## The short version
-
-- NSX has three host switch modes: `STANDARD`, `ENS_INTERRUPT` (EDP Standard) and `ENS` (EDP Performance).
-- `STANDARD` ⇄ `ENS` in one step is rejected with error 9544, both at cluster level and per host.
-- `STANDARD` → `ENS_INTERRUPT` → `ENS` is accepted, one host at a time, about 10 seconds per hop. Removal is the mirror image.
-- With the host in maintenance mode, the datapath change does not reach the workloads. They only see the vMotion that empties each host.
-- Once every host is converted, attach the matching Transport Node Profile to the cluster. NSX has nothing left to change and goes straight to `SUCCESS`.
-
-![The three NSX host switch modes. STANDARD to ENS_INTERRUPT and back is accepted; ENS_INTERRUPT to ENS and back is accepted; STANDARD to ENS directly, in either direction, is rejected with error 9544.](/images/edp-perf/fig-01-mode-transitions.svg)
-
 ## What is Enhanced Datapath
 
-Enhanced Datapath is a faster packet path in the ESX host switch that borrows ideas from DPDK. The standard datapath parses and classifies every packet through the full switching and firewall pipeline. EDP adds a flow cache: the first packet of a flow takes the full path, and the packets after it reuse the result. It is also NUMA aware and tries to keep packet processing on the NUMA node of the NIC. Both EDP modes need NICs and drivers certified for them.
+EDP borrows ideas from DPDK. The standard datapath parses and classifies every packet through the full switching and firewall pipeline. EDP adds a flow cache: the first packet of a flow takes the full path, and the packets after it reuse the result. It is also NUMA aware and tries to keep packet processing on the NUMA node of the NIC. Both EDP modes need NICs and drivers certified for them.
 
-EDP Standard runs on interrupts and sets no cores aside, which suits general-purpose clusters: less CPU for the same traffic, and nothing reserved. EDP Performance dedicates logical cores that poll the NICs all the time. That lowers latency, and it is meant for telco network functions (NFV) and similar packet-heavy workloads. The cost is those cores, which VMs cannot use even when no traffic flows. The lab is nested, so this post measures none of it; it only shows how to change the mode safely.
+EDP Standard runs on interrupts and reserves no cores, so it suits general-purpose clusters, where it uses less CPU for the same traffic. EDP Performance dedicates logical cores that poll the NICs all the time. Latency goes down, and the mode is meant for telco network functions (NFV) and other packet-heavy workloads. The price is those cores, which VMs cannot use even when no traffic flows. The lab is nested, so this post measures none of this and only shows how to change the mode safely.
 
 ### Three modes, three names
 
@@ -44,13 +32,28 @@ The UI, the API and the ESX shell each use a different name for the same mode.
 | Enhanced Datapath – Standard | `ENS_INTERRUPT` | ENS driver (`nvmxnet3_ens`), interrupt driven, no dedicated cores |
 | Enhanced Datapath – Performance | `ENS` | ENS driver, polling on dedicated logical cores; `cpu_config` is mandatory |
 
-Newer Broadcom documentation, including KB 402229, renames EDP Performance to "EDP Dedicated". The mode itself is unchanged and is still `ENS` in the API. The NSX 4.2.4 UI in this lab shows "Enhanced Datapath – Performance", so this post uses that name.
-
 `cpu_config` is a list of `{numa_node_index, num_lcores}` pairs. Those cores are taken away from VMs and spin for the datapath, so on real hardware size the list carefully.
+
+Newer Broadcom documentation, including KB 402229, calls EDP Performance "EDP Dedicated". The mode is the same and is still `ENS` in the API. The NSX 4.2.4 UI in this lab shows "Enhanced Datapath – Performance", so this post uses that name.
+
+## Why a direct switch is a problem
+
+In the Transport Node Profile the mode is a single dropdown. Change it from Standard to Performance and NSX 4.2.4 refuses, telling you to delete the host switch. On a live cluster that means pulling the overlay out from under every VM.
+
+Gabe Rosas describes a far less disruptive method for EDP Standard on [vcfcore.tech](https://vcfcore.tech/2025/11/25/how-to-enable-edp-standard-with-zero-impact/): change one host at a time while it sits in maintenance mode, and attach the new profile to the cluster only at the end. With one extra hop the same method reaches Performance, and it works for the way back too. This post adds those two parts.
+
+## The short version
+
+- Of the three modes, a direct `STANDARD` ⇄ `ENS` change is rejected with error 9544, both at cluster level and per host.
+- Going through the middle mode is accepted: `STANDARD` → `ENS_INTERRUPT` → `ENS`, one host at a time, about 10 seconds per hop. Removal is the mirror image.
+- With the host in maintenance mode, the datapath change does not reach the workloads. They only see the vMotion that empties each host.
+- Once every host is converted, attach the matching Transport Node Profile to the cluster. NSX has nothing left to change and goes straight to `SUCCESS`.
+
+![The three NSX host switch modes. STANDARD to ENS_INTERRUPT and back is accepted; ENS_INTERRUPT to ENS and back is accepted; STANDARD to ENS directly, in either direction, is rejected with error 9544.](/images/edp-perf/fig-01-mode-transitions.svg)
 
 ## Enabling EDP
 
-Enabling EDP Performance on a live cluster means moving every host to it without taking NSX off. Each host goes through EDP Standard on the way, in maintenance mode, and the cluster gets the new profile only once all hosts are converted. The vcfcore.tech method stops at EDP Standard, after the first hop; the steps below continue to Performance.
+Enabling EDP Performance means moving every host to it without taking NSX off the cluster. The vcfcore.tech method stops after the first hop, at EDP Standard; the steps below carry on to Performance.
 
 ### Before you start
 
@@ -207,7 +210,7 @@ It works out the hops by itself and skips hosts that are already in the target m
 
 ## Changing modes
 
-A host changes mode one step at a time, with EDP Standard in the middle: Standard ⇄ EDP Standard ⇄ EDP Performance. Any change runs the same per-host loop as enabling and ends with the matching profile on the cluster. The script accepts any target mode. The example here is the way back from Performance to Standard, which takes two hops.
+Any other change of mode follows the same rule, one hop at a time with EDP Standard in the middle: Standard ⇄ EDP Standard ⇄ EDP Performance. It runs the same per-host loop as enabling and ends with the matching profile on the cluster, and the script accepts any target mode. The example here is the way back from Performance to Standard.
 
 ### Back to Standard
 

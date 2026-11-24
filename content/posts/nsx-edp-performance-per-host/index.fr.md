@@ -28,17 +28,13 @@ Gabe Rosas décrit une méthode bien moins brutale sur [vcfcore.tech](https://vc
 
 ![Les trois modes de host switch NSX. STANDARD vers ENS_INTERRUPT et retour : accepté ; ENS_INTERRUPT vers ENS et retour : accepté ; STANDARD vers ENS en direct, dans un sens comme dans l'autre : refusé avec l'erreur 9544.](/images/edp-perf/fig-01-mode-transitions.svg)
 
-## Le déroulé en un coup d'œil
+## Qu'est-ce qu'Enhanced Datapath
 
-L'activation et le retrait d'EDP Performance suivent les mêmes trois étapes. Seuls changent le sens des étapes de mode et le profil qu'on attache à la fin.
+Enhanced Datapath est un chemin de paquets plus rapide dans le host switch ESX, qui reprend des idées de DPDK. Le datapath standard analyse et classe chaque paquet à travers tout le pipeline de commutation et de firewall. EDP ajoute un cache de flux : le premier paquet d'un flux suit le chemin complet, et les suivants réutilisent le résultat. Il tient aussi compte de NUMA et cherche à traiter les paquets sur le nœud NUMA de la carte réseau. Les deux modes EDP exigent des cartes réseau et des drivers certifiés.
 
-1. **Préparer une fois.** Cloner le Transport Node Profile du cluster et régler le mode cible sur la copie (`edp-tnp-ens`, EDP Performance avec 2 lcores sur le NUMA 0). Dans vCenter, autoriser le vMotion entre hôtes de modes différents. Pour le retour, rien à préparer : le profil Standard `edp-tnp` existe toujours.
-2. **Un hôte à la fois.** Migrer les VM hors de l'hôte par vMotion et le passer en mode maintenance. Changer son host switch en deux étapes, `STANDARD → ENS_INTERRUPT → ENS` (ou l'inverse), environ 10 secondes chacune. Vérifier l'hôte, sortir du mode maintenance, passer au suivant.
-3. **Terminer au niveau du cluster.** Attacher le profil correspondant au cluster. Tous les hôtes y sont déjà conformes, donc NSX passe directement à `SUCCESS`.
+EDP Standard fonctionne par interruptions, sans cœur réservé, ce qui convient aux clusters généralistes : moins de CPU pour le même trafic, et rien de réservé. EDP Performance dédie des cœurs logiques qui interrogent les cartes réseau en permanence. La latence baisse, et ce mode vise les fonctions réseau télécom (NFV) et les autres workloads qui traitent beaucoup de paquets. Le prix, ce sont ces cœurs, que les VM ne peuvent pas utiliser même sans trafic. Le lab est en nested : ce billet ne mesure rien de tout cela, il montre seulement comment changer de mode sans risque.
 
-![Déroulé complet. Activation : tous les hôtes en STANDARD sur edp-tnp, préparation unique d'edp-tnp-ens, puis pour chaque hôte évacuation, mode maintenance, passage STANDARD vers ENS_INTERRUPT vers ENS, sortie du mode maintenance ; on termine en attachant edp-tnp-ens au cluster. Retrait : même boucle avec ENS vers ENS_INTERRUPT vers STANDARD, puis on attache edp-tnp.](/images/edp-perf/fig-04-quick-flow.svg)
-
-## Trois modes, trois noms
+### Trois modes, trois noms
 
 L'interface, l'API et le shell ESX donnent chacun un nom différent au même mode.
 
@@ -48,16 +44,32 @@ L'interface, l'API et le shell ESX donnent chacun un nom différent au même mod
 | Enhanced Datapath – Standard | `ENS_INTERRUPT` | Driver ENS (`nvmxnet3_ens`), piloté par interruptions, pas de cœurs dédiés |
 | Enhanced Datapath – Performance | `ENS` | Driver ENS, polling sur des cœurs logiques dédiés ; `cpu_config` est obligatoire |
 
+La documentation récente de Broadcom, dont le KB 402229, renomme EDP Performance en « EDP Dedicated ». Le mode lui-même ne change pas et reste `ENS` dans l'API. L'interface de NSX 4.2.4 de ce lab affiche « Enhanced Datapath – Performance », et ce billet garde ce nom.
+
 `cpu_config` est une liste de paires `{numa_node_index, num_lcores}`. Ces cœurs sont retirés aux VM et tournent en boucle pour le datapath, donc sur du vrai matériel, dimensionnez la liste avec soin.
 
-## Avant de commencer
+## Activer EDP
+
+Activer EDP Performance sur un cluster en service, c'est y amener tous les hôtes sans retirer NSX. Chacun passe par EDP Standard en chemin, en mode maintenance, et le cluster ne reçoit le nouveau profil qu'une fois tous les hôtes convertis. La méthode de vcfcore.tech s'arrête à EDP Standard, après la première étape ; les étapes qui suivent vont jusqu'à Performance.
+
+### Avant de commencer
 
 1. Les cartes réseau doivent être compatibles ENS. Sur chaque hôte, `esxcfg-nics -e` doit afficher `ENS Capable = True` pour les uplinks du switch NSX. Vérifiez le driver et le firmware exacts dans le Broadcom Compatibility Guide.
 2. vCenter doit autoriser vMotion entre hôtes dans des modes différents, puisque pendant le déploiement certains hôtes sont dans un mode et d'autres dans l'autre. Réglez le paramètre avancé de vCenter `config.vpxd.network.allowVmotionBetweenENSModes = true` (vCenter › Configure › Advanced Settings, ou `govc option.set config.vpxd.network.allowVmotionBetweenENSModes true`).
 3. Clonez le Transport Node Profile : même host switch, même uplink profile, même pool d'IP, seul le mode change, plus `cpu_config` pour Performance. Ne l'attachez pas encore. Dans les exemples, ce sont `edp-tnp` (Standard) et `edp-tnp-ens` (Performance).
 4. Il faut de la place pour vider un hôte à la fois, avec DRS en mode entièrement automatisé ou par vMotion manuel. L'hôte doit être vide avant d'y toucher.
 
-## Activer EDP Performance dans l'interface
+### Le déroulé en un coup d'œil
+
+L'activation et le retrait d'EDP Performance suivent les mêmes trois étapes. Seuls changent le sens des étapes de mode et le profil qu'on attache à la fin.
+
+1. **Préparer une fois.** Cloner le Transport Node Profile du cluster et régler le mode cible sur la copie (`edp-tnp-ens`, EDP Performance avec 2 lcores sur le NUMA 0). Dans vCenter, autoriser le vMotion entre hôtes de modes différents. Pour le retour, rien à préparer : le profil Standard `edp-tnp` existe toujours.
+2. **Un hôte à la fois.** Migrer les VM hors de l'hôte par vMotion et le passer en mode maintenance. Changer son host switch en deux étapes, `STANDARD → ENS_INTERRUPT → ENS` (ou l'inverse), environ 10 secondes chacune. Vérifier l'hôte, sortir du mode maintenance, passer au suivant.
+3. **Terminer au niveau du cluster.** Attacher le profil correspondant au cluster. Tous les hôtes y sont déjà conformes, donc NSX passe directement à `SUCCESS`.
+
+![Déroulé complet. Activation : tous les hôtes en STANDARD sur edp-tnp, préparation unique d'edp-tnp-ens, puis pour chaque hôte évacuation, mode maintenance, passage STANDARD vers ENS_INTERRUPT vers ENS, sortie du mode maintenance ; on termine en attachant edp-tnp-ens au cluster. Retrait : même boucle avec ENS vers ENS_INTERRUPT vers STANDARD, puis on attache edp-tnp.](/images/edp-perf/fig-04-quick-flow.svg)
+
+### Dans l'interface
 
 Commencez avec l'hôte vide et en mode maintenance.
 
@@ -95,7 +107,7 @@ Pendant qu'on avance hôte par hôte, le cluster pointe toujours vers l'ancien p
 
 ![edp-cluster avec Applied Profile edp-tnp-ens, trois hôtes up, NSX Configuration Success partout.](/images/edp-perf/gui-07-cluster-edp-tnp-ens.webp)
 
-## Activer EDP Performance par l'API
+### Par l'API
 
 L'assistant de l'interface écrit l'objet *host transport node* de l'API policy, et le chemin API travaille sur ce même objet : le lire, changer le mode, le réécrire, attendre, puis recommencer pour la seconde étape.
 
@@ -193,9 +205,13 @@ Il calcule lui-même les étapes et ignore les hôtes déjà dans le mode visé.
 
 ![Sortie du script : esx-edp-01 déjà en ENS, ignoré ; esx-edp-02 et 03 ont chacun un vMotion, le mode maintenance, ENS_INTERRUPT réalisé en 10 s, ENS réalisé en 10 s, la sortie du mode maintenance ; puis le TNP edp-tnp-ens est attaché et l'état du cluster est SUCCESS.](/images/edp-perf/cli-03-api-install.webp)
 
-## Le retrait : retour à Standard
+## Changer de mode
 
-Le retrait suit le même chemin en sens inverse : `ENS` → `ENS_INTERRUPT` → `STANDARD`, hôte par hôte, en mode maintenance, puis on attache le profil Standard. Passer directement de `ENS` à `STANDARD` donne la même erreur 9544.
+Un hôte ne change de mode que d'une étape à la fois, avec EDP Standard au milieu : Standard ⇄ EDP Standard ⇄ EDP Performance. Tout changement suit la même boucle hôte par hôte que l'activation et se termine par le profil correspondant sur le cluster. Le script accepte n'importe quel mode visé. L'exemple ici est le retour de Performance à Standard, qui demande deux étapes.
+
+### Retour à Standard
+
+Sur chaque hôte, les étapes s'enchaînent dans l'autre sens : `ENS` → `ENS_INTERRUPT` → `STANDARD`. Sauter l'étape du milieu et passer directement de `ENS` à `STANDARD` donne la même erreur 9544.
 
 **Dans l'interface** (esx-edp-02) : Configure NSX sur l'hôte, Edit sur le host switch, Advanced Configuration. Depuis Performance, la liste ne propose qu'EDP Standard et Performance, pas Standard.
 

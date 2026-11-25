@@ -17,25 +17,11 @@
 <text x="740.0" y="613.08" font-size="13.4" fill="#6b7785" text-anchor="middle">&lt; 10 ms</text>
 <text x="740.0" y="630.16" font-size="13.4" fill="#6b7785" text-anchor="middle">RTT</text>
 <circle cx="370" cy="150" r="20" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.8"/>
-<line x1="359.0" y1="145.6" x2="381.0" y2="145.6" stroke="#1f4e9c" stroke-width="1.6"/>
-<path d="M376.0,141.6 L381.0,145.6 L376.0,149.6" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
-<line x1="381.0" y1="154.4" x2="359.0" y2="154.4" stroke="#1f4e9c" stroke-width="1.6"/>
-<path d="M364.0,150.4 L359.0,154.4 L364.0,158.4" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
-<line x1="381.0" y1="145.6" x2="359.0" y2="145.6" stroke="#1f4e9c" stroke-width="1.6"/>
-<path d="M364.0,141.6 L359.0,145.6 L364.0,149.6" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
-<line x1="359.0" y1="154.4" x2="381.0" y2="154.4" stroke="#1f4e9c" stroke-width="1.6"/>
-<path d="M376.0,150.4 L381.0,154.4 L376.0,158.4" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<line x1="370" y1="150" x2="363.99" y2="143.99" stroke="#1f4e9c" stroke-width="1.67" stroke-linecap="butt"/><path d="M360.57,140.57 L366.58,142.10 L362.10,146.58 z" fill="#1f4e9c"/><line x1="370" y1="150" x2="376.01" y2="143.99" stroke="#1f4e9c" stroke-width="1.67" stroke-linecap="butt"/><path d="M379.43,140.57 L377.90,146.58 L373.42,142.10 z" fill="#1f4e9c"/><line x1="370" y1="150" x2="376.01" y2="156.01" stroke="#1f4e9c" stroke-width="1.67" stroke-linecap="butt"/><path d="M379.43,159.43 L373.42,157.90 L377.90,153.42 z" fill="#1f4e9c"/><line x1="370" y1="150" x2="363.99" y2="156.01" stroke="#1f4e9c" stroke-width="1.67" stroke-linecap="butt"/><path d="M360.57,159.43 L362.10,153.42 L366.58,157.90 z" fill="#1f4e9c"/>
 <text x="336" y="146" font-size="15.9" fill="#1d2733" text-anchor="end">Tier-1 · stretched · DR-only</text>
 <text x="336" y="164" font-size="13.4" fill="#6b7785" text-anchor="end">primary A</text>
 <circle cx="1110" cy="150" r="20" fill="#ffffff" stroke="#2e7d32" stroke-width="1.8"/>
-<line x1="1099.0" y1="145.6" x2="1121.0" y2="145.6" stroke="#2e7d32" stroke-width="1.6"/>
-<path d="M1116.0,141.6 L1121.0,145.6 L1116.0,149.6" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
-<line x1="1121.0" y1="154.4" x2="1099.0" y2="154.4" stroke="#2e7d32" stroke-width="1.6"/>
-<path d="M1104.0,150.4 L1099.0,154.4 L1104.0,158.4" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
-<line x1="1121.0" y1="145.6" x2="1099.0" y2="145.6" stroke="#2e7d32" stroke-width="1.6"/>
-<path d="M1104.0,141.6 L1099.0,145.6 L1104.0,149.6" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
-<line x1="1099.0" y1="154.4" x2="1121.0" y2="154.4" stroke="#2e7d32" stroke-width="1.6"/>
-<path d="M1116.0,150.4 L1121.0,154.4 L1116.0,158.4" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<line x1="1110" y1="150" x2="1103.99" y2="143.99" stroke="#2e7d32" stroke-width="1.67" stroke-linecap="butt"/><path d="M1100.57,140.57 L1106.58,142.10 L1102.10,146.58 z" fill="#2e7d32"/><line x1="1110" y1="150" x2="1116.01" y2="143.99" stroke="#2e7d32" stroke-width="1.67" stroke-linecap="butt"/><path d="M1119.43,140.57 L1117.90,146.58 L1113.42,142.10 z" fill="#2e7d32"/><line x1="1110" y1="150" x2="1116.01" y2="156.01" stroke="#2e7d32" stroke-width="1.67" stroke-linecap="butt"/><path d="M1119.43,159.43 L1113.42,157.90 L1117.90,153.42 z" fill="#2e7d32"/><line x1="1110" y1="150" x2="1103.99" y2="156.01" stroke="#2e7d32" stroke-width="1.67" stroke-linecap="butt"/><path d="M1100.57,159.43 L1102.10,153.42 L1106.58,157.90 z" fill="#2e7d32"/>
 <text x="1144" y="146" font-size="15.9" fill="#1d2733" text-anchor="start">Tier-1 · stretched · DR-only</text>
 <text x="1144" y="164" font-size="13.4" fill="#6b7785" text-anchor="start">secondary B</text>
 <path d="M370,170 L370,230" fill="none" stroke="#1d2733" stroke-width="1.6"/>

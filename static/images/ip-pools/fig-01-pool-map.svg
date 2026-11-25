@@ -7,35 +7,23 @@
 <text x="560" y="92" fill="#6b7785" font-size="11" text-anchor="middle" font-weight="bold">NETWORK COMPONENT</text>
 <text x="900" y="92" fill="#6b7785" font-size="11" text-anchor="start" font-weight="bold">POOL / BLOCK THAT FEEDS IT</text>
 <circle cx="560" cy="140" r="22" fill="#ffffff" stroke="#1f4e9c" stroke-width="2.2"/>
-<line x1="547.2" y1="135.5" x2="572.8" y2="135.5" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="572.8" y1="144.5" x2="547.2" y2="144.5" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="555.5" y1="152.8" x2="555.5" y2="127.2" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="564.5" y1="127.2" x2="564.5" y2="152.8" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="560" y1="140" x2="553.39" y2="133.39" stroke="#1f4e9c" stroke-width="1.83" stroke-linecap="butt"/><path d="M549.63,129.63 L556.24,131.31 L551.31,136.24 z" fill="#1f4e9c"/><line x1="560" y1="140" x2="566.61" y2="133.39" stroke="#1f4e9c" stroke-width="1.83" stroke-linecap="butt"/><path d="M570.37,129.63 L568.69,136.24 L563.76,131.31 z" fill="#1f4e9c"/><line x1="560" y1="140" x2="566.61" y2="146.61" stroke="#1f4e9c" stroke-width="1.83" stroke-linecap="butt"/><path d="M570.37,150.37 L563.76,148.69 L568.69,143.76 z" fill="#1f4e9c"/><line x1="560" y1="140" x2="553.39" y2="146.61" stroke="#1f4e9c" stroke-width="1.83" stroke-linecap="butt"/><path d="M549.63,150.37 L551.31,143.76 L556.24,148.69 z" fill="#1f4e9c"/>
 <text x="530" y="137" text-anchor="end" font-weight="bold">Physical ToR / upstream router</text>
 <text x="530" y="152" text-anchor="end" fill="#6b7785" font-size="12">BGP peer · also the gateway of every VLAN below</text>
 <rect x="530" y="200" width="195" height="100" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
 <text x="715" y="292" fill="#6b7785" font-size="12" text-anchor="end" font-weight="bold">NSX Edge cluster</text>
 <circle cx="560" cy="250" r="22" fill="#ffffff" stroke="#1f4e9c" stroke-width="2.2"/>
-<line x1="547.2" y1="245.5" x2="572.8" y2="245.5" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="572.8" y1="254.5" x2="547.2" y2="254.5" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="555.5" y1="262.8" x2="555.5" y2="237.2" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="564.5" y1="237.2" x2="564.5" y2="262.8" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="560" y1="250" x2="553.39" y2="243.39" stroke="#1f4e9c" stroke-width="1.83" stroke-linecap="butt"/><path d="M549.63,239.63 L556.24,241.31 L551.31,246.24 z" fill="#1f4e9c"/><line x1="560" y1="250" x2="566.61" y2="243.39" stroke="#1f4e9c" stroke-width="1.83" stroke-linecap="butt"/><path d="M570.37,239.63 L568.69,246.24 L563.76,241.31 z" fill="#1f4e9c"/><line x1="560" y1="250" x2="566.61" y2="256.61" stroke="#1f4e9c" stroke-width="1.83" stroke-linecap="butt"/><path d="M570.37,260.37 L563.76,258.69 L568.69,253.76 z" fill="#1f4e9c"/><line x1="560" y1="250" x2="553.39" y2="256.61" stroke="#1f4e9c" stroke-width="1.83" stroke-linecap="butt"/><path d="M549.63,260.37 L551.31,253.76 L556.24,258.69 z" fill="#1f4e9c"/>
 <text x="530" y="247" text-anchor="end" font-weight="bold">Tier-0 Gateway</text>
 <text x="530" y="262" text-anchor="end" fill="#6b7785" font-size="12">= VCFA Provider Gateway (T0 or T0-VRF)</text>
 <rect x="530" y="350" width="60" height="60" rx="8" fill="#ffffff" stroke="#2e7d32" stroke-width="2.2"/>
 <circle cx="560" cy="380" r="17" fill="#ffffff" stroke="#2e7d32" stroke-width="2.2"/>
-<line x1="550.1" y1="376.5" x2="569.9" y2="376.5" stroke="#2e7d32" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="569.9" y1="383.5" x2="550.1" y2="383.5" stroke="#2e7d32" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="556.5" y1="389.9" x2="556.5" y2="370.1" stroke="#2e7d32" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="563.5" y1="370.1" x2="563.5" y2="389.9" stroke="#2e7d32" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="560" y1="380" x2="554.89" y2="374.89" stroke="#2e7d32" stroke-width="1.42" stroke-linecap="butt"/><path d="M551.99,371.99 L557.09,373.29 L553.29,377.09 z" fill="#2e7d32"/><line x1="560" y1="380" x2="565.11" y2="374.89" stroke="#2e7d32" stroke-width="1.42" stroke-linecap="butt"/><path d="M568.01,371.99 L566.71,377.09 L562.91,373.29 z" fill="#2e7d32"/><line x1="560" y1="380" x2="565.11" y2="385.11" stroke="#2e7d32" stroke-width="1.42" stroke-linecap="butt"/><path d="M568.01,388.01 L562.91,386.71 L566.71,382.91 z" fill="#2e7d32"/><line x1="560" y1="380" x2="554.89" y2="385.11" stroke="#2e7d32" stroke-width="1.42" stroke-linecap="butt"/><path d="M551.99,388.01 L553.29,382.91 L557.09,386.71 z" fill="#2e7d32"/>
 <text x="522" y="377" text-anchor="end" font-weight="bold">Transit Gateway</text>
 <text x="522" y="392" text-anchor="end" fill="#6b7785" font-size="12">one per NSX Project · routes between VPCs</text>
 <rect x="530" y="480" width="60" height="60" rx="8" fill="#ffffff" stroke="#0b7a75" stroke-width="2.2"/>
 <circle cx="560" cy="510" r="17" fill="#ffffff" stroke="#0b7a75" stroke-width="2.2"/>
-<line x1="550.1" y1="506.5" x2="569.9" y2="506.5" stroke="#0b7a75" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="569.9" y1="513.5" x2="550.1" y2="513.5" stroke="#0b7a75" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="556.5" y1="519.9" x2="556.5" y2="500.1" stroke="#0b7a75" stroke-width="2" marker-end="url(#arr)"/>
-<line x1="563.5" y1="500.1" x2="563.5" y2="519.9" stroke="#0b7a75" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="560" y1="510" x2="554.89" y2="504.89" stroke="#0b7a75" stroke-width="1.42" stroke-linecap="butt"/><path d="M551.99,501.99 L557.09,503.29 L553.29,507.09 z" fill="#0b7a75"/><line x1="560" y1="510" x2="565.11" y2="504.89" stroke="#0b7a75" stroke-width="1.42" stroke-linecap="butt"/><path d="M568.01,501.99 L566.71,507.09 L562.91,503.29 z" fill="#0b7a75"/><line x1="560" y1="510" x2="565.11" y2="515.11" stroke="#0b7a75" stroke-width="1.42" stroke-linecap="butt"/><path d="M568.01,518.01 L562.91,516.71 L566.71,512.91 z" fill="#0b7a75"/><line x1="560" y1="510" x2="554.89" y2="515.11" stroke="#0b7a75" stroke-width="1.42" stroke-linecap="butt"/><path d="M551.99,518.01 L553.29,512.91 L557.09,516.71 z" fill="#0b7a75"/>
 <text x="522" y="507" text-anchor="end" font-weight="bold">VPC Gateway</text>
 <text x="522" y="522" text-anchor="end" fill="#6b7785" font-size="12">one per VPC · NAT + LB live here</text>
 <rect x="410" y="595" width="300" height="110" rx="8" fill="#f4f7fb" stroke="#0b7a75" stroke-width="1.4" stroke-dasharray="5 4"/>

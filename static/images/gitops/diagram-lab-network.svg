@@ -42,10 +42,7 @@
 <rect x="840" y="220" width="516" height="520" rx="6" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="8 5"/>
 <text x="854" y="242" font-size="14" fill="#1d2733" font-weight="bold">Holorouter (Photon OS)</text>
 <circle cx="960" cy="370" r="18" fill="#ffffff" stroke="#1f4e9c" stroke-width="2.2"/>
-<line x1="949.56" y1="366.4" x2="970.44" y2="366.4" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
-<line x1="970.44" y1="373.6" x2="949.56" y2="373.6" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
-<line x1="956.4" y1="380.44" x2="956.4" y2="359.56" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
-<line x1="963.6" y1="359.56" x2="963.6" y2="380.44" stroke="#1f4e9c" stroke-width="2" marker-end="url(#arr-1f4e9c)"/>
+<line x1="960" y1="370" x2="954.59" y2="364.59" stroke="#1f4e9c" stroke-width="1.50" stroke-linecap="butt"/><path d="M951.51,361.51 L956.92,362.89 L952.89,366.92 z" fill="#1f4e9c"/><line x1="960" y1="370" x2="965.41" y2="364.59" stroke="#1f4e9c" stroke-width="1.50" stroke-linecap="butt"/><path d="M968.49,361.51 L967.11,366.92 L963.08,362.89 z" fill="#1f4e9c"/><line x1="960" y1="370" x2="965.41" y2="375.41" stroke="#1f4e9c" stroke-width="1.50" stroke-linecap="butt"/><path d="M968.49,378.49 L963.08,377.11 L967.11,373.08 z" fill="#1f4e9c"/><line x1="960" y1="370" x2="954.59" y2="375.41" stroke="#1f4e9c" stroke-width="1.50" stroke-linecap="butt"/><path d="M951.51,378.49 L952.89,373.08 L956.92,377.11 z" fill="#1f4e9c"/>
 <text x="996" y="364" font-size="12" fill="#1d2733">eth1.200  VLAN 200, added</text>
 <text x="996" y="382" font-size="12" fill="#1d2733">eth1.24    VLAN 24</text>
 <text x="996" y="400" font-size="12" fill="#1d2733">eth1.10    VLAN 10</text>
@@ -56,10 +53,7 @@
 <rect x="818" y="509" width="54.2" height="17" fill="#ffffff"/>
 <text x="822" y="520" font-size="12" fill="#6b7785">VLAN 24</text>
 <circle cx="1290" cy="150" r="16" fill="#ffffff" stroke="#1d2733" stroke-width="2.2"/>
-<line x1="1280.72" y1="146.8" x2="1299.28" y2="146.8" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
-<line x1="1299.28" y1="153.2" x2="1280.72" y2="153.2" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
-<line x1="1286.8" y1="159.28" x2="1286.8" y2="140.72" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
-<line x1="1293.2" y1="140.72" x2="1293.2" y2="159.28" stroke="#1d2733" stroke-width="2" marker-end="url(#arr-1d2733)"/>
+<line x1="1290" y1="150" x2="1285.19" y2="145.19" stroke="#1d2733" stroke-width="1.33" stroke-linecap="butt"/><path d="M1282.46,142.46 L1287.27,143.68 L1283.68,147.27 z" fill="#1d2733"/><line x1="1290" y1="150" x2="1294.81" y2="145.19" stroke="#1d2733" stroke-width="1.33" stroke-linecap="butt"/><path d="M1297.54,142.46 L1296.32,147.27 L1292.73,143.68 z" fill="#1d2733"/><line x1="1290" y1="150" x2="1294.81" y2="154.81" stroke="#1d2733" stroke-width="1.33" stroke-linecap="butt"/><path d="M1297.54,157.54 L1292.73,156.32 L1296.32,152.73 z" fill="#1d2733"/><line x1="1290" y1="150" x2="1285.19" y2="154.81" stroke="#1d2733" stroke-width="1.33" stroke-linecap="butt"/><path d="M1282.46,157.54 L1283.68,152.73 L1287.27,156.32 z" fill="#1d2733"/>
 <text x="1290" y="190" font-size="13" fill="#1d2733" text-anchor="middle" font-weight="bold">VyOS, outer lab</text>
 <text x="1290" y="206" font-size="12" fill="#6b7785" text-anchor="middle">outer gateway</text>
 <path d="M960 352 L960 150 L1274 150" fill="none" stroke="#1d2733" stroke-width="1.6"/>

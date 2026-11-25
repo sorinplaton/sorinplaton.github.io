@@ -14,7 +14,7 @@ params:
 
 VCF 9.1.2 came out on 24 November 2026. It is a maintenance release and most of it is supportability work, but there is one NSX change you will want to know about before your next design. Since NSX 9.0, [a standalone NSX installation or upgrade was not supported](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-0/release-notes/vmware-cloud-foundation-90-release-notes/platform-product-support-notes/product-support-notes-nsx.html): NSX came with VCF or not at all. With NSX 9.1.2 the standalone lifecycle is back, and you can install, upgrade and run NSX on its own again.
 
-I read the 9.1.2 release notes and the NSX guide in the VCF 9.1.x documentation with three questions in mind: what is new in NSX, what changed in the way NSX fits into VCF, and in which order you upgrade. Where the documentation is thin, I say so. Two of the drawings are my own sketches of things the docs only describe in words, and they are labelled that way.
+I read the 9.1.2 release notes and the NSX guide in the VCF 9.1.x documentation with three questions in mind: what is new in NSX, what changed in the way NSX fits into VCF, and in which order you upgrade. Where the documentation is thin, I say so.
 
 ## What NSX 9.1.2 ships
 
@@ -83,7 +83,7 @@ The feature is "NSX Entitlement in VVF": you can deploy NSX and vDefend directly
 
 Know the limits before you promise anything. In 9.1.2 and later, VVF runs a pared-down NSX Manager restricted to a security-only configuration, and overlay networking is not available in this deployment model. In other words, this is vDefend for workloads on VLAN-backed networks, with no VPCs and no overlay segments.
 
-![A dashed zone labelled vSphere Foundation. Inside, vCenter as compute manager and a pared-down, security-only NSX Manager sit above a thick bar labelled VLAN-backed workload networks, with five workload VMs hanging from the bar and protected by vDefend. A dashed line from NSX Manager to the bar is labelled vDefend policy. To the right, a greyed box says overlay networking is not in this model, and a second box says VCF Installer does not install NSX for a VVF deployment and that standalone NSX supports the NSX platform for vDefend virtual patching. A footer says the drawing is a sketch because the guide gives no topology.](/images/nsx-912/fig-02-vvf-security-only.svg)
+![A dashed zone labelled vSphere Foundation. Inside, vCenter as compute manager and a pared-down, security-only NSX Manager sit above a thick bar labelled VLAN-backed workload networks, with five workload VMs hanging from the bar and protected by vDefend. A dashed line from NSX Manager to the bar is labelled vDefend policy. To the right, a greyed box says overlay networking is not in this model, and a second box says VCF Installer does not install NSX for a VVF deployment and that standalone NSX supports the NSX platform for vDefend virtual patching.](/images/nsx-912/fig-02-vvf-security-only.svg)
 
 What you won't find is one place that says how NSX gets into a VVF environment. The deployment guide says VCF Installer does not require or install NSX for a VVF-model deployment, and the release notes say standalone NSX supports the NSX platform for vDefend virtual patching, a feature for customers who purchase VVF and vDefend. Read the two together and my reading is that NSX for VVF comes in through the standalone install described above.
 
@@ -126,7 +126,7 @@ VCP compares each host with the cluster document, so a static TEP address that d
 
 This one is for Kubernetes load balancing. On a Supervisor with NSX tier-1 networking, NCP (the NSX Container Plugin) builds the segments and gateways, and when Avi does the load balancing, its Service Engines need a data network. That network was capped at a /28, so 16 addresses, which Broadcom itself calls too restrictive.
 
-![Two dashed zones. On the left, before 9.1.2: an NSX tier-1 gateway above a short bar labelled Avi SE data network, /28, with three Service Engines and the caption 16 addresses in a /28. On the right, NSX 9.1.2: an NCPSetting CRD carrying the SE data subnet CIDR points to the tier-1 gateway, above a long bar labelled Avi SE data network, your CIDR, with six Service Engines and the caption room to scale Service Engines beyond the /28 limit. A footer says the subnet maps to the Services subnet of the VPC service profile after a move to NSX VPC, and that the drawing is a sketch.](/images/nsx-912/fig-04-avi-se-subnet.svg)
+![Two dashed zones. On the left, before 9.1.2: an NSX tier-1 gateway above a short bar labelled Avi SE data network, /28, with three Service Engines and the caption 16 addresses in a /28. On the right, NSX 9.1.2: an NCPSetting CRD carrying the SE data subnet CIDR points to the tier-1 gateway, above a long bar labelled Avi SE data network, your CIDR, with six Service Engines and the caption room to scale Service Engines beyond the /28 limit. A footer says the subnet maps to the Services subnet of the VPC service profile after a move to NSX VPC.](/images/nsx-912/fig-04-avi-se-subnet.svg)
 
 In 9.1.2 you pick the Service Engine subnet CIDR yourself. It goes in the NCPSetting custom resource, the same CRD you already use for NCP settings. If the Supervisor later moves from NSX tier-1 to NSX VPC networking, the subnet maps to the existing Services subnet in the VPC service profile.
 

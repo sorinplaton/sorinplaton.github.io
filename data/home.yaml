@@ -39,6 +39,10 @@ posts:
     layer: nsx
     en: "Fleet components on an overlay segment, then DR over a Federation-stretched segment."
     fr: "Les composants du fleet sur un segment overlay, puis la reprise sur un segment étiré par Federation."
+  nsx-912-standalone-nsx:
+    layer: nsx
+    en: "NSX 9.1.2 brings standalone NSX back. Four smaller changes, and the upgrade order."
+    fr: "NSX 9.1.2 ramène le NSX autonome. Quatre changements plus modestes, et l'ordre de mise à niveau."
   vks-without-teps:
     layer: vks
     en: "VKS on a VLAN-backed VPC. The network team provides one VLAN and a /24."

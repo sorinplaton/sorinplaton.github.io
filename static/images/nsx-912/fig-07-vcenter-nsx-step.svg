@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="448" viewBox="0 0 1400 448" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="448" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arry" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9aa5b1"/></marker></defs>
+<text x="700.0" y="30" font-size="21" fill="#1d2733" text-anchor="middle" font-weight="bold">Two ways to run the vCenter and NSX Manager step</text>
+<text x="700.0" y="54" font-size="13" fill="#6b7785" text-anchor="middle">Since VCF 9.1 they are one step in the domain upgrade plan, with two scenarios</text>
+<rect x="40" y="80" width="1320" height="132" rx="6" fill="none" stroke="#2e7d32" stroke-width="1.2" stroke-dasharray="6 4"/>
+<text x="52" y="98" font-size="13.2" fill="#2e7d32" text-anchor="start" font-weight="bold">Optimized maintenance window · vCenter is prepared first, with no downtime</text>
+<rect x="318" y="110" width="494" height="20" rx="10" fill="#2e7d32"/>
+<text x="565.0" y="124" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="bold">one maintenance window</text>
+<rect x="60" y="138" width="236" height="40" rx="6" fill="#f4f7fb" stroke="#2e7d32" stroke-width="1.4"/>
+<circle cx="78" cy="158" r="11" fill="#2e7d32"/><text x="78" y="162.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">1</text>
+<text x="96" y="163" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Prepare vCenter</text>
+<path d="M296,158 L316,158" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#arrg)"/>
+<rect x="318" y="138" width="236" height="40" rx="6" fill="#f4f7fb" stroke="#2e7d32" stroke-width="1.4"/>
+<circle cx="336" cy="158" r="11" fill="#2e7d32"/><text x="336" y="162.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">2</text>
+<text x="354" y="163" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Upgrade NSX Manager</text>
+<path d="M554,158 L574,158" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#arrg)"/>
+<rect x="576" y="138" width="236" height="40" rx="6" fill="#f4f7fb" stroke="#2e7d32" stroke-width="1.4"/>
+<circle cx="594" cy="158" r="11" fill="#2e7d32"/><text x="594" y="162.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">3</text>
+<text x="612" y="163" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Switch over vCenter</text>
+<path d="M812,158 L832,158" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#arrg)"/>
+<rect x="834" y="138" width="236" height="40" rx="6" fill="#f4f7fb" stroke="#2e7d32" stroke-width="1.4"/>
+<circle cx="852" cy="158" r="11" fill="#2e7d32"/><text x="852" y="162.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">4</text>
+<text x="870" y="163" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Upgrade ESX hosts</text>
+<path d="M1070,158 L1090,158" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#arrg)"/>
+<rect x="1092" y="138" width="236" height="40" rx="6" fill="#f4f7fb" stroke="#2e7d32" stroke-width="1.4"/>
+<circle cx="1110" cy="158" r="11" fill="#2e7d32"/><text x="1110" y="162.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">5</text>
+<text x="1128" y="163" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">NSX Edge, finalize</text>
+<text x="60" y="198" font-size="12.1" fill="#6b7785" text-anchor="start" font-style="italic">Step 1 runs ahead of the window; steps 2 and 3 share it.</text>
+<rect x="40" y="232" width="1320" height="104" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.2" stroke-dasharray="6 4"/>
+<text x="52" y="250" font-size="13.2" fill="#1f4e9c" text-anchor="start" font-weight="bold">Sequential upgrade · each step in its own maintenance window</text>
+<rect x="60" y="262" width="290" height="40" rx="6" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.4"/>
+<circle cx="78" cy="282" r="11" fill="#1f4e9c"/><text x="78" y="286.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">1</text>
+<text x="96" y="287" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Upgrade NSX Manager</text>
+<path d="M350,282 L393,282" fill="none" stroke="#1f4e9c" stroke-width="1.6" marker-end="url(#arrb)"/>
+<rect x="395" y="262" width="290" height="40" rx="6" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.4"/>
+<circle cx="413" cy="282" r="11" fill="#1f4e9c"/><text x="413" y="286.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">2</text>
+<text x="431" y="287" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Upgrade vCenter</text>
+<path d="M685,282 L728,282" fill="none" stroke="#1f4e9c" stroke-width="1.6" marker-end="url(#arrb)"/>
+<rect x="730" y="262" width="290" height="40" rx="6" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.4"/>
+<circle cx="748" cy="282" r="11" fill="#1f4e9c"/><text x="748" y="286.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">3</text>
+<text x="766" y="287" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Upgrade ESX hosts</text>
+<path d="M1020,282 L1063,282" fill="none" stroke="#1f4e9c" stroke-width="1.6" marker-end="url(#arrb)"/>
+<rect x="1065" y="262" width="290" height="40" rx="6" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.4"/>
+<circle cx="1083" cy="282" r="11" fill="#1f4e9c"/><text x="1083" y="286.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">4</text>
+<text x="1101" y="287" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">NSX Edge, finalize</text>
+<text x="60" y="322" font-size="12.1" fill="#6b7785" text-anchor="start" font-style="italic">Step 2 can be an in-place vCenter upgrade, or a prepare and switch over.</text>
+<rect x="60" y="356" width="1280" height="64" rx="6" fill="#fff7e6" stroke="none"/>
+<text x="80" y="378" font-size="11" fill="#8a6d00" text-anchor="start" font-weight="bold" letter-spacing="1.5">CONSTRAINTS</text>
+<text x="80" y="396.0" font-size="12.1" fill="#1d2733" text-anchor="start">The optimized scenario needs the vCenter target version to be the same as the current SDDC Manager version.</text>
+<text x="80" y="413.6" font-size="12.1" fill="#1d2733" text-anchor="start">Coming from 5.2.x, the only vCenter option is the reduced downtime upgrade. From 9.0 or later, both scenarios are offered.</text>
+</svg>

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="574" viewBox="0 0 1400 574" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="574" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arry" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9aa5b1"/></marker></defs>
+<text x="700.0" y="30" font-size="21" fill="#1d2733" text-anchor="middle" font-weight="bold">VCF complet et NSX autonome, côte à côte</text>
+<text x="700.0" y="54" font-size="13" fill="#6b7785" text-anchor="middle">Qui pilote le cycle de vie de NSX dans chaque modèle, à partir de NSX 9.1.2</text>
+<rect x="40" y="80" width="640" height="394" rx="6" fill="none" stroke="#2e7d32" stroke-width="1.2" stroke-dasharray="6 4"/>
+<text x="52" y="98" font-size="13.2" fill="#2e7d32" text-anchor="start" font-weight="bold">VCF 9.1.2 complet</text>
+<text x="52" y="114" font-size="12.1" fill="#6b7785" text-anchor="start">NSX est un composant du fleet VCF</text>
+<rect x="113" y="146" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="118" y1="155.3" x2="137" y2="155.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="155.3" r="1.4" fill="#2e7d32"/>
+<line x1="118" y1="164.7" x2="137" y2="164.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="164.7" r="1.4" fill="#2e7d32"/>
+<text x="202" y="158" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">VCF Operations</text>
+<text x="202" y="174" font-size="12.1" fill="#6b7785" text-anchor="start">cycle de vie du fleet, certificats, mots de passe</text>
+<path d="M130,174 L130,208" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<rect x="113" y="208" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="118" y1="217.3" x2="137" y2="217.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="217.3" r="1.4" fill="#2e7d32"/>
+<line x1="118" y1="226.7" x2="137" y2="226.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="226.7" r="1.4" fill="#2e7d32"/>
+<text x="202" y="220" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">SDDC Manager</text>
+<text x="202" y="236" font-size="12.1" fill="#6b7785" text-anchor="start">domaines VCF et workflows des domaines de charge de travail</text>
+<path d="M130,236 L130,270" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<rect x="113" y="270" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="118" y1="279.3" x2="137" y2="279.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="279.3" r="1.4" fill="#2e7d32"/>
+<line x1="118" y1="288.7" x2="137" y2="288.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="288.7" r="1.4" fill="#2e7d32"/>
+<text x="202" y="282" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">vCenter</text>
+<text x="202" y="298" font-size="12.1" fill="#6b7785" text-anchor="start">connectivité réseau, VPC, transit gateways</text>
+<path d="M130,298 L130,332" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<rect x="73" y="332" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="78" y1="341.3" x2="97" y2="341.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="101" cy="341.3" r="1.4" fill="#2e7d32"/>
+<line x1="78" y1="350.7" x2="97" y2="350.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="101" cy="350.7" r="1.4" fill="#2e7d32"/>
+<rect x="113" y="332" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="118" y1="341.3" x2="137" y2="341.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="341.3" r="1.4" fill="#2e7d32"/>
+<line x1="118" y1="350.7" x2="137" y2="350.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="350.7" r="1.4" fill="#2e7d32"/>
+<rect x="153" y="332" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="158" y1="341.3" x2="177" y2="341.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="181" cy="341.3" r="1.4" fill="#2e7d32"/>
+<line x1="158" y1="350.7" x2="177" y2="350.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="181" cy="350.7" r="1.4" fill="#2e7d32"/>
+<text x="202" y="344" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Cluster NSX Manager</text>
+<text x="202" y="360" font-size="12.1" fill="#6b7785" text-anchor="start">livré par la BOM de VCF</text>
+<path d="M130,360 L130,394" fill="none" stroke="#2e7d32" stroke-width="1.6"/>
+<rect x="73" y="394" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="78" y1="403.3" x2="97" y2="403.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="101" cy="403.3" r="1.4" fill="#2e7d32"/>
+<line x1="78" y1="412.7" x2="97" y2="412.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="101" cy="412.7" r="1.4" fill="#2e7d32"/>
+<rect x="113" y="394" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="118" y1="403.3" x2="137" y2="403.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="403.3" r="1.4" fill="#2e7d32"/>
+<line x1="118" y1="412.7" x2="137" y2="412.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="141" cy="412.7" r="1.4" fill="#2e7d32"/>
+<rect x="153" y="394" width="34" height="28" rx="3" fill="#ffffff" stroke="#2e7d32" stroke-width="1.5"/>
+<line x1="158" y1="403.3" x2="177" y2="403.3" stroke="#2e7d32" stroke-width="1.1"/><circle cx="181" cy="403.3" r="1.4" fill="#2e7d32"/>
+<line x1="158" y1="412.7" x2="177" y2="412.7" stroke="#2e7d32" stroke-width="1.1"/><circle cx="181" cy="412.7" r="1.4" fill="#2e7d32"/>
+<text x="202" y="406" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Nœuds de transport ESX</text>
+<text x="202" y="422" font-size="12.1" fill="#6b7785" text-anchor="start">hôtes préparés par les workflows VCF</text>
+<text x="360" y="458" font-size="13.2" fill="#2e7d32" text-anchor="middle" font-weight="bold">cycle de vie : VCF Operations et SDDC Manager</text>
+<rect x="720" y="80" width="640" height="394" rx="6" fill="none" stroke="#1f4e9c" stroke-width="1.2" stroke-dasharray="6 4"/>
+<text x="732" y="98" font-size="13.2" fill="#1f4e9c" text-anchor="start" font-weight="bold">NSX 9.1.2 autonome</text>
+<text x="732" y="114" font-size="12.1" fill="#6b7785" text-anchor="start">ni SDDC Manager ni domaine VCF</text>
+<rect x="773" y="146" width="34" height="28" rx="3" fill="#ffffff" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="778" y1="155.3" x2="797" y2="155.3" stroke="#6b7785" stroke-width="1.1"/><circle cx="801" cy="155.3" r="1.4" fill="#6b7785"/>
+<line x1="778" y1="164.7" x2="797" y2="164.7" stroke="#6b7785" stroke-width="1.1"/><circle cx="801" cy="164.7" r="1.4" fill="#6b7785"/>
+<rect x="813" y="146" width="34" height="28" rx="3" fill="#ffffff" stroke="#6b7785" stroke-width="1.5"/>
+<line x1="818" y1="155.3" x2="837" y2="155.3" stroke="#6b7785" stroke-width="1.1"/><circle cx="841" cy="155.3" r="1.4" fill="#6b7785"/>
+<line x1="818" y1="164.7" x2="837" y2="164.7" stroke="#6b7785" stroke-width="1.1"/><circle cx="841" cy="164.7" r="1.4" fill="#6b7785"/>
+<text x="882" y="158" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Serveur de licences + VCF Operations</text>
+<text x="882" y="174" font-size="12.1" fill="#6b7785" text-anchor="start">nécessaires pour les licences seulement</text>
+<path d="M810,174 L810,270" fill="none" stroke="#6b7785" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="822" y="226" font-size="11" fill="#6b7785" text-anchor="start" font-style="italic">droit d'usage</text>
+<rect x="793" y="270" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="798" y1="279.3" x2="817" y2="279.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="821" cy="279.3" r="1.4" fill="#1f4e9c"/>
+<line x1="798" y1="288.7" x2="817" y2="288.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="821" cy="288.7" r="1.4" fill="#1f4e9c"/>
+<text x="882" y="282" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">vCenter</text>
+<text x="882" y="298" font-size="12.1" fill="#6b7785" text-anchor="start">enregistré dans NSX comme compute manager</text>
+<path d="M810,298 L810,332" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<rect x="753" y="332" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="758" y1="341.3" x2="777" y2="341.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="781" cy="341.3" r="1.4" fill="#1f4e9c"/>
+<line x1="758" y1="350.7" x2="777" y2="350.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="781" cy="350.7" r="1.4" fill="#1f4e9c"/>
+<rect x="793" y="332" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="798" y1="341.3" x2="817" y2="341.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="821" cy="341.3" r="1.4" fill="#1f4e9c"/>
+<line x1="798" y1="350.7" x2="817" y2="350.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="821" cy="350.7" r="1.4" fill="#1f4e9c"/>
+<rect x="833" y="332" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="838" y1="341.3" x2="857" y2="341.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="861" cy="341.3" r="1.4" fill="#1f4e9c"/>
+<line x1="838" y1="350.7" x2="857" y2="350.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="861" cy="350.7" r="1.4" fill="#1f4e9c"/>
+<text x="882" y="344" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">NSX Manager</text>
+<text x="882" y="360" font-size="12.1" fill="#6b7785" text-anchor="start">mises à niveau, sauvegarde, certificats, mots de passe, authentification</text>
+<path d="M810,360 L810,394" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<rect x="753" y="394" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="758" y1="403.3" x2="777" y2="403.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="781" cy="403.3" r="1.4" fill="#1f4e9c"/>
+<line x1="758" y1="412.7" x2="777" y2="412.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="781" cy="412.7" r="1.4" fill="#1f4e9c"/>
+<rect x="793" y="394" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="798" y1="403.3" x2="817" y2="403.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="821" cy="403.3" r="1.4" fill="#1f4e9c"/>
+<line x1="798" y1="412.7" x2="817" y2="412.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="821" cy="412.7" r="1.4" fill="#1f4e9c"/>
+<rect x="833" y="394" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="838" y1="403.3" x2="857" y2="403.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="861" cy="403.3" r="1.4" fill="#1f4e9c"/>
+<line x1="838" y1="412.7" x2="857" y2="412.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="861" cy="412.7" r="1.4" fill="#1f4e9c"/>
+<text x="882" y="406" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Nœuds de transport ESX</text>
+<text x="882" y="422" font-size="12.1" fill="#6b7785" text-anchor="start">9.1.2 pour une nouvelle installation, 8.0 U3 ou plus récent en mise à niveau</text>
+<text x="1040" y="458" font-size="13.2" fill="#1f4e9c" text-anchor="middle" font-weight="bold">cycle de vie : interface ou API de NSX Manager</text>
+<rect x="60" y="492" width="1280" height="64" rx="6" fill="#fff7e6" stroke="none"/>
+<text x="80" y="514" font-size="11" fill="#8a6d00" text-anchor="start" font-weight="bold" letter-spacing="1.5">LIMITES</text>
+<text x="80" y="532.0" font-size="12.1" fill="#1d2733" text-anchor="start">Le mode Multi NSX Manager avec un seul vCenter n'est pas pris en charge en autonome. Pas de mise à niveau autonome pour un NSX qui fait partie d'un VCF complet.</text>
+<text x="80" y="549.6" font-size="12.1" fill="#1d2733" text-anchor="start">La convergence d'un NSX autonome vers un VCF complet crée un domaine de gestion et ne peut pas être annulée.</text>
+</svg>

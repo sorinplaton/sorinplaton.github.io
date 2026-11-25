@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="346" viewBox="0 0 1400 346" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="346" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arry" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9aa5b1"/></marker></defs>
+<text x="700.0" y="30" font-size="21" fill="#1d2733" text-anchor="middle" font-weight="bold">Ordre de mise à niveau d'une instance VCF 9.0.x vers 9.1.x</text>
+<text x="700.0" y="54" font-size="13" fill="#6b7785" text-anchor="middle">Sept étapes dans la séquence documentée ; celles en couleur touchent NSX</text>
+<rect x="34" y="90" width="174" height="118" rx="6" fill="#f4f7fb" stroke="#6b7785" stroke-width="1.4"/>
+<circle cx="52" cy="110" r="11" fill="#6b7785"/><text x="52" y="114.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">1</text>
+<text x="70" y="115" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Fleet</text>
+<text x="48" y="136.0" font-size="12.1" fill="#6b7785" text-anchor="start">VCF Operations d'abord,</text>
+<text x="48" y="152.5" font-size="12.1" fill="#6b7785" text-anchor="start">puis SDDC Manager,</text>
+<text x="48" y="169.0" font-size="12.1" fill="#6b7785" text-anchor="start">management services,</text>
+<text x="48" y="185.5" font-size="12.1" fill="#6b7785" text-anchor="start">Automation, HCX</text>
+<path d="M208,149 L224,149" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="226" y="90" width="174" height="118" rx="6" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.4"/>
+<circle cx="244" cy="110" r="11" fill="#1f4e9c"/><text x="244" y="114.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">2</text>
+<text x="262" y="115" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Global Managers</text>
+<text x="240" y="136.0" font-size="12.1" fill="#6b7785" text-anchor="start">Federation seulement :</text>
+<text x="240" y="152.5" font-size="12.1" fill="#6b7785" text-anchor="start">cluster en attente,</text>
+<text x="240" y="169.0" font-size="12.1" fill="#6b7785" text-anchor="start">puis actif</text>
+<path d="M400,149 L416,149" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="418" y="90" width="174" height="118" rx="6" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.4"/>
+<circle cx="436" cy="110" r="11" fill="#1f4e9c"/><text x="436" y="114.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">3</text>
+<text x="454" y="115" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">NSX Manager</text>
+<text x="432" y="136.0" font-size="12.1" fill="#6b7785" text-anchor="start">mis à niveau avec vCenter</text>
+<text x="432" y="152.5" font-size="12.1" fill="#6b7785" text-anchor="start">en une étape du plan</text>
+<text x="432" y="169.0" font-size="12.1" fill="#6b7785" text-anchor="start">du domaine</text>
+<path d="M592,149 L608,149" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="610" y="90" width="174" height="118" rx="6" fill="#f4f7fb" stroke="#6b7785" stroke-width="1.4"/>
+<circle cx="628" cy="110" r="11" fill="#6b7785"/><text x="628" y="114.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">4</text>
+<text x="646" y="115" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">VKS, Supervisor</text>
+<text x="624" y="136.0" font-size="12.1" fill="#6b7785" text-anchor="start">VKS 3.6.0 ou plus récent,</text>
+<text x="624" y="152.5" font-size="12.1" fill="#6b7785" text-anchor="start">puis le Supervisor</text>
+<path d="M784,149 L800,149" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="802" y="90" width="174" height="118" rx="6" fill="#f4f7fb" stroke="#0b7a75" stroke-width="1.4"/>
+<circle cx="820" cy="110" r="11" fill="#0b7a75"/><text x="820" y="114.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">5</text>
+<text x="838" y="115" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">ESX</text>
+<text x="816" y="136.0" font-size="12.1" fill="#6b7785" text-anchor="start">images vLCM seulement ;</text>
+<text x="816" y="152.5" font-size="12.1" fill="#6b7785" text-anchor="start">les VIB NSX sont</text>
+<text x="816" y="169.0" font-size="12.1" fill="#6b7785" text-anchor="start">mis à niveau ici</text>
+<path d="M976,149 L992,149" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="994" y="90" width="174" height="118" rx="6" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.4"/>
+<circle cx="1012" cy="110" r="11" fill="#1f4e9c"/><text x="1012" y="114.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">6</text>
+<text x="1030" y="115" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Edge, finalisation</text>
+<text x="1008" y="136.0" font-size="12.1" fill="#6b7785" text-anchor="start">clusters NSX Edge,</text>
+<text x="1008" y="152.5" font-size="12.1" fill="#6b7785" text-anchor="start">puis finalisation NSX</text>
+<path d="M1168,149 L1184,149" fill="none" stroke="#1d2733" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="1186" y="90" width="174" height="118" rx="6" fill="#f4f7fb" stroke="#6b7785" stroke-width="1.4"/>
+<circle cx="1204" cy="110" r="11" fill="#6b7785"/><text x="1204" y="114.5" font-size="13.2" fill="#ffffff" text-anchor="middle" font-weight="bold">7</text>
+<text x="1222" y="115" font-size="13.2" fill="#1d2733" text-anchor="start" font-weight="bold">Nettoyage</text>
+<text x="1200" y="136.0" font-size="12.1" fill="#6b7785" text-anchor="start">version du VDS, Tools,</text>
+<text x="1200" y="152.5" font-size="12.1" fill="#6b7785" text-anchor="start">compatibilité des VM,</text>
+<text x="1200" y="169.0" font-size="12.1" fill="#6b7785" text-anchor="start">format de disque vSAN</text>
+<rect x="34" y="226" width="16" height="11" rx="2" fill="#f4f7fb" stroke="#1f4e9c" stroke-width="1.4"/>
+<text x="58" y="236" font-size="12.1" fill="#6b7785" text-anchor="start">étape du plan de gestion et de contrôle de NSX</text>
+<rect x="420" y="226" width="16" height="11" rx="2" fill="#f4f7fb" stroke="#0b7a75" stroke-width="1.4"/>
+<text x="444" y="236" font-size="12.1" fill="#6b7785" text-anchor="start">plan de données de NSX sur les hôtes (les VIB suivent ESX depuis VCF 9)</text>
+<rect x="60" y="256" width="1280" height="64" rx="6" fill="#fff7e6" stroke="none"/>
+<text x="80" y="278" font-size="11" fill="#8a6d00" text-anchor="start" font-weight="bold" letter-spacing="1.5">PÉRIMÈTRE</text>
+<text x="80" y="296.0" font-size="12.1" fill="#1d2733" text-anchor="start">Commencez par le domaine de gestion de l'instance VCF qui héberge le VCF Operations du fleet. Les domaines de charge de travail peuvent suivre plus tard, avec les mêmes étapes.</text>
+<text x="80" y="313.6" font-size="12.1" fill="#1d2733" text-anchor="start">Les nouvelles fonctions de NSX ne peuvent pas être configurées tant que l'étape 6, la finalisation de NSX, n'est pas terminée.</text>
+</svg>

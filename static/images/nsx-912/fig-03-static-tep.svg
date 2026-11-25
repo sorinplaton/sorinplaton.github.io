@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="478" viewBox="0 0 1400 478" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#1d2733">
+<rect width="1400" height="478" fill="#ffffff"/>
+<defs><marker id="arr" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d2733"/></marker><marker id="arrb" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f4e9c"/></marker><marker id="arrg" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/></marker><marker id="arrt" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b7a75"/></marker><marker id="arrp" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b3fa0"/></marker><marker id="arrm" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/></marker><marker id="arry" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9aa5b1"/></marker></defs>
+<text x="700.0" y="30" font-size="21" fill="#1d2733" text-anchor="middle" font-weight="bold">Static TEP IP and MAC, now in the transport node profile</text>
+<text x="700.0" y="54" font-size="13" fill="#6b7785" text-anchor="middle">How a host tunnel endpoint gets its address, and what NSX 9.1.2 adds</text>
+<path d="M106,112 L125,112 L134,121 L134,148 L106,148 z" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/><path d="M125,112 L125,121 L134,121" fill="none" stroke="#1f4e9c" stroke-width="1.1"/><path d="M112,129 L128,129 M112,135 L128,135 M112,141 L122,141" stroke="#1f4e9c" stroke-width="1.1"/>
+<text x="150" y="127" font-size="13.2" fill="#1f4e9c" text-anchor="start" font-weight="bold">Transport node profile (TNP)</text>
+<text x="150" y="143" font-size="12.1" fill="#6b7785" text-anchor="start">one template for every host in the cluster</text>
+<path d="M120,148 L120,250" fill="none" stroke="#1f4e9c" stroke-width="1.6"/>
+<rect x="70" y="250" width="570" height="10" rx="5" fill="#1f4e9c"/>
+<text x="150" y="241" font-size="13.2" fill="#1f4e9c" text-anchor="start" font-weight="bold">Host TEP VLAN</text>
+<path d="M170,260 L170,295" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="153" y="295" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="158" y1="304.3" x2="177" y2="304.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="181" cy="304.3" r="1.4" fill="#1f4e9c"/>
+<line x1="158" y1="313.7" x2="177" y2="313.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="181" cy="313.7" r="1.4" fill="#1f4e9c"/>
+<text x="170" y="345" font-size="13.2" fill="#1d2733" text-anchor="middle">ESX 1</text>
+<text x="170" y="361" font-size="12.1" fill="#6b7785" text-anchor="middle">TEP vmk · static IP and MAC</text>
+<path d="M355,260 L355,295" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="338" y="295" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="343" y1="304.3" x2="362" y2="304.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="366" cy="304.3" r="1.4" fill="#1f4e9c"/>
+<line x1="343" y1="313.7" x2="362" y2="313.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="366" cy="313.7" r="1.4" fill="#1f4e9c"/>
+<text x="355" y="345" font-size="13.2" fill="#1d2733" text-anchor="middle">ESX 2</text>
+<text x="355" y="361" font-size="12.1" fill="#6b7785" text-anchor="middle">TEP vmk · static IP and MAC</text>
+<path d="M540,260 L540,295" fill="none" stroke="#1d2733" stroke-width="1.2"/>
+<rect x="523" y="295" width="34" height="28" rx="3" fill="#ffffff" stroke="#1f4e9c" stroke-width="1.5"/>
+<line x1="528" y1="304.3" x2="547" y2="304.3" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="551" cy="304.3" r="1.4" fill="#1f4e9c"/>
+<line x1="528" y1="313.7" x2="547" y2="313.7" stroke="#1f4e9c" stroke-width="1.1"/><circle cx="551" cy="313.7" r="1.4" fill="#1f4e9c"/>
+<text x="540" y="345" font-size="13.2" fill="#1d2733" text-anchor="middle">ESX 3</text>
+<text x="540" y="361" font-size="12.1" fill="#6b7785" text-anchor="middle">TEP vmk · static IP and MAC</text>
+<text x="720" y="100" font-size="11" fill="#6b7785" text-anchor="start" font-weight="bold" letter-spacing="1.5">HOW A HOST TEP GETS ITS ADDRESS</text>
+<rect x="720" y="112" width="640" height="24" fill="#1f4e9c"/>
+<text x="730" y="129" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">Address option</text>
+<text x="980" y="129" font-size="12" fill="#ffffff" text-anchor="start" font-weight="bold">Where it applies</text>
+<rect x="720" y="136" width="640" height="28" fill="#f4f7fb" stroke="#d9e0ea" stroke-width="0.8"/>
+<text x="730" y="154" font-size="12" fill="#1d2733" text-anchor="start">DHCP</text>
+<text x="980" y="154" font-size="12" fill="#1d2733" text-anchor="start">TNP or single host</text>
+<rect x="720" y="164" width="640" height="28" fill="#ffffff" stroke="#d9e0ea" stroke-width="0.8"/>
+<text x="730" y="182" font-size="12" fill="#1d2733" text-anchor="start">IP pool</text>
+<text x="980" y="182" font-size="12" fill="#1d2733" text-anchor="start">TNP or single host</text>
+<rect x="720" y="192" width="640" height="28" fill="#f4f7fb" stroke="#d9e0ea" stroke-width="0.8"/>
+<text x="730" y="210" font-size="12" fill="#1d2733" text-anchor="start">Static IP list</text>
+<text x="980" y="210" font-size="12" fill="#1d2733" text-anchor="start">single host only (KB 431877)</text>
+<rect x="720" y="220" width="640" height="28" fill="#eef6ee" stroke="#2e7d32" stroke-width="1.4"/>
+<text x="730" y="238" font-size="12" fill="#2e7d32" text-anchor="start" font-weight="bold">Static IP and MAC</text>
+<text x="980" y="238" font-size="12" fill="#2e7d32" text-anchor="start" font-weight="bold">in the TNP · new in 9.1.2</text>
+<text x="720" y="278" font-size="13.2" fill="#2e7d32" text-anchor="start" font-weight="bold">✓  no ARP conflicts, no false override detection</text>
+<text x="742" y="295" font-size="12.1" fill="#6b7785" text-anchor="start">in vSphere configuration profiles</text>
+<rect x="60" y="395" width="1280" height="64" rx="6" fill="#fff7e6" stroke="none"/>
+<text x="80" y="417" font-size="11" fill="#8a6d00" text-anchor="start" font-weight="bold" letter-spacing="1.5">TERMS</text>
+<text x="80" y="435.0" font-size="12.1" fill="#1d2733" text-anchor="start">TEP (tunnel endpoint): the VMkernel adapter on each host that carries overlay traffic.</text>
+<text x="80" y="452.6" font-size="12.1" fill="#1d2733" text-anchor="start">TNP (transport node profile): the template that gives every host in a cluster the same NSX switch settings, TEP addressing included.</text>
+</svg>

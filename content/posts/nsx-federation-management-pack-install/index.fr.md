@@ -412,6 +412,18 @@ Le standby expose son état de synchronisation : synchronisation en bon état (
 
 Chaque standby indique aussi s'il peut devenir le Global Manager actif tout de suite. La métrique vaut 1 (prêt), ou 0 (pas prêt) avec les raisons dans une propriété : non synchronisé, cluster instable, nœuds hors ligne, version différente, certificat expiré ou mise à niveau en cours. Quand une valeur n'a pas pu être lue, la métrique vaut aussi 0 et la propriété indique ce qui est inconnu. Dans le lab, gm-site-b est prêt.
 
+Exemple avec un switchover planifié : la question est de savoir si l'autre site peut prendre le relais ce soir. À la main, il faut se connecter aux quatre managers NSX de ce lab et comparer les écrans. Le pack y répond à chaque cycle de collecte avec deux valeurs sur l'objet fédération : « A standby Global Manager is ready to take over » et « RTEP tunnels with inter-site BGP down ». La chaîne qui les produit :
+
+| Étape | Hôte appelé | Ce qui est lu | Ce que cela donne |
+| --- | --- | --- | --- |
+| 1 | Les deux Global Managers | `/api/v1/sites/self`, `/api/v1/cluster/status`, certificats, résumé de mise à niveau | Lequel est actif, ainsi que la version, l'état du cluster, l'expiration des certificats et l'état de mise à niveau de chacun |
+| 2 | Le Global Manager actif | `/api/v1/sites`, `/api/v1/sites/status` | L'état de synchronisation du standby, ainsi que l'adresse et l'empreinte du certificat de chaque Local Manager |
+| 3 | Chaque Local Manager, à l'adresse lue à l'étape 2 | `/api/v1/transport-nodes` | L'ID de chaque nœud Edge de la fédération |
+| 4 | Chaque Local Manager | `/api/v1/transport-nodes/{id}/inter-site/statistics` et `/inter-site/bgp/summary` | L'état et les compteurs de paquets de chaque tunnel RTEP |
+| 5 | Aucun, l'adaptateur calcule | Les réponses des étapes 1 à 4 | Prêt ou pas prêt avec les raisons, à partir des étapes 1 et 2. Le nombre de tunnels dont le BGP est tombé, à partir des étapes 3 et 4 |
+
+L'étape 1 appelle deux hôtes, l'étape 3 appelle des hôtes dont l'adresse vient de l'étape 2, et l'étape 5 compare les réponses de managers différents. Cette chaîne explique pourquoi le pack est construit avec l'Integration SDK ([partie 1](/fr/posts/nsx-federation-management-pack-design/#étape-6-le-mode-de-construction)).
+
 ### Versions et mises à niveau
 
 NSX Federation se met à niveau dans un ordre fixe : le Standby Global Manager, le Global Manager actif, puis les Local Managers. Trois conditions rompent cet ordre ou bloquent des opérations, et chacune a son alerte :

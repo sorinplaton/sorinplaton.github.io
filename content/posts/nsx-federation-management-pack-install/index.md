@@ -412,6 +412,18 @@ The standby carries its sync state: sync healthy (1 when in sync), entries left 
 
 Each standby also says whether it can take over as the active Global Manager now. It reads ready (1), or not ready (0) with the reasons in a property: not in sync, an unstable cluster, nodes offline, a different version, an expired certificate or an upgrade in progress. When a value could not be read, the metric is also 0 and the property says what is unknown. In the lab, gm-site-b reads ready.
 
+Take a planned switchover: the question is whether the other site can take over tonight. By hand, that means logging in to the four NSX managers of this lab and comparing screens. The pack answers it in every collection cycle with two values on the federation object: "A standby Global Manager is ready to take over" and "RTEP tunnels with inter-site BGP down". The chain behind them:
+
+| Step | Host called | What is read | What it gives |
+| --- | --- | --- | --- |
+| 1 | Both Global Managers | `/api/v1/sites/self`, `/api/v1/cluster/status`, certificates, upgrade summary | Which one is active, and the version, cluster state, certificate expiry and upgrade state of each |
+| 2 | The active Global Manager | `/api/v1/sites`, `/api/v1/sites/status` | The sync state of the standby, and the address and certificate thumbprint of each Local Manager |
+| 3 | Each Local Manager, at the address from step 2 | `/api/v1/transport-nodes` | The ID of each federation edge node |
+| 4 | Each Local Manager | `/api/v1/transport-nodes/{id}/inter-site/statistics` and `/inter-site/bgp/summary` | The state and the packet counters of each RTEP tunnel |
+| 5 | None, the adapter computes | The answers from steps 1 to 4 | Ready or not ready with the reasons, from steps 1 and 2. The number of tunnels with BGP down, from steps 3 and 4 |
+
+Step 1 calls two hosts, step 3 calls hosts whose addresses come from step 2, and step 5 compares the answers from different managers. This chain is why the pack is built with the Integration SDK ([part 1](/posts/nsx-federation-management-pack-design/#step-6-the-build-route)).
+
 ### Versions and upgrades
 
 NSX Federation is upgraded in a fixed order: the standby Global Manager, the active one, then the Local Managers. Three conditions break that order or block operations, and each has an alert:

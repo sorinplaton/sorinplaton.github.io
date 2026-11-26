@@ -209,11 +209,21 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
   -keyout certs/registry.key -out certs/registry.crt -subj "/CN=fedmp-registry" \
   -addext "subjectAltName=IP:<jump-host-ip>"
 
-docker run -d --name fedmp-registry -p <jump-host-ip>:5000:5000 \
+docker run -d --name fedmp-registry --restart unless-stopped -p <jump-host-ip>:5000:5000 \
   -v registry-data:/var/lib/registry -v $PWD/certs:/certs:ro \
   -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt \
   -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry:2
 ```
+
+Check, from the jump host:
+
+```bash
+curl --cacert certs/registry.crt https://<jump-host-ip>:5000/v2/_catalog
+```
+
+A new registry answers `{"repositories":[]}`. It stays empty until the build pushes the adapter image.
+
+The address in the certificate is the one the cloud proxy uses to reach the registry. The same address names the certificate folder in step 2, and `tools/repack.py` writes it into the pack. A registry moved to another host therefore needs a new certificate, a new folder on the cloud proxy and a rewritten pack.
 
 The first registry in the lab served plain HTTP. With it, the adapter instance went from `STARTING` to `FAILED` with an empty status message, and the registry log showed no request at all.
 

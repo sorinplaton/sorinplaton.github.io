@@ -209,11 +209,21 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
   -keyout certs/registry.key -out certs/registry.crt -subj "/CN=fedmp-registry" \
   -addext "subjectAltName=IP:<ip-jumphost>"
 
-docker run -d --name fedmp-registry -p <ip-jumphost>:5000:5000 \
+docker run -d --name fedmp-registry --restart unless-stopped -p <ip-jumphost>:5000:5000 \
   -v registry-data:/var/lib/registry -v $PWD/certs:/certs:ro \
   -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt \
   -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry:2
 ```
+
+Vérification, depuis le jumphost :
+
+```bash
+curl --cacert certs/registry.crt https://<ip-jumphost>:5000/v2/_catalog
+```
+
+Un registre neuf répond `{"repositories":[]}`. Il reste vide jusqu'à ce que le build y pousse l'image de l'adaptateur.
+
+L'adresse inscrite dans le certificat est celle que le proxy cloud utilise pour joindre le registre. La même adresse donne son nom au dossier du certificat de l'étape 2, et `tools/repack.py` l'inscrit dans le pack. Un registre déplacé sur un autre hôte demande donc un nouveau certificat, un nouveau dossier sur le proxy cloud et un pack réécrit.
 
 Le premier registre du lab servait du HTTP en clair. Avec lui, l'instance d'adaptateur est passée de `STARTING` à `FAILED` avec un message d'état vide, et le journal du registre ne contenait aucune requête.
 

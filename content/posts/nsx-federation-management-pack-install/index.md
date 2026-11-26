@@ -35,6 +35,8 @@ The lab is the federation described in [part 1](/posts/nsx-federation-management
 
 ![The part 2 lab: the active Global Manager nsx-gm-01a and the standby nsx-gm-01b, the locations site-a-wld01 and site-a-wld03 with their Local Managers and two-node edge clusters linked by RTEP, VCF Operations with the cloud proxy opscollector-01a, and the jump host that builds the pack and serves its image through the lab router](/images/nsx-federation-mp/lab-topology.svg?v=7)
 
+The NSX Federation adapter in the drawing is the collector of the pack: a container that runs on the cloud proxy, reads the Global Managers and the Local Managers through the NSX API, and sends the result to VCF Operations.
+
 The standby was deployed from the same 9.1.1 appliance as the active Global Manager, in the Small size, on the cluster of `site-a-wld03`, with an address and a DNS record in the management network.
 
 It was registered on the active Global Manager through the API, as `gm-site-b` in STANDBY mode, with its address, admin credentials and certificate thumbprint (`PUT /global-manager/api/v1/global-infra/global-managers/gm-site-b`). The first full sync completed within minutes.

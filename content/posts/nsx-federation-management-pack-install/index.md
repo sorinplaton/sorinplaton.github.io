@@ -174,11 +174,39 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 sudo docker run --rm hello-world
 ```
 
-The commands in the steps that follow read the jump host address from one variable, `IP`. It is the address the cloud proxy uses to reach the registry. `10.x.x.x` has to be replaced with that address, and the variable set again in every new shell:
+The addresses, names and passwords that the commands need are kept in one settings file, `~/fedmp.env`. The commands in the steps that follow therefore contain no address and no password. The repository has an example to copy and fill in:
+
+*Run on: the jump host.*
 
 ```bash
-IP=10.x.x.x
+cd ~
+git clone https://github.com/sorinplaton/vcf-ops-nsx-federation-mp.git
+cp vcf-ops-nsx-federation-mp/install/fedmp.env.example ~/fedmp.env && chmod 600 ~/fedmp.env
+nano ~/fedmp.env
 ```
+
+The file sets these values, among others. `IP` is the address the cloud proxy uses to reach the registry:
+
+*Found in: `~/fedmp.env` on the jump host.*
+
+```bash
+IP=10.x.x.x                        # jump host address
+VERSION=1.13.0                     # pack version, as in pack/manifest.txt
+GOVC_URL=vcenter.example.com       # vCenter that runs the cloud proxy VM
+GOVC_USERNAME='administrator@vsphere.local'
+GOVC_PASSWORD='<password>'
+GOVC_INSECURE=1
+PROXY_VM=cloud-proxy-vm-name
+PROXY_ROOT_PW='<root password of the cloud proxy>'
+```
+
+In steps 1 to 3, the commands start with a line that loads the file and exports its values:
+
+```bash
+set -a; source ~/fedmp.env; set +a
+```
+
+The file holds passwords. Only its owner can read it, and `fedmp.env` is listed in the repository's `.gitignore`.
 
 Two more tools are only needed for some steps, and can sit on another host:
 
@@ -218,7 +246,7 @@ In production the image goes to the registry already in place (Harbor, for examp
 *Run on: the jump host.*
 
 ```bash
-IP=10.x.x.x
+set -a; source ~/fedmp.env; set +a
 mkdir -p ~/fedmp-registry/certs && cd ~/fedmp-registry
 openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
   -keyout certs/registry.key -out certs/registry.crt -subj "/CN=fedmp-registry" \
@@ -252,9 +280,8 @@ A packet capture on the registry port showed why: the cloud proxy opened a conne
 *Run on: the jump host.*
 
 ```bash
-IP=10.x.x.x
-git clone --branch v1.13.0 https://github.com/sorinplaton/vcf-ops-nsx-federation-mp.git
-cd vcf-ops-nsx-federation-mp
+set -a; source ~/fedmp.env; set +a
+cd ~/vcf-ops-nsx-federation-mp
 sudo docker build -t fedmp-tooling tooling
 
 sudo docker run --rm --network host -u $(id -u):$(getent group docker | cut -d: -f3) -e HOME=$PWD/.sdkhome \
@@ -262,7 +289,7 @@ sudo docker run --rm --network host -u $(id -u):$(getent group docker | cut -d: 
   fedmp-tooling mp-build --no-ttl -r localhost:5000/nsxfederation \
   --registry-username lab --registry-password lab
 
-python3 tools/repack.py pack/build/NSXFederation_1.13.0.pak $IP:5000 nsxfederation
+python3 tools/repack.py pack/build/NSXFederation_$VERSION.pak $IP:5000 nsxfederation
 curl -sk https://$IP:5000/v2/nsxfederation/tags/list
 ```
 
@@ -298,14 +325,12 @@ The cloud proxy runs Docker, and Docker trusts a private registry when its certi
 
 SSH is disabled on the cloud proxy and stayed so. The file was written through vCenter guest operations, with `govc` and the appliance root account. The lab used `govc guest.run`. The two commands below do the same with `guest.mkdir` and `guest.upload`:
 
-*Run on: any host with `govc` and access to the vCenter that runs the cloud proxy VM.*
+*Run on: the jump host, with `govc` and access to the vCenter that runs the cloud proxy VM.*
 
 ```bash
-IP=10.x.x.x
-export GOVC_URL=<vcenter> GOVC_USERNAME=<user> GOVC_PASSWORD='<password>' GOVC_INSECURE=1
-VM=<cloud-proxy-vm-name>
-govc guest.mkdir -vm "$VM" -l 'root:<proxy-root-password>' -p /etc/docker/certs.d/$IP:5000
-govc guest.upload -vm "$VM" -l 'root:<proxy-root-password>' -f ~/fedmp-registry/certs/registry.crt \
+set -a; source ~/fedmp.env; set +a
+govc guest.mkdir -vm "$PROXY_VM" -l "root:$PROXY_ROOT_PW" -p /etc/docker/certs.d/$IP:5000
+govc guest.upload -vm "$PROXY_VM" -l "root:$PROXY_ROOT_PW" -f ~/fedmp-registry/certs/registry.crt \
   /etc/docker/certs.d/$IP:5000/ca.crt
 ```
 

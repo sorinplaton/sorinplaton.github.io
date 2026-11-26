@@ -139,7 +139,7 @@ Nine list views cover locations, sync channels, RTEP tunnels, Tier-0 BGP neighbo
 
 ## Install the pack
 
-The install has two parts: build the adapter on the jump host, then install it in VCF Operations in five steps.
+The install runs in six steps, from a jump host that builds the adapter and serves its image.
 
 ![Build and deployment of the pack: the GitHub repository is cloned on the jump host, the tooling container builds the image and the .pak, the image goes to the HTTPS registry on the jump host, the .pak is installed in VCF Operations with the unsigned PAK switch on, the account deploys the adapter on the cloud proxy, which pulls the image by digest through the lab router, reads the Global Managers and Local Managers over their REST API, and sends the data to the analytics node](/images/nsx-federation-mp/build-topology.svg?v=11)
 
@@ -147,18 +147,42 @@ The install has two parts: build the adapter on the jump host, then install it i
 
 The jump host builds the pack, runs the tests and serves the image. Before the build it needs:
 
-- **Linux with Docker Engine**, and a user in the `docker` group. The SDK tools, the tests and the registry run in containers.
+- **Linux with Docker Engine**. The SDK tools, the tests and the registry run in containers. The commands in this section are written for a fresh Ubuntu.
 - **`git`**, to clone the repository.
 - **Python 3**, any recent version, for the scripts that run outside the tooling image: `tools/gen_*.py` (alerts, dashboards, views, groups) and `tools/repack.py`.
 - **`openssl`**, to create the registry certificate (step 1).
-- **Root access**, once, to copy that certificate to `/etc/docker/certs.d/<registry>/ca.crt`. The jump host's own Docker must trust the registry before it can push the image.
+- **Root access through `sudo`**, for the package install and for the `docker` commands. The commands carry `sudo` where they need it, so the user does not have to be in the `docker` group.
 - **Outbound access** to GitHub, Docker Hub and PyPI, for the repository, the `python:3.11-slim` and `registry:2` images and the SDK package.
 - **TCP 443 to every NSX manager**, the Global Managers and the Local Managers, for the local test run (`tools/localrun.py`).
 - **The registry port open to the cloud proxy**, 5000 in the lab. Here the cloud proxy reaches it through the lab router.
 
+On a fresh Ubuntu, the tools install as follows. Docker comes from the Docker repository, so that `docker build` uses BuildKit.
+
+*Run on: the jump host.*
+
+```bash
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl git openssl python3 python3-requests
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
+sudo docker run --rm hello-world
+```
+
+The commands in the steps that follow read the jump host address from one variable, `IP`. It is the address the cloud proxy uses to reach the registry. `10.x.x.x` has to be replaced with that address, and the variable set again in every new shell:
+
+```bash
+IP=10.x.x.x
+```
+
 Two more tools are only needed for some steps, and can sit on another host:
 
-- `govc` and access to the vCenter that runs the cloud proxy VM, to copy the certificate to the cloud proxy (step 2).
+- `govc` and access to the vCenter that runs the cloud proxy VM, to copy the certificate to the cloud proxy (step 3).
 - `google-chrome`, `node` and the Python `requests` module, for the scripted install of the unsigned pack (optional, see docs/INSTALL.md in the repository), with HTTPS access to VCF Operations.
 
 ### Build the adapter
@@ -181,55 +205,80 @@ The adapter code is in two Python files:
 | `nsxclient.py` | A read-only NSX REST client with cursor paging, a call budget per manager, back-off on HTTP 429 and 503, a certificate check by SHA-256 fingerprint or by CA chain and host name, and a small on-disk cache for slow-moving data |
 | `adapter.py` | The object model, the collection logic and the events |
 
-The `.pak` file carries the object definitions and a pointer to the adapter image, which the cloud proxy pulls from the registry when the adapter instance starts. `mp-build` builds the pack and pushes the adapter image to the registry. The registry of install step 1 must therefore be running, and trusted by the jump host's Docker, before the build. The full command is in step 4 of [docs/INSTALL.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.md).
+The `.pak` file carries the object definitions and a pointer to the adapter image, which the cloud proxy pulls from the registry when the adapter instance starts. `mp-build` builds the pack and pushes the adapter image to the registry. The build commands are step 2 of the install, because they push the image to the registry of step 1.
 
-When the registry address is given as `host:port`, `mp-build` writes Docker Hub into the pack instead of that address. A short script, `tools/repack.py`, rewrites two values, `REGISTRY` and `REPOSITORY`, in the `.conf` file inside `adapter.zip`:
-
-*Found in: the `.conf` file inside `adapter.zip` in the `.pak`, rewritten by `tools/repack.py` on the jump host.*
-
-```
-REGISTRY=<jump-host-ip>:5000
-REPOSITORY=/nsxfederation
-DIGEST=sha256:dd80...b4cb
-```
-
-The five steps below are in the order that works. Each failure the lab hit is described under the step that prevents it.
+The six steps below are in the order that works. Each failure the lab hit is described under the step that prevents it.
 
 ### Step 1: serve the registry over HTTPS
 
 The cloud proxy talks to the registry over HTTPS only.
 
-In production the image goes to the registry already in place (Harbor, for example). When its certificate comes from an authority the cloud proxy already trusts, step 2 is not needed. The lab has no such registry, so it runs a `registry:2` container on the jump host with a self-signed certificate:
+In production the image goes to the registry already in place (Harbor, for example). When its certificate comes from an authority the cloud proxy already trusts, step 3 is not needed. The lab has no such registry, so it runs a `registry:2` container on the jump host with a self-signed certificate:
 
 *Run on: the jump host.*
 
 ```bash
-mkdir -p certs
+IP=10.x.x.x
+mkdir -p ~/fedmp-registry/certs && cd ~/fedmp-registry
 openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
   -keyout certs/registry.key -out certs/registry.crt -subj "/CN=fedmp-registry" \
-  -addext "subjectAltName=IP:<jump-host-ip>"
+  -addext "subjectAltName=IP:$IP,IP:127.0.0.1,DNS:localhost"
 
-docker run -d --name fedmp-registry --restart unless-stopped -p <jump-host-ip>:5000:5000 \
+sudo docker run -d --name fedmp-registry --restart unless-stopped \
+  -p $IP:5000:5000 -p 127.0.0.1:5000:5000 \
   -v registry-data:/var/lib/registry -v $PWD/certs:/certs:ro \
   -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt \
   -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry:2
 ```
 
+The build pushes the image to `localhost:5000`. The certificate therefore also names `127.0.0.1` and `localhost`, and the registry listens on the local address as well.
+
 Check, from the jump host:
 
 ```bash
-curl --cacert certs/registry.crt https://<jump-host-ip>:5000/v2/_catalog
+curl --cacert ~/fedmp-registry/certs/registry.crt https://$IP:5000/v2/_catalog
 ```
 
 A new registry answers `{"repositories":[]}`. It stays empty until the build pushes the adapter image.
 
-The address in the certificate is the one the cloud proxy uses to reach the registry. The same address names the certificate folder in step 2, and `tools/repack.py` writes it into the pack. A registry moved to another host therefore needs a new certificate, a new folder on the cloud proxy and a rewritten pack.
+The address in the certificate is the one the cloud proxy uses to reach the registry. The same address names the certificate folder in step 3, and `tools/repack.py` writes it into the pack. A registry moved to another host therefore needs a new certificate, a new folder on the cloud proxy and a rewritten pack.
 
 The first registry in the lab served plain HTTP. With it, the adapter instance went from `STARTING` to `FAILED` with an empty status message, and the registry log showed no request at all.
 
 A packet capture on the registry port showed why: the cloud proxy opened a connection and sent a TLS hello. It does not fall back to HTTP, so the registry was recreated with the certificate above.
 
-### Step 2: make the cloud proxy trust the registry certificate
+### Step 2: build the pack and push the image
+
+*Run on: the jump host.*
+
+```bash
+IP=10.x.x.x
+git clone --branch v1.13.0 https://github.com/sorinplaton/vcf-ops-nsx-federation-mp.git
+cd vcf-ops-nsx-federation-mp
+sudo docker build -t fedmp-tooling tooling
+
+sudo docker run --rm --network host -u $(id -u):$(getent group docker | cut -d: -f3) -e HOME=$PWD/.sdkhome \
+  -v /var/run/docker.sock:/var/run/docker.sock -v $(which docker):/usr/bin/docker -v $PWD:$PWD -w $PWD/pack \
+  fedmp-tooling mp-build --no-ttl -r localhost:5000/nsxfederation \
+  --registry-username lab --registry-password lab
+
+python3 tools/repack.py pack/build/NSXFederation_1.13.0.pak $IP:5000 nsxfederation
+curl -sk https://$IP:5000/v2/nsxfederation/tags/list
+```
+
+The image is pushed to `localhost:5000`. Docker accepts the self-signed certificate of a registry on the local address, so the jump host needs no certificate folder of its own. The registry of step 1 has no login. `mp-build` still asks for a user and a password, and any value works. The last command lists the version that was pushed.
+
+When the registry address is given as `host:port`, `mp-build` writes Docker Hub into the pack instead of that address. A short script, `tools/repack.py`, rewrites two values, `REGISTRY` and `REPOSITORY`, in the `.conf` file inside `adapter.zip`. It writes the address the cloud proxy uses, `$IP:5000`:
+
+*Found in: the `.conf` file inside `adapter.zip` in the `.pak`, rewritten by `tools/repack.py` on the jump host.*
+
+```
+REGISTRY=10.x.x.x:5000
+REPOSITORY=/nsxfederation
+DIGEST=sha256:dd80...b4cb
+```
+
+### Step 3: make the cloud proxy trust the registry certificate
 
 This step applies to a registry whose certificate the cloud proxy does not trust yet, such as the self-signed one of the lab. Without that trust, the registry log shows this (10.0.6.33 is the lab router, which hides the cloud proxy behind NAT):
 
@@ -244,14 +293,25 @@ The cloud proxy runs Docker, and Docker trusts a private registry when its certi
 *Found on: the cloud proxy `opscollector-01a`.*
 
 ```
-/etc/docker/certs.d/<jump-host-ip>:5000/ca.crt
+/etc/docker/certs.d/10.x.x.x:5000/ca.crt
 ```
 
-SSH is disabled on the cloud proxy and stayed so. The file was written through vCenter guest operations (`govc guest.run` with the appliance root account).
+SSH is disabled on the cloud proxy and stayed so. The file was written through vCenter guest operations, with `govc` and the appliance root account. The lab used `govc guest.run`. The two commands below do the same with `guest.mkdir` and `guest.upload`:
+
+*Run on: any host with `govc` and access to the vCenter that runs the cloud proxy VM.*
+
+```bash
+IP=10.x.x.x
+export GOVC_URL=<vcenter> GOVC_USERNAME=<user> GOVC_PASSWORD='<password>' GOVC_INSECURE=1
+VM=<cloud-proxy-vm-name>
+govc guest.mkdir -vm "$VM" -l 'root:<proxy-root-password>' -p /etc/docker/certs.d/$IP:5000
+govc guest.upload -vm "$VM" -l 'root:<proxy-root-password>' -f ~/fedmp-registry/certs/registry.crt \
+  /etc/docker/certs.d/$IP:5000/ca.crt
+```
 
 An upgrade or a redeploy of the cloud proxy may remove this file.
 
-### Step 3: install the unsigned pack
+### Step 4: install the unsigned pack
 
 The pack is not signed by Broadcom. The upload through the appliance API fails:
 
@@ -282,7 +342,7 @@ After the install, the adapter kind `NSXFederation` and the solution `iSDK_NSXFe
 
 ![Administration, Integrations, Repository: the NSX Federation pack, version 1.13.0, with one account](/images/nsx-federation-mp/ops-repository-pack.webp?v=9)
 
-### Step 4: create the account
+### Step 5: create the account
 
 The adapter instance is called an account in the VCF Operations UI. Create it under Administration, Integrations, Accounts, as an account of the type NSX Federation, with the cloud proxy as its collector.
 
@@ -310,7 +370,7 @@ With the registry trusted, the cloud proxy pulls the image when the instance sta
 
 ![Administration, Integrations, Accounts: the account "NSX Federation - nsx-gm-01a" with the status Collecting, on the cloud proxy opscollector-01a](/images/nsx-federation-mp/ops-account-collecting.webp)
 
-### Step 5: wait three collection cycles
+### Step 6: wait three collection cycles
 
 The data does not arrive at once. With a five-minute interval:
 

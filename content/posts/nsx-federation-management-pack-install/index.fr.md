@@ -139,7 +139,7 @@ Neuf vues de type liste portent sur les emplacements, les canaux de synchronisat
 
 ## Installer le pack
 
-L'installation se fait en deux temps : construire l'adaptateur sur le jumphost, puis l'installer dans VCF Operations en cinq étapes.
+L'installation se fait en six étapes, depuis un jumphost qui construit l'adaptateur et sert son image.
 
 ![Construction et déploiement du pack : le dépôt GitHub est cloné sur le jumphost, le conteneur d'outillage construit l'image et le .pak, l'image part vers le registre HTTPS du jumphost, le .pak est installé dans VCF Operations avec l'option PAK non signé activée, le compte déploie l'adaptateur sur le proxy cloud, qui tire l'image par son digest à travers le routeur du lab, lit les Global Managers et les Local Managers par leur API REST et envoie les données au nœud d'analyse](/images/nsx-federation-mp/build-topology.fr.svg?v=13)
 
@@ -147,18 +147,42 @@ L'installation se fait en deux temps : construire l'adaptateur sur le jumphost,
 
 Le jumphost construit le pack, exécute les tests et sert l'image. Avant la construction, il lui faut :
 
-- **Linux avec Docker Engine**, et un utilisateur membre du groupe `docker`. Les outils du SDK, les tests et le registre tournent dans des conteneurs.
+- **Linux avec Docker Engine**. Les outils du SDK, les tests et le registre tournent dans des conteneurs. Les commandes de cette section sont écrites pour un Ubuntu fraîchement installé.
 - **`git`**, pour cloner le dépôt.
 - **Python 3**, dans une version récente quelconque, pour les scripts qui tournent hors de l'image d'outillage : `tools/gen_*.py` (alertes, tableaux de bord, vues, groupes) et `tools/repack.py`.
 - **`openssl`**, pour créer le certificat du registre (étape 1).
-- **Un accès root**, une seule fois, pour copier ce certificat dans `/etc/docker/certs.d/<registre>/ca.crt`. Le Docker du jumphost doit lui aussi faire confiance au registre avant de pouvoir y pousser l'image.
+- **Un accès root par `sudo`**, pour l'installation des paquets et pour les commandes `docker`. Les commandes sont préfixées par `sudo` là où il le faut : l'utilisateur n'a donc pas besoin d'être membre du groupe `docker`.
 - **Un accès sortant** vers GitHub, Docker Hub et PyPI, pour le dépôt, les images `python:3.11-slim` et `registry:2` et le paquet du SDK.
 - **TCP 443 vers chaque manager NSX**, Global Managers et Local Managers, pour l'exécution locale des tests (`tools/localrun.py`).
 - **Le port du registre ouvert au proxy cloud**, 5000 dans le lab. Ici, le proxy cloud l'atteint à travers le routeur du lab.
 
+Sur un Ubuntu fraîchement installé, les outils s'installent comme suit. Docker vient du dépôt Docker, pour que `docker build` utilise BuildKit.
+
+*À exécuter sur : le jumphost.*
+
+```bash
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl git openssl python3 python3-requests
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
+sudo docker run --rm hello-world
+```
+
+Les commandes des étapes qui suivent lisent l'adresse du jumphost dans une seule variable, `IP`. C'est l'adresse que le proxy cloud utilise pour joindre le registre. Il faut remplacer `10.x.x.x` par cette adresse, et redéfinir la variable dans chaque nouveau shell :
+
+```bash
+IP=10.x.x.x
+```
+
 Deux autres outils ne servent qu'à certaines étapes et peuvent se trouver sur un autre hôte :
 
-- `govc`, avec un accès au vCenter qui héberge la VM du proxy cloud, pour copier le certificat sur le proxy cloud (étape 2).
+- `govc`, avec un accès au vCenter qui héberge la VM du proxy cloud, pour copier le certificat sur le proxy cloud (étape 3).
 - `google-chrome`, `node` et le module Python `requests`, pour l'installation scriptée du pack non signé (facultative, voir docs/INSTALL.fr.md dans le dépôt), avec un accès HTTPS à VCF Operations.
 
 ### Construire l'adaptateur
@@ -181,55 +205,80 @@ Le code de l'adaptateur tient en deux fichiers Python :
 | `nsxclient.py` | Un client REST NSX en lecture seule, avec pagination par curseur, quota d'appels par manager, nouvelle tentative après attente sur les codes HTTP 429 et 503, contrôle du certificat par empreinte SHA-256 ou par chaîne de certification et nom d'hôte, et petit cache sur disque pour les données qui changent peu |
 | `adapter.py` | Le modèle d'objets, la logique de collecte et les événements |
 
-Le fichier `.pak` contient les définitions d'objets et une référence à l'image de l'adaptateur, que le proxy cloud récupère dans le registre au démarrage de l'instance d'adaptateur. `mp-build` construit le pack et pousse l'image de l'adaptateur vers le registre. Le registre de l'étape 1 de l'installation doit donc déjà tourner, et le Docker du jumphost doit lui faire confiance, avant la construction. La commande complète figure à l'étape 4 de [docs/INSTALL.fr.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/INSTALL.fr.md).
+Le fichier `.pak` contient les définitions d'objets et une référence à l'image de l'adaptateur, que le proxy cloud récupère dans le registre au démarrage de l'instance d'adaptateur. `mp-build` construit le pack et pousse l'image de l'adaptateur vers le registre. Les commandes de construction forment l'étape 2 de l'installation, parce qu'elles poussent l'image vers le registre de l'étape 1.
 
-Lorsque l'adresse du registre est donnée sous la forme `host:port`, `mp-build` inscrit Docker Hub dans le pack au lieu de cette adresse. Un court script, `tools/repack.py`, réécrit deux valeurs, `REGISTRY` et `REPOSITORY`, dans le fichier `.conf` que contient `adapter.zip` :
-
-*Se trouve dans : le fichier `.conf` de `adapter.zip`, dans le `.pak`, réécrit par `tools/repack.py` sur le jumphost.*
-
-```
-REGISTRY=<ip-jumphost>:5000
-REPOSITORY=/nsxfederation
-DIGEST=sha256:dd80...b4cb
-```
-
-Les cinq étapes ci-dessous suivent l'ordre qui fonctionne. Chaque échec rencontré dans le lab est décrit sous l'étape qui l'évite.
+Les six étapes ci-dessous suivent l'ordre qui fonctionne. Chaque échec rencontré dans le lab est décrit sous l'étape qui l'évite.
 
 ### Étape 1 : servir le registre en HTTPS
 
 Le proxy cloud ne s'adresse au registre qu'en HTTPS.
 
-En production, l'image va dans le registre déjà en place (Harbor, par exemple). Si son certificat est émis par une autorité que le proxy cloud approuve déjà, l'étape 2 est inutile. Le lab n'a pas de tel registre : il utilise donc un conteneur `registry:2` sur le jumphost, avec un certificat autosigné :
+En production, l'image va dans le registre déjà en place (Harbor, par exemple). Si son certificat est émis par une autorité que le proxy cloud approuve déjà, l'étape 3 est inutile. Le lab n'a pas de tel registre : il utilise donc un conteneur `registry:2` sur le jumphost, avec un certificat autosigné :
 
 *À exécuter sur : le jumphost.*
 
 ```bash
-mkdir -p certs
+IP=10.x.x.x
+mkdir -p ~/fedmp-registry/certs && cd ~/fedmp-registry
 openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
   -keyout certs/registry.key -out certs/registry.crt -subj "/CN=fedmp-registry" \
-  -addext "subjectAltName=IP:<ip-jumphost>"
+  -addext "subjectAltName=IP:$IP,IP:127.0.0.1,DNS:localhost"
 
-docker run -d --name fedmp-registry --restart unless-stopped -p <ip-jumphost>:5000:5000 \
+sudo docker run -d --name fedmp-registry --restart unless-stopped \
+  -p $IP:5000:5000 -p 127.0.0.1:5000:5000 \
   -v registry-data:/var/lib/registry -v $PWD/certs:/certs:ro \
   -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt \
   -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key registry:2
 ```
 
+Le build pousse l'image vers `localhost:5000`. Le certificat contient donc aussi `127.0.0.1` et `localhost`, et le registre écoute également sur l'adresse locale.
+
 Vérification, depuis le jumphost :
 
 ```bash
-curl --cacert certs/registry.crt https://<ip-jumphost>:5000/v2/_catalog
+curl --cacert ~/fedmp-registry/certs/registry.crt https://$IP:5000/v2/_catalog
 ```
 
 Un registre neuf répond `{"repositories":[]}`. Il reste vide jusqu'à ce que le build y pousse l'image de l'adaptateur.
 
-L'adresse inscrite dans le certificat est celle que le proxy cloud utilise pour joindre le registre. La même adresse donne son nom au dossier du certificat de l'étape 2, et `tools/repack.py` l'inscrit dans le pack. Un registre déplacé sur un autre hôte demande donc un nouveau certificat, un nouveau dossier sur le proxy cloud et un pack réécrit.
+L'adresse inscrite dans le certificat est celle que le proxy cloud utilise pour joindre le registre. La même adresse donne son nom au dossier du certificat de l'étape 3, et `tools/repack.py` l'inscrit dans le pack. Un registre déplacé sur un autre hôte demande donc un nouveau certificat, un nouveau dossier sur le proxy cloud et un pack réécrit.
 
 Le premier registre du lab servait du HTTP en clair. Avec lui, l'instance d'adaptateur est passée de `STARTING` à `FAILED` avec un message d'état vide, et le journal du registre ne contenait aucune requête.
 
 Une capture de paquets sur le port du registre en a donné la raison : le proxy cloud ouvrait une connexion et envoyait un ClientHello TLS. Il ne se rabat pas sur HTTP, et le registre a donc été recréé avec le certificat ci-dessus.
 
-### Étape 2 : faire approuver le certificat du registre par le proxy cloud
+### Étape 2 : construire le pack et pousser l'image
+
+*À exécuter sur : le jumphost.*
+
+```bash
+IP=10.x.x.x
+git clone --branch v1.13.0 https://github.com/sorinplaton/vcf-ops-nsx-federation-mp.git
+cd vcf-ops-nsx-federation-mp
+sudo docker build -t fedmp-tooling tooling
+
+sudo docker run --rm --network host -u $(id -u):$(getent group docker | cut -d: -f3) -e HOME=$PWD/.sdkhome \
+  -v /var/run/docker.sock:/var/run/docker.sock -v $(which docker):/usr/bin/docker -v $PWD:$PWD -w $PWD/pack \
+  fedmp-tooling mp-build --no-ttl -r localhost:5000/nsxfederation \
+  --registry-username lab --registry-password lab
+
+python3 tools/repack.py pack/build/NSXFederation_1.13.0.pak $IP:5000 nsxfederation
+curl -sk https://$IP:5000/v2/nsxfederation/tags/list
+```
+
+L'image est poussée vers `localhost:5000`. Docker accepte le certificat autosigné d'un registre joint par l'adresse locale : le jumphost n'a donc pas besoin de son propre dossier de certificat. Le registre de l'étape 1 ne demande aucune authentification. `mp-build` demande quand même un utilisateur et un mot de passe, et n'importe quelle valeur convient. La dernière commande liste la version poussée.
+
+Lorsque l'adresse du registre est donnée sous la forme `host:port`, `mp-build` inscrit Docker Hub dans le pack au lieu de cette adresse. Un court script, `tools/repack.py`, réécrit deux valeurs, `REGISTRY` et `REPOSITORY`, dans le fichier `.conf` que contient `adapter.zip`. Il y inscrit l'adresse que le proxy cloud utilise, `$IP:5000` :
+
+*Se trouve dans : le fichier `.conf` de `adapter.zip`, dans le `.pak`, réécrit par `tools/repack.py` sur le jumphost.*
+
+```
+REGISTRY=10.x.x.x:5000
+REPOSITORY=/nsxfederation
+DIGEST=sha256:dd80...b4cb
+```
+
+### Étape 3 : faire approuver le certificat du registre par le proxy cloud
 
 Cette étape concerne un registre dont le proxy cloud n'approuve pas encore le certificat, comme le certificat autosigné du lab. Tant qu'il ne l'approuve pas, le journal du registre affiche l'erreur suivante (10.0.6.33 est le routeur du lab, qui masque le proxy cloud par NAT) :
 
@@ -244,14 +293,25 @@ Le proxy cloud exécute Docker, et Docker approuve un registre privé dès lors 
 *Se trouve sur : le proxy cloud `opscollector-01a`.*
 
 ```
-/etc/docker/certs.d/<ip-jumphost>:5000/ca.crt
+/etc/docker/certs.d/10.x.x.x:5000/ca.crt
 ```
 
-SSH est désactivé sur le proxy cloud et l'est resté. Le fichier a été écrit par les opérations invité de vCenter (`govc guest.run` avec le compte root de l'appliance).
+SSH est désactivé sur le proxy cloud et l'est resté. Le fichier a été écrit par les opérations invité de vCenter, avec `govc` et le compte root de l'appliance. Le lab a utilisé `govc guest.run`. Les deux commandes ci-dessous donnent le même résultat avec `guest.mkdir` et `guest.upload` :
+
+*À exécuter sur : tout hôte disposant de `govc` et d'un accès au vCenter qui héberge la VM du proxy cloud.*
+
+```bash
+IP=10.x.x.x
+export GOVC_URL=<vcenter> GOVC_USERNAME=<utilisateur> GOVC_PASSWORD='<mot-de-passe>' GOVC_INSECURE=1
+VM=<nom-de-la-vm-du-proxy-cloud>
+govc guest.mkdir -vm "$VM" -l 'root:<mot-de-passe-root-du-proxy>' -p /etc/docker/certs.d/$IP:5000
+govc guest.upload -vm "$VM" -l 'root:<mot-de-passe-root-du-proxy>' -f ~/fedmp-registry/certs/registry.crt \
+  /etc/docker/certs.d/$IP:5000/ca.crt
+```
 
 Une mise à niveau ou un redéploiement du proxy cloud peut faire disparaître ce fichier.
 
-### Étape 3 : installer le pack non signé
+### Étape 4 : installer le pack non signé
 
 Le pack n'est pas signé par Broadcom. L'envoi par l'API de l'appliance échoue :
 
@@ -282,7 +342,7 @@ Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK
 
 ![Administration > Integrations > Repository : le pack NSX Federation, en version 1.13.0, avec un compte](/images/nsx-federation-mp/ops-repository-pack.webp?v=9)
 
-### Étape 4 : créer le compte
+### Étape 5 : créer le compte
 
 L'interface de VCF Operations appelle l'instance d'adaptateur un compte. Le compte se crée sous « Administration > Integrations > Accounts », avec le type NSX Federation et le proxy cloud comme collecteur.
 
@@ -310,7 +370,7 @@ Une fois le registre approuvé, le proxy cloud récupère l'image au démarrage 
 
 ![Administration > Integrations > Accounts : le compte « NSX Federation - nsx-gm-01a » à l'état Collecting, sur le proxy cloud opscollector-01a](/images/nsx-federation-mp/ops-account-collecting.webp)
 
-### Étape 5 : attendre trois cycles de collecte
+### Étape 6 : attendre trois cycles de collecte
 
 Les données n'arrivent pas toutes en même temps. Avec un intervalle de 5 minutes :
 

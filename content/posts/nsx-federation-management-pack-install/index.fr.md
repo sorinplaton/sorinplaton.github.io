@@ -127,7 +127,7 @@ Location Matrix, avec site-a-wld03 sélectionné. Les deux emplacements sont en 
 
 Switchover Readiness, avec le standby gm-site-b sélectionné. Il est prêt à prendre le relais, synchronisé et dans la même version que le Global Manager actif :
 
-![Le tableau de bord Switchover Readiness : gm-site-a actif et gm-site-b en standby, la fédération avec Ready to take over 1, ainsi que les valeurs clés et les propriétés de gm-site-b avec la capacité à basculer « ready »](/images/nsx-federation-mp/ops-dashboard-switchover.webp)
+![Le tableau de bord Switchover Readiness : gm-site-a actif et gm-site-b en standby, la fédération avec Ready to take over 1, ainsi que les valeurs clés et les propriétés de gm-site-b avec l'état de préparation au switchover « ready »](/images/nsx-federation-mp/ops-dashboard-switchover.webp)
 
 Stretched Objects, avec le segment fed-stretched sélectionné :
 
@@ -276,7 +276,7 @@ Après l'installation, le type d'adaptateur `NSXFederation` et la solution `iSDK
 
 L'interface de VCF Operations appelle l'instance d'adaptateur un compte. Le compte se crée sous « Administration > Integrations > Accounts », avec le type NSX Federation et le proxy cloud comme collecteur.
 
-Il reçoit une ou deux adresses de Global Manager et un jeu d'identifiants, plus un second, facultatif, pour les Local Managers. Avec les deux adresses, le pack suit le rôle actif lorsque les Global Managers basculent. Un compte supervise une seule fédération.
+Il reçoit une ou deux adresses de Global Manager et un jeu d'identifiants, plus un second, facultatif, pour les Local Managers. Avec les deux adresses, le pack suit le rôle actif lors d'un switchover des Global Managers. Un compte supervise une seule fédération.
 
 Les autres réglages sont facultatifs : les stratégies de sécurité dont les règles deviennent des objets, la façon dont le pack fonctionne avec l'intégration NSX native, et la suppression des objets qui ont quitté NSX (désactivée par défaut). [docs/OPERATIONS.md](https://github.com/sorinplaton/vcf-ops-nsx-federation-mp/blob/v1.13.0/docs/OPERATIONS.md) (en anglais) décrit chaque réglage.
 
@@ -428,7 +428,7 @@ L'étape 1 appelle deux hôtes, l'étape 3 appelle des hôtes dont l'adresse vie
 
 NSX Federation se met à niveau dans un ordre fixe : le Standby Global Manager, le Global Manager actif, puis les Local Managers. Trois conditions rompent cet ordre ou bloquent des opérations, et chacune a son alerte :
 
-- les Global Managers exécutent des versions différentes, auquel cas NSX refuse un basculement ;
+- les Global Managers exécutent des versions différentes, auquel cas NSX refuse le switchover ;
 - un emplacement exécute une release plus récente que celle du Global Manager ;
 - une mise à niveau est en cours, en pause ou en échec sur un manager.
 
